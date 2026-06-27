@@ -1,0 +1,17 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "zippp-link",
+  "main": "src/worker.ts",
+  "compatibility_date": "2026-06-26",
+  "observability": {
+    "enabled": true
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "zippp-link-db",
+      "database_id": "ffa576bf-3690-45d0-9e15-9fa4b78719df",
+      "migrations_dir": "migrations"
+    }
+  ]
+}
