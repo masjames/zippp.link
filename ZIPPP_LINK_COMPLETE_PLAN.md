@@ -3,7 +3,7 @@
 
 **For:** Codex (AI Coding Agent) | **Founder:** Adit | **Date:** June 28, 2026
 **Domain:** zippp.link | **Goal:** $2,000 Month-1 Revenue | **Budget:** $0 + Time + Skill
-**Tech Stack:** Cloudflare Workers, Firebase Auth (free tier), Xendit/Midtrans + PayPal
+**Tech Stack:** Vercel static launch app, browser localStorage editor, WhatsApp deep links, QR generation, PayPal/WhatsApp manual payment links
 
 ---
 
@@ -328,7 +328,7 @@ PRO UPGRADE ($12/year or $49 lifetime)
 ### 2. Signup
 - **CRITICAL FIX:** Allow page creation WITHOUT signup. Let users build first, collect email at publish time.
 - Every extra step loses ~50% of users.
-- Use Firebase Auth (free tier) for real Google OAuth.
+- Use a managed auth provider only after the static launch proves demand; the current Vercel launch keeps setup friction at zero.
 
 ### 3. Onboarding — Template Picker
 - Screen immediately after signup shows 4 templates as cards
@@ -858,7 +858,7 @@ Limited: First 100 only
 
 | Day | Action | Hours |
 |---|---|---|
-| Day 1 | Fix real auth (Firebase Auth free tier) + set up payment (Xendit/Midtrans + PayPal) | 12h |
+| Day 1 | Ship Vercel static launch + set up payment links (Xendit/Midtrans + PayPal/WhatsApp) | 12h |
 | Day 2 | Build "Founding Member" pricing page with countdown timer + email templates | 7h |
 | Day 3 | Join 20 Facebook groups + TDA Bronze + UKMINDONESIA.ID + HaiBolu | 5h |
 | Day 4 | Write 3 blog posts (Bahasa Indonesia) + Google Search Console + Analytics | 7h |
@@ -993,7 +993,7 @@ Gratis, no strings attached. Saya lagi test produk dan butuh feedback. 🙏
 
 | Feature | Rationale | Effort |
 |---|---|---|
-| Firebase Auth (real Google OAuth) | Current emulated auth must be replaced | Medium |
+| Optional managed auth after the static launch proves demand | Current emulated auth must be replaced | Medium |
 | Payment processing (Xendit/Midtrans + PayPal) | Without this, $2K is impossible | Medium |
 | 4 page templates (DapurKit, OvenCraft, KopiSpot, StyleLink) | Each template unlocks a niche | High |
 | Template picker UI | Onboarding screen with live previews | Medium |
@@ -1031,7 +1031,7 @@ Gratis, no strings attached. Saya lagi test produk dan butuh feedback. 🙏
 | Chatbot/AI automation | WATI's territory ($49+/mo) |
 | Media kit/brand outreach | Beacons feature for influencers |
 | Courses/memberships | Stan Store niche. Irrelevant. |
-| iOS/Android native app | Cloudflare Workers + mobile web is sufficient |
+| iOS/Android native app | Vercel static hosting + mobile web is sufficient |
 
 ---
 
@@ -1145,13 +1145,13 @@ PAYING CUSTOMER
 - `/upgrade` — Pricing page (Free / Growth yearly $12 / Pro one-time $49)
 
 **Tech:**
-- Cloudflare Workers
+- Vercel static hosting
 - Emulated auth (cookie-based demo session)
 - No real payment processing yet
 - Basic black-and-white wireframe design
 
 **What's needed for launch (Priority order):**
-1. Real Firebase Auth (replace emulated)
+1. Optional managed auth after launch validation
 2. Payment processing (Xendit/Midtrans + PayPal)
 3. Design system implementation (this document)
 4. 4 page templates (DapurKit, OvenCraft, KopiSpot, StyleLink)
