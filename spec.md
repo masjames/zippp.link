@@ -23,6 +23,6 @@ zippp.link is a WhatsApp-first sales page builder for small sellers who close pu
 
 ## Infrastructure
 
-- Cloudflare Worker runtime.
-- Cloudflare D1 database.
+- Vercel static hosting runtime.
+- Browser localStorage for the launch build; managed database can be added after validation.
 - Wrangler deploy flow.
