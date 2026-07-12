@@ -585,8 +585,14 @@ Tracked events (stored in Neon Postgres):
 
 Create `.env.local` from the template:
 
+**macOS/Linux:**
 ```bash
 cp .env.example .env.local
+```
+
+**Windows (PowerShell):**
+```powershell
+Copy-Item .env.example .env.local
 ```
 
 | Variable | Local Value | Production Value |

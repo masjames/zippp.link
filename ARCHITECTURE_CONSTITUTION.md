@@ -33,6 +33,7 @@ Whoever picks up a task reads this file, then the specific doc(s) relevant to th
 - **One main tool per problem.** Don't stack three SaaS tools that do overlapping jobs (see ADR-0002 for the analytics example). If you're about to add a new tool, check whether an existing one in the stack already covers it.
 - **Nothing merges without green CI.** Jest + Playwright run on every PR via GitHub Actions. This is the regression net, see ADR-0003.
 - **Don't build for scale you don't have.** Load testing, custom internal ledgers, and bespoke analytics are all deferred until there's real usage or real revenue to justify them (see ADR-0002, ADR-0003, ADR-0004).
+- **Cross-Platform Compatibility.** All development scripts, path resolutions, and CLI commands must run seamlessly on both **macOS (zsh/bash)** and **Windows (PowerShell/cmd)**. Use Node.js scripts for complex dev automation rather than platform-specific shell scripts.
 
 ## Current stack at a glance
 
