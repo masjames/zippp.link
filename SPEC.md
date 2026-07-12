@@ -23,6 +23,7 @@
 | **Hosting** | Vercel | Preview → Production pipeline (see §10) |
 | **Testing** | Jest + Playwright | Strict TDD — nothing merges without green CI |
 | **Email** | Resend | Transactional email for admin → user contact from Z-CMS |
+| **AI Documentation** | neuledge/context | MCP server for local-first package docs |
 
 ---
 
@@ -550,6 +551,7 @@ Tracked events (stored in Neon Postgres):
 - Node.js 20+ (LTS)
 - Docker & Docker Compose (for local Postgres and MinIO)
 - pnpm (`corepack enable && corepack prepare pnpm@latest --activate`)
+- `@neuledge/context` (MCP server for local-first documentation)
 
 ### Environment Variables
 

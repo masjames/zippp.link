@@ -36,6 +36,6 @@ Whoever picks up a task reads this file, then the specific doc(s) relevant to th
 
 ## Current stack at a glance
 
-Next.js (App Router) · Neon Postgres + Drizzle · NextAuth (Google, RBAC) · Cloudflare R2 · Polar.sh (billing) · Resend (email) · Vercel (deploy) · PostHog (analytics/A-B/flags) · Sentry (errors) · BetterStack/UptimeRobot (uptime) · GitHub Actions (CI) · Wave/spreadsheet (books, pre-revenue) · Z-CMS (internal admin dashboard at `/z-cms/`, see ADR-0005)
+Next.js (App Router) · Neon Postgres + Drizzle · NextAuth (Google, RBAC) · Cloudflare R2 · Polar.sh (billing) · Resend (email) · Vercel (deploy) · PostHog (analytics/A-B/flags) · Sentry (errors) · BetterStack/UptimeRobot (uptime) · GitHub Actions (CI) · Wave/spreadsheet (books, pre-revenue) · Z-CMS (internal admin dashboard at `/z-cms/`, see ADR-0005) · neuledge/context (AI documentation MCP)
 
 Full rationale for each of these lives in `adr/`.
