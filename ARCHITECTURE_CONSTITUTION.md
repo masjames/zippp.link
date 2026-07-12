@@ -21,8 +21,8 @@ Every ADR gets a sequential number. Never renumber or delete a past ADR, if a de
 
 ## Agent roles (multi-agent workflow)
 
-- **Claude**: planning, spec-writing, architecture review, ADR drafting. Owns SPEC.md, ADRs.
-- **Execution Agents**: Vertical feature slicing. Instead of splitting by frontend/backend, an agent owns a full vertical feature (e.g., "Build Store Setup: UI + API + DB schema") to maintain complete context.
+- **Antigravity**: planning, spec-writing, architecture review, ADR drafting. Owns SPEC.md, ADRs.
+- **Antigravity CLI**: execution, vertical feature slicing. Instead of splitting by frontend/backend, an agent/CLI owns a full vertical feature (e.g., "Build Store Setup: UI + API + DB schema") to maintain complete context.
 
 Whoever picks up a task reads this file, then the specific doc(s) relevant to the task, before writing code.
 
