@@ -24,6 +24,9 @@
 | **Testing** | Jest + Playwright | Strict TDD — nothing merges without green CI |
 | **Email** | Resend | Transactional email for admin → user contact from Z-CMS |
 | **AI Documentation** | neuledge/context | MCP server for local-first package docs |
+| **Design Principles** | Refactoring UI, Abby Covert (IA Heuristics) | "De-emphasize to emphasize" visual hierarchy, clear navigation structure to minimize cognitive load |
+| **Color Process** | Interactive Presets | Start with pure B&W. Present 3 curated options (Minimalist Slate, Warm Earth/Cream, Sleek Midnight) for interactive selection |
+
 
 ---
 
@@ -453,6 +456,25 @@ Shows where Seller, Buyer, and Admin journeys intersect:
 - created_at
 ```
 
+--- Community Bulletin Board tables ---
+
+[CommunityThread]
+- id (PK)
+- user_id (FK → User)
+- title
+- body
+- is_feature_request (boolean)
+- status (OPEN, IN_PROGRESS, COMPLETED, REJECTED) DEFAULT 'OPEN'
+- created_at
+
+[CommunityReply]
+- id (PK)
+- thread_id (FK → CommunityThread)
+- user_id (FK → User)
+- body
+- created_at
+```
+
 ---
 
 ## 5. WhatsApp Autotext Order Flow
@@ -541,6 +563,12 @@ Tracked events (stored in Neon Postgres):
 ### D. Shopify Import (Paid Seller Feature)
 - User inputs `store-name.myshopify.com`.
 - Backend fetches `https://store-name.myshopify.com/products.json`, maps to Product schema, bulk inserts into Neon Postgres.
+
+### E. Community Bulletin Board (/community)
+- **Bulletin Board**: A simple forum where authenticated sellers can post feature requests or start discussions.
+- **Admin Feedback Loop**: Admin can mark threads as "IN_PROGRESS", "COMPLETED", or reply directly to user feature requests.
+- **Conversion Value**: Keeps users engaged, collects feature suggestions, and builds a tight loop between the founder and users, proving product value and leading to conversions.
+
 
 
 ---

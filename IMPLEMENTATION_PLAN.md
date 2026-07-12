@@ -12,7 +12,10 @@ Build out the visual structure of the app using Next.js App Router and Tailwind 
 #### 1. Core Layout & Branding
 - Port `landing-page.html` prototype to Next.js page at `src/app/(public)/page.tsx`.
 - Configure fonts (Archivo and Excalifont) in global CSS or next/font.
-- Implement reusable UI components (B&W buttons, grids, input fields).
+- Implement reusable UI components (buttons, grids, input fields) using **Refactoring UI** principles (e.g., using low-contrast grays, smaller text sizes, and light weights to de-emphasize secondary text and make key items pop).
+- Structure page layouts following **Abby Covert's IA principles** to ensure clear findability and navigation.
+- Implement the **Interactive Color Picker**: Start with pure B&W, then create a switcher presenting 3 curated color schemes (1. Minimalist Slate, 2. Warm Earth/Cream, 3. Sleek Midnight) allowing the founder to interactively select the final look.
+
 
 #### 2. Buyer Journey Views (Sandbox Mode)
 - **Public Store Page** (`src/app/(public)/s/[slug]/page.tsx`): Product grid showing mock products (image, name, price, and add button).
@@ -26,8 +29,14 @@ Build out the visual structure of the app using Next.js App Router and Tailwind 
 - **Settings Panel** (`src/app/app/settings/page.tsx`): Four-tab UI (Shopify, Sheets, Branding) locked on free tier with unlock triggers.
 
 #### 4. Admin Z-CMS (Sandbox Mode)
-- **Dashboard Overview** (`src/app/z-cms/page.tsx`): Display aggregate metrics (total users, active stores, MRR).
+- **Dashboard Overview** (`src/app/z-cms/page.tsx`): Display aggregate metrics (total users, active stores, MRR, conversion metrics).
 - **Announcements**: Form to publish banners / dropdown notifications to all seller dashboards.
+
+#### 5. Community Bulletin Board (Sandbox Mode)
+- **Community Forum** (`src/app/community/page.tsx`): Interactive bulletin board page for feature requests, discussion, and user suggestions.
+- **Admin Panel Control**: Admin UI to set status flags (OPEN, IN_PROGRESS, COMPLETED) on threads and reply to posts.
+- **Behavior Tracking**: Embed custom page view and interaction event logging.
+
 
 ---
 
@@ -44,6 +53,8 @@ Integrate local databases and media file uploads.
   - `notifications`
   - `blog_posts`
   - `content_edits`
+  - `community_threads`
+  - `community_replies`
 
 #### 2. Local Services Setup
 - Run Postgres 16 and MinIO using `docker compose up -d` (via the existing `docker-compose.yml`).
