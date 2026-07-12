@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "context": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@neuledge/context",
+        "serve"
+      ]
+    }
+  }
+}

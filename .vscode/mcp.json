@@ -1,0 +1,13 @@
+{
+  "servers": {
+    "context": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@neuledge/context",
+        "serve"
+      ]
+    }
+  }
+}
