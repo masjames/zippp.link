@@ -1,0 +1,75 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg: var(--bg);
+  --color-text: var(--text);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-black: var(--black);
+  --color-white: var(--white);
+
+  --font-sans: var(--font-archivo), sans-serif;
+  --font-heading: var(--font-archivo), sans-serif;
+  --font-accent: var(--font-accent), cursive;
+}
+
+:root {
+  --bg: #FFFFFF;
+  --text: #111827;
+  --border: #E5E7EB;
+  --muted: #6B7280;
+  --black: #000000;
+  --white: #FFFFFF;
+  --font-accent: 'Excalifont', cursive;
+}
+
+html:not([data-theme]), html[data-theme=""] {
+  --bg: #FFFFFF;
+  --text: #111827;
+  --border: #E5E7EB;
+  --muted: #6B7280;
+  --black: #000000;
+  --white: #FFFFFF;
+}
+
+html[data-theme="minimalist-slate"] {
+  --bg: #f4f4f5;
+  --text: #18181b;
+  --border: #e4e4e7;
+  --muted: #71717a;
+  --black: #18181b;
+  --white: #f4f4f5;
+}
+
+html[data-theme="warm-earth"] {
+  --bg: #faf7f2;
+  --text: #443e38;
+  --border: #e6dfd5;
+  --muted: #8c857b;
+  --black: #443e38;
+  --white: #faf7f2;
+}
+
+html[data-theme="sleek-midnight"] {
+  --bg: #09090b;
+  --text: #fafafa;
+  --border: #27272a;
+  --muted: #a1a1aa;
+  --black: #fafafa;
+  --white: #09090b;
+}
+
+/* Custom Base Rules */
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+}
+
+.font-accent {
+  font-family: var(--font-accent);
+}
