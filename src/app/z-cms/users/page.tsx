@@ -1,32 +1,59 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface User {
-  id: number;
-  name: string;
+  id: string;
+  name: string | null;
   email: string;
   plan: "FREE" | "PAID";
   role: "SELLER" | "ADMIN";
+  paidAmount?: string | null;
+  expiresAt?: string | null;
+  createdAt?: string;
 }
 
 export default function UsersPage() {
-  const [users] = useState<User[]>([
-    { id: 1, name: "Mock Seller", email: "seller@example.com", plan: "FREE", role: "SELLER" },
-    { id: 2, name: "Paid Seller", email: "paid-seller@example.com", plan: "PAID", role: "SELLER" },
-    { id: 3, name: "Mock Admin", email: "admin@example.com", plan: "PAID", role: "ADMIN" },
-  ]);
-
+  const [users, setUsers] = useState<User[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [search, setSearch] = useState("");
 
-  const filteredUsers = users.filter((u) =>
-    u.email.toLowerCase().includes(search.toLowerCase()) ||
-    u.name.toLowerCase().includes(search.toLowerCase())
+  useEffect(() => {
+    fetch("/api/admin/users")
+      .then((res) => res.json())
+      .then((data) => {
+        setUsers(Array.isArray(data) ? data : []);
+      })
+      .catch(() => {
+        // Use mock data if API fails
+        setUsers([
+          { id: "mock-1", name: "Mock Seller", email: "seller@example.com", plan: "FREE", role: "SELLER" },
+          { id: "mock-2", name: "Paid Seller", email: "paid@example.com", plan: "PAID", role: "SELLER", paidAmount: "19.00" },
+          { id: "mock-3", name: "Mock Admin", email: "admin@zippp.link", plan: "PAID", role: "ADMIN" },
+        ]);
+      })
+      .finally(() => setIsLoading(false));
+  }, []);
+
+  const filteredUsers = users.filter(
+    (u) =>
+      u.email.toLowerCase().includes(search.toLowerCase()) ||
+      (u.name ?? "").toLowerCase().includes(search.toLowerCase())
   );
+
+  const paidCount = users.filter((u) => u.plan === "PAID").length;
 
   return (
     <div>
-      <h1 className="text-3xl font-black mb-6">User Accounts</h1>
+      <div className="flex justify-between items-start mb-6">
+        <div>
+          <h1 className="text-3xl font-black">User Accounts</h1>
+          <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
+            {users.length} total · {paidCount} paid
+          </p>
+        </div>
+        {isLoading && <span className="text-xs text-zinc-400 animate-pulse">Loading…</span>}
+      </div>
 
       <div className="mb-6 max-w-sm">
         <input
@@ -34,7 +61,7 @@ export default function UsersPage() {
           data-testid="user-search"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search users by name or email..."
+          placeholder="Search users by name or email…"
           className="w-full p-2 border border-zinc-300 dark:border-zinc-700 rounded bg-transparent text-sm"
         />
       </div>
@@ -47,6 +74,8 @@ export default function UsersPage() {
               <th className="p-4">Email</th>
               <th className="p-4">Role</th>
               <th className="p-4">Plan</th>
+              <th className="p-4">Paid</th>
+              <th className="p-4">Joined</th>
             </tr>
           </thead>
           <tbody>
@@ -55,15 +84,37 @@ export default function UsersPage() {
                 key={u.id}
                 className="border-b border-zinc-200 dark:border-zinc-800 last:border-0 hover:bg-zinc-50 dark:hover:bg-zinc-800/30"
               >
-                <td className="p-4 text-sm font-semibold">{u.name}</td>
+                <td className="p-4 text-sm font-semibold">{u.name ?? "—"}</td>
                 <td className="p-4 text-sm text-zinc-600 dark:text-zinc-400">{u.email}</td>
-                <td className="p-4 text-sm text-zinc-600 dark:text-zinc-400">{u.role}</td>
-                <td className="p-4 text-sm font-semibold">{u.plan}</td>
+                <td className="p-4 text-sm">
+                  <span className={`text-xs font-bold px-2 py-0.5 rounded ${
+                    u.role === "ADMIN"
+                      ? "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400"
+                      : "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400"
+                  }`}>
+                    {u.role}
+                  </span>
+                </td>
+                <td className="p-4 text-sm">
+                  <span className={`text-xs font-bold px-2 py-0.5 rounded ${
+                    u.plan === "PAID"
+                      ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
+                      : "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400"
+                  }`}>
+                    {u.plan}
+                  </span>
+                </td>
+                <td className="p-4 text-sm text-zinc-600 dark:text-zinc-400">
+                  {u.paidAmount ? `$${u.paidAmount}` : "—"}
+                </td>
+                <td className="p-4 text-sm text-zinc-500">
+                  {u.createdAt ? new Date(u.createdAt).toLocaleDateString() : "—"}
+                </td>
               </tr>
             ))}
-            {filteredUsers.length === 0 && (
+            {filteredUsers.length === 0 && !isLoading && (
               <tr>
-                <td colSpan={4} className="p-8 text-center text-sm text-zinc-500">
+                <td colSpan={6} className="p-8 text-center text-sm text-zinc-500">
                   No users found matching &quot;{search}&quot;
                 </td>
               </tr>

@@ -1,18 +1,37 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 
 type Tab = "General" | "Branding" | "Integrations" | "Billing";
 
+interface StoreData {
+  id?: number;
+  slug?: string;
+  title?: string;
+  description?: string;
+  waNumber?: string;
+  customWaMessage?: string | null;
+}
+
+interface UserData {
+  plan: "FREE" | "PAID";
+  expiresAt?: string | null;
+  store: StoreData | null;
+}
+
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState<Tab>("General");
   const [isUnlocked, setIsUnlocked] = useState(false);
-  const [upsellStep, setUpsellStep] = useState<number | null>(null); // null, 1, 2
+  const [upsellStep, setUpsellStep] = useState<number | null>(null);
   const [priceInput, setPriceInput] = useState("10");
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<"idle" | "success" | "error">("idle");
+  const [userData, setUserData] = useState<UserData | null>(null);
 
   // Form states — General
   const [storeName, setStoreName] = useState("");
+  const [storeDescription, setStoreDescription] = useState("");
   const [waNumber, setWaNumber] = useState("");
 
   // Form states — Branding
@@ -24,6 +43,74 @@ export default function SettingsPage() {
   const [sheetsSpreadsheet, setSheetsSpreadsheet] = useState("");
   const [sheetsWebhook, setSheetsWebhook] = useState("");
 
+  // Load user data on mount
+  useEffect(() => {
+    fetch("/api/user")
+      .then((res) => res.json())
+      .then((data: UserData) => {
+        setUserData(data);
+        setIsUnlocked(data.plan === "PAID");
+        if (data.store) {
+          setStoreName(data.store.title ?? "");
+          setStoreDescription(data.store.description ?? "");
+          setWaNumber(data.store.waNumber ?? "");
+          setCustomWaMessage(data.store.customWaMessage ?? "");
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const handleSaveGeneral = async () => {
+    setIsSaving(true);
+    setSaveStatus("idle");
+    try {
+      const res = await fetch("/api/store", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: storeName,
+          description: storeDescription,
+          waNumber,
+          customWaMessage: customWaMessage || null,
+        }),
+      });
+      if (res.ok) {
+        const updated = await res.json();
+        setUserData((prev) => prev ? { ...prev, store: updated } : prev);
+        setSaveStatus("success");
+        setTimeout(() => setSaveStatus("idle"), 2000);
+      } else {
+        setSaveStatus("error");
+      }
+    } catch {
+      setSaveStatus("error");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleSaveBranding = async () => {
+    setIsSaving(true);
+    setSaveStatus("idle");
+    try {
+      const res = await fetch("/api/store", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: storeName || userData?.store?.title || "My Store",
+          waNumber: waNumber || userData?.store?.waNumber || "",
+          customWaMessage: customWaMessage || null,
+        }),
+      });
+      setSaveStatus(res.ok ? "success" : "error");
+      if (res.ok) setTimeout(() => setSaveStatus("idle"), 2000);
+    } catch {
+      setSaveStatus("error");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   const handleUnlockClick = () => {
     setUpsellStep(1);
   };
@@ -33,13 +120,16 @@ export default function SettingsPage() {
   };
 
   const handleStep2Pay = () => {
-    setIsUnlocked(true);
-    setUpsellStep(null);
+    // Redirect to Polar checkout with the entered price (in cents)
+    const amountCents = Math.max(1, Math.round(parseFloat(priceInput || "1") * 100));
+    window.location.href = `/api/checkout/polar?amount=${amountCents}`;
   };
 
   const handleDismiss = () => {
     setUpsellStep(null);
   };
+
+  const storeSlug = userData?.store?.slug;
 
   return (
     <div className="min-h-screen bg-[var(--bg)] text-[var(--text)] font-sans">
@@ -58,6 +148,24 @@ export default function SettingsPage() {
       {/* Main Settings Container */}
       <main className="max-w-3xl mx-auto px-4 py-8">
         <h1 className="text-3xl font-black mb-6">Store Settings</h1>
+
+        {/* Store URL display */}
+        {storeSlug && (
+          <div className="mb-6 p-4 border border-[var(--border)] rounded bg-[var(--white)] flex flex-wrap gap-3 items-center justify-between">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-wider text-[var(--muted)] mb-1">Your Store Link</p>
+              <p className="font-mono text-sm font-semibold">/s/{storeSlug}</p>
+            </div>
+            <a
+              href={`/s/${storeSlug}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs font-semibold px-3 py-1.5 border border-[var(--border)] rounded hover:bg-[var(--bg)] transition-all"
+            >
+              Open Store ↗
+            </a>
+          </div>
+        )}
 
         {/* Lock Banner / Message for Free tier */}
         {!isUnlocked && (
@@ -96,6 +204,17 @@ export default function SettingsPage() {
           ))}
         </div>
 
+        {/* Save Status Banner */}
+        {saveStatus !== "idle" && (
+          <div className={`mb-4 px-4 py-2.5 rounded text-sm font-semibold ${
+            saveStatus === "success"
+              ? "bg-green-50 text-green-700 border border-green-200"
+              : "bg-red-50 text-red-700 border border-red-200"
+          }`}>
+            {saveStatus === "success" ? "✓ Saved successfully!" : "✗ Save failed. Please try again."}
+          </div>
+        )}
+
         {/* Tab Content */}
         <div className="bg-[var(--white)] border border-[var(--border)] rounded-lg p-6">
           {activeTab === "General" && (
@@ -113,6 +232,17 @@ export default function SettingsPage() {
                 />
               </div>
               <div>
+                <label className="block text-sm font-semibold mb-2">Store Description</label>
+                <input
+                  type="text"
+                  name="storeDescription"
+                  placeholder="Premium Coffee Beans & Accessories"
+                  value={storeDescription}
+                  onChange={(e) => setStoreDescription(e.target.value)}
+                  className="w-full p-2 border border-[var(--border)] rounded bg-[var(--bg)] text-[var(--text)]"
+                />
+              </div>
+              <div>
                 <label className="block text-sm font-semibold mb-2">WhatsApp Number</label>
                 <input
                   type="text"
@@ -122,11 +252,16 @@ export default function SettingsPage() {
                   onChange={(e) => setWaNumber(e.target.value)}
                   className="w-full p-2 border border-[var(--border)] rounded bg-[var(--bg)] text-[var(--text)]"
                 />
+                <p className="text-xs text-[var(--muted)] mt-1">
+                  Include country code, no spaces or dashes. E.g. 6281234567890
+                </p>
               </div>
               <button
-                className="px-4 py-2 bg-[var(--black)] text-[var(--white)] font-semibold rounded text-sm hover:opacity-90 cursor-pointer"
+                onClick={handleSaveGeneral}
+                disabled={isSaving || !storeName || !waNumber}
+                className="px-4 py-2 bg-[var(--black)] text-[var(--white)] font-semibold rounded text-sm hover:opacity-90 cursor-pointer disabled:opacity-50"
               >
-                Save
+                {isSaving ? "Saving…" : "Save"}
               </button>
             </div>
           )}
@@ -176,10 +311,11 @@ export default function SettingsPage() {
                 />
               </div>
               <button
+                onClick={handleSaveBranding}
+                disabled={!isUnlocked || isSaving}
                 className="px-4 py-2 bg-[var(--black)] text-[var(--white)] font-semibold rounded text-sm disabled:opacity-50 cursor-pointer"
-                disabled={!isUnlocked}
               >
-                Save
+                {isSaving ? "Saving…" : "Save"}
               </button>
             </div>
           )}
@@ -257,13 +393,13 @@ export default function SettingsPage() {
               <div className="p-4 border border-[var(--border)] rounded bg-[var(--bg)]">
                 <div className="flex justify-between items-center mb-2">
                   <span className="font-semibold text-sm">Current Plan</span>
-                  <span className="text-xs font-bold px-2 py-0.5 rounded bg-zinc-100 text-zinc-700">
+                  <span className="text-xs font-bold px-2 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300">
                     {isUnlocked ? "PAID" : "FREE"}
                   </span>
                 </div>
                 <p className="text-xs text-[var(--muted)]">
                   {isUnlocked
-                    ? "You are on the Paid plan. All features are unlocked."
+                    ? `You are on the Paid plan. All features are unlocked.${userData?.expiresAt ? ` Expires: ${new Date(userData.expiresAt).toLocaleDateString()}` : ""}`
                     : "You are on the Free plan. Upgrade to unlock Sheets, Shopify, and custom branding."}
                 </p>
               </div>
