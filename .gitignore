@@ -1,0 +1,8 @@
+# Source art (large originals; optimized webp lives in landing/assets)
+Gemini_Generated_Image_*.png
+
+# Skill artifact (installed to ~/.claude/skills)
+landing-page-taste.skill
+
+# OS
+.DS_Store
