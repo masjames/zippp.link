@@ -47,7 +47,7 @@
   }
 
   h1, h2, h3 { font-family: var(--font-display); font-weight: 700; line-height: 1.1; letter-spacing: -0.02em; }
-  .hand { font-family: var(--font-accent); font-weight: 500; letter-spacing: 0; }
+  .hand { font-family: var(--font-accent); font-weight: 500; letter-spacing: 0; text-decoration: underline;}
 
   a { color: var(--accent); text-decoration: none; }
   a:hover { text-decoration: underline; }
@@ -112,6 +112,7 @@
   .nav-links a:hover { color: var(--accent); text-decoration: none; }
   .nav-cta { font-size: 15px; padding: 9px 18px; }
   .menu-links { display: flex; align-items: center; gap: 28px; }
+  .nav-cta-mobile { display: none; font-size: 14px; padding: 9px 16px; }
 
   /* Hero */
   .hero { padding: 96px 0 72px; }
@@ -261,8 +262,8 @@
 
   /* FAQ */
   .faq .wrap { max-width: 760px; }
-  details { border-top: 1px solid var(--hairline); padding: 20px 0; }
-  details:last-of-type { border-bottom: 1px solid var(--hairline); }
+  details { padding: 20px 0; }
+  details:last-of-type { }
   summary { font-weight: 600; font-size: 18px; cursor: pointer; list-style: none; display: flex; justify-content: space-between; }
   summary::-webkit-details-marker { display: none; }
   summary::after { content: "+"; color: var(--accent); font-size: 22px; }
@@ -311,7 +312,7 @@
     margin-top: 24px; padding-top: 20px;
     border-top: 1px solid var(--hairline);
   }
-  .modal-photo { width: 44px; height: 44px; border-radius: var(--radius-md); background: var(--hairline); flex-shrink: 0; }
+  .modal-photo { width: 44px; height: 44px; border-radius: var(--radius-md); background: var(--hairline); flex-shrink: 0; object-fit: cover; }
   .modal-maker p { font-size: 14px; color: var(--muted); line-height: 1.5; }
 
   /* Footer */
@@ -323,15 +324,16 @@
 
   @media (max-width: 860px) {
     .menu-links { display: none; }
+    .nav-cta-mobile { display: inline-block; }
     .hero-grid { grid-template-columns: minmax(0, 1fr); gap: 40px; }
     .hero { padding: 56px 0 48px; }
     .hero h1 { font-size: 38px; }
     .hero .lead { font-size: 18px; }
-    h2 { font-size: 30px; }
+    h2 { font-size: 30px; border-bottom:1px solid var(--hairline); padding-bottom: 15px; }
     .final h2 { font-size: 32px; }
     .section-pad { padding: 72px 0; }
     .after-item { max-width: 92%; }
-    .flow { grid-template-columns: 1fr; grid-template-areas: "i1" "t1" "a1" "i2" "t2" "a2" "i3" "t3"; column-gap: 0; row-gap: 14px; justify-items: start; }
+    .flow { grid-template-columns: 1fr; grid-template-areas: "i1" "t1" "a1" "i2" "t2" "a2" "i3" "t3"; column-gap: 0; row-gap: 14px; justify-items: center; }
     .flow-arrow { transform: rotate(90deg); }
     .problem p { font-size: 20px; }
     .signup { flex-direction: column; }
@@ -357,8 +359,9 @@
         <a href="#pricing">Pricing</a>
         <a href="#faq">FAQ</a>
       </div>
-      <a href="#waitlist" class="button nav-cta">Join waitlist</a>
+      <button type="button" class="button nav-cta" onclick="openWaitlistForm()">Join waitlist</button>
     </div>
+    <button type="button" class="button nav-cta-mobile" id="mobileWaitlistBtn">Join waitlist</button>
   </div>
 </header>
 
@@ -368,10 +371,7 @@
     <div>
       <h1>Turn a Google Sheet into a WhatsApp shop <span class="hand">your buyers can order from.</span></h1>
       <p class="lead">Buyers see your prices and tap to order. Orders spread across your numbers, so none gets missed.</p>
-      <form class="signup" id="waitlist" action="#" method="post" onsubmit="return handleWaitlist(event)">
-        <input type="email" name="email" placeholder="you@yourshop.com" required aria-label="Email address" />
-        <button type="submit" class="button">Join waitlist</button>
-      </form>
+      <button type="button" class="button" id="waitlist" onclick="openWaitlistForm()">Join waitlist</button>
       <p class="proof-line"><strong>First 100 shops get Pro free for a year.</strong> No card needed to join.</p>
     </div>
 
@@ -465,7 +465,7 @@
         <li>Click and order analytics</li>
         <li>Keep 100% of every sale, zippp never takes a fee</li>
       </ul>
-      <a href="#waitlist" class="button">Join the waitlist</a>
+      <button type="button" class="button" onclick="openWaitlistForm()">Join the waitlist</button>
       <p class="guarantee">First 100 shops get this free for a year.</p>
     </div>
   </div>
@@ -510,7 +510,7 @@
       </details>
       <details>
         <summary>Who is behind this?</summary>
-        <p>One solo builder, working in the open. You can reach a real person, not a support queue. See the note below.</p>
+        <p><img src="assets/bob_image.jpg" alt="Bob, solo builder of zippp.link" style="width:40px;height:40px;border-radius:6px;object-fit:cover;vertical-align:middle;margin-right:10px;" />One solo builder, working in the open. You can reach a real person <a href="https://instagram.com/0xruzk" target="_blank" rel="noopener">here</a>.</p>
       </details>
     </div>
   </div>
@@ -523,7 +523,7 @@
       <a href="#how">How it works</a>
       <a href="#pricing">Pricing</a>
       <a href="#faq">FAQ</a>
-      <a href="#waitlist">Join waitlist</a>
+      <a href="#" onclick="openWaitlistForm(); return false;">Join waitlist</a>
     </div>
   </div>
 </footer>
@@ -533,26 +533,22 @@
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
     <button class="modal-close" id="modalClose" aria-label="Close">&times;</button>
     <h2 id="modalTitle">Get your WhatsApp shop before the first 100 spots go.</h2>
-    <form class="signup" action="#" method="post" onsubmit="return handleWaitlist(event)">
-      <input type="email" name="email" placeholder="you@yourshop.com" required aria-label="Email address" />
-      <button type="submit" class="button">Join waitlist</button>
-    </form>
+    <button type="button" class="button" style="width:100%;" onclick="openWaitlistForm()">Join waitlist</button>
     <p class="guarantee">Pro free for a year for the first 100 shops. No card needed.</p>
     <div class="modal-maker">
-      <div class="modal-photo" aria-hidden="true"></div>
+      <img class="modal-photo" src="assets/bob_image.jpg" alt="Bob, solo builder of zippp.link" />
       <p>I'm Bob from Indonesia. I craft this to empower business sells quickly. It helps me, I hope it helps you too.</p>
     </div>
   </div>
 </div>
 
+<script src="https://tally.so/widgets/embed.js"></script>
 <script>
-  // Smoke-test stub. Replace action with a real endpoint (Formspree, Tally, or your own).
-  function handleWaitlist(e) {
-    e.preventDefault();
-    var email = e.target.querySelector('input[type=email]').value;
-    // TODO: POST to a real waitlist endpoint here.
-    e.target.innerHTML = '<p style="font-weight:600;">You are on the list. Check ' + email + ' for a note when a spot opens.</p>';
-    return false;
+  var TALLY_FORM_ID = 'Meq440';
+
+  // All "Join waitlist" triggers open Tally directly — no email textbox lives on this page.
+  function openWaitlistForm() {
+    if (window.Tally) { Tally.openPopup(TALLY_FORM_ID); }
   }
 
   // Chat thread: each message reveals as it scrolls into view (pace follows scroll).
@@ -581,6 +577,8 @@
     document.getElementById('modalClose').addEventListener('click', closeModal);
     modal.addEventListener('click', function (e) { if (e.target === modal) closeModal(); });
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeModal(); });
+    var mobileBtn = document.getElementById('mobileWaitlistBtn');
+    if (mobileBtn) mobileBtn.addEventListener('click', openModal);
     var opened = false;
     if (pricing && 'IntersectionObserver' in window) {
       var io = new IntersectionObserver(function (entries) {
