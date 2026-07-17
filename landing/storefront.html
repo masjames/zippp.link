@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>zippp.link storefront</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<style>
+  :root {
+    --paper: #FAF7F1; --ink: #1C1A15; --muted: #8A8272; --line: #E7E0D3; --accent: #8A5A2B;
+    --display: Georgia, serif; --body: system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--paper); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+  .shop { max-width: 480px; margin: 0 auto; padding: 22px 18px 40px; }
+
+  header { text-align: center; padding: 8px 0 20px; }
+  .avatar { width: 66px; height: 66px; border-radius: 10px; background: var(--a-tint); margin: 0 auto 12px; }
+  .shop-name { font-family: var(--display); font-size: 25px; line-height: 1.1; margin-bottom: 5px; }
+  .shop-bio { color: var(--muted); font-size: 13px; }
+
+  /* grid layout */
+  .products.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .products.grid .card { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: #fff; }
+  .products.grid .photo { aspect-ratio: 1/1; background: var(--t); }
+  .products.grid .info { padding: 11px 12px 13px; }
+  .products.grid .name { font-weight: 600; font-size: 14px; margin-bottom: 2px; }
+  .products.grid .price { color: var(--muted); font-size: 13px; margin-bottom: 10px; }
+
+  /* list layout */
+  .products.list { display: flex; flex-direction: column; gap: 12px; }
+  .products.list .card { display: grid; grid-template-columns: 78px 1fr; gap: 13px; align-items: center; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: #fff; padding-right: 12px; }
+  .products.list .photo { width: 78px; height: 78px; background: var(--t); }
+  .products.list .info { padding: 10px 0; }
+  .products.list .name { font-weight: 600; font-size: 15px; margin-bottom: 2px; }
+  .products.list .price { color: var(--muted); font-size: 14px; margin-bottom: 9px; }
+
+  /* single layout */
+  .products.single { display: flex; flex-direction: column; gap: 22px; }
+  .products.single .card { border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: #fff; }
+  .products.single .photo { aspect-ratio: 4/3; background: var(--t); }
+  .products.single .info { padding: 15px 16px 17px; }
+  .products.single .name { font-family: var(--display); font-size: 19px; margin-bottom: 3px; }
+  .products.single .price { color: var(--muted); font-size: 14px; margin-bottom: 12px; }
+
+  .order {
+    display: inline-block; width: 100%; text-align: center;
+    background: var(--accent); color: #fff; text-decoration: none;
+    font-family: var(--body); font-weight: 600; font-size: 13px;
+    padding: 9px 12px; border-radius: 6px; border: none; cursor: pointer;
+  }
+  .order:active { opacity: 0.9; }
+  footer { text-align: center; color: var(--muted); font-size: 12px; padding-top: 26px; }
+</style>
+</head>
+<body>
+<div class="shop" id="shop"></div>
+
+<script>
+  var THEMES = {
+    boutique: {
+      name: "Rose Threads", bio: "Handmade jewelry · Ships worldwide",
+      paper: "#FAF7F1", ink: "#1C1A15", muted: "#8A8272", line: "#E7E0D3", accent: "#8A5A2B",
+      display: '"Fraunces", Georgia, serif', body: '"Libre Franklin", system-ui, sans-serif',
+      fonts: "Fraunces:opsz,wght@9..144,400;9..144,600&family=Libre+Franklin:wght@400;500;600",
+      layout: "grid", avatar: "#D8C4A8",
+      products: [
+        { n: "Gold Chain Necklace", p: "$25", t: "#E7D3B0" },
+        { n: "Pearl Drop Earrings", p: "$18", t: "#EDE3D3" },
+        { n: "Silver Charm Bracelet", p: "$32", t: "#DCD8CE" },
+        { n: "Rose Gold Ring", p: "$28", t: "#E9CDB8" }
+      ]
+    },
+    kitchen: {
+      name: "Nadia's Kitchen", bio: "Fresh bakes · Baked to order",
+      paper: "#FDF6EC", ink: "#2A1E14", muted: "#8A7259", line: "#EBDFC9", accent: "#C0442E",
+      display: '"Archivo", system-ui, sans-serif', body: '"DM Sans", system-ui, sans-serif',
+      fonts: "Archivo:wght@600;700&family=DM+Sans:wght@400;500;600",
+      layout: "list", avatar: "#E7C79B",
+      products: [
+        { n: "Sourdough Loaf", p: "$9", t: "#E8CFA6" },
+        { n: "Cinnamon Rolls · 6 pack", p: "$14", t: "#E2B98C" },
+        { n: "Butter Croissant", p: "$4", t: "#EAD3A5" },
+        { n: "Chocolate Babka", p: "$12", t: "#C99E76" }
+      ]
+    },
+    glow: {
+      name: "Glow Bar", bio: "Small-batch skincare",
+      paper: "#F7F6F4", ink: "#23201C", muted: "#8C8A82", line: "#E8E6E0", accent: "#5E7A63",
+      display: '"Newsreader", Georgia, serif', body: '"DM Sans", system-ui, sans-serif',
+      fonts: "Newsreader:opsz,wght@6..72,400;6..72,500&family=DM+Sans:wght@400;500;600",
+      layout: "grid", avatar: "#CBD6C8",
+      products: [
+        { n: "Vitamin C Serum", p: "$28", t: "#DDE6DA" },
+        { n: "Lip Balm Trio", p: "$15", t: "#E9E4DC" },
+        { n: "Clay Mask", p: "$22", t: "#D9D3C7" },
+        { n: "Rose Water Mist", p: "$19", t: "#E7DAD9" }
+      ]
+    },
+    maker: {
+      name: "Wildthread Studio", bio: "Hand-woven goods · Made slow",
+      paper: "#F1ECE3", ink: "#26221B", muted: "#867D6D", line: "#DFD8CB", accent: "#A5613E",
+      display: '"Newsreader", Georgia, serif', body: '"Work Sans", system-ui, sans-serif',
+      fonts: "Newsreader:opsz,wght@6..72,400;6..72,500&family=Work+Sans:wght@400;500;600",
+      layout: "single", avatar: "#CBB79A",
+      products: [
+        { n: "Woven Wall Hanging", p: "$68", t: "#D8C7AC" },
+        { n: "Macrame Plant Hanger", p: "$34", t: "#DED3BE" },
+        { n: "Hand-dyed Table Runner", p: "$45", t: "#CDBBA0" }
+      ]
+    }
+  };
+
+  function param(name) {
+    var m = new RegExp('[?&]' + name + '=([^&]+)').exec(location.search);
+    return m ? decodeURIComponent(m[1]) : null;
+  }
+
+  function waLink(shop, product, price) {
+    var text = "Hi " + shop + "! I'd like to order:\n• " + product + " (" + price + ")\nName:\nAddress:";
+    return "https://wa.me/15551234567?text=" + encodeURIComponent(text);
+  }
+
+  function render() {
+    var key = param('theme');
+    var t = THEMES[key] || THEMES.boutique;
+
+    var link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = 'https://fonts.googleapis.com/css2?family=' + t.fonts + '&display=swap';
+    document.head.appendChild(link);
+
+    var r = document.documentElement.style;
+    r.setProperty('--paper', t.paper); r.setProperty('--ink', t.ink);
+    r.setProperty('--muted', t.muted); r.setProperty('--line', t.line);
+    r.setProperty('--accent', t.accent); r.setProperty('--display', t.display);
+    r.setProperty('--body', t.body); r.setProperty('--a-tint', t.avatar);
+
+    var cards = t.products.map(function (p) {
+      return '<div class="card" style="--t:' + p.t + '">' +
+        '<div class="photo"></div>' +
+        '<div class="info"><div class="name">' + p.n + '</div>' +
+        '<div class="price">' + p.p + '</div>' +
+        '<a class="order" href="' + waLink(t.name, p.n, p.p) + '" target="_blank" rel="noopener">Order on WhatsApp</a>' +
+        '</div></div>';
+    }).join('');
+
+    document.getElementById('shop').innerHTML =
+      '<header><div class="avatar"></div>' +
+      '<div class="shop-name">' + t.name + '</div>' +
+      '<div class="shop-bio">' + t.bio + '</div></header>' +
+      '<div class="products ' + t.layout + '">' + cards + '</div>' +
+      '<footer>zippp.link/' + (key || 'rosethreads') + '</footer>';
+  }
+
+  render();
+</script>
+</body>
+</html>

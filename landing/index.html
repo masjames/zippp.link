@@ -133,53 +133,31 @@
   .proof-line { margin-top: 18px; font-size: 15px; color: var(--muted); }
   .proof-line strong { color: var(--ink); font-weight: 600; }
 
-  /* Catalog demo (honest flat representation, not a mockup over a glow) */
-  .demo {
-    border: 1px solid var(--hairline);
-    border-radius: var(--radius-lg);
-    background: #fff;
-    overflow: hidden;
+  /* Phone mockup showing the real storefront, cycling niche templates */
+  .phone {
+    width: 300px; margin: 0 auto;
+    background: #1b1a17; border-radius: 42px; padding: 11px;
+    box-shadow: 0 16px 44px rgba(20, 16, 12, 0.22);
   }
-  .demo-bar {
-    display: flex; align-items: center; gap: 8px;
-    padding: 12px 16px; border-bottom: 1px solid var(--hairline);
-    font-size: 13px; color: var(--muted);
+  .phone-screen { position: relative; height: 604px; border-radius: 32px; overflow: hidden; background: #fff; }
+  .phone-notch {
+    position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+    width: 108px; height: 22px; background: #1b1a17; border-radius: 0 0 12px 12px; z-index: 3;
   }
-  .demo-bar .url { font-weight: 500; color: var(--ink); }
-  .demo-body { padding: 20px; }
-  .demo-shop { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
-  .demo-avatar { width: 44px; height: 44px; border-radius: var(--radius-md); background: var(--hairline); }
-  .demo-shop b { font-size: 16px; }
-  .demo-shop small { display: block; color: var(--muted); font-size: 13px; }
-  .demo-item {
-    display: grid; grid-template-columns: 52px 1fr auto; gap: 14px; align-items: center;
-    padding: 14px 0; border-top: 1px solid var(--hairline);
+  .pframe {
+    position: absolute; inset: 0; width: 100%; height: 100%; border: 0;
+    opacity: 0; animation: phoneCycle 18s infinite;
   }
-  .demo-item .thumb { width: 52px; height: 52px; border-radius: var(--radius-sm); background: var(--hairline); }
-  .demo-item .name { font-weight: 500; font-size: 15px; }
-  .demo-item .price { color: var(--muted); font-size: 14px; }
-  .demo-item .order {
-    font-size: 13px; font-weight: 600; color: var(--paper); background: var(--accent);
-    padding: 8px 14px; border-radius: var(--radius-sm);
-  }
-
-  /* Three niche demos, cycling one at a time */
-  .demo-stack { position: relative; min-height: 372px; }
-  .demo-stack .slide {
-    position: absolute; inset: 0;
-    opacity: 0;
-    animation: demoCycle 12s infinite;
-  }
-  .demo-stack .slide-1 { animation-delay: 0s; }
-  .demo-stack .slide-2 { animation-delay: 4s; }
-  .demo-stack .slide-3 { animation-delay: 8s; }
-
-  @keyframes demoCycle {
-    0%   { opacity: 0; }
-    3%   { opacity: 1; }
-    30%  { opacity: 1; }
-    36%  { opacity: 0; }
-    100% { opacity: 0; }
+  .pf1 { animation-delay: 0s; }
+  .pf2 { animation-delay: 4.5s; }
+  .pf3 { animation-delay: 9s; }
+  .pf4 { animation-delay: 13.5s; }
+  @keyframes phoneCycle {
+    0%    { opacity: 0; }
+    1.5%  { opacity: 1; }
+    23%   { opacity: 1; }
+    25%   { opacity: 0; }
+    100%  { opacity: 0; }
   }
 
   /* Sections */
@@ -361,8 +339,8 @@
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
     * { transition: none !important; }
-    .demo-stack .slide { animation: none; opacity: 0; }
-    .demo-stack .slide-1 { opacity: 1; }
+    .pframe { animation: none; opacity: 0; }
+    .pf1 { opacity: 1; }
   }
 </style>
 </head>
@@ -395,83 +373,14 @@
       <p class="proof-line"><strong>First 100 shops get Pro free for a year.</strong> No card needed to join.</p>
     </div>
 
-    <div class="demo-stack" aria-hidden="true">
-
-      <div class="demo slide slide-1">
-        <div class="demo-bar"><span class="url">zippp.link/rosethreads</span></div>
-        <div class="demo-body">
-          <div class="demo-shop">
-            <div class="demo-avatar"></div>
-            <div><b>Rose Threads</b><small>Handmade jewelry. Ships worldwide.</small></div>
-          </div>
-          <div class="demo-item">
-            <div class="thumb"></div>
-            <div><div class="name">Gold Chain Necklace</div><div class="price">$25.00</div></div>
-            <div class="order">Order</div>
-          </div>
-          <div class="demo-item">
-            <div class="thumb"></div>
-            <div><div class="name">Pearl Drop Earrings</div><div class="price">$18.00</div></div>
-            <div class="order">Order</div>
-          </div>
-          <div class="demo-item">
-            <div class="thumb"></div>
-            <div><div class="name">Silver Charm Bracelet</div><div class="price">$32.00</div></div>
-            <div class="order">Order</div>
-          </div>
-        </div>
+    <div class="phone" aria-hidden="true">
+      <div class="phone-screen">
+        <div class="phone-notch"></div>
+        <iframe class="pframe pf1" src="storefront.html?theme=boutique" title="Boutique storefront" scrolling="no"></iframe>
+        <iframe class="pframe pf2" src="storefront.html?theme=kitchen" title="Kitchen storefront" scrolling="no"></iframe>
+        <iframe class="pframe pf3" src="storefront.html?theme=glow" title="Glow storefront" scrolling="no"></iframe>
+        <iframe class="pframe pf4" src="storefront.html?theme=maker" title="Maker storefront" scrolling="no"></iframe>
       </div>
-
-      <div class="demo slide slide-2">
-        <div class="demo-bar"><span class="url">zippp.link/nadiaskitchen</span></div>
-        <div class="demo-body">
-          <div class="demo-shop">
-            <div class="demo-avatar"></div>
-            <div><b>Nadia's Kitchen</b><small>Fresh bakes, baked to order.</small></div>
-          </div>
-          <div class="demo-item">
-            <div class="thumb"></div>
-            <div><div class="name">Sourdough Loaf</div><div class="price">$9.00</div></div>
-            <div class="order">Order</div>
-          </div>
-          <div class="demo-item">
-            <div class="thumb"></div>
-            <div><div class="name">Cinnamon Rolls, 6 pack</div><div class="price">$14.00</div></div>
-            <div class="order">Order</div>
-          </div>
-          <div class="demo-item">
-            <div class="thumb"></div>
-            <div><div class="name">Butter Croissant</div><div class="price">$4.00</div></div>
-            <div class="order">Order</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="demo slide slide-3">
-        <div class="demo-bar"><span class="url">zippp.link/glowbar</span></div>
-        <div class="demo-body">
-          <div class="demo-shop">
-            <div class="demo-avatar"></div>
-            <div><b>Glow Bar</b><small>Small-batch skincare.</small></div>
-          </div>
-          <div class="demo-item">
-            <div class="thumb"></div>
-            <div><div class="name">Vitamin C Serum</div><div class="price">$28.00</div></div>
-            <div class="order">Order</div>
-          </div>
-          <div class="demo-item">
-            <div class="thumb"></div>
-            <div><div class="name">Lip Balm Trio</div><div class="price">$15.00</div></div>
-            <div class="order">Order</div>
-          </div>
-          <div class="demo-item">
-            <div class="thumb"></div>
-            <div><div class="name">Clay Mask</div><div class="price">$22.00</div></div>
-            <div class="order">Order</div>
-          </div>
-        </div>
-      </div>
-
     </div>
   </div>
 </div>
