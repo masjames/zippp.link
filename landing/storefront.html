@@ -24,8 +24,8 @@
   .shop { max-width: 480px; margin: 0 auto; padding: 22px 18px 96px; }
 
   header { text-align: center; padding: 8px 0 20px; }
-  .avatar { width: 66px; height: 66px; border-radius: 12px; background: var(--a-tint); margin: 0 auto 12px; overflow: hidden; }
-  .avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .avatar { width: 66px; height: 66px; border-radius: 14px; background: var(--accent); margin: 0 auto 12px; display: flex; align-items: center; justify-content: center; }
+  .avatar svg { width: 34px; height: 34px; color: #fff; }
   .shop-name { font-family: var(--display); font-size: 25px; line-height: 1.1; margin-bottom: 5px; }
   .shop-bio { color: var(--muted); font-size: 13px; }
 
@@ -182,7 +182,7 @@
       paper: "#FAF7F1", ink: "#1C1A15", muted: "#8A8272", line: "#E7E0D3", accent: "#8A5A2B",
       display: '"Fraunces", Georgia, serif', body: '"Libre Franklin", system-ui, sans-serif',
       fonts: "Fraunces:opsz,wght@9..144,400;9..144,600&family=Libre+Franklin:wght@400;500;600",
-      layout: "grid", avatar: "#D8C4A8", avatarImg: "jewelry,shop",
+      layout: "grid", avatar: "#D8C4A8", icon: "gem",
       products: [
         { n: "Gold Chain Necklace", p: "$25", t: "#E7D3B0", kw: "gold,necklace", lock: 21 },
         { n: "Pearl Drop Earrings", p: "$18", t: "#EDE3D3", kw: "pearl,earrings", lock: 22 },
@@ -195,7 +195,7 @@
       paper: "#FDF6EC", ink: "#2A1E14", muted: "#8A7259", line: "#EBDFC9", accent: "#C0442E",
       display: '"Archivo", system-ui, sans-serif', body: '"DM Sans", system-ui, sans-serif',
       fonts: "Archivo:wght@600;700&family=DM+Sans:wght@400;500;600",
-      layout: "list", avatar: "#E7C79B", avatarImg: "bakery",
+      layout: "list", avatar: "#E7C79B", icon: "bread",
       products: [
         { n: "Sourdough Loaf", p: "$9", t: "#E8CFA6", kw: "sourdough,bread", lock: 31 },
         { n: "Cinnamon Rolls · 6 pack", p: "$14", t: "#E2B98C", kw: "cinnamon,rolls", lock: 32 },
@@ -208,7 +208,7 @@
       paper: "#F7F6F4", ink: "#23201C", muted: "#8C8A82", line: "#E8E6E0", accent: "#5E7A63",
       display: '"Newsreader", Georgia, serif', body: '"DM Sans", system-ui, sans-serif',
       fonts: "Newsreader:opsz,wght@6..72,400;6..72,500&family=DM+Sans:wght@400;500;600",
-      layout: "grid", avatar: "#CBD6C8", avatarImg: "skincare,cosmetics",
+      layout: "grid", avatar: "#CBD6C8", icon: "drop",
       products: [
         { n: "Vitamin C Serum", p: "$28", t: "#DDE6DA", kw: "serum,skincare", lock: 41 },
         { n: "Lip Balm Trio", p: "$15", t: "#E9E4DC", kw: "lip,balm", lock: 42 },
@@ -221,7 +221,7 @@
       paper: "#F1ECE3", ink: "#26221B", muted: "#867D6D", line: "#DFD8CB", accent: "#A5613E",
       display: '"Newsreader", Georgia, serif', body: '"Work Sans", system-ui, sans-serif',
       fonts: "Newsreader:opsz,wght@6..72,400;6..72,500&family=Work+Sans:wght@400;500;600",
-      layout: "single", avatar: "#CBB79A", avatarImg: "weaving,craft",
+      layout: "single", avatar: "#CBB79A", icon: "spool",
       products: [
         { n: "Woven Wall Hanging", p: "$68", t: "#D8C7AC", kw: "macrame,weaving", lock: 51 },
         { n: "Macrame Plant Hanger", p: "$34", t: "#DED3BE", kw: "macrame,plant", lock: 52 },
@@ -229,6 +229,16 @@
       ]
     }
   };
+
+  var ICONS = {
+    gem: '<path d="M6 3h12l3 5-9 13L3 8z"/><path d="M3 8h18M9 3 7 8l5 13 5-13-2-5M9 8h6"/>',
+    bread: '<path d="M4 13a4 4 0 0 1 0-8h11a4 4 0 0 1 4 4v9a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z"/><path d="M8 5v13M12 5v13"/>',
+    drop: '<path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/><path d="M9.5 14a2.5 2.5 0 0 0 2.5 2.5"/>',
+    spool: '<rect x="6" y="4" width="12" height="16" rx="1.5"/><path d="M6 8h12M6 16h12M12 8v8"/>'
+  };
+  function iconSvg(name) {
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (ICONS[name] || ICONS.gem) + '</svg>';
+  }
 
   function param(name) {
     var m = new RegExp('[?&]' + name + '=([^&]+)').exec(location.search);
@@ -278,7 +288,7 @@
       '</div>';
     }).join('');
 
-    var av = '<div class="avatar"><img src="' + img(T.avatarImg, T.products[0].lock + 100, 200) + '" alt="" loading="lazy" onerror="this.style.display=\'none\'"></div>';
+    var av = '<div class="avatar">' + iconSvg(T.icon) + '</div>';
 
     document.getElementById('shop').innerHTML =
       '<header>' + av +
