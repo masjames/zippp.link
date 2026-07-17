@@ -68,6 +68,7 @@ SIGNAL   ░░░░░░░░░░ 0%     no waitlist emails yet
   - [ ] Preset editor: theme picker, 1 accent color, font (3-4), rounding (<=12px, on-brand). Preset chips, not sliders.
   - [ ] Live phone preview, instant update (Taplink/Bento UX pattern).
   - [ ] Do NOT build: full theme editor, bg-image library, HTML editing.
+  - [ ] Design spec lives in `docs/storefront-and-ux-decision/` (storefront page, buyer flow, templates, editor + dashboard UX). Build to those decisions.
 - [ ] 0% fees baked into the pitch everywhere (leg 3): "keep every sale."
 - [ ] Ship to waitlist, get first real usage. Pass = people actually use it.
 
