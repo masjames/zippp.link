@@ -286,6 +286,8 @@ The build order is the anti-overwhelm plan and doubles as the ADHD guardrail. Th
 
 Two structural points carry the revenue. First, the **four doors into Pro** widen the paying pool beyond just teams: a shop upgrades because it needs routing (team), or because it runs ads and wants the pixel, or because it wants a branded custom message, or because it outgrew the product cap. Any one pain converts, so solo sellers who do not need routing can still become paying customers. Second, the **money math** sets the concrete goal: a realistic mix of about 30 Pro and 11 Team shops is roughly $999, so the target is about 41 paying shops, which at a 5 to 10 percent free-to-paid conversion implies feeding roughly 500 free signups into the top of the funnel. Note for the smoke test: the pre-build landing page shows only the $19 price and one waitlist button; the full table is for after someone proves they will pay.
 
+Design and fee levers (added after studying Taplink, Bento, Linktree; see section 14). Templates become a fifth door and a virality engine: Free ships 3 to 4 genuinely beautiful templates (beautiful but limited, never ugly-crippled, so sellers proudly share the page and spread the badge); Pro unlocks premium templates plus preset color, font, and rounding controls; Team unlocks saving a custom template. The design angle is selling templates, not bio templates: product-grid shop layouts tuned to visual niches (jewelry, bakery, beauty), not link lists. Separately, 0 percent seller fees is a tier-agnostic promise and a marketing weapon: because the sale closes inside WhatsApp, zippp never touches the money, so sellers keep every dollar, unlike Linktree and Taplink which take a cut. Prices stay $19 and $39. Annual billing (about 20 percent off) and a "Recommended" tag on Pro are proven Linktree levers to add later, not in the smoke test.
+
 ---
 
 ## 9. Positioning
@@ -318,6 +320,8 @@ Two structural points carry the revenue. First, the **four doors into Pro** wide
 **Explanation.** The map has two axes: simple-and-seller-friendly versus complex-and-support-team on the vertical, and no-routing versus has-routing on the horizontal. The competitors cluster in three places. Store.link sits top-left: simple and free with a catalog, but no routing. Linktree sits lower-left: just links, no catalog, no routing. The routing tools (Konektor at about $13, Linkly at $32, Privyr at $20, Vepaar at $13 per user) sit bottom-right: they route, but they are built for customer-service teams, carry no product catalog, and are heavy to set up.
 
 The top-right quadrant, simple **and** routing **and** catalog, is empty, and that is the position Zippp takes. The one-line articulation is "made for sellers, not support teams." Store.link is missing routing; the routing tools are missing the catalog and are too heavy for a small shop. Zippp is the only simple tool that carries both. Important honesty, expanded in the next section: this is a positioning wedge, not a technical moat. Every individual feature can be copied. The defensibility comes from occupying this quadrant in the buyer's mind first, and from speed and brand, the same way indie founders like Marc Lou and Pieter Levels defend their products.
+
+Sharpened positioning line (post competitor study, section 14): "The best-looking WhatsApp shop. Fair order routing. Keep every sale." This folds the three-leg moat into one sentence: looks, routing, and 0 percent fees.
 
 ---
 
@@ -395,6 +399,8 @@ The ranking is the important part. Assumptions one and two are the real gates, a
 
 The closing truth is a mindset, not a cope. Early-stage indie products rarely have a hard moat; Marc Lou and Pieter Levels built durable revenue without one. The moat is the compound of speed, brand, and being first into the niche's mind, defended by continuing to move faster and stay closer to this specific buyer than a generalist competitor will bother to.
 
+Update after studying Taplink, Bento, and Linktree (see section 14): the moat is now framed as three legs, not one. Leg 1 is fair routing (functional value, the paywall). Leg 2 is being the best-looking seller shop through niche-tuned selling templates at Bento-level taste (emotional value, virality). Leg 3 is 0 percent fees, a structural advantage because WhatsApp closes off-platform so zippp never touches the money, which Linktree and Taplink cannot match without dropping their fee model. Any single leg is copyable; all three plus the niche focus is what a solo builder defends.
+
 ---
 
 ## 13. Validation roadmap (gates)
@@ -434,12 +440,117 @@ The rule is also the founder's protection against their own pattern. It converts
 
 ---
 
+## 14. Competitive learnings and decision matrix
+
+Synthesis of the competitors studied (Store.link, Konektor.id, Taplink, Bento, Linktree). Two diagrams and a decision matrix that drive the feature and pricing choices.
+
+### 14.1 What each competitor taught us
+
+```
+                         SIMPLE / seller-friendly
+                                  ▲
+   Store.link ●                   │              ● ZIPPP
+   catalog+sheet, FREE            │                catalog + ROUTING
+   no routing, generic look       │                + best-looking + 0% fees
+   - teaches: catalog = table     │                (empty quadrant = ours)
+     stakes, free expected        │
+                                  │
+   Bento ●                        │        ● Taplink
+   design/UX so good              │          deep editor, 100 templates,
+   Linktree BOUGHT it             │          price-lists+payments+CRM,
+   - teaches: TASTE = moat,       │          SEA-cheap, no routing
+     restraint wins               │          - teaches: DON'T build the
+                                  │            whole editor (scope trap)
+   no routing <───────────────────┼──────────> has routing
+                                  │
+   Linktree ●                     │        ● Konektor
+   70M users, link LIST,          │          WA rotator ~$13,
+   monetizes via 9% FEES,         │          CS-team tool, no catalog
+   generous free = virality       │          - teaches: routing exists
+   - teaches: generous free,      │            but built for support teams,
+     anchor tier, BUT takes a     │            not shops
+     cut (we counter w/ 0% fees)  │
+                                  ▼
+                         COMPLEX / support-team
+```
+
+**Explanation.** Each competitor marks a lesson. Store.link proves catalog-from-sheet is table stakes and a free tier is expected. Konektor proves routing has demand but is built for support teams, not shops. Taplink proves a deep editor plus a big template library is a scope trap a solo dev cannot out-build. Bento proves taste and restraint can be the moat: Linktree acquired it for design, not features. Linktree proves a generous free tier drives virality (70M users) and that transaction fees (9 percent on sales, dropping to 0 at the top tier) are a core revenue engine, which zippp deliberately counters with 0 percent fees because WhatsApp closes off-platform.
+
+### 14.2 The three-leg moat
+
+```
+        +------------------- ZIPPP -------------------+
+        |                                             |
+   LEG 1: ROUTING          LEG 2: LOOKS         LEG 3: 0% FEES
+   fair order routing      best-looking          keep every sale
+   across 2-5 numbers      seller shop,          (WA closes off-
+                           selling templates      platform, we never
+                           (not bio templates),   touch the money)
+                           Bento-level taste
+        |                       |                     |
+   functional value       emotional value        structural value
+   B2B, the paywall       virality + niche       Linktree/Taplink
+   (Konektor-ish but      pull (Bento lesson)    CANNOT match cheaply
+    for shops)                                   (their model = fees)
+        |                       |                     |
+        +-----------------------+---------------------+
+                                v
+     "The best-looking WhatsApp shop. Fair routing. Keep every sale."
+
+   each leg alone = copyable. all three + niche focus = defensible enough
+   for a solo dev to reach $1000/mo before a generalist bothers.
+```
+
+**Explanation.** The moat is no longer a single feature. Leg 1, routing, is the functional B2B value and the money paywall. Leg 2, looks, is the emotional pull: niche-tuned selling templates (product-grid shop layouts, not link lists) at Bento-level taste, which drives virality and fits the visual niches (fashion, jewelry, beauty, food) that are the core buyers. Leg 3, 0 percent fees, is a structural advantage: because the sale happens inside WhatsApp, zippp never touches the money and can honestly promise sellers keep every dollar, something Linktree and Taplink cannot match without abandoning their fee model. Any one leg is copyable; all three plus a narrow niche is defensible enough for a solo builder to reach the goal before a generalist reacts.
+
+### 14.3 Decision matrix
+
+```
+FEATURE / LEVER            BUILD?  TIER      LEARNED FROM  WHY
+-------------------------- ------- --------- ------------- ---------------------------
+Catalog from Google Sheet  YES     FREE      Store.link    table stakes, free or lose
+wa.me order handoff        YES     FREE      (core)        the whole point, $0 infra
+Multi-number routing       YES     PRO       Konektor      THE money wedge (leg 1)
+  round-robin              YES     PRO       Konektor      one line of logic
+  weighted + sticky        YES     TEAM      Konektor      grower upsell
+3-4 beautiful templates    YES     FREE      Bento/Lnktr   virality, badge spread
+Premium templates          YES     PRO       Taplink       pro-badge paywall works
+Selling templates          YES     all       Bento(niche)  ownable design angle (leg2)
+  (product-grid, not list)
+Color/font/rounding        YES     PRO       Taplink/Bnt   preset chips, not sliders
+  (preset chips, <=12px)
+Save custom template       YES     TEAM      Taplink       grower lever
+Live phone preview         YES     editor    Taplink/Bnt   best UX idea, ADHD-friendly
+0% seller fees             YES     ALL       Linktree      structural differ. (leg 3)
+Meta/TikTok pixel          YES     PRO       Taplink/Lnk   ads-runner door into Pro
+Custom order message       YES     PRO       (own)         brand door into Pro
+Remove "via zippp" badge   YES     PRO       Linktree      branding paywall
+Custom slug                YES     PRO       (own)         confidence to share
+Analytics (click/order)    YES     PRO       Linktree      optimize = pays for itself
+CSV export                 YES     TEAM      Taplink       real-team need
+Promo banner / multi-page  YES     TEAM      Taplink       tier filler, real value
+Own domain / white-label   YES     ENTERPR.  Taplink/Lnk   top-tier, high price
+Annual billing (~20% off)  LATER   all paid  Linktree      cash upfront, lower churn
+"Recommended" anchor       LATER   on PRO    Linktree      steer to the money tier
+-------------------------- ------- --------- ------------- ---------------------------
+Full theme editor (100+)   NO      -         Taplink       scope trap, can't out-build
+Transaction/fee model      NO      -         Linktree      WA off-platform; 0% our weapon
+IG/WA auto-reply           NO      -         Linktree      needs API, not $0
+CRM / inbox / reporting    NO      -         Taplink/dump  graveyard, scope creep
+Bg-image library, HTML     NO      -         Taplink       breadth we lose on
+```
+
+**Explanation.** The matrix is the buildable scope decision. The YES rows are the whole product across its tiers; routing is the paywall, the free templates are the virality engine, and 0 percent fees is both a tier-agnostic promise and a marketing weapon. The NO rows are the traps: a full theme editor and CRM/inbox/reporting are scope creep a solo dev loses on, IG/WA auto-reply needs paid APIs, and the transaction-fee model is structurally wrong for an off-platform handoff, which is why 0 percent fees replaces it.
+
 ## Appendix: decisions locked by this document
 
 - Product mechanic: Sheet catalog + `wa.me` order handoff + multi-number routing. No official WhatsApp API.
 - Buyer: small WhatsApp-closing shops in US/UK/EU/AU running 2 to 5 numbers or staff.
 - Wedge: the bundle in the empty "simple + routing + catalog" quadrant, positioned as "for sellers, not support teams."
-- Pricing: Free (1 number, 10 to 15 products, badge) / Pro $19 / Team $39 / Enterprise waitlist. Routing is the paywall. Four doors into Pro.
+- Three-leg moat (section 14): routing (functional, the paywall) + best-looking seller shop with selling templates (emotional, virality) + 0 percent fees (structural). Positioning: "The best-looking WhatsApp shop. Fair routing. Keep every sale."
+- Design angle: selling templates, not bio templates. 3 to 4 beautiful templates, not 100 generic ones. Editor is preset chips plus live preview, never a full theme editor.
+- Pricing: Free (1 number, 10 to 15 products, 3 to 4 templates, badge, 0% fees) / Pro $19 (routing, premium templates, controls, pixel, custom msg, remove brand, analytics) / Team $39 (5 to 8 numbers, weighted+sticky, save template, promo/multipage, CSV) / Enterprise waitlist (own domain, white-label). Routing is the paywall. Annual + "Recommended" anchor later.
+- Do NOT build: full theme editor, CRM/inbox/reporting, IG/WA auto-reply, transaction-fee model. See section 14 matrix.
 - Goal: about 41 paying shops = $1000 per month.
 - Smoke-test landing page shows one price ($19) and one waitlist CTA.
 - Build order: landing + waitlist, then catalog page, then sheet sync, then dashboard/router, then auth/billing, then analytics/pixel.

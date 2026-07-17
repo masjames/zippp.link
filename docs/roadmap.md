@@ -63,6 +63,12 @@ SIGNAL   ░░░░░░░░░░ 0%     no waitlist emails yet
 - [ ] Seller dashboard: connect sheet, add numbers, routing mode, offline toggle.
 - [ ] Round-robin router + `wa.me` deep-link order handoff.
 - [ ] Google auth.
+- [ ] **Light-but-beautiful theme system** (leg 2 of the moat, see business-concept section 14):
+  - [ ] 3 to 4 gorgeous selling templates (product-grid shop layouts, niche-tuned: jewelry / bakery / beauty). NOT bio-link templates. NOT 100 generic ones.
+  - [ ] Preset editor: theme picker, 1 accent color, font (3-4), rounding (<=12px, on-brand). Preset chips, not sliders.
+  - [ ] Live phone preview, instant update (Taplink/Bento UX pattern).
+  - [ ] Do NOT build: full theme editor, bg-image library, HTML editing.
+- [ ] 0% fees baked into the pitch everywhere (leg 3): "keep every sale."
 - [ ] Ship to waitlist, get first real usage. Pass = people actually use it.
 
 **Gate 3: First dollar** (prove willingness to pay)
@@ -79,9 +85,17 @@ SIGNAL   ░░░░░░░░░░ 0%     no waitlist emails yet
 
 ---
 
+## Resolved
+
+- Deploy: Option B chosen. `antep-mvp` is dead. New git-connected static project `zippp-link` created, root = `landing`, live at zippp-link.vercel.app. Domain moved. DNS at Spaceship pending (user action).
+- Moat: three legs (routing + best-looking seller + 0% fees). Positioning: "The best-looking WhatsApp shop. Fair routing. Keep every sale."
+- Design angle: selling templates, not bio templates. 3 to 4 beautiful, not 100.
+- Pricing: $19 / $39 kept. Annual + "Recommended" anchor later, not in smoke test.
+- Free tier: price-first smoke test shows $19 only. Correct for now.
+
 ## Open questions to resolve
 
-- Deploy: Option A or B, and is `antep-mvp` dead/replaceable?
+- DNS: user updates Spaceship A records to Vercel (216.198.79.1 / 64.29.17.1), then zippp.link goes live.
+- Git auto-deploy: blocked (Vercel GitHub account lacks write on repo). Fix = add collaborator + accept, or recreate project under repo-owning account. Until then, deploy via `vercel deploy --prod --cwd landing`.
 - Form: Formspree vs Tally.
 - Fonts: keep 3 families (Archivo + DM Sans + Shantell) or collapse to 2?
-- Free tier at launch, or price-first smoke test with $19 only? (Currently $19 only. Correct for now.)
