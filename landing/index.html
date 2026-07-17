@@ -4,6 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Zippp.link, one link for your WhatsApp shop</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23E8442E'/%3E%3Ctext x='16' y='23' font-family='Archivo,Arial,sans-serif' font-size='20' font-weight='700' fill='white' text-anchor='middle'%3Ez%3C/text%3E%3C/svg%3E" />
 <meta name="description" content="Paste a Google Sheet, get a WhatsApp shop your buyers can order from. Orders spread across your numbers so none gets missed." />
 
 <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -103,8 +104,9 @@
     justify-content: space-between;
     height: 68px;
   }
-  .logo { font-family: var(--font-display); font-weight: 700; font-size: 21px; letter-spacing: -0.02em; color: var(--ink); }
-  .logo span { color: var(--accent); }
+  .logo { font-family: var(--font-display); font-weight: 700; font-size: 21px; letter-spacing: -0.02em; color: var(--ink); display: inline-flex; align-items: center; gap: 8px; }
+  .logo-mark { display: inline-flex; }
+  .logo .dot { color: var(--accent); }
   .nav-links { display: flex; align-items: center; gap: 28px; }
   .nav-links a { color: var(--ink); font-weight: 500; font-size: 15px; }
   .nav-links a:hover { color: var(--accent); text-decoration: none; }
@@ -348,7 +350,7 @@
 
 <header>
   <div class="wrap nav">
-    <div class="logo">zippp<span>.link</span></div>
+    <div class="logo"><span class="logo-mark"><svg width="24" height="24" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7" fill="#E8442E"/><text x="16" y="23" font-family="Archivo, Arial, sans-serif" font-size="20" font-weight="700" fill="#fff" text-anchor="middle">z</text></svg></span><span class="word">zippp<span class="dot">.link</span></span></div>
     <div class="menu-links">
       <div class="nav-links">
         <a href="#how">How it works</a>
@@ -485,6 +487,14 @@
       <details>
         <summary>How do buyers see my products?</summary>
         <p>You keep products and prices in a Google Sheet. Zippp turns that sheet into a page at zippp.link/yourshop. Edit the sheet and the page updates.</p>
+      </details>
+      <details>
+        <summary>Can buyers order more than one thing?</summary>
+        <p>Yes. Buyers add products to a cart, then send one WhatsApp order with everything. Every zippp shop uses the same simple checkout, so buyers already know how to order.</p>
+      </details>
+      <details>
+        <summary>Will my shop load fast?</summary>
+        <p>Yes. Your page opens fast from your Instagram or TikTok bio, built to load in about a second on a phone. A slow shop loses the sale, so speed is the point.</p>
       </details>
       <details>
         <summary>Does zippp take a cut of my sales?</summary>

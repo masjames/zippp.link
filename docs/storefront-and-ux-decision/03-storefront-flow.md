@@ -2,23 +2,41 @@
 
 The buyer journey end to end, and every branch. The whole product goal: collapse the distance between "saw it" and "bought it".
 
-## Happy path
+## Happy path (cart)
 
 ```
-IG/TikTok bio  →  zippp.link/shop  →  browse  →  tap Order on a product
-                                                        │
-                                                        ▼
-                                          router picks a WhatsApp number
-                                                        │
-                                                        ▼
-                              wa.me/<number>?text=<pre-filled order>
-                                                        │
-                                                        ▼
-                          buyer's WhatsApp opens, message pre-typed
-                                                        │
-                                                        ▼
-                            seller receives, confirms, gets paid in chat
-                            (zippp never touches the money = 0% fees)
+IG/TikTok bio → zippp.link/shop → browse → Add to cart (repeat as needed)
+                                                    │
+                                                    ▼
+                                    cart bar shows count + total
+                                                    │
+                                                    ▼
+                                    open cart → adjust qty → Send order
+                                                    │
+                                                    ▼
+                              router picks a WhatsApp number
+                                                    │
+                                                    ▼
+                    wa.me/<number>?text=<all items + qty + total, pre-filled>
+                                                    │
+                                                    ▼
+                    buyer's WhatsApp opens, whole order pre-typed
+                                                    │
+                                                    ▼
+              seller receives, confirms, gets paid in chat (0% fees)
+```
+
+## Low friction from a bio tap (non-negotiable)
+
+The buyer taps a link in an Instagram or TikTok bio on a phone. The shop must appear almost instantly, no layout shift, no heavy load. See the performance principle in `01-design-principles.md`. Slow first paint here loses the sale before the catalog is even seen.
+
+## Side actions
+
+```
+Ask about a product   tap the photo -> lightbox -> Ask (chat-bubble icon)
+                       -> wa.me question about that one product.
+Zoom a photo          tap the photo -> lightbox -> tap to zoom (1x/2x),
+                       pinch on mobile. Add to cart also lives here.
 ```
 
 ## The pre-filled message (the craft detail that matters)
@@ -76,10 +94,10 @@ pixel_fire       Meta/TikTok pixel event on order_tap (Pro)
 ## Non-goals in the flow
 
 ```
-✗ in-page checkout / card entry (breaks the 0% fees model + adds friction)
-✗ buyer accounts
-✗ cart persistence across sessions
-The flow is intentionally 3 steps for the buyer: see, tap, chat.
+✗ in-page checkout / card entry (breaks the 0% fees model)
+✗ buyer accounts / login
+The cart is client-side and persists in localStorage, but there is no
+server-side order, no payment page. The order still closes in WhatsApp.
 ```
 
 ## Success criteria

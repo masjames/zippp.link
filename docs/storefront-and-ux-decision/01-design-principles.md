@@ -60,6 +60,16 @@ Note: the storefront is themeable per seller (see `04-templates-and-themes.md`),
 
 6. MOBILE IS THE REAL PRODUCT. Buyers arrive from IG/TikTok bios on phones.
    Design mobile-first; desktop is the afterthought.
+
+7. ONE CHECKOUT, EVERYWHERE. The cart, cart sheet, checkout, and lightbox
+   use fixed zippp chrome, identical across every shop and theme. Only the
+   catalog is themed. A buyer learns the order flow once. Consistency is
+   trust, and trust is part of the moat.
+
+8. INSTANT FROM A BIO TAP. Performance is a feature. First paint under 1s,
+   zero layout shift (images have aspect-ratio + lazy-load), minimal JS,
+   font-display swap. Real product: edge-cached SSR per slug. A slow shop
+   loses the sale before the catalog is seen.
 ```
 
 ## The one-sentence test

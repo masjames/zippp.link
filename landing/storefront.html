@@ -2,74 +2,192 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
 <title>zippp.link storefront</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23E8442E'/%3E%3Ctext x='16' y='23' font-family='Archivo,Arial,sans-serif' font-size='20' font-weight='700' fill='white' text-anchor='middle'%3Ez%3C/text%3E%3C/svg%3E" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
 <style>
   :root {
+    /* themed catalog tokens (set per theme) */
     --paper: #FAF7F1; --ink: #1C1A15; --muted: #8A8272; --line: #E7E0D3; --accent: #8A5A2B;
-    --display: Georgia, serif; --body: system-ui, sans-serif;
+    --display: Georgia, serif; --body: system-ui, sans-serif; --a-tint: #ddd;
+    /* fixed zippp chrome tokens (never change per theme) */
+    --z-ink: #171310; --z-paper: #FFFDF8; --z-muted: #78716A; --z-line: #EDE8DF;
+    --z-accent: #E8442E; --z-green: #1FA855; --z-chrome: "DM Sans", system-ui, sans-serif;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { background: var(--paper); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
-  .shop { max-width: 480px; margin: 0 auto; padding: 22px 18px 40px; }
+  img { display: block; max-width: 100%; }
+
+  .shop { max-width: 480px; margin: 0 auto; padding: 22px 18px 96px; }
 
   header { text-align: center; padding: 8px 0 20px; }
-  .avatar { width: 66px; height: 66px; border-radius: 10px; background: var(--a-tint); margin: 0 auto 12px; }
+  .avatar { width: 66px; height: 66px; border-radius: 12px; background: var(--a-tint); margin: 0 auto 12px; overflow: hidden; }
+  .avatar img { width: 100%; height: 100%; object-fit: cover; }
   .shop-name { font-family: var(--display); font-size: 25px; line-height: 1.1; margin-bottom: 5px; }
   .shop-bio { color: var(--muted); font-size: 13px; }
 
-  /* grid layout */
+  .photo { background: var(--t); overflow: hidden; cursor: zoom-in; position: relative; }
+  .photo img { width: 100%; height: 100%; object-fit: cover; }
+  .name { font-weight: 600; }
+  .price { color: var(--muted); }
+
+  .actions { display: flex; gap: 8px; }
+  .btn-cart {
+    flex: 1; text-align: center; background: var(--accent); color: #fff;
+    font: 600 13px var(--body); border: none; border-radius: 6px; padding: 9px 12px; cursor: pointer;
+  }
+  .btn-cart:active { opacity: 0.9; }
+  .btn-ask {
+    background: transparent; color: var(--ink); border: 1px solid var(--line);
+    font: 600 13px var(--body); border-radius: 6px; padding: 9px 12px; cursor: pointer; text-decoration: none;
+  }
+
+  /* grid */
   .products.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
   .products.grid .card { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: #fff; }
-  .products.grid .photo { aspect-ratio: 1/1; background: var(--t); }
+  .products.grid .photo { aspect-ratio: 1/1; }
   .products.grid .info { padding: 11px 12px 13px; }
-  .products.grid .name { font-weight: 600; font-size: 14px; margin-bottom: 2px; }
-  .products.grid .price { color: var(--muted); font-size: 13px; margin-bottom: 10px; }
+  .products.grid .name { font-size: 14px; margin-bottom: 2px; }
+  .products.grid .price { font-size: 13px; margin-bottom: 10px; }
+  .products.grid .actions { flex-direction: column; }
 
-  /* list layout */
+  /* list */
   .products.list { display: flex; flex-direction: column; gap: 12px; }
-  .products.list .card { display: grid; grid-template-columns: 78px 1fr; gap: 13px; align-items: center; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: #fff; padding-right: 12px; }
-  .products.list .photo { width: 78px; height: 78px; background: var(--t); }
-  .products.list .info { padding: 10px 0; }
-  .products.list .name { font-weight: 600; font-size: 15px; margin-bottom: 2px; }
-  .products.list .price { color: var(--muted); font-size: 14px; margin-bottom: 9px; }
+  .products.list .card { display: grid; grid-template-columns: 92px 1fr; gap: 13px; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: #fff; }
+  .products.list .photo { width: 92px; height: 100%; min-height: 108px; }
+  .products.list .info { padding: 11px 12px 11px 0; }
+  .products.list .name { font-size: 15px; margin-bottom: 2px; }
+  .products.list .price { font-size: 14px; margin-bottom: 9px; }
 
-  /* single layout */
+  /* single */
   .products.single { display: flex; flex-direction: column; gap: 22px; }
   .products.single .card { border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: #fff; }
-  .products.single .photo { aspect-ratio: 4/3; background: var(--t); }
+  .products.single .photo { aspect-ratio: 4/3; }
   .products.single .info { padding: 15px 16px 17px; }
-  .products.single .name { font-family: var(--display); font-size: 19px; margin-bottom: 3px; }
-  .products.single .price { color: var(--muted); font-size: 14px; margin-bottom: 12px; }
+  .products.single .name { font-family: var(--display); font-weight: 400; font-size: 19px; margin-bottom: 3px; }
+  .products.single .price { font-size: 14px; margin-bottom: 12px; }
 
-  .order {
-    display: inline-block; width: 100%; text-align: center;
-    background: var(--accent); color: #fff; text-decoration: none;
-    font-family: var(--body); font-weight: 600; font-size: 13px;
-    padding: 9px 12px; border-radius: 6px; border: none; cursor: pointer;
-  }
-  .order:active { opacity: 0.9; }
   footer { text-align: center; color: var(--muted); font-size: 12px; padding-top: 26px; }
+  footer a { color: var(--muted); text-decoration: none; }
+
+  /* ===== fixed zippp chrome: cart bar, sheet, lightbox (identical across themes) ===== */
+  .cart-bar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; display: flex; justify-content: center; padding: 12px; pointer-events: none; }
+  .cart-bar[hidden] { display: none; }
+  .cart-bar button {
+    pointer-events: auto; width: 100%; max-width: 456px;
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    background: var(--z-ink); color: #fff; border: none; border-radius: 12px;
+    padding: 14px 16px 14px 14px; font: 600 15px var(--z-chrome); cursor: pointer;
+    box-shadow: 0 8px 28px rgba(20, 16, 12, 0.22);
+  }
+  .cart-bar .count { background: var(--z-accent); color: #fff; font-size: 13px; font-weight: 700; min-width: 24px; height: 24px; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; padding: 0 7px; }
+  .cart-bar .lbl { flex: 1; text-align: left; padding-left: 10px; }
+  .cart-bar .go { color: var(--z-accent); }
+
+  .sheet-overlay { position: fixed; inset: 0; background: rgba(20, 16, 12, 0.5); z-index: 50; display: flex; align-items: flex-end; justify-content: center; }
+  .sheet-overlay[hidden] { display: none; }
+  .sheet { background: var(--z-paper); color: var(--z-ink); font-family: var(--z-chrome); width: 100%; max-width: 480px; border-radius: 16px 16px 0 0; max-height: 86vh; overflow: auto; padding: 20px 18px 22px; }
+  .sheet h2 { font-family: var(--z-chrome); font-weight: 700; font-size: 19px; }
+  .sheet-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .sheet-close { background: none; border: none; font-size: 24px; line-height: 1; color: var(--z-muted); cursor: pointer; }
+  .ci { display: grid; grid-template-columns: 48px 1fr auto; gap: 12px; align-items: center; padding: 12px 0; border-top: 1px solid var(--z-line); }
+  .ci-thumb { width: 48px; height: 48px; border-radius: 8px; background: var(--z-line); overflow: hidden; }
+  .ci-thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .ci-name { font-weight: 600; font-size: 14px; }
+  .ci-price { color: var(--z-muted); font-size: 13px; }
+  .ci-qty { display: flex; align-items: center; gap: 8px; }
+  .ci-qty button { width: 28px; height: 28px; border: 1px solid var(--z-line); background: #fff; border-radius: 6px; font-size: 16px; cursor: pointer; color: var(--z-ink); }
+  .ci-qty span { min-width: 16px; text-align: center; font-weight: 600; }
+  .ci-rm { background: none; border: none; color: var(--z-muted); font-size: 12px; cursor: pointer; text-decoration: underline; margin-top: 4px; }
+  .sheet-total { display: flex; justify-content: space-between; font-weight: 700; font-size: 16px; padding: 16px 0; border-top: 1px solid var(--z-line); margin-top: 4px; }
+  .sheet-empty { color: var(--z-muted); text-align: center; padding: 24px 0; }
+  .send {
+    display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%;
+    background: var(--z-green); color: #fff; border: none; border-radius: 10px;
+    padding: 14px; font: 700 15px var(--z-chrome); cursor: pointer; text-decoration: none;
+  }
+  .send:disabled { opacity: 0.4; cursor: default; }
+  .sheet-note { text-align: center; color: var(--z-muted); font-size: 12px; margin-top: 10px; }
+
+  .lightbox { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.92); z-index: 60; display: flex; align-items: center; justify-content: center; }
+  .lightbox[hidden] { display: none; }
+  .lightbox-inner { display: flex; flex-direction: column; align-items: center; gap: 16px; }
+  .lightbox img { max-width: 90vw; max-height: 72vh; object-fit: contain; transition: transform 200ms ease; cursor: zoom-in; touch-action: pinch-zoom; border-radius: 8px; }
+  .lightbox img.zoomed { transform: scale(2); cursor: zoom-out; }
+  .lightbox-close { position: absolute; top: 14px; right: 16px; background: none; border: none; color: #fff; font-size: 30px; line-height: 1; cursor: pointer; z-index: 2; }
+  .lightbox-actions { display: flex; gap: 10px; align-items: center; }
+  .lb-cart { background: var(--z-accent); color: #fff; border: none; border-radius: 8px; padding: 13px 26px; font: 700 15px var(--z-chrome); cursor: pointer; }
+  .lb-cart:active { opacity: 0.9; }
+  .lb-ask { background: #fff; color: var(--z-ink); border: none; border-radius: 8px; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+  .lb-ask:active { opacity: 0.9; }
+
+  @media (min-width: 520px) {
+    .sheet-overlay { align-items: center; }
+    .sheet { border-radius: 16px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .lightbox img { transition: none; }
+  }
 </style>
 </head>
 <body>
 <div class="shop" id="shop"></div>
 
+<div class="cart-bar" id="cartBar" hidden>
+  <button type="button" id="cartBarBtn">
+    <span class="count" id="cartCount">0</span>
+    <span class="lbl" id="cartLbl">View order</span>
+    <span class="go">Review &rarr;</span>
+  </button>
+</div>
+
+<div class="sheet-overlay" id="cartSheet" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-label="Your order">
+    <div class="sheet-head">
+      <h2>Your order</h2>
+      <button class="sheet-close" id="sheetClose" aria-label="Close">&times;</button>
+    </div>
+    <div id="cartItems"></div>
+    <div class="sheet-total" id="cartTotalRow" hidden><span>Total</span><span id="cartTotal">$0</span></div>
+    <a class="send" id="sendOrder" href="#" target="_blank" rel="noopener">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15l-1.4 5 5.1-1.3A10 10 0 1 0 12 2zm0 2a8 8 0 1 1-4.1 14.9l-.3-.2-3 .8.8-2.9-.2-.3A8 8 0 0 1 12 4z"/></svg>
+      Send order on WhatsApp
+    </a>
+    <p class="sheet-note">You pay the seller directly in WhatsApp. Zippp never takes a fee.</p>
+  </div>
+</div>
+
+<div class="lightbox" id="lightbox" hidden>
+  <button class="lightbox-close" id="lightboxClose" aria-label="Close">&times;</button>
+  <div class="lightbox-inner">
+    <img id="lightboxImg" src="" alt="" />
+    <div class="lightbox-actions">
+      <button type="button" class="lb-cart" id="lbCart">Add to cart</button>
+      <button type="button" class="lb-ask" id="lbAsk" aria-label="Ask about this product">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-8.5 8.5 8.6 8.6 0 0 1-4-1L3 20l1.5-5.5a8.4 8.4 0 0 1-1-4A8.4 8.4 0 0 1 12 2a8.4 8.4 0 0 1 9 9.5z"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
 <script>
+  var WA = "15551234567"; // demo number
+
   var THEMES = {
     boutique: {
       name: "Rose Threads", bio: "Handmade jewelry · Ships worldwide",
       paper: "#FAF7F1", ink: "#1C1A15", muted: "#8A8272", line: "#E7E0D3", accent: "#8A5A2B",
       display: '"Fraunces", Georgia, serif', body: '"Libre Franklin", system-ui, sans-serif',
       fonts: "Fraunces:opsz,wght@9..144,400;9..144,600&family=Libre+Franklin:wght@400;500;600",
-      layout: "grid", avatar: "#D8C4A8",
+      layout: "grid", avatar: "#D8C4A8", avatarImg: "jewelry,shop",
       products: [
-        { n: "Gold Chain Necklace", p: "$25", t: "#E7D3B0" },
-        { n: "Pearl Drop Earrings", p: "$18", t: "#EDE3D3" },
-        { n: "Silver Charm Bracelet", p: "$32", t: "#DCD8CE" },
-        { n: "Rose Gold Ring", p: "$28", t: "#E9CDB8" }
+        { n: "Gold Chain Necklace", p: "$25", t: "#E7D3B0", kw: "gold,necklace", lock: 21 },
+        { n: "Pearl Drop Earrings", p: "$18", t: "#EDE3D3", kw: "pearl,earrings", lock: 22 },
+        { n: "Silver Charm Bracelet", p: "$32", t: "#DCD8CE", kw: "silver,bracelet", lock: 23 },
+        { n: "Rose Gold Ring", p: "$28", t: "#E9CDB8", kw: "gold,ring,jewelry", lock: 24 }
       ]
     },
     kitchen: {
@@ -77,12 +195,12 @@
       paper: "#FDF6EC", ink: "#2A1E14", muted: "#8A7259", line: "#EBDFC9", accent: "#C0442E",
       display: '"Archivo", system-ui, sans-serif', body: '"DM Sans", system-ui, sans-serif',
       fonts: "Archivo:wght@600;700&family=DM+Sans:wght@400;500;600",
-      layout: "list", avatar: "#E7C79B",
+      layout: "list", avatar: "#E7C79B", avatarImg: "bakery",
       products: [
-        { n: "Sourdough Loaf", p: "$9", t: "#E8CFA6" },
-        { n: "Cinnamon Rolls · 6 pack", p: "$14", t: "#E2B98C" },
-        { n: "Butter Croissant", p: "$4", t: "#EAD3A5" },
-        { n: "Chocolate Babka", p: "$12", t: "#C99E76" }
+        { n: "Sourdough Loaf", p: "$9", t: "#E8CFA6", kw: "sourdough,bread", lock: 31 },
+        { n: "Cinnamon Rolls · 6 pack", p: "$14", t: "#E2B98C", kw: "cinnamon,rolls", lock: 32 },
+        { n: "Butter Croissant", p: "$4", t: "#EAD3A5", kw: "croissant", lock: 33 },
+        { n: "Chocolate Babka", p: "$12", t: "#C99E76", kw: "chocolate,bread", lock: 34 }
       ]
     },
     glow: {
@@ -90,12 +208,12 @@
       paper: "#F7F6F4", ink: "#23201C", muted: "#8C8A82", line: "#E8E6E0", accent: "#5E7A63",
       display: '"Newsreader", Georgia, serif', body: '"DM Sans", system-ui, sans-serif',
       fonts: "Newsreader:opsz,wght@6..72,400;6..72,500&family=DM+Sans:wght@400;500;600",
-      layout: "grid", avatar: "#CBD6C8",
+      layout: "grid", avatar: "#CBD6C8", avatarImg: "skincare,cosmetics",
       products: [
-        { n: "Vitamin C Serum", p: "$28", t: "#DDE6DA" },
-        { n: "Lip Balm Trio", p: "$15", t: "#E9E4DC" },
-        { n: "Clay Mask", p: "$22", t: "#D9D3C7" },
-        { n: "Rose Water Mist", p: "$19", t: "#E7DAD9" }
+        { n: "Vitamin C Serum", p: "$28", t: "#DDE6DA", kw: "serum,skincare", lock: 41 },
+        { n: "Lip Balm Trio", p: "$15", t: "#E9E4DC", kw: "lip,balm", lock: 42 },
+        { n: "Clay Mask", p: "$22", t: "#D9D3C7", kw: "face,mask,skincare", lock: 43 },
+        { n: "Rose Water Mist", p: "$19", t: "#E7DAD9", kw: "skincare,bottle", lock: 44 }
       ]
     },
     maker: {
@@ -103,11 +221,11 @@
       paper: "#F1ECE3", ink: "#26221B", muted: "#867D6D", line: "#DFD8CB", accent: "#A5613E",
       display: '"Newsreader", Georgia, serif', body: '"Work Sans", system-ui, sans-serif',
       fonts: "Newsreader:opsz,wght@6..72,400;6..72,500&family=Work+Sans:wght@400;500;600",
-      layout: "single", avatar: "#CBB79A",
+      layout: "single", avatar: "#CBB79A", avatarImg: "weaving,craft",
       products: [
-        { n: "Woven Wall Hanging", p: "$68", t: "#D8C7AC" },
-        { n: "Macrame Plant Hanger", p: "$34", t: "#DED3BE" },
-        { n: "Hand-dyed Table Runner", p: "$45", t: "#CDBBA0" }
+        { n: "Woven Wall Hanging", p: "$68", t: "#D8C7AC", kw: "macrame,weaving", lock: 51 },
+        { n: "Macrame Plant Hanger", p: "$34", t: "#DED3BE", kw: "macrame,plant", lock: 52 },
+        { n: "Hand-dyed Table Runner", p: "$45", t: "#CDBBA0", kw: "textile,handmade", lock: 53 }
       ]
     }
   };
@@ -116,45 +234,156 @@
     var m = new RegExp('[?&]' + name + '=([^&]+)').exec(location.search);
     return m ? decodeURIComponent(m[1]) : null;
   }
+  function img(kw, lock, size) { size = size || 600; return 'https://loremflickr.com/' + size + '/' + size + '/' + kw + '?lock=' + lock; }
+  function num(price) { return parseFloat(String(price).replace(/[^0-9.]/g, '')) || 0; }
+  function sym(price) { var m = String(price).match(/^[^0-9.]+/); return m ? m[0] : '$'; }
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]; }); }
 
-  function waLink(shop, product, price) {
-    var text = "Hi " + shop + "! I'd like to order:\n• " + product + " (" + price + ")\nName:\nAddress:";
-    return "https://wa.me/15551234567?text=" + encodeURIComponent(text);
+  var KEY = param('theme') || 'boutique';
+  var T = THEMES[KEY] || THEMES.boutique;
+  var CART_KEY = 'zippp_cart_' + KEY;
+  var cart = [];
+  try { cart = JSON.parse(localStorage.getItem(CART_KEY)) || []; } catch (e) { cart = []; }
+  function saveCart() { try { localStorage.setItem(CART_KEY, JSON.stringify(cart)); } catch (e) {} }
+
+  function askLink(product) {
+    return 'https://wa.me/' + WA + '?text=' + encodeURIComponent('Hi ' + T.name + "! I have a question about " + product + ':');
   }
 
-  function render() {
-    var key = param('theme');
-    var t = THEMES[key] || THEMES.boutique;
-
+  function renderCatalog() {
     var link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = 'https://fonts.googleapis.com/css2?family=' + t.fonts + '&display=swap';
+    link.href = 'https://fonts.googleapis.com/css2?family=' + T.fonts + '&display=swap';
     document.head.appendChild(link);
 
     var r = document.documentElement.style;
-    r.setProperty('--paper', t.paper); r.setProperty('--ink', t.ink);
-    r.setProperty('--muted', t.muted); r.setProperty('--line', t.line);
-    r.setProperty('--accent', t.accent); r.setProperty('--display', t.display);
-    r.setProperty('--body', t.body); r.setProperty('--a-tint', t.avatar);
+    r.setProperty('--paper', T.paper); r.setProperty('--ink', T.ink);
+    r.setProperty('--muted', T.muted); r.setProperty('--line', T.line);
+    r.setProperty('--accent', T.accent); r.setProperty('--display', T.display);
+    r.setProperty('--body', T.body); r.setProperty('--a-tint', T.avatar);
 
-    var cards = t.products.map(function (p) {
-      return '<div class="card" style="--t:' + p.t + '">' +
-        '<div class="photo"></div>' +
-        '<div class="info"><div class="name">' + p.n + '</div>' +
-        '<div class="price">' + p.p + '</div>' +
-        '<a class="order" href="' + waLink(t.name, p.n, p.p) + '" target="_blank" rel="noopener">Order on WhatsApp</a>' +
-        '</div></div>';
+    var cards = T.products.map(function (p, i) {
+      var src = img(p.kw, p.lock);
+      return '<div class="card">' +
+        '<div class="photo" style="--t:' + p.t + '" data-i="' + i + '">' +
+          '<img src="' + src + '" alt="' + esc(p.n) + '" loading="lazy" decoding="async" onerror="this.style.display=\'none\'" />' +
+        '</div>' +
+        '<div class="info">' +
+          '<div class="name">' + esc(p.n) + '</div>' +
+          '<div class="price">' + esc(p.p) + '</div>' +
+          '<div class="actions">' +
+            '<button type="button" class="btn-cart" data-i="' + i + '">Add to cart</button>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
     }).join('');
 
+    var av = '<div class="avatar"><img src="' + img(T.avatarImg, T.products[0].lock + 100, 200) + '" alt="" loading="lazy" onerror="this.style.display=\'none\'"></div>';
+
     document.getElementById('shop').innerHTML =
-      '<header><div class="avatar"></div>' +
-      '<div class="shop-name">' + t.name + '</div>' +
-      '<div class="shop-bio">' + t.bio + '</div></header>' +
-      '<div class="products ' + t.layout + '">' + cards + '</div>' +
-      '<footer>zippp.link/' + (key || 'rosethreads') + '</footer>';
+      '<header>' + av +
+      '<div class="shop-name">' + esc(T.name) + '</div>' +
+      '<div class="shop-bio">' + esc(T.bio) + '</div></header>' +
+      '<div class="products ' + T.layout + '">' + cards + '</div>' +
+      '<footer><a href="https://zippp.link">zippp.link/' + KEY + '</a></footer>';
+
+    // wire add-to-cart
+    Array.prototype.forEach.call(document.querySelectorAll('.btn-cart'), function (b) {
+      b.addEventListener('click', function () { addToCart(T.products[+b.getAttribute('data-i')]); });
+    });
+    // wire photo lightbox
+    Array.prototype.forEach.call(document.querySelectorAll('.photo'), function (ph) {
+      ph.addEventListener('click', function () { openLightbox(+ph.getAttribute('data-i')); });
+    });
   }
 
-  render();
+  /* ---- cart ---- */
+  function addToCart(p) {
+    var found = cart.filter(function (c) { return c.n === p.n; })[0];
+    if (found) { found.q += 1; }
+    else { cart.push({ n: p.n, p: p.p, q: 1, kw: p.kw, lock: p.lock }); }
+    saveCart(); renderBar();
+    var b = document.getElementById('cartBarBtn'); b.style.transform = 'scale(1.03)';
+    setTimeout(function () { b.style.transform = ''; }, 150);
+  }
+  function count() { return cart.reduce(function (s, c) { return s + c.q; }, 0); }
+  function total() { return cart.reduce(function (s, c) { return s + num(c.p) * c.q; }, 0); }
+  function renderBar() {
+    var bar = document.getElementById('cartBar');
+    var n = count();
+    if (n === 0) { bar.hidden = true; return; }
+    bar.hidden = false;
+    document.getElementById('cartCount').textContent = n;
+    document.getElementById('cartLbl').textContent = (sym(cart[0].p) + total()) + ' · ' + n + (n === 1 ? ' item' : ' items');
+  }
+  function renderSheet() {
+    var wrap = document.getElementById('cartItems');
+    if (cart.length === 0) {
+      wrap.innerHTML = '<p class="sheet-empty">Your order is empty.</p>';
+      document.getElementById('cartTotalRow').hidden = true;
+      document.getElementById('sendOrder').setAttribute('aria-disabled', 'true');
+      document.getElementById('sendOrder').style.pointerEvents = 'none';
+      document.getElementById('sendOrder').style.opacity = '0.4';
+      return;
+    }
+    wrap.innerHTML = cart.map(function (c, i) {
+      return '<div class="ci">' +
+        '<div class="ci-thumb"><img src="' + img(c.kw, c.lock, 120) + '" alt="" loading="lazy" onerror="this.style.display=\'none\'"></div>' +
+        '<div><div class="ci-name">' + esc(c.n) + '</div><div class="ci-price">' + esc(c.p) + '</div>' +
+        '<button class="ci-rm" data-rm="' + i + '">Remove</button></div>' +
+        '<div class="ci-qty"><button data-dec="' + i + '" aria-label="Decrease">−</button>' +
+        '<span>' + c.q + '</span><button data-inc="' + i + '" aria-label="Increase">+</button></div>' +
+      '</div>';
+    }).join('');
+    document.getElementById('cartTotalRow').hidden = false;
+    document.getElementById('cartTotal').textContent = sym(cart[0].p) + total();
+    var send = document.getElementById('sendOrder');
+    send.setAttribute('aria-disabled', 'false'); send.style.pointerEvents = ''; send.style.opacity = '';
+    send.href = orderLink();
+
+    Array.prototype.forEach.call(wrap.querySelectorAll('[data-inc]'), function (b) { b.onclick = function () { cart[+b.getAttribute('data-inc')].q++; saveCart(); renderBar(); renderSheet(); }; });
+    Array.prototype.forEach.call(wrap.querySelectorAll('[data-dec]'), function (b) { b.onclick = function () { var i = +b.getAttribute('data-dec'); cart[i].q--; if (cart[i].q <= 0) cart.splice(i, 1); saveCart(); renderBar(); renderSheet(); }; });
+    Array.prototype.forEach.call(wrap.querySelectorAll('[data-rm]'), function (b) { b.onclick = function () { cart.splice(+b.getAttribute('data-rm'), 1); saveCart(); renderBar(); renderSheet(); }; });
+  }
+  function orderLink() {
+    var lines = cart.map(function (c) { return '• ' + c.n + ' x' + c.q + ' - ' + sym(c.p) + (num(c.p) * c.q); });
+    var msg = 'Hi ' + T.name + "! I'd like to order:\n" + lines.join('\n') + '\nTotal: ' + sym(cart[0].p) + total() + '\n\nName:\nAddress:';
+    return 'https://wa.me/' + WA + '?text=' + encodeURIComponent(msg);
+  }
+  function openSheet() { renderSheet(); document.getElementById('cartSheet').hidden = false; }
+  function closeSheet() { document.getElementById('cartSheet').hidden = true; }
+
+  /* ---- lightbox ---- */
+  var curProduct = null;
+  function openLightbox(i) {
+    var p = T.products[i]; if (!p) return;
+    curProduct = p;
+    var im = document.getElementById('lightboxImg');
+    im.src = img(p.kw, p.lock, 1000); im.alt = p.n; im.classList.remove('zoomed');
+    document.getElementById('lightbox').hidden = false;
+  }
+  function closeLightbox() { document.getElementById('lightbox').hidden = true; }
+
+  /* ---- wire chrome ---- */
+  document.getElementById('cartBarBtn').addEventListener('click', openSheet);
+  document.getElementById('sheetClose').addEventListener('click', closeSheet);
+  document.getElementById('cartSheet').addEventListener('click', function (e) { if (e.target === this) closeSheet(); });
+  document.getElementById('lightboxClose').addEventListener('click', closeLightbox);
+  document.getElementById('lightbox').addEventListener('click', function (e) { if (e.target === this) closeLightbox(); });
+  document.getElementById('lightboxImg').addEventListener('click', function () { this.classList.toggle('zoomed'); });
+  document.getElementById('lbCart').addEventListener('click', function () {
+    if (!curProduct) return;
+    addToCart(curProduct);
+    var self = this; self.textContent = 'Added';
+    setTimeout(function () { self.textContent = 'Add to cart'; }, 900);
+  });
+  document.getElementById('lbAsk').addEventListener('click', function () {
+    if (curProduct) window.open(askLink(curProduct.n), '_blank', 'noopener');
+  });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { closeSheet(); closeLightbox(); } });
+
+  renderCatalog();
+  renderBar();
 </script>
 </body>
 </html>
