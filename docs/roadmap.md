@@ -2,7 +2,7 @@
 
 Living tracker. Gate rule: never build the next gate before the current one passes. See `business-concept.md` for the full reasoning.
 
-Last updated: 2026-07-16
+Last updated: 2026-07-17
 
 ---
 
@@ -12,8 +12,8 @@ Last updated: 2026-07-16
 
 ```
 CONCEPT  ██████████ done   what/who/price/wedge/positioning locked
-LANDING  █████████░ 90%    built + designed; not deployed yet
-DEPLOY   ██░░░░░░░░ 20%    pushed to GitHub; domain wiring undecided
+LANDING  ██████████ done   built, designed, waitlist wired (Tally)
+DEPLOY   ██████████ done   zippp.link live on Vercel, DNS wired
 TRAFFIC  ░░░░░░░░░░ 0%     no posts yet
 SIGNAL   ░░░░░░░░░░ 0%     no waitlist emails yet
 ```
@@ -38,13 +38,12 @@ SIGNAL   ░░░░░░░░░░ 0%     no waitlist emails yet
 
 ## Now (Gate 1, remaining)
 
-- [ ] **Deploy decision.** Domain `zippp.link` is on an old Vercel project (`antep-mvp`), not the GitHub repo. Choose:
-  - Option B (recommended): new git-connected static project, root = `landing`, then move the domain. Future pushes auto-deploy.
-  - Option A: CLI-deploy `landing/` into `antep-mvp` (fast, not git-connected).
-- [ ] Wire the waitlist form to a real endpoint (Formspree or Tally). Currently a JS stub, saves nothing.
-- [ ] Add a favicon + social share image (OG tags) so shared links look real.
-- [ ] Fill placeholders: founder name, founder photo.
-- [ ] Deploy and verify live on zippp.link (desktop + mobile).
+- [x] Deploy decision resolved. `zippp.link` DNS wired to Vercel, live (308 redirect to `www.zippp.link`, confirmed).
+- [x] Waitlist wired to Tally form (commit daaf618).
+- [x] Favicon/logo done (z mark, commit a769577).
+- [x] Founder photo (Bob) + IG link in FAQ added (commit daaf618).
+- [ ] Verify OG/social share tags render right when link shared.
+- [ ] Final live check on mobile (real device, not just headless).
 
 ## Next (Gate 1, get signal)
 
@@ -88,15 +87,15 @@ SIGNAL   ░░░░░░░░░░ 0%     no waitlist emails yet
 
 ## Resolved
 
-- Deploy: Option B chosen. `antep-mvp` is dead. New git-connected static project `zippp-link` created, root = `landing`, live at zippp-link.vercel.app. Domain moved. DNS at Spaceship pending (user action).
+- Deploy: Option B chosen. `antep-mvp` is dead. New git-connected static project `zippp-link` created, root = `landing`, live at zippp-link.vercel.app.
+- Domain: DNS wired at Spaceship, `zippp.link` live (redirects to `www.zippp.link`, HTTP 308 confirmed 2026-07-17).
 - Moat: three legs (routing + best-looking seller + 0% fees). Positioning: "The best-looking WhatsApp shop. Fair routing. Keep every sale."
 - Design angle: selling templates, not bio templates. 3 to 4 beautiful, not 100.
 - Pricing: $19 / $39 kept. Annual + "Recommended" anchor later, not in smoke test.
 - Free tier: price-first smoke test shows $19 only. Correct for now.
+- Form: Tally chosen over Formspree, wired in commit daaf618.
 
 ## Open questions to resolve
 
-- DNS: user updates Spaceship A records to Vercel (216.198.79.1 / 64.29.17.1), then zippp.link goes live.
 - Git auto-deploy: blocked (Vercel GitHub account lacks write on repo). Fix = add collaborator + accept, or recreate project under repo-owning account. Until then, deploy via `vercel deploy --prod --cwd landing`.
-- Form: Formspree vs Tally.
 - Fonts: keep 3 families (Archivo + DM Sans + Shantell) or collapse to 2?

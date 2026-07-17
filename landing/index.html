@@ -149,12 +149,13 @@
   }
   .pframe {
     position: absolute; inset: 0; width: 100%; height: 100%; border: 0;
-    opacity: 0; animation: phoneCycle 18s infinite;
+    opacity: 0; animation: phoneCycle 18s infinite; pointer-events: none;
   }
   .pf1 { animation-delay: 0s; }
   .pf2 { animation-delay: 4.5s; }
   .pf3 { animation-delay: 9s; }
   .pf4 { animation-delay: 13.5s; }
+  .phone-tap { position: absolute; inset: 0; z-index: 4; cursor: pointer; }
   @keyframes phoneCycle {
     0%    { opacity: 0; }
     1.5%  { opacity: 1; }
@@ -375,17 +376,31 @@
       <p class="proof-line"><strong>First 100 shops get Pro free for a year.</strong> No card needed to join.</p>
     </div>
 
-    <div class="phone" aria-hidden="true">
+    <div class="phone">
       <div class="phone-screen">
         <div class="phone-notch"></div>
         <iframe class="pframe pf1" src="storefront.html?theme=boutique" title="Boutique storefront" scrolling="no"></iframe>
         <iframe class="pframe pf2" src="storefront.html?theme=kitchen" title="Kitchen storefront" scrolling="no"></iframe>
         <iframe class="pframe pf3" src="storefront.html?theme=glow" title="Glow storefront" scrolling="no"></iframe>
         <iframe class="pframe pf4" src="storefront.html?theme=maker" title="Maker storefront" scrolling="no"></iframe>
+        <a class="phone-tap" id="phoneTap" href="storefront.html?theme=boutique" aria-label="Open the live storefront demo"></a>
       </div>
     </div>
   </div>
 </div>
+<script>
+  (function () {
+    var order = ['boutique', 'kitchen', 'glow', 'maker'];
+    var tap = document.getElementById('phoneTap');
+    if (!tap) return;
+    var start = Date.now();
+    setInterval(function () {
+      var elapsed = (Date.now() - start) / 1000 % 18;
+      var idx = Math.min(3, Math.floor(elapsed / 4.5));
+      tap.href = 'storefront.html?theme=' + order[idx];
+    }, 500);
+  })();
+</script>
 
 <!-- BEFORE / AFTER CHAT THREAD -->
 <section class="section-pad">

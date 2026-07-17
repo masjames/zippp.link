@@ -18,16 +18,94 @@
     --z-accent: #E8442E; --z-green: #1FA855; --z-chrome: "DM Sans", system-ui, sans-serif;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: var(--paper); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+  body { background: var(--page-bg, var(--paper)); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
   img { display: block; max-width: 100%; }
 
-  .shop { max-width: 480px; margin: 0 auto; padding: 22px 18px 96px; }
+  .page-bg-layer {
+    position: fixed; inset: 0; z-index: -1; pointer-events: none;
+    background-image: var(--page-pattern-img, none);
+    background-size: var(--page-pattern-size, 40px 40px);
+    opacity: var(--page-pattern-opacity, 0);
+  }
 
-  header { text-align: center; padding: 8px 0 20px; }
-  .avatar { width: 66px; height: 66px; border-radius: 14px; background: var(--accent); margin: 0 auto 12px; display: flex; align-items: center; justify-content: center; }
-  .avatar svg { width: 34px; height: 34px; color: #fff; }
-  .shop-name { font-family: var(--display); font-size: 25px; line-height: 1.1; margin-bottom: 5px; }
-  .shop-bio { color: var(--muted); font-size: 13px; }
+  .shop { max-width: 480px; margin: 0 auto; padding: 0 0 96px; }
+
+  /* header card = linktree-style banner: own bg, own pattern, buttons, avatar overlaps bottom */
+  .header-card {
+    position: relative; overflow: hidden; margin: 0 0 46px;
+    padding: 18px 18px 46px; border-radius: 0 0 22px 22px;
+    background: var(--container-bg, var(--accent));
+  }
+  .header-card::before {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background-image: var(--pattern-img, none);
+    background-size: var(--pattern-size, 40px 40px);
+    opacity: var(--pattern-opacity, 0.35);
+  }
+  /* pro: custom header background image, sits above the pattern */
+  .header-card::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background-image: var(--header-img, none);
+    background-size: cover; background-position: center;
+    opacity: var(--header-img-opacity, 0);
+  }
+  .hc-row { position: relative; z-index: 1; display: flex; justify-content: space-between; align-items: center; }
+  .hc-btn {
+    width: 38px; height: 38px; border-radius: 50%; border: none; cursor: pointer;
+    background: rgba(255,255,255,0.22); color: #fff; display: flex; align-items: center; justify-content: center;
+  }
+  .hc-btn svg { width: 18px; height: 18px; }
+  .hc-btn:active { background: rgba(255,255,255,0.35); }
+
+  header { text-align: center; }
+  .avatar {
+    width: 92px; height: 92px; border-radius: 50%; background: #F4EEDE; margin: 26px auto 14px;
+    display: flex; align-items: center; justify-content: center; position: relative; z-index: 1;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.18); border: 3px solid #fff;
+  }
+  .avatar svg { width: 42px; height: 42px; color: var(--ink); }
+  .avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+  .shop-name { font-family: var(--display); font-size: 24px; line-height: 1.15; margin-bottom: 6px; color: #fff; position: relative; z-index: 1; }
+  .shop-bio { color: rgba(255,255,255,0.82); font-size: 13px; position: relative; z-index: 1; display: flex; align-items: center; justify-content: center; gap: 5px; padding: 0 20px; }
+  .shop-bio svg { width: 13px; height: 13px; flex-shrink: 0; }
+  .shop-loc {
+    color: rgba(255,255,255,0.72); font-size: 12px; position: relative; z-index: 1;
+    display: flex; align-items: center; justify-content: center; gap: 4px; margin-top: 5px;
+    text-decoration: none; max-width: 100%; padding: 0 30px;
+  }
+  .shop-loc svg { width: 12px; height: 12px; flex-shrink: 0; }
+  .shop-loc span {
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%;
+  }
+  .shop-loc:hover { text-decoration: underline; }
+  .shop-badges { position: relative; z-index: 1; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 10px; }
+  .shop-body { padding: 0 18px; }
+
+  /* verified badges: always green, tap opens modal explaining meaning */
+  .badge { position: relative; display: inline-flex; }
+  .badge-dot {
+    display: flex; align-items: center; justify-content: center; gap: 4px;
+    background: rgba(31,168,85,0.16); color: #cdf3da; border: 1px solid rgba(31,168,85,0.5);
+    border-radius: 999px; padding: 3px 9px 3px 7px; font: 600 11px var(--z-chrome); cursor: pointer;
+  }
+  .badge-dot svg { width: 12px; height: 12px; color: #3fd97a; }
+
+  /* verified badge modal */
+  .badge-modal-overlay { position: fixed; inset: 0; background: rgba(20,16,12,0.55); z-index: 70; display: flex; align-items: center; justify-content: center; padding: 20px; }
+  .badge-modal-overlay[hidden] { display: none; }
+  .badge-modal {
+    background: var(--z-paper); color: var(--z-ink); font-family: var(--z-chrome);
+    width: 100%; max-width: 340px; border-radius: 14px; padding: 24px 22px 22px; position: relative;
+    box-shadow: 0 16px 48px rgba(20,16,12,0.3); text-align: center;
+  }
+  .badge-modal-icon {
+    width: 46px; height: 46px; border-radius: 50%; background: rgba(31,168,85,0.14); border: 1px solid rgba(31,168,85,0.4);
+    display: flex; align-items: center; justify-content: center; margin: 0 auto 14px;
+  }
+  .badge-modal-icon svg { width: 24px; height: 24px; color: #1FA855; }
+  .badge-modal h3 { font-size: 17px; margin-bottom: 8px; }
+  .badge-modal p { font-size: 13.5px; color: var(--z-muted); line-height: 1.5; }
+  .badge-modal-close { position: absolute; top: 10px; right: 12px; background: none; border: none; font-size: 22px; line-height: 1; color: var(--z-muted); cursor: pointer; }
 
   .photo { background: var(--t); overflow: hidden; cursor: zoom-in; position: relative; }
   .photo img { width: 100%; height: 100%; object-fit: cover; }
@@ -70,8 +148,60 @@
   .products.single .name { font-family: var(--display); font-weight: 400; font-size: 19px; margin-bottom: 3px; }
   .products.single .price { font-size: 14px; margin-bottom: 12px; }
 
-  footer { text-align: center; color: var(--muted); font-size: 12px; padding-top: 26px; }
-  footer a { color: var(--muted); text-decoration: none; }
+  footer { text-align: center; padding-top: 30px; }
+  .zippp-badge {
+    display: inline-flex; align-items: center; gap: 7px; text-decoration: none;
+    color: var(--z-ink); background: #fff; border: 1px solid var(--z-line);
+    font: 600 12.5px var(--z-chrome); padding: 8px 14px 8px 10px; border-radius: 999px;
+  }
+  .zippp-badge .mark { width: 18px; height: 18px; border-radius: 5px; background: var(--z-accent); display: flex; align-items: center; justify-content: center; }
+  .zippp-badge .mark span { color: #fff; font-size: 11px; font-weight: 700; }
+  .zippp-badge b { color: var(--z-accent); }
+
+  /* toolbar: theme picker + bg settings, floats over page, not part of the shop card */
+  .toolbar { position: fixed; top: 14px; right: 14px; z-index: 45; display: flex; gap: 8px; }
+  .tb-btn {
+    width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--z-line); background: #fff;
+    display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 3px 10px rgba(20,16,12,0.12);
+  }
+  .tb-btn svg { width: 17px; height: 17px; color: var(--z-ink); }
+  .tb-panel {
+    position: fixed; top: 58px; right: 14px; z-index: 46; width: 232px;
+    background: var(--z-paper); border: 1px solid var(--z-line); border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(20,16,12,0.18); padding: 14px; font-family: var(--z-chrome);
+  }
+  .tb-panel[hidden] { display: none; }
+  .tb-panel h4 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--z-muted); margin: 12px 0 7px; }
+  .tb-panel h4:first-child { margin-top: 0; }
+  .tb-themes { display: flex; flex-wrap: wrap; gap: 6px; }
+  .tb-theme {
+    border: 1px solid var(--z-line); background: #fff; border-radius: 7px; padding: 6px 10px;
+    font: 600 12px var(--z-chrome); cursor: pointer; color: var(--z-ink);
+  }
+  .tb-theme.on { border-color: var(--z-ink); background: var(--z-ink); color: #fff; }
+  .tb-patterns { display: flex; gap: 6px; }
+  .tb-pattern {
+    width: 34px; height: 34px; border-radius: 7px; border: 1px solid var(--z-line); cursor: pointer; background: #eee;
+  }
+  .tb-pattern.on { outline: 2px solid var(--z-ink); outline-offset: 1px; }
+  .tb-range { width: 100%; margin-top: 4px; }
+  .tb-panel-body { max-height: 74vh; overflow-y: auto; }
+  .tb-sub { display: flex; gap: 6px; margin-bottom: 8px; }
+  .tb-sub button {
+    flex: 1; border: 1px solid var(--z-line); background: #fff; border-radius: 7px; padding: 5px 4px;
+    font: 600 11px var(--z-chrome); cursor: pointer; color: var(--z-muted);
+  }
+  .tb-sub button.on { border-color: var(--z-ink); background: var(--z-ink); color: #fff; }
+  .tb-input {
+    width: 100%; border: 1px solid var(--z-line); border-radius: 7px; padding: 7px 9px;
+    font: 500 12px var(--z-chrome); margin-top: 2px;
+  }
+  .tb-color { width: 100%; height: 30px; border: 1px solid var(--z-line); border-radius: 7px; cursor: pointer; margin-top: 2px; }
+  .tb-pro-tag {
+    display: inline-block; font: 700 9px var(--z-chrome); letter-spacing: 0.04em; color: #fff;
+    background: var(--z-accent); border-radius: 4px; padding: 1px 5px; margin-left: 6px; vertical-align: 1px;
+  }
+  .tb-hint { font-size: 11px; color: var(--z-muted); margin-top: 6px; line-height: 1.4; }
 
   /* ===== fixed zippp chrome: cart bar, sheet, lightbox (identical across themes) ===== */
   .cart-bar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; display: flex; justify-content: center; padding: 12px; pointer-events: none; }
@@ -134,6 +264,56 @@
 </style>
 </head>
 <body>
+<div class="page-bg-layer" id="pageBgLayer"></div>
+<div class="toolbar">
+  <button type="button" class="tb-btn" id="tbSettingsBtn" aria-label="Background settings">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+  </button>
+</div>
+<div class="tb-panel" id="tbPanel" hidden>
+  <div class="tb-panel-body">
+    <h4>Theme</h4>
+    <div class="tb-themes" id="tbThemes"></div>
+
+    <h4>Header background <span class="tb-pro-tag">PRO</span></h4>
+    <div class="tb-sub" id="hdrSourceTabs">
+      <button type="button" data-hdr-src="pattern">Pattern</button>
+      <button type="button" data-hdr-src="image">Custom image</button>
+    </div>
+    <div id="hdrPatternBlock">
+      <div class="tb-patterns" id="tbPatterns"></div>
+      <h4>Pattern opacity</h4>
+      <input type="range" class="tb-range" id="tbOpacity" min="0" max="100" value="35" />
+    </div>
+    <div id="hdrImageBlock" hidden>
+      <input type="text" class="tb-input" id="hdrImgUrl" placeholder="Image URL" />
+      <h4>Image opacity</h4>
+      <input type="range" class="tb-range" id="hdrImgOpacity" min="0" max="100" value="60" />
+    </div>
+
+    <h4>Page background</h4>
+    <div class="tb-sub" id="pageSourceTabs">
+      <button type="button" data-page-src="color">Color</button>
+      <button type="button" data-page-src="pattern">Pattern</button>
+      <button type="button" data-page-src="image">Image <span class="tb-pro-tag">PRO</span></button>
+    </div>
+    <div id="pageColorBlock">
+      <input type="color" class="tb-color" id="pageColor" />
+    </div>
+    <div id="pagePatternBlock" hidden>
+      <div class="tb-patterns" id="tbPagePatterns"></div>
+      <h4>Pattern opacity</h4>
+      <input type="range" class="tb-range" id="tbPageOpacity" min="0" max="100" value="20" />
+    </div>
+    <div id="pageImageBlock" hidden>
+      <input type="text" class="tb-input" id="pageImgUrl" placeholder="Image URL" />
+      <h4>Image opacity</h4>
+      <input type="range" class="tb-range" id="pageImgOpacity" min="0" max="100" value="30" />
+    </div>
+    <p class="tb-hint">Pro sellers can set a custom header image and page background image. Free shops keep the built-in patterns and colors.</p>
+  </div>
+</div>
+
 <div class="shop" id="shop"></div>
 
 <div class="cart-bar" id="cartBar" hidden>
@@ -173,59 +353,76 @@
   </div>
 </div>
 
+<div class="badge-modal-overlay" id="badgeModal" hidden>
+  <div class="badge-modal" role="dialog" aria-modal="true">
+    <button type="button" class="badge-modal-close" id="badgeModalClose" aria-label="Close">&times;</button>
+    <div class="badge-modal-icon" id="badgeModalIcon"></div>
+    <h3 id="badgeModalTitle"></h3>
+    <p id="badgeModalBody"></p>
+  </div>
+</div>
+
 <script>
   var WA = "15551234567"; // demo number
 
   var THEMES = {
     boutique: {
       name: "Rose Threads", bio: "Handmade jewelry · Ships worldwide",
+      addr: "Rose Threads Studio, 214 Elm St, Austin, TX",
+      verified: { wa: true, pro: true },
       paper: "#FAF7F1", ink: "#1C1A15", muted: "#8A8272", line: "#E7E0D3", accent: "#8A5A2B",
       display: '"Fraunces", Georgia, serif', body: '"Libre Franklin", system-ui, sans-serif',
       fonts: "Fraunces:opsz,wght@9..144,400;9..144,600&family=Libre+Franklin:wght@400;500;600",
-      layout: "grid", avatar: "#D8C4A8", icon: "gem",
+      layout: "grid", avatar: "#D8C4A8", icon: "gem", logo: "assets/logos/boutique.webp",
       products: [
-        { n: "Gold Chain Necklace", p: "$25", t: "#E7D3B0", kw: "gold,necklace", lock: 21 },
-        { n: "Pearl Drop Earrings", p: "$18", t: "#EDE3D3", kw: "pearl,earrings", lock: 22 },
-        { n: "Silver Charm Bracelet", p: "$32", t: "#DCD8CE", kw: "silver,bracelet", lock: 23 },
-        { n: "Rose Gold Ring", p: "$28", t: "#E9CDB8", kw: "gold,ring,jewelry", lock: 24 }
+        { n: "Gold Chain Necklace", p: "$25", t: "#E7D3B0", img: "assets/products/boutique/0.webp" },
+        { n: "Pearl Drop Earrings", p: "$18", t: "#EDE3D3", img: "assets/products/boutique/1.webp" },
+        { n: "Silver Charm Bracelet", p: "$32", t: "#DCD8CE", img: "assets/products/boutique/2.webp" },
+        { n: "Rose Gold Ring", p: "$28", t: "#E9CDB8", img: "assets/products/boutique/3.webp" }
       ]
     },
     kitchen: {
       name: "Nadia's Kitchen", bio: "Fresh bakes · Baked to order",
+      addr: "Nadia's Kitchen, Jl. Diponegoro No. 3, Malang",
+      verified: { wa: true, pro: true },
       paper: "#FDF6EC", ink: "#2A1E14", muted: "#8A7259", line: "#EBDFC9", accent: "#C0442E",
       display: '"Archivo", system-ui, sans-serif', body: '"DM Sans", system-ui, sans-serif',
       fonts: "Archivo:wght@600;700&family=DM+Sans:wght@400;500;600",
-      layout: "list", avatar: "#E7C79B", icon: "bread",
+      layout: "list", avatar: "#E7C79B", icon: "bread", logo: "assets/logos/kitchen.webp",
       products: [
-        { n: "Sourdough Loaf", p: "$9", t: "#E8CFA6", kw: "sourdough,bread", lock: 31 },
-        { n: "Cinnamon Rolls · 6 pack", p: "$14", t: "#E2B98C", kw: "cinnamon,rolls", lock: 32 },
-        { n: "Butter Croissant", p: "$4", t: "#EAD3A5", kw: "croissant", lock: 33 },
-        { n: "Chocolate Babka", p: "$12", t: "#C99E76", kw: "chocolate,bread", lock: 34 }
+        { n: "Sourdough Loaf", p: "$9", t: "#E8CFA6", img: "assets/products/kitchen/0.webp" },
+        { n: "Cinnamon Rolls · 6 pack", p: "$14", t: "#E2B98C", img: "assets/products/kitchen/1.webp" },
+        { n: "Butter Croissant", p: "$4", t: "#EAD3A5", img: "assets/products/kitchen/2.webp" },
+        { n: "Chocolate Babka", p: "$12", t: "#C99E76", img: "assets/products/kitchen/3.webp" }
       ]
     },
     glow: {
       name: "Glow Bar", bio: "Small-batch skincare",
+      addr: "Glow Bar Studio, 88 Bloom Ave, Portland, OR",
+      verified: { wa: true, pro: false },
       paper: "#F7F6F4", ink: "#23201C", muted: "#8C8A82", line: "#E8E6E0", accent: "#5E7A63",
       display: '"Newsreader", Georgia, serif', body: '"DM Sans", system-ui, sans-serif',
       fonts: "Newsreader:opsz,wght@6..72,400;6..72,500&family=DM+Sans:wght@400;500;600",
-      layout: "grid", avatar: "#CBD6C8", icon: "drop",
+      layout: "grid", avatar: "#CBD6C8", icon: "drop", logo: "assets/logos/glow.webp",
       products: [
-        { n: "Vitamin C Serum", p: "$28", t: "#DDE6DA", kw: "serum,skincare", lock: 41 },
-        { n: "Lip Balm Trio", p: "$15", t: "#E9E4DC", kw: "lip,balm", lock: 42 },
-        { n: "Clay Mask", p: "$22", t: "#D9D3C7", kw: "face,mask,skincare", lock: 43 },
-        { n: "Rose Water Mist", p: "$19", t: "#E7DAD9", kw: "skincare,bottle", lock: 44 }
+        { n: "Vitamin C Serum", p: "$28", t: "#DDE6DA", img: "assets/products/glow/0.webp" },
+        { n: "Lip Balm Trio", p: "$15", t: "#E9E4DC", img: "assets/products/glow/1.webp" },
+        { n: "Clay Mask", p: "$22", t: "#D9D3C7", img: "assets/products/glow/2.webp" },
+        { n: "Rose Water Mist", p: "$19", t: "#E7DAD9", img: "assets/products/glow/3.webp" }
       ]
     },
     maker: {
       name: "Wildthread Studio", bio: "Hand-woven goods · Made slow",
+      addr: "Wildthread Studio, 12 Weaver Ln, Asheville, NC",
+      verified: { wa: true, pro: false },
       paper: "#F1ECE3", ink: "#26221B", muted: "#867D6D", line: "#DFD8CB", accent: "#A5613E",
       display: '"Newsreader", Georgia, serif', body: '"Work Sans", system-ui, sans-serif',
       fonts: "Newsreader:opsz,wght@6..72,400;6..72,500&family=Work+Sans:wght@400;500;600",
-      layout: "single", avatar: "#CBB79A", icon: "spool",
+      layout: "single", avatar: "#CBB79A", icon: "spool", logo: "assets/logos/maker.webp",
       products: [
-        { n: "Woven Wall Hanging", p: "$68", t: "#D8C7AC", kw: "macrame,weaving", lock: 51 },
-        { n: "Macrame Plant Hanger", p: "$34", t: "#DED3BE", kw: "macrame,plant", lock: 52 },
-        { n: "Hand-dyed Table Runner", p: "$45", t: "#CDBBA0", kw: "textile,handmade", lock: 53 }
+        { n: "Woven Wall Hanging", p: "$68", t: "#D8C7AC", img: "assets/products/maker/0.webp" },
+        { n: "Macrame Plant Hanger", p: "$34", t: "#DED3BE", img: "assets/products/maker/1.webp" },
+        { n: "Hand-dyed Table Runner", p: "$45", t: "#CDBBA0", img: "assets/products/maker/2.webp" }
       ]
     }
   };
@@ -244,21 +441,56 @@
     var m = new RegExp('[?&]' + name + '=([^&]+)').exec(location.search);
     return m ? decodeURIComponent(m[1]) : null;
   }
-  function img(kw, lock, size) { size = size || 600; return 'https://loremflickr.com/' + size + '/' + size + '/' + kw + '?lock=' + lock; }
   function num(price) { return parseFloat(String(price).replace(/[^0-9.]/g, '')) || 0; }
   function sym(price) { var m = String(price).match(/^[^0-9.]+/); return m ? m[0] : '$'; }
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]; }); }
 
   var KEY = param('theme') || 'boutique';
   var T = THEMES[KEY] || THEMES.boutique;
-  var CART_KEY = 'zippp_cart_' + KEY;
-  var cart = [];
-  try { cart = JSON.parse(localStorage.getItem(CART_KEY)) || []; } catch (e) { cart = []; }
+  var CART_KEY, cart;
+  function loadCart() {
+    CART_KEY = 'zippp_cart_' + KEY;
+    try { cart = JSON.parse(localStorage.getItem(CART_KEY)) || []; } catch (e) { cart = []; }
+  }
   function saveCart() { try { localStorage.setItem(CART_KEY, JSON.stringify(cart)); } catch (e) {} }
+  loadCart();
 
   function askLink(product) {
     return 'https://wa.me/' + WA + '?text=' + encodeURIComponent('Hi ' + T.name + "! I have a question about " + product + ':');
   }
+
+  var PIN_ICON = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>';
+  var SHARE_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7"/><path d="M16 6l-4-4-4 4"/><path d="M12 2v13"/></svg>';
+  var VERIFIED_ICON = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.4 1.9 3-.6.9 2.9 2.9.9-.6 3L22.6 12l-1.9 2.4.6 3-2.9.9-.9 2.9-3-.6L12 22.6l-2.4-1.9-3 .6-.9-2.9-2.9-.9.6-3L1.4 12l1.9-2.4-.6-3 2.9-.9.9-2.9 3 .6L12 2z"/><path d="M8.5 12.3l2.3 2.3 4.7-4.9" fill="none" stroke="#0c1a10" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+  var BADGE_INFO = {
+    wa: {
+      title: 'Verified WhatsApp number',
+      body: 'We confirmed this number belongs to this seller and is active on WhatsApp, so messages and orders reach a real person.'
+    },
+    pro: {
+      title: 'Verified seller',
+      body: 'This seller is on a paid Pro plan and was manually checked by the zippp team as a genuine, active business.'
+    }
+  };
+  function openBadgeModal(key) {
+    var info = BADGE_INFO[key]; if (!info) return;
+    document.getElementById('badgeModalIcon').innerHTML = VERIFIED_ICON;
+    document.getElementById('badgeModalTitle').textContent = info.title;
+    document.getElementById('badgeModalBody').textContent = info.body;
+    document.getElementById('badgeModal').hidden = false;
+  }
+  function closeBadgeModal() { document.getElementById('badgeModal').hidden = true; }
+
+  var PATTERNS = {
+    none: null,
+    grid: 'linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)',
+    dots: 'radial-gradient(#fff 1.5px, transparent 1.5px)',
+    diagonal: 'repeating-linear-gradient(45deg, #fff 0, #fff 1px, transparent 1px, transparent 12px)'
+  };
+  var PATTERN_SIZE = { none: '0 0', grid: '40px 40px', dots: '18px 18px', diagonal: '18px 18px' };
+
+  function patternCss(k) { return PATTERNS[k] ? PATTERNS[k] : 'none'; }
 
   function renderCatalog() {
     var link = document.createElement('link');
@@ -271,12 +503,12 @@
     r.setProperty('--muted', T.muted); r.setProperty('--line', T.line);
     r.setProperty('--accent', T.accent); r.setProperty('--display', T.display);
     r.setProperty('--body', T.body); r.setProperty('--a-tint', T.avatar);
+    r.setProperty('--container-bg', T.accent); r.setProperty('--page-bg', T.paper);
 
     var cards = T.products.map(function (p, i) {
-      var src = img(p.kw, p.lock);
       return '<div class="card">' +
         '<div class="photo" style="--t:' + p.t + '" data-i="' + i + '">' +
-          '<img src="' + src + '" alt="' + esc(p.n) + '" loading="lazy" decoding="async" onerror="this.style.display=\'none\'" />' +
+          '<img src="' + p.img + '" alt="' + esc(p.n) + '" loading="lazy" decoding="async" onerror="this.style.display=\'none\'" />' +
         '</div>' +
         '<div class="info">' +
           '<div class="name">' + esc(p.n) + '</div>' +
@@ -288,14 +520,37 @@
       '</div>';
     }).join('');
 
-    var av = '<div class="avatar">' + iconSvg(T.icon) + '</div>';
+    var av = '<div class="avatar">' + (T.logo ? '<img src="' + T.logo + '" alt="' + esc(T.name) + ' logo" />' : iconSvg(T.icon)) + '</div>';
+
+    var badges = '';
+    if (T.verified && T.verified.wa) {
+      badges += '<span class="badge" data-badge="wa"><span class="badge-dot">' + VERIFIED_ICON + 'WhatsApp</span></span>';
+    }
+    if (T.verified && T.verified.pro) {
+      badges += '<span class="badge" data-badge="pro"><span class="badge-dot">' + VERIFIED_ICON + 'Verified seller</span></span>';
+    }
+
+    var mapsUrl = 'https://maps.google.com/?q=' + encodeURIComponent(T.addr);
 
     document.getElementById('shop').innerHTML =
-      '<header>' + av +
-      '<div class="shop-name">' + esc(T.name) + '</div>' +
-      '<div class="shop-bio">' + esc(T.bio) + '</div></header>' +
-      '<div class="products ' + T.layout + '">' + cards + '</div>' +
-      '<footer><a href="https://zippp.link">zippp.link/' + KEY + '</a></footer>';
+      '<div class="header-card">' +
+        '<div class="hc-row">' +
+          '<button type="button" class="hc-btn" id="shareBtn" aria-label="Share this shop">' + SHARE_ICON + '</button>' +
+          '<span></span>' +
+        '</div>' +
+        '<header>' + av +
+          '<div class="shop-name">' + esc(T.name) + '</div>' +
+          '<div class="shop-bio"><span>' + esc(T.bio) + '</span></div>' +
+          (badges ? '<div class="shop-badges">' + badges + '</div>' : '') +
+          '<a class="shop-loc" href="' + mapsUrl + '" target="_blank" rel="noopener">' + PIN_ICON + '<span>' + esc(T.addr) + '</span></a>' +
+        '</header>' +
+      '</div>' +
+      '<div class="shop-body">' +
+        '<div class="products ' + T.layout + '">' + cards + '</div>' +
+        '<footer><a class="zippp-badge" href="https://zippp.link" target="_blank" rel="noopener">' +
+          '<span class="mark"><span>z</span></span> Made with <b>zippp</b> — Make yours, free' +
+        '</a></footer>' +
+      '</div>';
 
     // wire add-to-cart
     Array.prototype.forEach.call(document.querySelectorAll('.btn-cart'), function (b) {
@@ -305,13 +560,30 @@
     Array.prototype.forEach.call(document.querySelectorAll('.photo'), function (ph) {
       ph.addEventListener('click', function () { openLightbox(+ph.getAttribute('data-i')); });
     });
+    // wire verified badges: hover shows quick tip, click opens full-detail modal
+    Array.prototype.forEach.call(document.querySelectorAll('.badge'), function (b) {
+      b.addEventListener('click', function (e) {
+        e.stopPropagation();
+        openBadgeModal(b.getAttribute('data-badge'));
+      });
+    });
+    // wire share
+    document.getElementById('shareBtn').addEventListener('click', function () {
+      var url = location.href;
+      if (navigator.share) { navigator.share({ title: T.name, url: url }).catch(function () {}); }
+      else {
+        navigator.clipboard && navigator.clipboard.writeText(url);
+        var b = this; var old = b.innerHTML; b.innerHTML = '✓';
+        setTimeout(function () { b.innerHTML = old; }, 1200);
+      }
+    });
   }
 
   /* ---- cart ---- */
   function addToCart(p) {
     var found = cart.filter(function (c) { return c.n === p.n; })[0];
     if (found) { found.q += 1; }
-    else { cart.push({ n: p.n, p: p.p, q: 1, kw: p.kw, lock: p.lock }); }
+    else { cart.push({ n: p.n, p: p.p, q: 1, img: p.img }); }
     saveCart(); renderBar();
     var b = document.getElementById('cartBarBtn'); b.style.transform = 'scale(1.03)';
     setTimeout(function () { b.style.transform = ''; }, 150);
@@ -338,7 +610,7 @@
     }
     wrap.innerHTML = cart.map(function (c, i) {
       return '<div class="ci">' +
-        '<div class="ci-thumb"><img src="' + img(c.kw, c.lock, 120) + '" alt="" loading="lazy" onerror="this.style.display=\'none\'"></div>' +
+        '<div class="ci-thumb"><img src="' + c.img + '" alt="" loading="lazy" onerror="this.style.display=\'none\'"></div>' +
         '<div><div class="ci-name">' + esc(c.n) + '</div><div class="ci-price">' + esc(c.p) + '</div>' +
         '<button class="ci-rm" data-rm="' + i + '">Remove</button></div>' +
         '<div class="ci-qty"><button data-dec="' + i + '" aria-label="Decrease">−</button>' +
@@ -369,7 +641,7 @@
     var p = T.products[i]; if (!p) return;
     curProduct = p;
     var im = document.getElementById('lightboxImg');
-    im.src = img(p.kw, p.lock, 1000); im.alt = p.n; im.classList.remove('zoomed');
+    im.src = p.img; im.alt = p.n; im.classList.remove('zoomed');
     document.getElementById('lightbox').hidden = false;
   }
   function closeLightbox() { document.getElementById('lightbox').hidden = true; }
@@ -390,10 +662,171 @@
   document.getElementById('lbAsk').addEventListener('click', function () {
     if (curProduct) window.open(askLink(curProduct.n), '_blank', 'noopener');
   });
-  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { closeSheet(); closeLightbox(); } });
+  document.getElementById('badgeModalClose').addEventListener('click', closeBadgeModal);
+  document.getElementById('badgeModal').addEventListener('click', function (e) { if (e.target === this) closeBadgeModal(); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { closeSheet(); closeLightbox(); closeBadgeModal(); } });
 
+  /* ---- toolbar: theme switch + header/page background (pro settings) ---- */
+  /* toolbar DOM lives outside #shop, so switching themes never rebuilds or
+     hides it -- the settings panel stays open across theme switches. */
+  var BG_KEY, bg;
+  function defaultBg() {
+    return {
+      header: { src: 'pattern', pattern: 'grid', opacity: 35, imgUrl: '', imgOpacity: 60 },
+      page: { src: 'color', color: T.paper, pattern: 'none', opacity: 20, imgUrl: '', imgOpacity: 30 }
+    };
+  }
+  function loadBg() {
+    BG_KEY = 'zippp_bg_' + KEY;
+    bg = defaultBg();
+    try {
+      var saved = JSON.parse(localStorage.getItem(BG_KEY));
+      if (saved) { bg.header = Object.assign(bg.header, saved.header); bg.page = Object.assign(bg.page, saved.page); }
+    } catch (e) {}
+  }
+  function saveBg() { try { localStorage.setItem(BG_KEY, JSON.stringify(bg)); } catch (e) {} }
+
+  function applyHeaderBg() {
+    var r = document.documentElement.style;
+    if (bg.header.src === 'image' && bg.header.imgUrl) {
+      r.setProperty('--header-img', 'url(' + JSON.stringify(bg.header.imgUrl).slice(1, -1) + ')');
+      r.setProperty('--header-img-opacity', bg.header.imgOpacity / 100);
+      r.setProperty('--pattern-opacity', 0);
+    } else {
+      r.setProperty('--header-img-opacity', 0);
+      r.setProperty('--pattern-img', patternCss(bg.header.pattern));
+      r.setProperty('--pattern-size', PATTERN_SIZE[bg.header.pattern] || '40px 40px');
+      r.setProperty('--pattern-opacity', bg.header.opacity / 100);
+    }
+  }
+  function applyPageBg() {
+    var r = document.documentElement.style;
+    var layer = document.getElementById('pageBgLayer');
+    if (bg.page.src === 'color') {
+      r.setProperty('--page-bg', bg.page.color);
+      layer.style.backgroundImage = 'none';
+      r.setProperty('--page-pattern-opacity', 0);
+    } else if (bg.page.src === 'pattern') {
+      r.setProperty('--page-bg', bg.page.color);
+      layer.style.backgroundImage = '';
+      r.setProperty('--page-pattern-img', patternCss(bg.page.pattern).replace(/#fff/g, T.ink));
+      r.setProperty('--page-pattern-size', PATTERN_SIZE[bg.page.pattern] || '40px 40px');
+      r.setProperty('--page-pattern-opacity', bg.page.opacity / 100);
+    } else if (bg.page.src === 'image' && bg.page.imgUrl) {
+      r.setProperty('--page-bg', bg.page.color);
+      r.setProperty('--page-pattern-opacity', 0);
+      layer.style.backgroundImage = 'url(' + JSON.stringify(bg.page.imgUrl).slice(1, -1) + ')';
+      layer.style.backgroundSize = 'cover';
+      layer.style.backgroundPosition = 'center';
+      layer.style.opacity = bg.page.imgOpacity / 100;
+    }
+  }
+
+  function setTab(wrapId, attr, value, cb) {
+    var wrap = document.getElementById(wrapId);
+    Array.prototype.forEach.call(wrap.querySelectorAll('button'), function (b) {
+      b.classList.toggle('on', b.getAttribute(attr) === value);
+    });
+    cb(value);
+  }
+
+  function renderToolbar() {
+    var themesWrap = document.getElementById('tbThemes');
+    themesWrap.innerHTML = Object.keys(THEMES).map(function (k) {
+      return '<button type="button" class="tb-theme' + (k === KEY ? ' on' : '') + '" data-theme="' + k + '">' + esc(THEMES[k].name) + '</button>';
+    }).join('');
+    Array.prototype.forEach.call(themesWrap.querySelectorAll('[data-theme]'), function (b) {
+      b.addEventListener('click', function () { switchTheme(b.getAttribute('data-theme')); });
+    });
+
+    function patternSwatches(wrapId, current, onPick) {
+      var wrap = document.getElementById(wrapId);
+      wrap.innerHTML = Object.keys(PATTERNS).map(function (k) {
+        var css = PATTERNS[k] ? ('background-image:' + PATTERNS[k] + ';background-size:' + (PATTERN_SIZE[k] || '12px 12px') + ';background-color:' + T.accent) : ('background-color:' + T.accent);
+        return '<button type="button" class="tb-pattern' + (k === current ? ' on' : '') + '" data-pattern="' + k + '" title="' + k + '" style="' + css + '"></button>';
+      }).join('');
+      Array.prototype.forEach.call(wrap.querySelectorAll('[data-pattern]'), function (b) {
+        b.addEventListener('click', function () {
+          Array.prototype.forEach.call(wrap.querySelectorAll('.tb-pattern'), function (x) { x.classList.remove('on'); });
+          b.classList.add('on');
+          onPick(b.getAttribute('data-pattern'));
+        });
+      });
+    }
+
+    // header bg controls
+    patternSwatches('tbPatterns', bg.header.pattern, function (k) { bg.header.pattern = k; saveBg(); applyHeaderBg(); });
+    var hOpacity = document.getElementById('tbOpacity');
+    hOpacity.value = bg.header.opacity;
+    hOpacity.oninput = function () { bg.header.opacity = +hOpacity.value; saveBg(); applyHeaderBg(); };
+    var hUrl = document.getElementById('hdrImgUrl');
+    hUrl.value = bg.header.imgUrl;
+    hUrl.oninput = function () { bg.header.imgUrl = hUrl.value; saveBg(); applyHeaderBg(); };
+    var hImgOpacity = document.getElementById('hdrImgOpacity');
+    hImgOpacity.value = bg.header.imgOpacity;
+    hImgOpacity.oninput = function () { bg.header.imgOpacity = +hImgOpacity.value; saveBg(); applyHeaderBg(); };
+    document.getElementById('hdrPatternBlock').hidden = bg.header.src === 'image';
+    document.getElementById('hdrImageBlock').hidden = bg.header.src !== 'image';
+    setTab('hdrSourceTabs', 'data-hdr-src', bg.header.src, function () {});
+    Array.prototype.forEach.call(document.querySelectorAll('[data-hdr-src]'), function (b) {
+      b.onclick = function () {
+        bg.header.src = b.getAttribute('data-hdr-src'); saveBg(); applyHeaderBg();
+        document.getElementById('hdrPatternBlock').hidden = bg.header.src === 'image';
+        document.getElementById('hdrImageBlock').hidden = bg.header.src !== 'image';
+        setTab('hdrSourceTabs', 'data-hdr-src', bg.header.src, function () {});
+      };
+    });
+
+    // page bg controls
+    patternSwatches('tbPagePatterns', bg.page.pattern, function (k) { bg.page.pattern = k; saveBg(); applyPageBg(); });
+    var pColor = document.getElementById('pageColor');
+    pColor.value = bg.page.color;
+    pColor.oninput = function () { bg.page.color = pColor.value; saveBg(); applyPageBg(); };
+    var pOpacity = document.getElementById('tbPageOpacity');
+    pOpacity.value = bg.page.opacity;
+    pOpacity.oninput = function () { bg.page.opacity = +pOpacity.value; saveBg(); applyPageBg(); };
+    var pUrl = document.getElementById('pageImgUrl');
+    pUrl.value = bg.page.imgUrl;
+    pUrl.oninput = function () { bg.page.imgUrl = pUrl.value; saveBg(); applyPageBg(); };
+    var pImgOpacity = document.getElementById('pageImgOpacity');
+    pImgOpacity.value = bg.page.imgOpacity;
+    pImgOpacity.oninput = function () { bg.page.imgOpacity = +pImgOpacity.value; saveBg(); applyPageBg(); };
+
+    function showPageBlock(src) {
+      document.getElementById('pageColorBlock').hidden = src !== 'color';
+      document.getElementById('pagePatternBlock').hidden = src !== 'pattern';
+      document.getElementById('pageImageBlock').hidden = src !== 'image';
+    }
+    showPageBlock(bg.page.src);
+    setTab('pageSourceTabs', 'data-page-src', bg.page.src, function () {});
+    Array.prototype.forEach.call(document.querySelectorAll('[data-page-src]'), function (b) {
+      b.onclick = function () {
+        bg.page.src = b.getAttribute('data-page-src'); saveBg(); applyPageBg();
+        showPageBlock(bg.page.src);
+        setTab('pageSourceTabs', 'data-page-src', bg.page.src, function () {});
+      };
+    });
+  }
+  document.getElementById('tbSettingsBtn').addEventListener('click', function () {
+    document.getElementById('tbPanel').hidden = !document.getElementById('tbPanel').hidden;
+  });
+
+  function switchTheme(k) {
+    if (!THEMES[k] || k === KEY) return;
+    KEY = k; T = THEMES[KEY];
+    history.replaceState(null, '', location.pathname + '?theme=' + KEY);
+    loadCart(); loadBg();
+    renderCatalog(); renderBar();
+    applyHeaderBg(); applyPageBg();
+    renderToolbar();
+  }
+
+  loadBg();
   renderCatalog();
   renderBar();
+  applyHeaderBg();
+  applyPageBg();
+  renderToolbar();
 </script>
 </body>
 </html>
