@@ -221,24 +221,45 @@
   .t1 { grid-area: t1; } .t2 { grid-area: t2; } .t3 { grid-area: t3; }
 
   /* Features as outcomes */
-  /* After Zippp: numbered, alternating left/right, narrow */
-  .after { max-width: 760px; margin: 48px auto 0; }
-  .after-item { display: flex; gap: 18px; align-items: flex-start; max-width: 470px; margin: 0 0 34px; }
+  /* Centered Before/After titles */
+  .ba-title { text-align: center; }
+
+  /* After Zippp: WhatsApp-style chat thread */
+  .after {
+    max-width: 560px; margin: 44px auto 0;
+    background: #F4F1E9;
+    border: 1px solid var(--hairline);
+    border-radius: 12px;
+    padding: 24px 20px;
+  }
+  .after-item { display: flex; gap: 10px; align-items: flex-end; margin-bottom: 16px; max-width: 88%; }
   .after-item:last-child { margin-bottom: 0; }
-  .after-item:nth-child(even) { margin-left: auto; flex-direction: row-reverse; text-align: right; }
+  .after-item:nth-child(even) { margin-left: auto; flex-direction: row-reverse; }
   .after-num {
     flex-shrink: 0;
-    width: 42px; height: 42px;
+    width: 32px; height: 32px;
     border-radius: 50%;
     background: var(--accent);
     color: #fff;
     font-family: var(--font-display);
     font-weight: 700;
-    font-size: 19px;
+    font-size: 15px;
     display: flex; align-items: center; justify-content: center;
   }
-  .after-item h3 { font-size: 20px; margin-bottom: 6px; }
-  .after-item p { color: var(--muted); }
+  .after-bubble {
+    background: #fff;
+    border-radius: 12px;
+    border-bottom-left-radius: 3px;
+    padding: 11px 14px;
+    box-shadow: 0 1px 1px rgba(0,0,0,0.05);
+  }
+  .after-item:nth-child(even) .after-bubble {
+    background: #E7FFDB;
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 3px;
+  }
+  .after-bubble h3 { font-size: 16px; margin-bottom: 3px; }
+  .after-bubble p { font-size: 15px; color: var(--muted); line-height: 1.45; }
 
   /* Pricing */
   .pricing .wrap { max-width: 560px; text-align: left; }
@@ -296,7 +317,8 @@
     h2 { font-size: 30px; }
     .final h2 { font-size: 32px; }
     .section-pad { padding: 72px 0; }
-    .after-item, .after-item:nth-child(even) { max-width: none; margin-left: 0; flex-direction: row; text-align: left; }
+    .after { padding: 16px 14px; }
+    .after-item { max-width: 92%; }
     .flow { grid-template-columns: 1fr; grid-template-areas: "i1" "t1" "a1" "i2" "t2" "a2" "i3" "t3"; column-gap: 0; row-gap: 14px; justify-items: start; }
     .flow-arrow { transform: rotate(90deg); }
     .problem p { font-size: 20px; }
@@ -437,35 +459,35 @@
     <div class="after">
       <div class="after-item">
         <span class="after-num">1</span>
-        <div class="txt">
+        <div class="after-bubble">
           <h3>Buyers stop asking "how much"</h3>
           <p>Every price sits on the page. Buyers decide before they message you, so the chat starts at the order.</p>
         </div>
       </div>
       <div class="after-item">
         <span class="after-num">2</span>
-        <div class="txt">
+        <div class="after-bubble">
           <h3>No single number gets buried</h3>
           <p>Orders rotate across your numbers. A flooded phone and an idle phone become an even split.</p>
         </div>
       </div>
       <div class="after-item">
         <span class="after-num">3</span>
-        <div class="txt">
+        <div class="after-bubble">
           <h3>The order arrives pre-written</h3>
           <p>Product, price, and quantity land in WhatsApp for you. You reply to a real order, not a "hi is this available".</p>
         </div>
       </div>
       <div class="after-item">
         <span class="after-num">4</span>
-        <div class="txt">
+        <div class="after-bubble">
           <h3>Edit in the sheet you already use</h3>
           <p>Change a price or add a product in Google Sheets. The page follows. No dashboard to learn.</p>
         </div>
       </div>
       <div class="after-item">
         <span class="after-num">5</span>
-        <div class="txt">
+        <div class="after-bubble">
           <h3>You keep every sale</h3>
           <p>Buyers pay you in WhatsApp, so zippp never takes a fee. Every dollar is yours.</p>
         </div>
