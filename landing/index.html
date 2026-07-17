@@ -194,7 +194,7 @@
   .mark {
     font-family: var(--font-accent);
     font-weight: 500;
-    background-color: #cdf24a;
+    background-color: #25D366;
     padding: 0 5px;
     border-radius: 3px;
     -webkit-box-decoration-break: clone;
@@ -221,8 +221,13 @@
   .t1 { grid-area: t1; } .t2 { grid-area: t2; } .t3 { grid-area: t3; }
 
   /* Features as outcomes */
-  /* Centered Before/After titles */
+  /* Centered Before/After titles with a hand-drawn arrow */
   .ba-title { text-align: center; }
+  .ba-head { display: flex; align-items: center; justify-content: center; gap: 14px; margin-bottom: 20px; }
+  .ba-head .ba-title { margin-bottom: 0; }
+  .ba-head .doodle { width: 52px; height: 42px; color: var(--accent); flex-shrink: 0; }
+  .after-section { border-top: none; }
+  .ba-divider { border: none; height: 1px; background: var(--hairline); max-width: 1120px; margin: 0 auto; }
 
   /* After Zippp: WhatsApp-style chat thread */
   .after {
@@ -235,17 +240,6 @@
   .after-item { display: flex; gap: 10px; align-items: flex-end; margin-bottom: 16px; max-width: 88%; }
   .after-item:last-child { margin-bottom: 0; }
   .after-item:nth-child(even) { margin-left: auto; flex-direction: row-reverse; }
-  .after-num {
-    flex-shrink: 0;
-    width: 32px; height: 32px;
-    border-radius: 50%;
-    background: var(--accent);
-    color: #fff;
-    font-family: var(--font-display);
-    font-weight: 700;
-    font-size: 15px;
-    display: flex; align-items: center; justify-content: center;
-  }
   .after-bubble {
     background: #fff;
     border-radius: 12px;
@@ -300,6 +294,38 @@
   .founder-photo { width: 64px; height: 64px; border-radius: var(--radius-md); background: var(--hairline); }
   .founder p { color: var(--ink); }
   .founder .sig { font-family: var(--font-display); font-size: 20px; margin-top: 10px; }
+
+  /* Waitlist modal */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(20, 16, 12, 0.55);
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px; z-index: 100;
+  }
+  .modal-overlay[hidden] { display: none; }
+  .modal {
+    background: var(--paper);
+    border-radius: 12px;
+    max-width: 440px; width: 100%;
+    padding: 34px 32px 28px;
+    position: relative;
+    box-shadow: 0 12px 48px rgba(20, 16, 12, 0.28);
+  }
+  .modal h2 { font-size: 27px; line-height: 1.15; margin-bottom: 22px; }
+  .modal .signup { max-width: none; }
+  .modal-close {
+    position: absolute; top: 12px; right: 16px;
+    background: none; border: none;
+    font-size: 26px; line-height: 1; color: var(--muted); cursor: pointer;
+  }
+  .modal-close:hover { color: var(--ink); }
+  .modal-maker {
+    display: flex; gap: 12px; align-items: flex-start;
+    margin-top: 24px; padding-top: 20px;
+    border-top: 1px solid var(--hairline);
+  }
+  .modal-photo { width: 44px; height: 44px; border-radius: var(--radius-md); background: var(--hairline); flex-shrink: 0; }
+  .modal-maker p { font-size: 14px; color: var(--muted); line-height: 1.5; }
 
   /* Footer */
   footer { border-top: 1px solid var(--hairline); padding: 40px 0; }
@@ -447,46 +473,49 @@
 <!-- PROBLEM -->
 <section class="problem section-pad">
   <div class="wrap">
-    <h2 class="ba-title">Before Zippp</h2>
+    <div class="ba-head">
+      <svg class="doodle" viewBox="0 0 60 48" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 36 C 12 14, 32 6, 52 16"/><path d="M43 8 L54 16 L45 25"/></svg>
+      <h2 class="ba-title">Before Zippp</h2>
+    </div>
     <p>Forty people message <span class="mark">"how much?"</span> at once. You answer the same price <span class="mark">thirty times</span>, three phones buzz, and five <span class="mark">orders slip</span> through the pile.</p>
   </div>
 </section>
 
+<hr class="ba-divider" />
+
 <!-- AFTER ZIPPP -->
-<section class="section-pad">
+<section class="section-pad after-section">
   <div class="wrap">
-    <h2 class="ba-title">After Zippp</h2>
+    <div class="ba-head">
+      <svg class="doodle" viewBox="0 0 60 48" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 36 C 12 14, 32 6, 52 16"/><path d="M43 8 L54 16 L45 25"/></svg>
+      <h2 class="ba-title">After Zippp</h2>
+    </div>
     <div class="after">
       <div class="after-item">
-        <span class="after-num">1</span>
         <div class="after-bubble">
           <h3>Buyers stop asking "how much"</h3>
           <p>Every price sits on the page. Buyers decide before they message you, so the chat starts at the order.</p>
         </div>
       </div>
       <div class="after-item">
-        <span class="after-num">2</span>
         <div class="after-bubble">
           <h3>No single number gets buried</h3>
           <p>Orders rotate across your numbers. A flooded phone and an idle phone become an even split.</p>
         </div>
       </div>
       <div class="after-item">
-        <span class="after-num">3</span>
         <div class="after-bubble">
           <h3>The order arrives pre-written</h3>
           <p>Product, price, and quantity land in WhatsApp for you. You reply to a real order, not a "hi is this available".</p>
         </div>
       </div>
       <div class="after-item">
-        <span class="after-num">4</span>
         <div class="after-bubble">
           <h3>Edit in the sheet you already use</h3>
           <p>Change a price or add a product in Google Sheets. The page follows. No dashboard to learn.</p>
         </div>
       </div>
       <div class="after-item">
-        <span class="after-num">5</span>
         <div class="after-bubble">
           <h3>You keep every sale</h3>
           <p>Buyers pay you in WhatsApp, so zippp never takes a fee. Every dollar is yours.</p>
@@ -582,32 +611,6 @@
   </div>
 </section>
 
-<!-- FINAL CTA -->
-<section class="final section-pad">
-  <div class="wrap">
-    <h2>Get your WhatsApp shop before the first 100 spots go.</h2>
-    <form class="signup" action="#" method="post" onsubmit="return handleWaitlist(event)">
-      <input type="email" name="email" placeholder="you@yourshop.com" required aria-label="Email address" />
-      <button type="submit" class="button">Join waitlist</button>
-    </form>
-    <p class="guarantee">Pro free for a year for the first 100 shops. No card needed.</p>
-  </div>
-</section>
-
-<!-- FOUNDER NOTE -->
-<section class="founder section-pad">
-  <div class="wrap">
-    <div class="founder-card">
-      <div class="founder-photo" aria-hidden="true"></div>
-      <div>
-        <div class="eyebrow">From the maker</div>
-        <p>I am building zippp.link in the open, one feature at a time. I make it because selling on WhatsApp should be fast: your buyer sees the price, taps, and orders. If you sell this way and something is missing for you, tell me and I will build it.</p>
-        <p class="sig">[Your name], building zippp.link</p>
-      </div>
-    </div>
-  </div>
-</section>
-
 <footer>
   <div class="wrap foot">
     <small>© 2026 zippp.link</small>
@@ -620,6 +623,23 @@
   </div>
 </footer>
 
+<!-- WAITLIST MODAL (auto-opens at pricing) -->
+<div class="modal-overlay" id="waitlistModal" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <button class="modal-close" id="modalClose" aria-label="Close">&times;</button>
+    <h2 id="modalTitle">Get your WhatsApp shop before the first 100 spots go.</h2>
+    <form class="signup" action="#" method="post" onsubmit="return handleWaitlist(event)">
+      <input type="email" name="email" placeholder="you@yourshop.com" required aria-label="Email address" />
+      <button type="submit" class="button">Join waitlist</button>
+    </form>
+    <p class="guarantee">Pro free for a year for the first 100 shops. No card needed.</p>
+    <div class="modal-maker">
+      <div class="modal-photo" aria-hidden="true"></div>
+      <p>I'm Bob from Indonesia. I craft this to empower business sells quickly. It helps me, I hope it helps you too.</p>
+    </div>
+  </div>
+</div>
+
 <script>
   // Smoke-test stub. Replace action with a real endpoint (Formspree, Tally, or your own).
   function handleWaitlist(e) {
@@ -629,6 +649,27 @@
     e.target.innerHTML = '<p style="font-weight:600;">You are on the list. Check ' + email + ' for a note when a spot opens.</p>';
     return false;
   }
+
+  // Waitlist modal: auto-open once when pricing scrolls into view.
+  (function () {
+    var modal = document.getElementById('waitlistModal');
+    var pricing = document.getElementById('pricing');
+    if (!modal) return;
+    function openModal() { modal.hidden = false; }
+    function closeModal() { modal.hidden = true; }
+    document.getElementById('modalClose').addEventListener('click', closeModal);
+    modal.addEventListener('click', function (e) { if (e.target === modal) closeModal(); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeModal(); });
+    var opened = false;
+    if (pricing && 'IntersectionObserver' in window) {
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (en) {
+          if (en.isIntersecting && !opened) { opened = true; openModal(); io.disconnect(); }
+        });
+      }, { threshold: 0.25 });
+      io.observe(pricing);
+    }
+  })();
 </script>
 
 </body>
