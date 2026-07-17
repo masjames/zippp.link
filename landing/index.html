@@ -224,10 +224,21 @@
   .ba-title { text-align: center; }
 
   /* "with Zippp" label + one hand-drawn down arrow between the two */
-  .ba-arrow { text-align: center; color: var(--accent); padding: 8px 0 4px; }
-  .ba-arrow svg { width: 46px; height: 62px; display: inline-block; }
+  .ba-arrow { text-align: center; color: var(--accent); padding: 6px 0; }
+  .ba-arrow svg { width: 42px; height: 54px; display: inline-block; }
   .with-zippp { font-family: var(--font-accent); font-weight: 500; font-size: 22px; color: var(--accent); margin-bottom: 2px; }
-  .problem .after-bubble p { font-size: 16px; color: var(--ink); }
+  .after-item.pain .after-bubble p { font-size: 16px; color: var(--ink); }
+
+  /* WhatsApp-style reveal, tied to scroll: each message pops in as it enters view */
+  .reveal {
+    opacity: 0;
+    transform: translateY(14px) scale(0.98);
+    transition: opacity 400ms ease-out, transform 400ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+  .reveal.show { opacity: 1; transform: none; }
+  @media (prefers-reduced-motion: reduce) {
+    .reveal { opacity: 1; transform: none; transition: none; }
+  }
 
   /* After Zippp: WhatsApp-style chat bubbles, no container */
   .after { max-width: 540px; margin: 40px auto 0; }
@@ -465,35 +476,26 @@
   </div>
 </div>
 
-<!-- PROBLEM -->
-<section class="problem section-pad">
+<!-- BEFORE / AFTER CHAT THREAD -->
+<section class="section-pad">
   <div class="wrap">
-    <div class="after">
-      <div class="after-item incoming">
+    <div class="after" id="chatThread">
+      <div class="after-item incoming pain">
         <div class="after-bubble">
           <p>Forty people message <span class="mark">"how much?"</span> at once. You answer the same price <span class="mark">thirty times</span>, three phones buzz, and five <span class="mark">orders slip</span> through the pile.</p>
         </div>
       </div>
-    </div>
-  </div>
-</section>
-
-<div class="ba-arrow">
-  <p class="with-zippp">with Zippp</p>
-  <svg aria-hidden="true" viewBox="0 0 40 62" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 5 C 13 20, 27 32, 20 54"/><path d="M11 45 L20 56 L29 44"/></svg>
-</div>
-
-<!-- AFTER ZIPPP -->
-<section class="section-pad">
-  <div class="wrap">
-    <div class="after">
-      <div class="after-item incoming">
+      <div class="ba-arrow">
+        <p class="with-zippp">with Zippp</p>
+        <svg aria-hidden="true" viewBox="0 0 40 62" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 5 C 13 20, 27 32, 20 54"/><path d="M11 45 L20 56 L29 44"/></svg>
+      </div>
+      <div class="after-item outgoing">
         <div class="after-bubble">
           <h3>Buyers stop asking "how much"</h3>
           <p>Every price sits on the page. Buyers decide before they message you, so the chat starts at the order.</p>
         </div>
       </div>
-      <div class="after-item incoming">
+      <div class="after-item outgoing">
         <div class="after-bubble">
           <h3>No single number gets buried</h3>
           <p>Orders rotate across your numbers. A flooded phone and an idle phone become an even split.</p>
@@ -633,6 +635,22 @@
     e.target.innerHTML = '<p style="font-weight:600;">You are on the list. Check ' + email + ' for a note when a spot opens.</p>';
     return false;
   }
+
+  // Chat thread: each message reveals as it scrolls into view (pace follows scroll).
+  (function () {
+    var thread = document.getElementById('chatThread');
+    if (!thread) return;
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce || !('IntersectionObserver' in window)) return;
+    var items = Array.prototype.slice.call(thread.children);
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (en.isIntersecting) { en.target.classList.add('show'); }
+        else { en.target.classList.remove('show'); }
+      });
+    }, { threshold: 0.4, rootMargin: '0px 0px -14% 0px' });
+    items.forEach(function (el) { el.classList.add('reveal'); io.observe(el); });
+  })();
 
   // Waitlist modal: auto-open once when pricing scrolls into view.
   (function () {
