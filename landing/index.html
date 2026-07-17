@@ -223,9 +223,11 @@
   /* Centered Before/After titles */
   .ba-title { text-align: center; }
 
-  /* One hand-drawn down arrow between Before and After */
+  /* "with Zippp" label + one hand-drawn down arrow between the two */
   .ba-arrow { text-align: center; color: var(--accent); padding: 8px 0 4px; }
   .ba-arrow svg { width: 46px; height: 62px; display: inline-block; }
+  .with-zippp { font-family: var(--font-accent); font-weight: 500; font-size: 22px; color: var(--accent); margin-bottom: 2px; }
+  .problem .after-bubble p { font-size: 16px; color: var(--ink); }
 
   /* After Zippp: WhatsApp-style chat bubbles, no container */
   .after { max-width: 540px; margin: 40px auto 0; }
@@ -466,19 +468,24 @@
 <!-- PROBLEM -->
 <section class="problem section-pad">
   <div class="wrap">
-    <h2 class="ba-title">Before Zippp</h2>
-    <p>Forty people message <span class="mark">"how much?"</span> at once. You answer the same price <span class="mark">thirty times</span>, three phones buzz, and five <span class="mark">orders slip</span> through the pile.</p>
+    <div class="after">
+      <div class="after-item incoming">
+        <div class="after-bubble">
+          <p>Forty people message <span class="mark">"how much?"</span> at once. You answer the same price <span class="mark">thirty times</span>, three phones buzz, and five <span class="mark">orders slip</span> through the pile.</p>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
-<div class="ba-arrow" aria-hidden="true">
-  <svg viewBox="0 0 40 62" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 5 C 13 20, 27 32, 20 54"/><path d="M11 45 L20 56 L29 44"/></svg>
+<div class="ba-arrow">
+  <p class="with-zippp">with Zippp</p>
+  <svg aria-hidden="true" viewBox="0 0 40 62" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 5 C 13 20, 27 32, 20 54"/><path d="M11 45 L20 56 L29 44"/></svg>
 </div>
 
 <!-- AFTER ZIPPP -->
 <section class="section-pad">
   <div class="wrap">
-    <h2 class="ba-title">After Zippp</h2>
     <div class="after">
       <div class="after-item incoming">
         <div class="after-bubble">
