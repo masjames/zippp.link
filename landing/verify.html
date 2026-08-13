@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Project verification · zippp.link proof profile</title>
+<meta name="robots" content="noindex" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23E8442E'/%3E%3Ctext x='27' y='14' font-family='Archivo,Arial,sans-serif' font-size='15' font-weight='700' fill='white' text-anchor='end'%3Ez%3C/text%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;700&family=DM+Sans:wght@400;500;600&family=Shantell+Sans:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="assets/profile/app.css" />
+</head>
+<body>
+
+<div class="banner">
+  <div class="wrap">
+    <span><b>Working prototype.</b> No email is sent: the private link is shown to you instead. Confirmations update the public profile in this browser only.</span>
+  </div>
+</div>
+
+<header>
+  <div class="wrap nav">
+    <a class="logo" href="index.html"><span class="logo-mark"><svg width="24" height="24" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7" fill="#E8442E"/><text x="27" y="14" font-family="Archivo, Arial, sans-serif" font-size="15" font-weight="700" fill="#fff" text-anchor="end">z</text></svg></span><span class="word">zippp<span class="dot">.link</span></span></a>
+    <div class="menu-links">
+      <div class="nav-links">
+        <a href="adit.html">Adit's profile</a>
+        <a href="index.html">zippp.link</a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="profile-hero" style="padding-bottom:32px;">
+  <div class="wrap narrow">
+    <p class="eyebrow">Client verification</p>
+    <h1 id="pageTitle" style="font-size:40px;">Confirm a project.</h1>
+    <p class="lead" id="pageLead" style="max-width:52ch;">Verification keeps Adit's public profile honest. You confirm what happened; the profile shows exactly that, with your name and the date.</p>
+  </div>
+</div>
+
+<section class="section-pad" style="padding-top:0;">
+  <div class="wrap narrow">
+    <div id="view"></div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot">
+    <small>© 2026 zippp.link</small>
+    <div class="foot-links">
+      <a href="index.html">zippp.link home</a>
+      <a href="adit.html">Public profile</a>
+      <a href="owner.html">Owner console</a>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/profile/store.js"></script>
+<script src="assets/profile/api.js"></script>
+<script src="assets/profile/ui.js"></script>
+<script>
+(function () {
+  'use strict';
+  var ui = window.ZipppUI, api = window.ZipppApi;
+  var db, verification = null;
+
+  function projectName(projectId) {
+    var pr = ui.projectById(db, projectId);
+    return pr ? pr.title : 'Project';
+  }
+
+  /* ---------------- request form ---------------- */
+  function renderRequestForm() {
+    var view = document.getElementById('view');
+    view.innerHTML =
+      '<div class="owner-card">' +
+      '<h3>Request a verification</h3>' +
+      '<p class="oc-sub">Fill this in as the client or company who worked with Adit. In production, Adit sends you a private confirmation link by email. In this prototype the link appears on screen.</p>' +
+      '<form id="reqForm">' +
+      '<div class="field-row">' +
+      '<div class="field"><label for="rClient">Your name</label><input type="text" id="rClient" name="client" required placeholder="e.g. Rina Pratama" /></div>' +
+      '<div class="field"><label for="rCompany">Company</label><input type="text" id="rCompany" name="company" required placeholder="e.g. Warung Berkah" /></div>' +
+      '</div>' +
+      '<div class="field"><label for="rEmail">Work email</label><input type="email" id="rEmail" name="email" required placeholder="you@company.com" /><p class="hint">Used only to receive the private link. In this prototype nothing is emailed.</p></div>' +
+      '<div class="field"><label for="rProject">Which project?</label><select id="rProject" name="projectId">' + db.projects.map(function (p) {
+        return '<option value="' + ui.esc(p.id) + '">' + ui.esc(p.title) + '</option>';
+      }).join('') + '</select></div>' +
+      '<div class="field"><label for="rNotes">Anything to note (optional)</label><textarea id="rNotes" name="notes" placeholder="e.g. We worked together on the checkout module in Q3."></textarea></div>' +
+      '<button type="submit" class="button">Create verification link</button>' +
+      '</form>' +
+      '<div id="reqResult"></div>' +
+      '</div>';
+    document.getElementById('reqForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      var data = ui.readForm(e.target, ['client', 'company', 'email', 'projectId', 'notes']);
+      if (!data.client || !data.company || !data.email) {
+        ui.toast('Please fill in your name, company and email.', true);
+        return;
+      }
+      var btn = e.target.querySelector('button[type="submit"]');
+      btn.disabled = true;
+      api.requestVerification(data).then(function (req) {
+        btn.disabled = false;
+        document.getElementById('reqResult').innerHTML =
+          '<div class="ok-box"><b>Request created.</b> In production this email goes out to <b>' + ui.esc(req.email) + '</b> with a private link. This prototype does not send email, so here is the link:<br /><br />' +
+          '<span class="token-line">' + ui.esc(location.origin + location.pathname) + '?token=' + ui.esc(req.token) + '</span><br /><br />' +
+          '<a class="button button-sm" href="verify.html?token=' + ui.esc(req.token) + '" style="color:#fff;">Open the confirmation page</a></div>';
+        document.getElementById('reqResult').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        ui.toast('Verification link created');
+      });
+    });
+  }
+
+  /* ---------------- confirmation page (token) ---------------- */
+  function renderConfirm() {
+    var view = document.getElementById('view');
+    document.getElementById('pageTitle').textContent = 'Confirm the project.';
+    document.getElementById('pageLead').textContent = 'Hello ' + verification.client + ' from ' + verification.company + '. You are confirming work on ' + projectName(verification.projectId) + '. Answer honestly: the profile shows exactly what you confirm.';
+
+    view.innerHTML =
+      '<div class="owner-card">' +
+      '<h3>' + ui.esc(projectName(verification.projectId)) + '</h3>' +
+      '<p class="oc-sub">Requested by ' + ui.esc(verification.client) + ' (' + ui.esc(verification.company) + ') on ' + ui.fmtDate(verification.createdAt) + '.</p>' +
+      '<form id="confirmForm">' +
+      '<div class="q-row" data-q="workedTogether"><div><div class="q-label">We worked together</div><div class="q-hint">You and Adit collaborated on this project.</div></div>' +
+      '<div class="q-opts"><button type="button" class="q-btn yes" data-v="yes">Yes</button><button type="button" class="q-btn no" data-v="no">No</button></div></div>' +
+      '<div class="q-row" data-q="projectExisted"><div><div class="q-label">The project existed</div><div class="q-hint">It was a real piece of work, not a concept.</div></div>' +
+      '<div class="q-opts"><button type="button" class="q-btn yes" data-v="yes">Yes</button><button type="button" class="q-btn no" data-v="no">No</button></div></div>' +
+      '<div class="q-row" data-q="delivered"><div><div class="q-label">The work was delivered</div><div class="q-hint">You received what was agreed, in working state.</div></div>' +
+      '<div class="q-opts"><button type="button" class="q-btn yes" data-v="yes">Yes</button><button type="button" class="q-btn no" data-v="no">No</button></div></div>' +
+      '<div class="q-row" data-q="wouldHireAgain"><div><div class="q-label">I would hire Adit again</div><div class="q-hint">Based on how the work went.</div></div>' +
+      '<div class="q-opts"><button type="button" class="q-btn yes" data-v="yes">Yes</button><button type="button" class="q-btn no" data-v="no">No</button></div></div>' +
+      '<div class="field-row-3" style="margin-top:16px;">' +
+      '<div class="field"><label for="pvAmount">Project value (optional)</label><input type="number" id="pvAmount" name="amount" min="0" step="1" placeholder="e.g. 12000" /></div>' +
+      '<div class="field"><label for="pvCurrency">Currency</label><select id="pvCurrency" name="currency"><option>USD</option><option>IDR</option><option>EUR</option><option>SGD</option></select></div>' +
+      '</div>' +
+      '<p class="hint" style="color:var(--muted);font-size:13px;margin-top:-4px;">If you share a value it is shown on the public profile as self-reported. Amounts, banking and payer details are never shown or stored.</p>' +
+      '<div class="field" style="margin-top:14px;"><label for="cNotes">Your own words (optional, shown as a quote)</label><textarea id="cNotes" name="notes" placeholder="What was it like working together?"></textarea></div>' +
+      '<button type="submit" class="button">Submit confirmation</button>' +
+      '<div id="confirmResult"></div>' +
+      '</form>' +
+      '</div>';
+
+    var answers = {};
+    Array.prototype.forEach.call(view.querySelectorAll('.q-row'), function (row) {
+      var key = row.getAttribute('data-q');
+      Array.prototype.forEach.call(row.querySelectorAll('.q-btn'), function (btn) {
+        btn.addEventListener('click', function () {
+          answers[key] = btn.getAttribute('data-v');
+          Array.prototype.forEach.call(row.querySelectorAll('.q-btn'), function (b) { b.setAttribute('aria-pressed', b === btn ? 'true' : 'false'); });
+        });
+      });
+    });
+
+    document.getElementById('confirmForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (!answers.workedTogether) { ui.toast('Answer "We worked together" first.', true); return; }
+      var payload = {
+        workedTogether: answers.workedTogether,
+        projectExisted: answers.projectExisted,
+        delivered: answers.delivered,
+        wouldHireAgain: answers.wouldHireAgain,
+        notes: document.getElementById('cNotes').value,
+        projectValue: {
+          amount: document.getElementById('pvAmount').value,
+          currency: document.getElementById('pvCurrency').value
+        }
+      };
+      var btn = e.target.querySelector('button[type="submit"]');
+      btn.disabled = true;
+      api.submitVerification(verification.token, payload).then(function (v) {
+        btn.disabled = false;
+        if (v.status === 'declined') {
+          document.getElementById('confirmResult').innerHTML =
+            '<div class="warn-box"><b>Thank you for your honesty.</b> You said the work did not happen, so nothing is added to the public profile.</div>';
+          document.getElementById('confirmResult').scrollIntoView({ behavior: 'smooth', block: 'center' });
+          return;
+        }
+        var valueLine = v.projectValue ? ' and reported a project value of <b>' + ui.fmtMoney(v.projectValue) + '</b> (self-reported)' : '';
+        document.getElementById('confirmResult').innerHTML =
+          '<div class="ok-box"><b>Confirmation recorded.</b> Your confirmation' + valueLine + ' is now part of Adit\'s public profile with your name, company and today\'s date. <a href="adit.html#evidence" style="font-weight:600;">View the profile</a></div>';
+        document.getElementById('confirmResult').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        ui.toast('Confirmation recorded');
+      }, function (err) {
+        btn.disabled = false;
+        document.getElementById('confirmResult').innerHTML = '<div class="warn-box">' + ui.esc(err.message) + '</div>';
+      });
+    });
+  }
+
+  function renderAnswered(v) {
+    var view = document.getElementById('view');
+    document.getElementById('pageTitle').textContent = 'Already answered.';
+    document.getElementById('pageLead').textContent = 'This verification link was already used on ' + ui.fmtDate(v.confirmedAt) + '.';
+    view.innerHTML = '<div class="owner-card"><h3>' + ui.esc(projectName(v.projectId)) + '</h3>' +
+      '<p class="oc-sub">Status: <b>' + (v.status === 'confirmed' ? 'confirmed' : 'not confirmed') + '</b>. The public profile already reflects this.</p>' +
+      '<div class="oc-actions"><a class="button" href="adit.html#evidence">View Adit\'s profile</a></div></div>';
+  }
+
+  /* ---------------- boot ---------------- */
+  var token = new URLSearchParams(location.search).get('token');
+  api.init().then(function (loaded) {
+    db = loaded;
+    if (!token) {
+      renderRequestForm();
+      return;
+    }
+    api.getVerificationByToken(token).then(function (v) {
+      if (!v) {
+        document.getElementById('pageTitle').textContent = 'Link not found.';
+        document.getElementById('pageLead').textContent = 'This verification link does not exist or was deleted.';
+        document.getElementById('view').innerHTML =
+          '<div class="verify-empty">No verification matches this link. <a href="verify.html">Request a new verification</a> or go to <a href="adit.html">Adit\'s profile</a>.</div>';
+        return;
+      }
+      verification = v;
+      if (v.status !== 'pending') { renderAnswered(v); return; }
+      renderConfirm();
+    });
+  });
+})();
+</script>
+</body>
+</html>

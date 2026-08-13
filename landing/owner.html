@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Owner console · zippp.link proof profile</title>
+<meta name="robots" content="noindex" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23E8442E'/%3E%3Ctext x='27' y='14' font-family='Archivo,Arial,sans-serif' font-size='15' font-weight='700' fill='white' text-anchor='end'%3Ez%3C/text%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;700&family=DM+Sans:wght@400;500;600&family=Shantell+Sans:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="assets/profile/app.css" />
+</head>
+<body>
+
+<div class="banner">
+  <div class="wrap">
+    <span><b>Owner console, prototype.</b> There is no login in this prototype: anyone who opens this page can edit. Data lives only in this browser.</span>
+  </div>
+</div>
+
+<header>
+  <div class="wrap nav">
+    <a class="logo" href="index.html"><span class="logo-mark"><svg width="24" height="24" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7" fill="#E8442E"/><text x="27" y="14" font-family="Archivo, Arial, sans-serif" font-size="15" font-weight="700" fill="#fff" text-anchor="end">z</text></svg></span><span class="word">zippp<span class="dot">.link</span></span></a>
+    <div class="menu-links">
+      <div class="nav-links">
+        <a href="#profile">Profile</a>
+        <a href="#projects">Projects</a>
+        <a href="#verifications">Verifications</a>
+        <a href="#inbox">Inbox</a>
+        <a href="#connections">Connections</a>
+      </div>
+      <a class="button nav-cta" href="adit.html">View public profile</a>
+    </div>
+    <a class="button nav-cta-mobile" href="adit.html">Public profile</a>
+  </div>
+</header>
+
+<div class="profile-hero" style="padding-bottom:40px;">
+  <div class="wrap">
+    <p class="eyebrow">Owner console</p>
+    <h1 style="font-size:44px;">Manage the proof profile.</h1>
+    <p class="lead" style="max-width:56ch;">Profile, positioning, availability, projects, proof links, verifications and connections. Changes save to this browser and appear on <a href="adit.html">adit.html</a> immediately.</p>
+  </div>
+</div>
+
+<!-- PROFILE -->
+<section id="profile" class="section-pad" style="padding-top:0;">
+  <div class="wrap narrow">
+    <h2>Profile &amp; positioning</h2>
+    <div class="owner-card">
+      <form id="profileForm">
+        <div class="field-row">
+          <div class="field">
+            <label for="pName">Name</label>
+            <input type="text" id="pName" name="name" />
+          </div>
+          <div class="field">
+            <label for="pHandle">Handle</label>
+            <input type="text" id="pHandle" name="handle" />
+          </div>
+        </div>
+        <div class="field">
+          <label for="pTagline">Tagline</label>
+          <input type="text" id="pTagline" name="tagline" />
+        </div>
+        <div class="field">
+          <label for="pLocation">Location</label>
+          <input type="text" id="pLocation" name="location" />
+        </div>
+        <div class="field">
+          <label for="pHeadline">Positioning headline</label>
+          <input type="text" id="pHeadline" name="headline" />
+        </div>
+        <div class="field">
+          <label for="pIntro">Positioning intro</label>
+          <textarea id="pIntro" name="intro"></textarea>
+        </div>
+        <div class="field">
+          <label for="pFocus">Focus areas (comma separated)</label>
+          <input type="text" id="pFocus" name="focus" />
+          <p class="hint">Shown as tags under the positioning intro.</p>
+        </div>
+        <div class="oc-actions">
+          <button type="submit" class="button button-sm">Save profile</button>
+          <span class="save-state" style="color:var(--muted);font-size:13px;"></span>
+        </div>
+      </form>
+    </div>
+
+    <div class="owner-card">
+      <h3>Availability</h3>
+      <p class="oc-sub">What buyers see next to your name. Set it before sending the profile around.</p>
+      <form id="availForm">
+        <div class="field">
+          <label for="aStatus">Status</label>
+          <select id="aStatus" name="status">
+            <option value="available">Available</option>
+            <option value="limited">Limited availability</option>
+            <option value="unavailable">Not taking new work</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="aLabel">Availability label</label>
+          <input type="text" id="aLabel" name="label" />
+        </div>
+        <div class="field">
+          <label for="aNote">Availability note</label>
+          <input type="text" id="aNote" name="note" />
+        </div>
+        <div class="oc-actions">
+          <button type="submit" class="button button-sm">Save availability</button>
+          <span class="save-state" style="color:var(--muted);font-size:13px;"></span>
+        </div>
+      </form>
+    </div>
+
+    <div class="owner-card">
+      <h3>Contact CTAs</h3>
+      <p class="oc-sub">The two buttons on the public profile. Labels plus the intro line above the contact form.</p>
+      <form id="ctaForm">
+        <div class="field-row">
+          <div class="field">
+            <label for="cHire">Hire button label</label>
+            <input type="text" id="cHire" name="hireLabel" />
+          </div>
+          <div class="field">
+            <label for="cProblem">Problem button label</label>
+            <input type="text" id="cProblem" name="problemLabel" />
+          </div>
+        </div>
+        <div class="field">
+          <label for="cNote">Contact intro line</label>
+          <input type="text" id="cNote" name="note" />
+        </div>
+        <div class="oc-actions">
+          <button type="submit" class="button button-sm">Save CTAs</button>
+          <span class="save-state" style="color:var(--muted);font-size:13px;"></span>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- PROJECTS -->
+<section id="projects" class="section-pad" style="padding-top:0;">
+  <div class="wrap narrow">
+    <h2>Projects &amp; proof links</h2>
+    <div class="oc-actions" style="margin-top:6px;">
+      <button type="button" class="button button-sm" id="addProjectBtn">Add project</button>
+    </div>
+    <div id="projectList"></div>
+  </div>
+</section>
+
+<!-- VERIFICATIONS -->
+<section id="verifications" class="section-pad" style="padding-top:0;">
+  <div class="wrap narrow">
+    <h2>Verification requests</h2>
+    <p class="section-intro">A client requests verification from the public <a href="verify.html">verification page</a>, gets a private link, and confirms the project. Confirmations appear on the public profile. In this prototype no email is sent: copy the link and send it yourself.</p>
+    <div class="oc-actions" style="margin-top:16px;">
+      <a class="button-ghost button-ghost-sm" href="verify.html">Open verification request page</a>
+      <button type="button" class="button-ghost button-ghost-sm" id="addDemoBtn">Add demo verification</button>
+    </div>
+    <div id="verificationList"></div>
+  </div>
+</section>
+
+<!-- INBOX -->
+<section id="inbox" class="section-pad" style="padding-top:0;">
+  <div class="wrap narrow">
+    <h2>Inbox (contact drafts)</h2>
+    <p class="section-intro">Messages saved from the public profile contact form. They stay in this browser: in production this is where they would forward to your real inbox.</p>
+    <div id="draftList"></div>
+  </div>
+</section>
+
+<!-- CONNECTIONS -->
+<section id="connections" class="section-pad" style="padding-top:0;">
+  <div class="wrap narrow">
+    <h2>Connections &amp; settings</h2>
+
+    <div class="owner-card">
+      <h3>GitHub</h3>
+      <p class="oc-sub">Mock OAuth: nothing leaves the browser. Enter the handle you want shown, or leave it empty to hide GitHub from the profile.</p>
+      <form id="githubForm">
+        <div class="field" style="display:flex;gap:10px;align-items:flex-end;">
+          <div style="flex:1;">
+            <label for="ghHandle">GitHub handle</label>
+            <input type="text" id="ghHandle" name="handle" placeholder="yourhandle" />
+          </div>
+          <button type="submit" class="button button-sm" id="ghConnectBtn">Connect (mock)</button>
+        </div>
+      </form>
+      <div id="githubState" class="warn-box" style="margin-top:12px;"></div>
+    </div>
+
+    <div class="owner-card">
+      <h3>Payment verification</h3>
+      <p class="oc-sub">Per project, set in the project editor. Never stores or shows amounts, banking, transaction or payer data. Three honest states:</p>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-top:10px;">
+        <div><span class="pay pay-verified">Payment verified</span> <span style="color:var(--muted);font-size:13px;">You hold independent proof the client paid. No details shown publicly.</span></div>
+        <div><span class="pay pay-self">Self-reported</span> <span style="color:var(--muted);font-size:13px;">A client reported a value in a verification. Labeled self-reported everywhere.</span></div>
+        <div><span class="pay pay-none">Not disclosed</span> <span style="color:var(--muted);font-size:13px;">The default. No payment claim is made.</span></div>
+      </div>
+    </div>
+
+    <div class="owner-card">
+      <h3>Visibility</h3>
+      <p class="oc-sub">Which blocks render on the public profile.</p>
+      <div id="settingsList"></div>
+    </div>
+  </div>
+</section>
+
+<!-- DATA -->
+<section id="data" class="section-pad" style="padding-top:0;">
+  <div class="wrap narrow">
+    <h2>Data</h2>
+    <div class="owner-card">
+      <h3>Portable export</h3>
+      <p class="oc-sub">Everything on this profile, in formats you own. JSON round-trips back into the console; Markdown is for docs and archives.</p>
+      <div class="oc-actions">
+        <button type="button" class="button-ghost button-ghost-sm" id="exportJsonBtn">Export JSON</button>
+        <button type="button" class="button-ghost button-ghost-sm" id="exportMdBtn">Export Markdown</button>
+        <button type="button" class="button-ghost button-ghost-sm" id="importJsonBtn">Import JSON</button>
+        <input type="file" id="importFile" accept="application/json,.json" style="display:none;" />
+        <button type="button" class="button-ghost button-ghost-sm danger" id="resetBtn">Reset demo data</button>
+      </div>
+      <p class="hint" style="margin-top:12px;color:var(--muted);font-size:13px;">Reset restores the seeded profile and deletes verifications, drafts and changes made in this browser.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot">
+    <small>© 2026 zippp.link</small>
+    <div class="foot-links">
+      <a href="index.html">zippp.link home</a>
+      <a href="adit.html">Public profile</a>
+      <a href="verify.html">Verification page</a>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/profile/store.js"></script>
+<script src="assets/profile/api.js"></script>
+<script src="assets/profile/ui.js"></script>
+<script>
+(function () {
+  'use strict';
+  var ui = window.ZipppUI, api = window.ZipppApi;
+  var db;
+
+  function saveState(el, ok) {
+    if (!el) return;
+    el.textContent = ok ? 'Saved. Public profile updated.' : 'Save failed.';
+    el.style.color = ok ? 'var(--check)' : 'var(--accent)';
+    setTimeout(function () { el.textContent = ''; }, 2600);
+  }
+
+  function render() {
+    db = api.getDb();
+    var p = db.profile;
+
+    document.getElementById('pName').value = p.name;
+    document.getElementById('pHandle').value = p.handle;
+    document.getElementById('pTagline').value = p.tagline;
+    document.getElementById('pLocation').value = p.location;
+    document.getElementById('pHeadline').value = p.positioning.headline;
+    document.getElementById('pIntro').value = p.positioning.intro;
+    document.getElementById('pFocus').value = p.positioning.focus.join(', ');
+    document.getElementById('aStatus').value = p.availability.status;
+    document.getElementById('aLabel').value = p.availability.label;
+    document.getElementById('aNote').value = p.availability.note;
+    document.getElementById('cHire').value = p.contact.hireLabel;
+    document.getElementById('cProblem').value = p.contact.problemLabel;
+    document.getElementById('cNote').value = p.contact.note;
+
+    renderProjects();
+    renderVerifications();
+    renderDrafts();
+    renderGithub();
+    renderSettings();
+  }
+
+  /* ---------------- profile forms ---------------- */
+  document.getElementById('profileForm').onsubmit = function (e) {
+    e.preventDefault();
+    var f = e.target;
+    var patch = {
+      name: f.name.value, handle: f.handle.value, tagline: f.tagline.value, location: f.location.value,
+      positioning: { headline: f.headline.value, intro: f.intro.value, focus: f.focus.value }
+    };
+    var state = f.querySelector('.save-state');
+    api.saveProfile(patch).then(function () { saveState(state, true); render(); }, function () { saveState(state, false); });
+  };
+  document.getElementById('availForm').onsubmit = function (e) {
+    e.preventDefault();
+    var f = e.target;
+    var patch = { availability: { status: f.status.value, label: f.label.value, note: f.note.value } };
+    var state = f.querySelector('.save-state');
+    api.saveProfile(patch).then(function () { saveState(state, true); render(); }, function () { saveState(state, false); });
+  };
+  document.getElementById('ctaForm').onsubmit = function (e) {
+    e.preventDefault();
+    var f = e.target;
+    var patch = { contact: { hireLabel: f.hireLabel.value, problemLabel: f.problemLabel.value, note: f.note.value } };
+    var state = f.querySelector('.save-state');
+    api.saveProfile(patch).then(function () { saveState(state, true); render(); }, function () { saveState(state, false); });
+  };
+
+  /* ---------------- projects ---------------- */
+  function renderProjects() {
+    var el = document.getElementById('projectList');
+    if (!db.projects.length) {
+      el.innerHTML = '<div class="verify-empty">No projects yet. Add the first one.</div>';
+      return;
+    }
+    el.innerHTML = db.projects.map(function (p) {
+      var live = p.evidence.filter(function (e) { return e.type === 'live'; }).length;
+      var proof = p.evidence.map(function (e) { return ui.esc(e.label); }).join(', ') || 'no proof links';
+      return '<div class="row-item" data-id="' + ui.esc(p.id) + '">' +
+        '<div class="ri-main">' +
+        '<div class="ri-title">' + ui.esc(p.title) + ' <span class="chip">' + ui.esc(p.role) + '</span> <span class="chip chip-' + (p.status.toLowerCase().indexOf('idea') >= 0 ? 'idea' : 'progress') + '">' + ui.esc(p.status) + '</span></div>' +
+        '<div class="ri-sub">' + ui.esc(proof) + (live ? ' · ' + live + ' live link' + (live > 1 ? 's' : '') : '') + '</div>' +
+        '</div>' +
+        '<div class="ri-actions">' +
+        '<button type="button" class="icon-btn" data-act="edit">Edit</button>' +
+        '<button type="button" class="icon-btn danger" data-act="del">Delete</button>' +
+        '</div></div>';
+    }).join('');
+    Array.prototype.forEach.call(el.querySelectorAll('[data-act="edit"]'), function (b) {
+      b.addEventListener('click', function () { openProjectEditor(b.closest('.row-item').getAttribute('data-id')); });
+    });
+    Array.prototype.forEach.call(el.querySelectorAll('[data-act="del"]'), function (b) {
+      b.addEventListener('click', function () {
+        var id = b.closest('.row-item').getAttribute('data-id');
+        ui.confirm('Delete this project and its verifications?', function () {
+          api.deleteProject(id).then(function () { ui.toast('Project deleted'); render(); });
+        }, { title: 'Delete project', okLabel: 'Delete' });
+      });
+    });
+  }
+
+  var EV_TYPES = [
+    { v: 'live', t: 'Live deployment (verified link)' },
+    { v: 'demo', t: 'Demo / mock data' },
+    { v: 'private', t: 'Private, no public link' },
+    { v: 'code', t: 'Code / repository' }
+  ];
+
+  function openProjectEditor(projectId) {
+    var p = projectId ? ui.projectById(db, projectId) : null;
+    var evRows = p ? p.evidence.slice() : [];
+    var title = p ? 'Edit ' + p.title : 'Add project';
+
+    function evRowHtml(ev) {
+      var typeOpts = EV_TYPES.map(function (t) {
+        return '<option value="' + t.v + '"' + (ev.type === t.v ? ' selected' : '') + '>' + ui.esc(t.t) + '</option>';
+      }).join('');
+      return '<div class="ev-edit" style="border:1px solid var(--hairline);border-radius:var(--radius-lg);padding:12px;margin-bottom:10px;">' +
+        '<div class="field-row">' +
+        '<div class="field"><label>Type</label><select class="ev-type">' + typeOpts + '</select></div>' +
+        '<div class="field"><label>Label</label><input type="text" class="ev-label" value="' + ui.esc(ev.label || '') + '" /></div>' +
+        '</div>' +
+        '<div class="field"><label>URL (leave empty for private)</label><input type="url" class="ev-url" value="' + ui.esc(ev.url || '') + '" /></div>' +
+        '<div class="field" style="margin-bottom:4px;"><label>Note (optional)</label><input type="text" class="ev-note" value="' + ui.esc(ev.note || '') + '" /></div>' +
+        '<button type="button" class="icon-btn danger ev-remove" style="margin-top:6px;">Remove link</button>' +
+        '</div>';
+    }
+
+    var m = ui.openModal(
+      '<h2>' + ui.esc(title) + '</h2>' +
+      '<form id="projectForm">' +
+      '<div class="field-row">' +
+      '<div class="field"><label>Title</label><input type="text" id="prTitle" value="' + ui.esc(p ? p.title : '') + '" required /></div>' +
+      '<div class="field"><label>Status</label><select id="prStatus">' +
+      ['Live product', 'Early access', 'Shipped', 'In progress', 'Idea'].map(function (s) {
+        return '<option' + (p && p.status === s ? ' selected' : '') + '>' + s + '</option>';
+      }).join('') + '</select></div>' +
+      '</div>' +
+      '<div class="field"><label>Role</label><input type="text" id="prRole" value="' + ui.esc(p ? p.role : '') + '" placeholder="e.g. Product + Engineering" /></div>' +
+      '<div class="field"><label>Summary (one line)</label><input type="text" id="prSummary" value="' + ui.esc(p ? p.summary : '') + '" /></div>' +
+      '<div class="field"><label>Description</label><textarea id="prDesc">' + ui.esc(p ? p.description : '') + '</textarea></div>' +
+      '<div class="field"><label>Focus tags (comma separated)</label><input type="text" id="prFocus" value="' + ui.esc(p ? p.focus.join(', ') : '') + '" /></div>' +
+      '<div class="field"><label>Payment status</label><select id="prPay">' +
+      '<option value="not-disclosed"' + (p && p.payment.status === 'not-disclosed' ? ' selected' : '') + '>Not disclosed</option>' +
+      '<option value="self-reported"' + (p && p.payment.status === 'self-reported' ? ' selected' : '') + '>Self-reported (client said it)</option>' +
+      '<option value="verified"' + (p && p.payment.status === 'verified' ? ' selected' : '') + '>Verified (owner holds proof)</option>' +
+      '</select></div>' +
+      '<div class="field"><label>Payment note (optional, shown publicly when not-disclosed)</label><input type="text" id="prPayNote" value="' + ui.esc(p ? p.payment.note : '') + '" /></div>' +
+      '<div style="border-top:1px solid var(--hairline);padding-top:12px;margin-top:4px;">' +
+      '<label style="font-size:12.5px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);">Proof links</label>' +
+      '<div id="evRows">' + evRows.map(evRowHtml).join('') + '</div>' +
+      '<button type="button" class="icon-btn" id="addEvBtn">+ Add proof link</button>' +
+      '</div>' +
+      '<div style="display:flex;gap:10px;justify-content:flex-end;margin-top:18px;">' +
+      '<button type="button" class="button-ghost button-sm" data-close>Cancel</button>' +
+      '<button type="submit" class="button button-sm">Save project</button>' +
+      '</div></form>'
+    );
+
+    var form = m.el.querySelector('#projectForm');
+    var rowsEl = m.el.querySelector('#evRows');
+
+    function addEvRow() {
+      var div = document.createElement('div');
+      div.innerHTML = evRowHtml({ type: 'live', label: '', url: '', note: '' });
+      rowsEl.appendChild(div.firstChild);
+      wireEvRow(rowsEl.lastElementChild);
+    }
+    function wireEvRow(row) {
+      row.querySelector('.ev-remove').addEventListener('click', function () { row.remove(); });
+    }
+    Array.prototype.forEach.call(rowsEl.children, wireEvRow);
+    m.el.querySelector('#addEvBtn').addEventListener('click', addEvRow);
+    m.el.querySelector('[data-close]').addEventListener('click', m.close);
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var data = {
+        title: form.querySelector('#prTitle').value,
+        status: form.querySelector('#prStatus').value,
+        role: form.querySelector('#prRole').value,
+        summary: form.querySelector('#prSummary').value,
+        description: form.querySelector('#prDesc').value,
+        focus: form.querySelector('#prFocus').value
+      };
+      var payStatus = form.querySelector('#prPay').value;
+      var payNote = form.querySelector('#prPayNote').value;
+      var evs = Array.prototype.map.call(rowsEl.children, function (row) {
+        return {
+          type: row.querySelector('.ev-type').value,
+          label: row.querySelector('.ev-label').value,
+          url: row.querySelector('.ev-url').value,
+          note: row.querySelector('.ev-note').value
+        };
+      }).filter(function (ev) { return ev.label || ev.url; });
+
+      var save = p
+        ? api.updateProject(p.id, data).then(function () { return api.setPayment(p.id, payStatus, payNote); })
+        : api.createProject(data).then(function (created) { return api.setPayment(created.id, payStatus, payNote).then(function () { return created; }); });
+
+      save.then(function (saved) {
+        var pid = saved.id || p.id;
+        var chain = Promise.resolve();
+        if (p) {
+          // rebuild evidence for the edited project
+          p.evidence.forEach(function (ev) { chain = chain.then(function () { return api.removeEvidence(pid, ev.id); }); });
+        }
+        evs.forEach(function (ev) { chain = chain.then(function () { return api.addEvidence(pid, ev); }); });
+        return chain.then(function () {
+          m.close();
+          ui.toast('Project saved');
+          render();
+        });
+      });
+    });
+  }
+
+  document.getElementById('addProjectBtn').addEventListener('click', function () { openProjectEditor(null); });
+
+  /* ---------------- verifications ---------------- */
+  function statusChip(v) {
+    if (v.status === 'confirmed') return '<span class="chip chip-live">Confirmed</span>';
+    if (v.status === 'declined') return '<span class="chip chip-idea">Declined</span>';
+    return '<span class="chip chip-progress">Pending</span>';
+  }
+
+  function renderVerifications() {
+    var el = document.getElementById('verificationList');
+    if (!db.verifications.length) {
+      el.innerHTML = '<div class="verify-empty">No verification requests yet. Open the <a href="verify.html">verification page</a> and run the client flow, or add a tagged demo verification to see how it renders.</div>';
+      return;
+    }
+    el.innerHTML = db.verifications.map(function (v) {
+      var pr = ui.projectById(db, v.projectId);
+      var detail = '';
+      if (v.status === 'pending') {
+        detail = '<div class="ri-sub">Private link (not emailed in this prototype): <span class="token-line">verify.html?token=' + ui.esc(v.token) + '</span></div>';
+      } else if (v.status === 'confirmed') {
+        var a = v.answers || {};
+        detail = '<div class="ri-sub">' +
+          (a.workedTogether ? 'Worked together ✓ ' : '') + (a.delivered ? 'Delivered ✓ ' : '') + (a.wouldHireAgain ? 'Would hire again ✓ ' : '') +
+          (v.projectValue ? '· reported ' + ui.fmtMoney(v.projectValue) + ' (self-reported) ' : '') +
+          '· confirmed ' + ui.fmtDate(v.confirmedAt) + (v.isDemo ? ' · tagged demo' : '') +
+          '</div>';
+      } else {
+        detail = '<div class="ri-sub">Client said the work did not happen. Nothing is shown publicly.</div>';
+      }
+      return '<div class="row-item" data-id="' + ui.esc(v.id) + '">' +
+        '<div class="ri-main">' +
+        '<div class="ri-title">' + ui.esc(v.client) + ' <span style="color:var(--muted);font-weight:400;">· ' + ui.esc(v.company) + '</span> ' + statusChip(v) + '</div>' +
+        '<div class="ri-sub">' + ui.esc(pr ? pr.title : 'Project removed') + ' · ' + ui.esc(v.email) + '</div>' +
+        detail +
+        '</div>' +
+        '<div class="ri-actions">' +
+        (v.status === 'pending' ? '<a class="icon-btn" href="verify.html?token=' + ui.esc(v.token) + '" target="_blank" rel="noopener">Open link</a>' : '') +
+        '<button type="button" class="icon-btn" data-act="demo">' + (v.isDemo ? 'Untag demo' : 'Tag demo') + '</button>' +
+        '<button type="button" class="icon-btn danger" data-act="del">Delete</button>' +
+        '</div></div>';
+    }).join('');
+
+    Array.prototype.forEach.call(el.querySelectorAll('[data-act="demo"]'), function (b) {
+      b.addEventListener('click', function () {
+        var id = b.closest('.row-item').getAttribute('data-id');
+        var v = db.verifications.filter(function (x) { return x.id === id; })[0];
+        api.setVerificationDemo(id, !v.isDemo).then(function () { render(); ui.toast(v.isDemo ? 'Untagged from demo' : 'Tagged as demo'); });
+      });
+    });
+    Array.prototype.forEach.call(el.querySelectorAll('[data-act="del"]'), function (b) {
+      b.addEventListener('click', function () {
+        var id = b.closest('.row-item').getAttribute('data-id');
+        ui.confirm('Delete this verification? The public profile updates immediately.', function () {
+          api.deleteVerification(id).then(function () { ui.toast('Verification deleted'); render(); });
+        }, { title: 'Delete verification', okLabel: 'Delete' });
+      });
+    });
+  }
+
+  document.getElementById('addDemoBtn').addEventListener('click', function () {
+    api.addDemoVerification().then(function (v) {
+      ui.toast('Demo verification added (clearly tagged, excluded from real counts)');
+      render();
+      ui.openModal('<h2>Demo verification added</h2><p>A sample confirmation for "' + ui.esc(ui.projectById(api.getDb(), v.projectId).title) + '". It is tagged demo on the public profile and excluded from the real verification count. Delete it anytime.</p><div style="display:flex;gap:10px;justify-content:flex-end;"><button type="button" class="button button-sm" data-close>Got it</button></div>');
+    });
+  });
+
+  /* ---------------- inbox ---------------- */
+  function renderDrafts() {
+    var el = document.getElementById('draftList');
+    if (!db.drafts.length) {
+      el.innerHTML = '<div class="verify-empty">No contact drafts. Messages saved from the public profile contact form land here.</div>';
+      return;
+    }
+    el.innerHTML = db.drafts.map(function (d) {
+      var pr = ui.projectById(db, d.projectId);
+      return '<div class="row-item" data-id="' + ui.esc(d.id) + '">' +
+        '<div class="ri-main">' +
+        '<div class="ri-title">' + ui.esc(d.name) + ' <span class="chip chip-role">' + ui.esc(d.type) + '</span></div>' +
+        '<div class="ri-sub">' + ui.esc(d.email) + (pr ? ' · re: ' + ui.esc(pr.title) : '') + ' · ' + ui.fmtDate(d.createdAt) + '</div>' +
+        '<div style="color:var(--ink);font-size:14px;margin-top:6px;">' + ui.esc(d.message) + '</div>' +
+        '</div>' +
+        '<div class="ri-actions"><button type="button" class="icon-btn danger" data-act="del">Delete</button></div></div>';
+    }).join('');
+    Array.prototype.forEach.call(el.querySelectorAll('[data-act="del"]'), function (b) {
+      b.addEventListener('click', function () {
+        var id = b.closest('.row-item').getAttribute('data-id');
+        api.deleteDraft(id).then(function () { ui.toast('Draft deleted'); render(); });
+      });
+    });
+  }
+
+  /* ---------------- github ---------------- */
+  function renderGithub() {
+    var g = db.github;
+    var el = document.getElementById('githubState');
+    if (g.connected && g.handle) {
+      el.className = 'ok-box';
+      el.style.marginTop = '12px';
+      el.innerHTML = '<b>Connected (mock).</b> Handle: <span class="mono">' + ui.esc(g.handle) + '</span>. The public profile links to <span class="mono">github.com/' + ui.esc(g.handle) + '</span> when you add a code proof link. <a href="#" id="ghDisconnect">Disconnect</a>';
+      document.getElementById('ghDisconnect').addEventListener('click', function (e) {
+        e.preventDefault();
+        api.disconnectGithub().then(function () { ui.toast('GitHub disconnected'); render(); });
+      });
+      document.getElementById('ghHandle').value = g.handle;
+    } else {
+      el.className = 'warn-box';
+      el.style.marginTop = '12px';
+      el.innerHTML = 'Not connected. This is a mock OAuth: enter your real handle and it is stored locally. Nothing is sent to GitHub.';
+    }
+  }
+  document.getElementById('githubForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var h = document.getElementById('ghHandle').value.trim();
+    if (!h) { ui.toast('Enter a GitHub handle first.', true); return; }
+    api.connectGithub(h).then(function () { ui.toast('GitHub connected (mock)'); render(); });
+  });
+
+  /* ---------------- settings ---------------- */
+  var SETTINGS = [
+    { key: 'showAvailability', label: 'Availability line', hint: 'Show the availability status under the hero name.' },
+    { key: 'showStats', label: 'Aggregate stats', hint: 'Projects, live deployments, verifications, payments verified.' },
+    { key: 'showVerifications', label: 'Client verifications', hint: 'The evidence section on the public profile.' },
+    { key: 'showPaymentBadges', label: 'Payment badges', hint: 'Verified / self-reported / not disclosed per project.' }
+  ];
+  function renderSettings() {
+    var el = document.getElementById('settingsList');
+    el.innerHTML = SETTINGS.map(function (s) {
+      var on = db.settings[s.key] !== false;
+      return '<div class="toggle">' +
+        '<div><div class="t-label">' + ui.esc(s.label) + '</div><div class="t-hint">' + ui.esc(s.hint) + '</div></div>' +
+        '<input type="checkbox" data-key="' + s.key + '"' + (on ? ' checked' : '') + ' />' +
+        '</div>';
+    }).join('');
+    Array.prototype.forEach.call(el.querySelectorAll('input[type="checkbox"]'), function (c) {
+      c.addEventListener('change', function () {
+        var patch = {}; patch[c.getAttribute('data-key')] = c.checked;
+        api.updateSettings(patch).then(function () { ui.toast('Visibility updated'); });
+      });
+    });
+  }
+
+  /* ---------------- data tools ---------------- */
+  function download(name, text, mime) {
+    var blob = new Blob([text], { type: mime || 'application/json' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 300);
+  }
+  document.getElementById('exportJsonBtn').addEventListener('click', function () {
+    api.exportJson().then(function (json) { download('zippp-profile.json', json); ui.toast('JSON exported'); });
+  });
+  document.getElementById('exportMdBtn').addEventListener('click', function () {
+    api.exportMarkdown().then(function (md) { download('adit-profile.md', md, 'text/markdown'); ui.toast('Markdown exported'); });
+  });
+  document.getElementById('importJsonBtn').addEventListener('click', function () { document.getElementById('importFile').click(); });
+  document.getElementById('importFile').addEventListener('change', function (e) {
+    var file = e.target.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function () {
+      try {
+        api.importJson(String(reader.result)).then(function () { ui.toast('Imported'); render(); }, function (err) { ui.toast('Import failed: ' + err.message, true); });
+      } catch (err) { ui.toast('Import failed: ' + err.message, true); }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  });
+  document.getElementById('resetBtn').addEventListener('click', function () {
+    ui.confirm('Restore the seeded demo data? Everything changed in this browser is lost.', function () {
+      api.resetData().then(function () { ui.toast('Demo data restored'); render(); });
+    }, { title: 'Reset demo data', okLabel: 'Reset' });
+  });
+
+  api.init().then(render);
+})();
+</script>
+</body>
+</html>

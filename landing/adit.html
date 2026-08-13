@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Adit Dewantara · proof profile on zippp.link</title>
+<meta name="description" content="Adit Dewantara (Adit @ AppWorkZ): I turn messy business workflows into working software and AI systems. Malang, Indonesia. Shipped work: Rileks, Zippp, Impels." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23E8442E'/%3E%3Ctext x='27' y='14' font-family='Archivo,Arial,sans-serif' font-size='15' font-weight='700' fill='white' text-anchor='end'%3Ez%3C/text%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;700&family=DM+Sans:wght@400;500;600&family=Shantell+Sans:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="assets/profile/app.css" />
+</head>
+<body>
+
+<div class="banner" id="prototypeBanner">
+  <div class="wrap">
+    <span><b>Working prototype.</b> This profile is a mock: data lives in your browser, no email or payment is ever sent.</span>
+    <button type="button" class="banner-dismiss" aria-label="Dismiss prototype notice">&times;</button>
+  </div>
+</div>
+
+<header>
+  <div class="wrap nav">
+    <a class="logo" href="index.html"><span class="logo-mark"><svg width="24" height="24" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7" fill="#E8442E"/><text x="27" y="14" font-family="Archivo, Arial, sans-serif" font-size="15" font-weight="700" fill="#fff" text-anchor="end">z</text></svg></span><span class="word">zippp<span class="dot">.link</span></span></a>
+    <div class="menu-links">
+      <div class="nav-links">
+        <a href="#work">Work</a>
+        <a href="#evidence">Evidence</a>
+        <a href="#contact">Contact</a>
+      </div>
+      <a class="button nav-cta" href="index.html">Back to zippp.link</a>
+    </div>
+    <a class="button nav-cta-mobile" href="index.html">zippp.link</a>
+  </div>
+</header>
+
+<!-- HERO -->
+<div class="profile-hero">
+  <div class="wrap hero-grid">
+    <div>
+      <p class="eyebrow">Proof profile · hosted on zippp.link</p>
+      <h1 id="heroName">Adit Dewantara</h1>
+      <p class="lead" id="heroTagline"></p>
+      <p class="meta-line" id="heroLocation"></p>
+      <p class="avail" id="heroAvailability"></p>
+      <div class="cta-row">
+        <button type="button" class="button" id="ctaHire">Hire Adit</button>
+        <button type="button" class="button-ghost" id="ctaProblem">Talk about a problem</button>
+      </div>
+      <div class="stats" id="statsRow"></div>
+    </div>
+
+    <aside class="profile-card" id="profileCard">
+      <div class="pc-avatar" id="pcAvatar">A</div>
+      <div class="pc-name" id="pcName"></div>
+      <div class="pc-handle" id="pcHandle"></div>
+      <div class="pc-tagline" id="pcTagline"></div>
+      <div class="pc-row" id="pcLocation"></div>
+      <div class="pc-row" id="pcAvailability"></div>
+      <div class="pc-ctas">
+        <button type="button" class="button" data-cta="hire">Hire Adit</button>
+        <button type="button" class="button-ghost" data-cta="problem">Talk about a problem</button>
+      </div>
+      <div class="pc-proof">
+        <span id="pcProofIcon"></span>
+        <span id="pcProofText"></span>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<!-- WORK -->
+<section id="work" class="section-pad">
+  <div class="wrap narrow">
+    <h2>Shipped work.</h2>
+    <p class="section-intro">Real projects with inspectable evidence. Live links are checked and reachable. Demo data is labeled demo. Nothing here invents clients, revenue or outcomes.</p>
+    <div id="projectList"></div>
+  </div>
+</section>
+
+<!-- EVIDENCE -->
+<section id="evidence" class="section-pad" style="padding-top:0;">
+  <div class="wrap narrow">
+    <h2>Evidence.</h2>
+    <p class="section-intro">Client verifications confirm the work happened. Each one is a real person confirming in their own words, shown with the date it was confirmed.</p>
+    <div id="verificationList"></div>
+
+    <div class="how-grid">
+      <div class="how-card">
+        <h3><span id="howIcon1"></span>Live deployment</h3>
+        <p>Checked and reachable by anyone with the link. The strongest evidence: the product is running in public.</p>
+      </div>
+      <div class="how-card">
+        <h3><span id="howIcon2"></span>Client verification</h3>
+        <p>A named person confirms we worked together and the work was delivered. Value figures clients report are labeled self-reported.</p>
+      </div>
+      <div class="how-card">
+        <h3><span id="howIcon3"></span>Demo &amp; private</h3>
+        <p>Demo data is mock and tagged as such. Private client work shows no link and no invented numbers, evidence on request.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact" class="section-pad" style="padding-top:0;">
+  <div class="wrap narrow">
+    <h2>Talk about a problem.</h2>
+    <p class="section-intro" id="contactIntro"></p>
+    <div class="owner-card" style="margin-top:28px;">
+      <form id="contactForm" novalidate>
+        <div class="field-row">
+          <div class="field">
+            <label for="cfName">Your name</label>
+            <input type="text" id="cfName" name="name" required autocomplete="name" placeholder="e.g. Rina Pratama" />
+          </div>
+          <div class="field">
+            <label for="cfEmail">Your email</label>
+            <input type="email" id="cfEmail" name="email" required autocomplete="email" placeholder="you@company.com" />
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="cfType">What is this about?</label>
+            <select id="cfType" name="type">
+              <option value="Talk about a problem">Talk about a problem</option>
+              <option value="Hire Adit">Hire Adit</option>
+              <option value="Question about a project">Question about a project</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="cfProject">Related project (optional)</label>
+            <select id="cfProject" name="projectId">
+              <option value="">Not project specific</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label for="cfMessage">What is breaking or stuck?</label>
+          <textarea id="cfMessage" name="message" required placeholder="Describe the workflow, who it hurts, and what done looks like. One message is enough."></textarea>
+        </div>
+        <button type="submit" class="button">Save draft and continue</button>
+        <p class="hint" style="margin-top:12px;color:var(--muted);font-size:13px;">Prototype: your message is saved as a draft in this browser and appears in the owner console. It is not emailed anywhere in this prototype.</p>
+        <div id="contactResult"></div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot">
+    <small>© 2026 zippp.link</small>
+    <div class="foot-links">
+      <a href="index.html">zippp.link home</a>
+      <a href="verify.html">Client? Verify a project</a>
+      <a href="owner.html">Owner console</a>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/profile/store.js"></script>
+<script src="assets/profile/api.js"></script>
+<script src="assets/profile/ui.js"></script>
+<script>
+(function () {
+  'use strict';
+  var ui = window.ZipppUI, api = window.ZipppApi;
+  var db, draftType = null;
+
+  function statusChip(status) {
+    var cls = 'chip';
+    var s = (status || '').toLowerCase();
+    if (s.indexOf('live') === 0 || s.indexOf('shipped') === 0 || s.indexOf('early') === 0) cls = 'chip chip-live';
+    else if (s.indexOf('progress') >= 0) cls = 'chip chip-progress';
+    else if (s.indexOf('idea') >= 0) cls = 'chip chip-idea';
+    return '<span class="' + cls + '">' + ui.esc(status) + '</span>';
+  }
+
+  function evBadge(ev) {
+    var badge = '';
+    if (ev.type === 'live') {
+      badge = '<span class="ev-badge ev-live">' + ui.icon('check') + 'Live · verified</span>';
+    } else if (ev.type === 'demo') {
+      badge = '<span class="ev-badge ev-demo">' + ui.icon('external') + 'Demo data</span>';
+    } else if (ev.type === 'code') {
+      badge = '<span class="ev-badge ev-code">' + ui.icon('github') + 'Code</span>';
+    } else {
+      badge = '<span class="ev-badge ev-private">' + ui.icon('lock') + 'Private</span>';
+    }
+    var link = ev.url ? ' <a href="' + ui.esc(ev.url) + '" target="_blank" rel="noopener">' + ui.esc(ev.label) + '</a>' : ' <span>' + ui.esc(ev.label) + '</span>';
+    var note = ev.note ? ' <span class="ev-note">' + ui.esc(ev.note) + '</span>' : '';
+    return '<div class="ev">' + badge + link + note + '</div>';
+  }
+
+  function payBadge(project) {
+    var st = project.payment.status || 'not-disclosed';
+    var label = st === 'verified' ? 'Payment verified' : st === 'self-reported' ? 'Self-reported' : 'Not disclosed';
+    var cls = st === 'verified' ? 'pay pay-verified' : st === 'self-reported' ? 'pay pay-self' : 'pay pay-none';
+    var note = st === 'self-reported' ? 'Reported by a client, not independently verified' : project.payment.note || '';
+    return '<span class="' + cls + '">' + ui.icon('dollar') + label + '</span>' +
+      (note ? ' <span class="pay-note">' + ui.esc(note) + '</span>' : '');
+  }
+
+  function renderProject(p) {
+    var evidence = p.evidence.map(evBadge).join('');
+    var tags = p.focus.map(function (t) { return '<span class="chip">' + ui.esc(t) + '</span>'; }).join(' ');
+    return '<article class="project-card reveal" data-project="' + ui.esc(p.id) + '">' +
+      '<div class="pc-head"><h3>' + ui.esc(p.title) + '</h3>' +
+      '<div class="chips"><span class="chip chip-role">' + ui.esc(p.role) + '</span>' + statusChip(p.status) + '</div></div>' +
+      '<p class="p-summary">' + ui.esc(p.summary) + '</p>' +
+      '<p class="p-desc">' + ui.esc(p.description) + '</p>' +
+      '<div class="pay-meta">' + payBadge(p) + '</div>' +
+      (evidence ? '<div class="evidence" style="margin-top:14px;">' + evidence + '</div>' : '') +
+      (tags ? '<div class="pay-meta" style="margin-top:12px;">' + tags + '</div>' : '') +
+      '</article>';
+  }
+
+  function renderVerification(v) {
+    var pr = ui.projectById(db, v.projectId);
+    var projectName = pr ? pr.title : 'Project';
+    var demoTag = v.isDemo ? ' <span class="v-demo">Demo</span>' : '';
+    var value = v.projectValue ? ' <span class="v-value">' + ui.icon('dollar') + 'Reported project value ' + ui.fmtMoney(v.projectValue) + ' (self-reported)</span>' : '';
+    var answers = '';
+    if (v.answers) {
+      answers = '<div class="v-answers">' +
+        (v.answers.workedTogether ? '<span class="v-ans">' + ui.icon('check') + 'Worked together</span>' : '') +
+        (v.answers.projectExisted ? '<span class="v-ans">' + ui.icon('check') + 'Project existed</span>' : '') +
+        (v.answers.delivered ? '<span class="v-ans">' + ui.icon('check') + 'Delivered</span>' : '') +
+        (v.answers.wouldHireAgain ? '<span class="v-ans">' + ui.icon('check') + 'Would hire again</span>' : '') +
+        '</div>' + value;
+    }
+    var notes = v.notes ? '<p style="color:var(--muted);font-size:13.5px;font-style:italic;">"' + ui.esc(v.notes) + '"</p>' : '';
+    return '<div class="verify-card reveal" data-verification="' + ui.esc(v.id) + '">' +
+      '<div class="v-head"><span class="v-who">' + ui.esc(v.client) + demoTag + '</span>' +
+      '<span class="v-meta">confirmed ' + ui.fmtDate(v.confirmedAt) + '</span></div>' +
+      '<div class="v-company">' + ui.esc(v.company) + '</div>' +
+      '<div class="v-project">' + ui.esc(projectName) + '</div>' +
+      answers + notes +
+      '</div>';
+  }
+
+  function render() {
+    db = api.getDb();
+    var p = db.profile;
+
+    // Hero
+    document.getElementById('heroName').innerHTML = ui.esc(p.name) + ' <span class="hand">' + ui.esc(p.handle) + '</span>';
+    document.getElementById('heroTagline').textContent = p.tagline;
+    document.getElementById('heroLocation').innerHTML = ui.icon('pin') + ui.esc(p.location);
+    var avail = document.getElementById('heroAvailability');
+    if (db.settings.showAvailability !== false) {
+      avail.className = 'avail ' + (p.availability.status === 'limited' ? 'limited' : p.availability.status === 'unavailable' ? 'unavailable' : '');
+      avail.innerHTML = '<span class="dot"></span>' + ui.esc(p.availability.label);
+    } else {
+      avail.style.display = 'none';
+    }
+
+    // Profile card
+    document.getElementById('pcAvatar').textContent = (p.name || 'A').trim().charAt(0).toUpperCase();
+    document.getElementById('pcName').textContent = p.name;
+    document.getElementById('pcHandle').textContent = p.handle;
+    document.getElementById('pcTagline').textContent = p.tagline;
+    document.getElementById('pcLocation').innerHTML = ui.icon('pin') + ui.esc(p.location);
+    document.getElementById('pcAvailability').innerHTML = ui.icon('check') + ui.esc(p.availability.label);
+    document.getElementById('pcProofIcon').innerHTML = ui.icon('shield');
+    var verifiedCount = db.verifications.filter(function (v) { return v.status === 'confirmed' && !v.isDemo; }).length;
+    var liveCount = db.projects.filter(function (pr) { return pr.evidence.some(function (e) { return e.type === 'live' && e.verified; }); }).length;
+    document.getElementById('pcProofText').textContent = 'Evidence shown below: ' + liveCount + ' live deployments checked, ' + verifiedCount + ' client verifications.';
+
+    // Stats (honest aggregates)
+    var stats = [];
+    stats.push({ n: db.projects.length, label: 'projects listed', note: '' });
+    stats.push({ n: liveCount, label: 'live deployments', note: 'verified' });
+    var realV = db.verifications.filter(function (v) { return v.status === 'confirmed' && !v.isDemo; }).length;
+    var demoV = db.verifications.filter(function (v) { return v.status === 'confirmed' && v.isDemo; }).length;
+    stats.push({ n: realV, label: 'client verifications', note: demoV ? ' +' + demoV + ' demo' : '' });
+    var payV = db.projects.filter(function (pr) { return pr.payment.status === 'verified'; }).length;
+    stats.push({ n: payV, label: 'payments verified', note: '' });
+    if (db.settings.showStats !== false) {
+      document.getElementById('statsRow').innerHTML = stats.map(function (s) {
+        return '<div class="stat"><b>' + s.n + '</b><span>' + ui.esc(s.label) + (s.note ? ' <span class="stat-note">' + ui.esc(s.note) + '</span>' : '') + '</span></div>';
+      }).join('');
+    } else {
+      document.getElementById('statsRow').style.display = 'none';
+    }
+
+    // Work
+    document.getElementById('projectList').innerHTML = db.projects.map(renderProject).join('');
+
+    // Evidence
+    var confirmed = db.verifications.filter(function (v) { return v.status === 'confirmed'; });
+    var listEl = document.getElementById('verificationList');
+    if (db.settings.showVerifications === false) {
+      listEl.innerHTML = '';
+    } else if (!confirmed.length) {
+      listEl.innerHTML = '<div class="verify-empty">No client verifications yet. <b>This prototype can change that:</b> use the <a href="verify.html">client verification flow</a> to confirm a project, and it appears here.</div>';
+    } else {
+      listEl.innerHTML = confirmed.map(renderVerification).join('');
+    }
+
+    // Contact
+    document.getElementById('contactIntro').textContent = p.contact.note;
+    var sel = document.querySelector('#cfProject');
+    var current = sel.value;
+    sel.innerHTML = '<option value="">Not project specific</option>' + db.projects.map(function (pr) {
+      return '<option value="' + ui.esc(pr.id) + '">' + ui.esc(pr.title) + '</option>';
+    }).join('');
+    sel.value = current;
+
+    document.getElementById('ctaHire').textContent = p.contact.hireLabel;
+    document.getElementById('ctaProblem').textContent = p.contact.problemLabel;
+
+    ui.observeReveals();
+  }
+
+  /* ---- contact draft flow ---- */
+  function openContact(type) {
+    draftType = type;
+    document.getElementById('cfType').value = type;
+    document.getElementById('contact').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    setTimeout(function () { document.getElementById('cfMessage').focus(); }, 350);
+  }
+
+  document.getElementById('ctaHire').addEventListener('click', function () { openContact('Hire Adit'); });
+  document.getElementById('ctaProblem').addEventListener('click', function () { openContact('Talk about a problem'); });
+  Array.prototype.forEach.call(document.querySelectorAll('[data-cta]'), function (btn) {
+    btn.addEventListener('click', function () { openContact(btn.getAttribute('data-cta') === 'hire' ? 'Hire Adit' : 'Talk about a problem'); });
+  });
+
+  document.getElementById('contactForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var form = e.target;
+    var data = ui.readForm(form, ['name', 'email', 'type', 'projectId', 'message']);
+    if (!data.name || !data.email || !data.message) {
+      ui.toast('Please fill in your name, email and message.', true);
+      return;
+    }
+    var btn = form.querySelector('button[type="submit"]');
+    btn.disabled = true;
+    api.submitDraft(data).then(function () {
+      btn.disabled = false;
+      var box = document.getElementById('contactResult');
+      box.innerHTML = '<div class="ok-box"><b>Draft saved.</b> Nothing was sent: this is a prototype, so your message stays in this browser and shows up in the owner console. In production this is where the message goes to Adit directly.</div>';
+      box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      form.reset();
+      ui.toast('Draft saved');
+    });
+  });
+
+  /* ---- prototype banner ---- */
+  var dismiss = document.querySelector('#prototypeBanner .banner-dismiss');
+  if (dismiss) dismiss.addEventListener('click', function () { document.getElementById('prototypeBanner').style.display = 'none'; });
+
+  api.init().then(render);
+})();
+</script>
+</body>
+</html>
