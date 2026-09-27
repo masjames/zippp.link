@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>zippp user flow</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #e8e6de;
+      color: #141414;
+      font-family: Georgia, "Times New Roman", Times, serif;
+    }
+    .board {
+      width: 1680px;
+      padding: 80px 80px 120px;
+    }
+    .mast { max-width: 520px; margin-bottom: 80px; }
+    .mast .brand {
+      font-size: 13px;
+      letter-spacing: 0.32em;
+      margin-bottom: 28px;
+    }
+    .mast h1 {
+      font-size: 36px;
+      font-weight: 400;
+      line-height: 1.2;
+      margin-bottom: 16px;
+    }
+    .mast p { font-size: 18px; max-width: 38ch; }
+    .lane-h {
+      font-family: ui-monospace, "Courier New", Courier, monospace;
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: #6e6e6e;
+      margin: 0 0 36px;
+    }
+    .strip {
+      display: flex;
+      gap: 24px;
+      align-items: flex-start;
+    }
+    .then {
+      font-family: ui-monospace, "Courier New", Courier, monospace;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #6e6e6e;
+      width: 48px;
+      flex: 0 0 48px;
+      padding-top: 280px;
+      text-align: center;
+    }
+    .note {
+      font-family: ui-monospace, "Courier New", Courier, monospace;
+      font-size: 12px;
+      line-height: 1.7;
+      color: #6e6e6e;
+      max-width: 22ch;
+      padding-top: 64px;
+    }
+    .phone { width: 300px; flex: 0 0 300px; }
+    .phone figcaption {
+      font-family: ui-monospace, "Courier New", Courier, monospace;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #6e6e6e;
+      margin-bottom: 12px;
+    }
+    .device {
+      background: #fff;
+      border: 1px solid #141414;
+      min-height: 580px;
+      padding: 24px 20px 20px;
+      display: flex;
+      flex-direction: column;
+    }
+    .word {
+      font-size: 12px;
+      letter-spacing: 0.28em;
+      margin-bottom: 28px;
+    }
+    .drop {
+      flex: 1;
+      border: 1px dashed #9a9a94;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      text-align: center;
+      min-height: 360px;
+    }
+    .drop h2, .center h2, .fail h2 {
+      font-size: 22px;
+      font-weight: 400;
+    }
+    .hint {
+      font-family: ui-monospace, "Courier New", Courier, monospace;
+      font-size: 10px;
+      letter-spacing: 0.06em;
+      color: #6e6e6e;
+    }
+    .btn {
+      border: 1px solid #141414;
+      background: #fff;
+      text-align: center;
+      padding: 11px 10px;
+      font-family: ui-monospace, "Courier New", Courier, monospace;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .btn.fill { background: #141414; color: #fff; }
+    .row { display: flex; gap: 8px; margin-top: auto; padding-top: 16px; }
+    .row .btn { flex: 1; }
+    .center {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      text-align: center;
+    }
+    .x {
+      width: 110px;
+      height: 154px;
+      border: 1px solid #141414;
+      position: relative;
+      overflow: hidden;
+    }
+    .x::before, .x::after {
+      content: "";
+      position: absolute;
+      background: #141414;
+      width: 1px;
+      height: 140%;
+      top: -20%;
+      left: 50%;
+    }
+    .x::before { transform: rotate(32deg); }
+    .x::after { transform: rotate(-32deg); }
+    .dot { width: 6px; height: 6px; background: #141414; }
+    .kv {
+      display: grid;
+      grid-template-columns: 88px 1fr;
+      gap: 8px;
+      padding: 8px 0;
+      border-bottom: 1px solid #e4e4de;
+      font-size: 13px;
+    }
+    .kv span {
+      font-family: ui-monospace, "Courier New", Courier, monospace;
+      font-size: 9px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #6e6e6e;
+      padding-top: 3px;
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 12px; }
+    th {
+      font-family: ui-monospace, "Courier New", Courier, monospace;
+      font-size: 9px;
+      font-weight: 400;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #6e6e6e;
+      text-align: left;
+      padding: 0 8px 8px 0;
+    }
+    td { padding: 8px 8px 8px 0; border-top: 1px solid #e4e4de; }
+    td.n, th.n { text-align: right; padding-right: 0; }
+    .tot { margin-top: 16px; font-size: 13px; text-align: right; }
+    .tot div { margin-bottom: 6px; }
+    .fail {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 12px;
+      max-width: 20ch;
+    }
+    .lane { margin-bottom: 96px; }
+  </style>
+</head>
+<body>
+<div class="board">
+  <header class="mast">
+    <p class="brand">zippp</p>
+    <h1>Photo in.<br>Table out.</h1>
+    <p>One screen. Stateless. CSV and JSON. That is the mill.</p>
+  </header>
+
+  <section class="lane">
+    <h2 class="lane-h">lean flow, phone</h2>
+    <div class="strip">
+
+      <figure class="phone">
+        <figcaption>01 / empty</figcaption>
+        <div class="device">
+          <p class="word">zippp</p>
+          <div class="drop">
+            <h2>Drop a receipt</h2>
+            <p class="hint">or tap to use the camera</p>
+          </div>
+        </div>
+      </figure>
+
+      <div class="then">then</div>
+
+      <figure class="phone">
+        <figcaption>02 / reading</figcaption>
+        <div class="device">
+          <p class="word">zippp</p>
+          <div class="center">
+            <div class="x"></div>
+            <div class="dot"></div>
+            <h2>Reading</h2>
+            <p class="hint">a few seconds</p>
+          </div>
+        </div>
+      </figure>
+
+      <div class="then">then</div>
+
+      <figure class="phone">
+        <figcaption>03 / result</figcaption>
+        <div class="device">
+          <p class="word">zippp</p>
+          <div class="kv"><span>Merchant</span>Kopi Kenangan</div>
+          <div class="kv"><span>Date</span>21 Sep 2026</div>
+          <div class="kv"><span>Currency</span>IDR</div>
+          <table>
+            <thead>
+              <tr><th>Item</th><th class="n">Qty</th><th class="n">Amt</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Americano</td><td class="n">1</td><td class="n">28000</td></tr>
+              <tr><td>Croissant</td><td class="n">1</td><td class="n">32000</td></tr>
+            </tbody>
+          </table>
+          <div class="tot">
+            <div>Subtotal 60000</div>
+            <div>Tax 6000</div>
+            <div>Total 66000</div>
+          </div>
+          <div class="row">
+            <div class="btn fill">CSV</div>
+            <div class="btn">JSON</div>
+          </div>
+        </div>
+      </figure>
+
+      <p class="note">
+        no edit.<br>
+        no save.<br>
+        drop another to start over.
+      </p>
+    </div>
+  </section>
+
+  <section class="lane">
+    <h2 class="lane-h">if the photo is wrong, from reading</h2>
+    <div class="strip">
+      <figure class="phone">
+        <figcaption>04 / bad photo</figcaption>
+        <div class="device">
+          <p class="word">zippp</p>
+          <div class="fail">
+            <h2>Could not read this photo.</h2>
+            <p class="hint">receipt or invoice only. try a clearer shot.</p>
+          </div>
+          <div class="row">
+            <div class="btn fill">Try again</div>
+          </div>
+        </div>
+      </figure>
+      <p class="note">
+        refuse.<br>
+        extract nothing.<br>
+        no table. no download.
+      </p>
+    </div>
+  </section>
+</div>
+</body>
+</html>
