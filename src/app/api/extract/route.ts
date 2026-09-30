@@ -1,7 +1,8 @@
 import { GoogleGenAI } from "@google/genai";
 import { NextResponse } from "next/server";
-import { GEMINI_MODEL } from "@/lib/config";
+import { EXTRACT_PROVIDER, GEMINI_MODEL, ZAI_BASE_URL, ZAI_MODEL } from "@/lib/config";
 import { EXTRACT_PROMPT, RECEIPT_JSON_SCHEMA } from "@/lib/schema";
+import { extractWithZai } from "@/lib/zai";
 import type { ExtractResponse, LineItem, Receipt } from "@/types/receipt";
 
 export const runtime = "nodejs";
@@ -53,11 +54,16 @@ export async function POST(req: Request) {
     return NextResponse.json(body, { status });
   }
 
-  const key = process.env.GEMINI_API_KEY;
+  const provider = EXTRACT_PROVIDER;
+  const key =
+    provider === "zai" ? process.env.Z_AI_API_KEY : process.env.GEMINI_API_KEY;
   if (!key) {
     const body: ExtractResponse = {
       ok: false,
-      error: "GEMINI_API_KEY is missing. Put it in .env.local.",
+      error:
+        provider === "zai"
+          ? "Z_AI_API_KEY is missing. Put it in .env.local and set EXTRACT_PROVIDER=zai."
+          : "GEMINI_API_KEY is missing. Put it in .env.local.",
     };
     return respond(body, 500);
   }
@@ -78,40 +84,46 @@ export async function POST(req: Request) {
 
   const bytes = Buffer.from(await image.arrayBuffer());
   const mimeType = image.type || "image/jpeg";
-  const ai = new GoogleGenAI({ apiKey: key });
 
   try {
     const modelStart = performance.now();
-    let response;
+    let text: string | null;
     try {
-      response = await ai.models.generateContent({
-        model: GEMINI_MODEL,
-        contents: [
-          {
-            role: "user",
-            parts: [
-              { text: EXTRACT_PROMPT },
-              { inlineData: { mimeType, data: bytes.toString("base64") } },
-            ],
+      if (provider === "zai") {
+        // Dev/test path — see src/lib/config.ts for why this is not for clients.
+        text = await extractWithZai({
+          baseUrl: ZAI_BASE_URL,
+          apiKey: key,
+          model: ZAI_MODEL,
+          mimeType,
+          data: bytes.toString("base64"),
+        });
+      } else {
+        const ai = new GoogleGenAI({ apiKey: key });
+        const response = await ai.models.generateContent({
+          model: GEMINI_MODEL,
+          contents: [
+            {
+              role: "user",
+              parts: [
+                { text: EXTRACT_PROMPT },
+                { inlineData: { mimeType, data: bytes.toString("base64") } },
+              ],
+            },
+          ],
+          config: {
+            responseMimeType: "application/json",
+            responseSchema: RECEIPT_JSON_SCHEMA,
+            thinkingConfig: { thinkingBudget: 0 },
           },
-        ],
-        config: {
-          responseMimeType: "application/json",
-          responseSchema: RECEIPT_JSON_SCHEMA,
-          thinkingConfig: { thinkingBudget: 0 },
-        },
-      });
+        });
+        text = response?.text ?? null;
+      }
     } finally {
       model_ms = Math.round(performance.now() - modelStart);
       console.log({ model_ms });
     }
 
-    if (!response) {
-      const body: ExtractResponse = { ok: false, error: "Extract failed." };
-      return respond(body, 502);
-    }
-
-    const text = response.text;
     if (!text) {
       const body: ExtractResponse = {
         ok: false,
