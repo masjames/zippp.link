@@ -1,0 +1,12 @@
+# Never upload these with a CLI deployment.
+# Vercel's CLI uploads files as-is; .gitignore is NOT consulted for uploads,
+# so without this file `.env.local` (the real API keys) would be sent to Vercel.
+.env
+.env.*
+!.env.example
+.data
+.vercel
+.next
+node_modules
+*.log
+tsconfig.tsbuildinfo
