@@ -1,6 +1,7 @@
 import { promises as fs } from "fs";
 import path from "path";
 import { decryptSecret, encryptSecret } from "./crypto";
+import { remoteTextStore } from "./kv";
 
 export type StoredGoogleTokens = {
   google_user_id: string;
@@ -14,6 +15,8 @@ type FileShape = {
   version: 1;
   tokens: StoredGoogleTokens | null;
 };
+
+const TOKENS_KEY = "google-tokens.json";
 
 function dataDir(): string {
   return (
@@ -30,14 +33,23 @@ async function ensureDir(): Promise<void> {
   await fs.mkdir(dataDir(), { recursive: true });
 }
 
+function parseShape(raw: string | null): FileShape {
+  if (raw == null) return { version: 1, tokens: null };
+  const parsed = JSON.parse(raw) as FileShape;
+  if (parsed?.version !== 1) {
+    return { version: 1, tokens: null };
+  }
+  return parsed;
+}
+
 async function readFile(): Promise<FileShape> {
+  const remote = remoteTextStore();
+  if (remote) {
+    return parseShape(await remote.readText(TOKENS_KEY));
+  }
   try {
     const raw = await fs.readFile(tokensPath(), "utf8");
-    const parsed = JSON.parse(raw) as FileShape;
-    if (parsed?.version !== 1) {
-      return { version: 1, tokens: null };
-    }
-    return parsed;
+    return parseShape(raw);
   } catch (err) {
     const code = (err as NodeJS.ErrnoException).code;
     if (code === "ENOENT") return { version: 1, tokens: null };
@@ -46,6 +58,11 @@ async function readFile(): Promise<FileShape> {
 }
 
 async function writeFile(data: FileShape): Promise<void> {
+  const remote = remoteTextStore();
+  if (remote) {
+    await remote.writeText(TOKENS_KEY, JSON.stringify(data, null, 2));
+    return;
+  }
   await ensureDir();
   const tmp = `${tokensPath()}.tmp`;
   await fs.writeFile(tmp, JSON.stringify(data, null, 2), {

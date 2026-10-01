@@ -1,5 +1,6 @@
 import { promises as fs } from "fs";
 import path from "path";
+import { remoteTextStore } from "./kv";
 
 export type TemplateId = "resto-inventory" | "personal-expense" | "custom";
 
@@ -29,6 +30,8 @@ type FileShape = {
   workspace: WorkspaceConfig | null;
 };
 
+const WORKSPACE_KEY = "workspace.json";
+
 function dataDir(): string {
   return (
     process.env.ZIPPP_DATA_DIR ||
@@ -44,14 +47,23 @@ async function ensureDir(): Promise<void> {
   await fs.mkdir(dataDir(), { recursive: true });
 }
 
+function parseShape(raw: string | null): FileShape {
+  if (raw == null) return { version: 1, workspace: null };
+  const parsed = JSON.parse(raw) as FileShape;
+  if (parsed?.version !== 1) {
+    return { version: 1, workspace: null };
+  }
+  return parsed;
+}
+
 async function readFile(): Promise<FileShape> {
+  const remote = remoteTextStore();
+  if (remote) {
+    return parseShape(await remote.readText(WORKSPACE_KEY));
+  }
   try {
     const raw = await fs.readFile(workspacePath(), "utf8");
-    const parsed = JSON.parse(raw) as FileShape;
-    if (parsed?.version !== 1) {
-      return { version: 1, workspace: null };
-    }
-    return parsed;
+    return parseShape(raw);
   } catch (err) {
     const code = (err as NodeJS.ErrnoException).code;
     if (code === "ENOENT") return { version: 1, workspace: null };
@@ -60,6 +72,11 @@ async function readFile(): Promise<FileShape> {
 }
 
 async function writeFile(data: FileShape): Promise<void> {
+  const remote = remoteTextStore();
+  if (remote) {
+    await remote.writeText(WORKSPACE_KEY, JSON.stringify(data, null, 2));
+    return;
+  }
   await ensureDir();
   const tmp = `${workspacePath()}.tmp`;
   await fs.writeFile(tmp, JSON.stringify(data, null, 2), {
