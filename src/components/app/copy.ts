@@ -16,6 +16,19 @@ export type AppCopy = {
         startOver: string;
     };
     badPhoto: { title: string; hint: string; retry: string };
+    connectSheets: string;
+    connectSheetsDesc: string;
+    selectSpreadsheet: string;
+    connecting: string;
+    select: string;
+    noSheetsConnected: string;
+    connectionError: string;
+    sheetsConnected: string;
+    disconnect: string;
+    sheetTab: string;
+    template: string;
+    lastUpdated: string;
+    mappedColumns: string;
 };
 
 /** App screen text, taken verbatim from zippp-wording.md. */
@@ -40,6 +53,19 @@ export const APP_COPY: Record<Language, AppCopy> = {
             hint: "receipt or invoice only. try a clearer shot.",
             retry: "Try again",
         },
+        connectSheets: "Connect to Google Sheets",
+        connectSheetsDesc: "Link your receipt data to Google Sheets for inventory tracking",
+        selectSpreadsheet: "Select a spreadsheet",
+        connecting: "Connecting...",
+        select: "Select",
+        noSheetsConnected: "No Google Sheets connected",
+        connectionError: "Connection error",
+        sheetsConnected: "Google Sheets connected",
+        disconnect: "Disconnect",
+        sheetTab: "Sheet tab",
+        template: "Template",
+        lastUpdated: "Last updated",
+        mappedColumns: "Mapped columns",
     },
     id: {
         brand: "zippp",
@@ -64,5 +90,18 @@ export const APP_COPY: Record<Language, AppCopy> = {
             hint: "hanya resi atau faktur. coba foto yang lebih jelas.",
             retry: "Coba lagi",
         },
+        connectSheets: "Hubungkan ke Google Sheets",
+        connectSheetsDesc: "Hubungkan data resi Anda ke Google Sheets untuk pelacakan inventaris",
+        selectSpreadsheet: "Pilih spreadsheet",
+        connecting: "Menghubungkan...",
+        select: "Pilih",
+        noSheetsConnected: "Tidak ada Google Sheets terhubung",
+        connectionError: "Kesalahan koneksi",
+        sheetsConnected: "Google Sheets terhubung",
+        disconnect: "Putuskan",
+        sheetTab: "Sheet tab",
+        template: "Template",
+        lastUpdated: "Terakhir diperbarui",
+        mappedColumns: "Kolom terpetakan",
     },
 };

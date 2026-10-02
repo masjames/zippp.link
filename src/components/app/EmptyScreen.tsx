@@ -18,7 +18,7 @@ export default function EmptyScreen({
     language: Language;
     onFile: (file: File) => void;
 }) {
-    const t = APP_COPY[language];
+    const t = APP_COPY[language] || APP_COPY.en;
     const inputRef = useRef<HTMLInputElement>(null);
     const [over, setOver] = useState(false);
 
