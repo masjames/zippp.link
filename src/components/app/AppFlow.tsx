@@ -116,6 +116,12 @@ export default function AppFlow({
                 headers: { "Content-Type": "application/json" },
                 body: "{}",
             });
+            if (res.status === 401) {
+                setAuthError(t("app.signin.error"));
+                setAuth({ signedIn: false, oauthConfigured: true, googleUserId: null });
+                setPhase("signin");
+                return;
+            }
             const data = await res.json();
             if (data.ok && data.workspace) {
                 setWorkspace(data.workspace);
@@ -228,6 +234,15 @@ export default function AppFlow({
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ receipt: edited, staff, outlet }),
             });
+            if (res.status === 401) {
+                // Session/refresh token lost (e.g. server cold start) — sign in again.
+                setAuthError(t("app.signin.error"));
+                setAuth({ signedIn: false, oauthConfigured: true, googleUserId: null });
+                setWorkspace(null);
+                setSendError(null);
+                setPhase("signin");
+                return;
+            }
             const data = await res.json();
             if (data.ok) {
                 setSent({

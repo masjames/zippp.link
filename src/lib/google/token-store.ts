@@ -42,10 +42,26 @@ function parseShape(raw: string | null): FileShape {
   return parsed;
 }
 
+function storeError(event: string, err: unknown, backend: string): void {
+  console.error(
+    JSON.stringify({
+      event,
+      backend,
+      key: TOKENS_KEY,
+      error: err instanceof Error ? err.message : String(err),
+    })
+  );
+}
+
 async function readFile(): Promise<FileShape> {
   const remote = remoteTextStore();
   if (remote) {
-    return parseShape(await remote.readText(TOKENS_KEY));
+    try {
+      return parseShape(await remote.readText(TOKENS_KEY));
+    } catch (err) {
+      // Degrade to the filesystem rather than breaking the request.
+      storeError("store.read.failed", err, remote.backend);
+    }
   }
   try {
     const raw = await fs.readFile(tokensPath(), "utf8");
@@ -60,8 +76,12 @@ async function readFile(): Promise<FileShape> {
 async function writeFile(data: FileShape): Promise<void> {
   const remote = remoteTextStore();
   if (remote) {
-    await remote.writeText(TOKENS_KEY, JSON.stringify(data, null, 2));
-    return;
+    try {
+      await remote.writeText(TOKENS_KEY, JSON.stringify(data, null, 2));
+      return;
+    } catch (err) {
+      storeError("store.write.failed", err, remote.backend);
+    }
   }
   await ensureDir();
   const tmp = `${tokensPath()}.tmp`;

@@ -56,10 +56,25 @@ function parseShape(raw: string | null): FileShape {
   return parsed;
 }
 
+function storeError(event: string, err: unknown, backend: string): void {
+  console.error(
+    JSON.stringify({
+      event,
+      backend,
+      key: WORKSPACE_KEY,
+      error: err instanceof Error ? err.message : String(err),
+    })
+  );
+}
+
 async function readFile(): Promise<FileShape> {
   const remote = remoteTextStore();
   if (remote) {
-    return parseShape(await remote.readText(WORKSPACE_KEY));
+    try {
+      return parseShape(await remote.readText(WORKSPACE_KEY));
+    } catch (err) {
+      storeError("store.read.failed", err, remote.backend);
+    }
   }
   try {
     const raw = await fs.readFile(workspacePath(), "utf8");
@@ -74,8 +89,12 @@ async function readFile(): Promise<FileShape> {
 async function writeFile(data: FileShape): Promise<void> {
   const remote = remoteTextStore();
   if (remote) {
-    await remote.writeText(WORKSPACE_KEY, JSON.stringify(data, null, 2));
-    return;
+    try {
+      await remote.writeText(WORKSPACE_KEY, JSON.stringify(data, null, 2));
+      return;
+    } catch (err) {
+      storeError("store.write.failed", err, remote.backend);
+    }
   }
   await ensureDir();
   const tmp = `${workspacePath()}.tmp`;
