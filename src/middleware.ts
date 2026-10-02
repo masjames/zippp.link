@@ -15,12 +15,17 @@ import {
  */
 export function middleware(request: NextRequest) {
     const existing = request.cookies.get(REGION_COOKIE)?.value;
+    // ?region=id|intl lets you preview a market locally; otherwise the
+    // detected country (Vercel) or Accept-Language (local) decides.
+    const override = request.nextUrl.searchParams.get("region");
     const region =
-        existing === "id" || existing === "intl"
-            ? existing
-            : request.headers.get("x-vercel-ip-country")
-              ? regionFromCountry(request.headers.get("x-vercel-ip-country"))
-              : regionFromAcceptLanguage(request.headers.get("accept-language"));
+        override === "id" || override === "intl"
+            ? override
+            : existing === "id" || existing === "intl"
+              ? existing
+              : request.headers.get("x-vercel-ip-country")
+                ? regionFromCountry(request.headers.get("x-vercel-ip-country"))
+                : regionFromAcceptLanguage(request.headers.get("accept-language"));
 
     const headers = new Headers(request.headers);
     const cookieHeader = headers.get("cookie") ?? "";
