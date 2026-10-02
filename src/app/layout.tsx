@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import "./globals.css";
 
 const SITE_URL = "https://www.zippp.link";
 const TITLE = "zippp.link — one link for your WhatsApp shop";
@@ -35,13 +36,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
-      <body
-        style={{
-          fontFamily: "sans-serif",
-          margin: 24,
-          maxWidth: 720,
-        }}
-      >
+      <body className="font-sans antialiased">
         {children}
       </body>
     </html>

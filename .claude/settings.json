@@ -1,0 +1,16 @@
+{
+  "model": "glm-4.5-flash",
+  "fallbackModel": "deepseek-chat",
+  "maxTurns": 10,
+  "maxBudgetUsd": 5.0,
+  "permissionMode": "acceptEdits",
+  "allowedTools": ["Read", "Edit", "Write", "Bash"],
+  "tools": ["Read", "Edit", "Write", "Bash"],
+  "settings": {
+    "permissions": {
+      "allow": ["Read", "Edit", "Write", "Bash"],
+      "ask": [],
+      "deny": []
+    }
+  }
+}

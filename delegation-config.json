@@ -1,0 +1,11 @@
+{
+  "config_file": "/home/b0bthcdrz/dev/work/appworkz/zippp.link/.claude/settings.json",
+  "setup_commands": [
+    "npm install -g @anthropic-ai/claude-code",
+    "cd /home/b0bthcdrz/dev/work/appworkz/zippp.link",
+    "mkdir -p .claude",
+    "cp .env.example .env.local",
+    "npm install"
+  ],
+  "delegation_workflow": "Use Claude Code with GLM Flash (glm-4.5-flash) as primary model and DeepSeek (deepseek-chat) as fallback for building the zippp bilingual landing page and app. The workflow includes: 1) Print mode for one-shot tasks with --max-turns 10, 2) Interactive tmux mode for multi-turn work, 3) Isolated git worktrees for features, 4) Permission mode set to acceptEdits for file edits, 5) Comprehensive project context in CLAUDE.md. Run './setup-claude.sh' to initialize, then use 'claude -p \"task description\"' for development tasks."
+}
