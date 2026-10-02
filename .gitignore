@@ -33,3 +33,4 @@ Thumbs.db
 
 # local oauth/token store (never commit)
 .data/
+.vercel
