@@ -13,7 +13,7 @@ const STATE_COOKIE = "zippp_oauth_state";
 
 export async function GET(req: Request) {
   if (!googleOAuthConfigured()) {
-    const url = new URL("/", req.url);
+    const url = new URL("/app", req.url);
     url.searchParams.set("auth", "error");
     url.searchParams.set(
       "reason",

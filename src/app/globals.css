@@ -1,3 +1,87 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/*
+ * Design tokens for zippp, lifted from the approved prototype
+ * (zippp-three-screens.html). Everything visual references these.
+ */
+:root {
+    --c-orange: #ee5329;
+    --c-ink: #1c0b09;
+    --c-maroon: #3e0f0c;
+    --c-peach: #f6d3c5;
+    --c-mist: #c9cfd9;
+    --c-page: #f3ede9;
+    --c-bg: #ffffff;
+    --c-surface: #f6d3c5;
+    --c-text: #1c0b09;
+    --c-muted: #5e4640;
+    --c-line: #e4b9a8;
+    --c-btn: #3e0f0c;
+    --c-btn-text: #ffffff;
+    --c-accent-text: #c73a12;
+    --c-err: #b3261e;
+
+    --font-head: "Archivo", "Arial Narrow", Impact, sans-serif;
+    --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+        --c-page: #0e0504;
+        --c-bg: #170807;
+        --c-surface: #2b100c;
+        --c-text: #f8e7df;
+        --c-muted: #c9a99d;
+        --c-line: #5a2a20;
+        --c-btn: #ee5329;
+        --c-btn-text: #1c0b09;
+        --c-accent-text: #ff8a66;
+        --c-err: #ff9a92;
+    }
+}
+
+:root[data-theme="dark"] {
+    --c-page: #0e0504;
+    --c-bg: #170807;
+    --c-surface: #2b100c;
+    --c-text: #f8e7df;
+    --c-muted: #c9a99d;
+    --c-line: #5a2a20;
+    --c-btn: #ee5329;
+    --c-btn-text: #1c0b09;
+    --c-accent-text: #ff8a66;
+    --c-err: #ff9a92;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-padding-top: env(safe-area-inset-top, 0px);
+}
+
+body {
+    margin: 0;
+    background: var(--c-page);
+    color: var(--c-text);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+    font-family: var(--font-head);
+    letter-spacing: -0.03em;
+}
+
+@layer utilities {
+    .tabular-money {
+        font-variant-numeric: tabular-nums;
+    }
+}

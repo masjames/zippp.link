@@ -16,7 +16,7 @@ function redirectHome(
   auth: "ok" | "error",
   reason?: string
 ): NextResponse {
-  const url = new URL("/", req.url);
+  const url = new URL("/app", req.url);
   url.searchParams.set("auth", auth);
   if (reason) url.searchParams.set("reason", reason);
   const res = NextResponse.redirect(url);
