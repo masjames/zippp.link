@@ -3,10 +3,15 @@ import {
     DEEPSEEK_MODEL,
     EXTRACT_PROVIDER,
     GEMINI_MODEL,
+    GEMINI_TIMEOUT_MS,
     OCR_FORMAT,
     PADDLEOCR_MODEL,
 } from "./config";
-import { DeepSeekError, structureReceipt } from "./deepseek";
+import {
+    DeepSeekError,
+    extractWithDeepSeekVision,
+    structureReceipt,
+} from "./deepseek";
 import { extractWithGemini } from "./gemini";
 import { stripJsonFences } from "./json";
 import { compactOcrMarkdown } from "./ocr-compact";
@@ -16,6 +21,8 @@ import type { ExtractDebug, ExtractStage, LineItem, Receipt } from "@/types/rece
 type ModelOutput = Receipt & {
     refusal?: "not_a_receipt" | "unreadable" | null;
 };
+
+type AttemptName = "paddle" | "gemini" | "deepseek-vision";
 
 export type ExtractionResult =
     | { ok: true; receipt: Receipt; model_ms: number; debug: ExtractDebug }
@@ -75,17 +82,40 @@ function errText(err: unknown): string {
     return String(err);
 }
 
+/** Reject if a promise does not settle within `ms`. */
+async function withTimeout<T>(
+    promise: Promise<T>,
+    ms: number,
+    label: string
+): Promise<T> {
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const timeout = new Promise<never>((_, reject) => {
+        timer = setTimeout(
+            () => reject(new Error(`${label} timed out after ${ms}ms`)),
+            ms
+        );
+    });
+    try {
+        return await Promise.race([promise, timeout]);
+    } finally {
+        if (timer) clearTimeout(timer);
+    }
+}
+
 /**
- * The full extraction run: PaddleOCR-VL reads the image, DeepSeek structures
- * the markdown, and Gemini is the fallback if either primary stage fails.
- * Every stage is recorded for the always-on debug console.
+ * One extraction run.
+ *
+ * Attempt 1: PaddleOCR-VL (vision) -> compacted markdown -> DeepSeek Flash.
+ * Attempt 2: Gemini (vision -> JSON).            (on any failure of attempt 1)
+ * Attempt 3: DeepSeek Flash vision (image -> JSON). (last resort)
+ *
+ * Each attempt is capped under 6s. Every stage is recorded for the debug trace.
  */
 export async function runExtraction(image: File): Promise<ExtractionResult> {
     const runId = randomUUID();
     const started = Date.now();
     const stages: ExtractStage[] = [];
 
-    let provider = EXTRACT_PROVIDER;
     let fallback: string | null = null;
     let ocrChars = 0;
     let markdownPreview: string | undefined;
@@ -150,58 +180,80 @@ export async function runExtraction(image: File): Promise<ExtractionResult> {
             ms: Date.now() - structureStart,
             note: `${DEEPSEEK_MODEL} · ${out.finish ?? "?"} · ${out.usage?.total_tokens ?? "?"} tok`,
         });
+        return parseJson(out.text, "structure");
+    }
 
+    async function viaGemini(reason: string): Promise<ModelOutput> {
+        const apiKey = process.env.GEMINI_API_KEY;
+        if (!apiKey) throw new Error("GEMINI_API_KEY is missing");
+
+        const bytes = Buffer.from(await image.arrayBuffer());
+        const start = Date.now();
+        const text = await withTimeout(
+            extractWithGemini({
+                apiKey,
+                mimeType: image.type || "image/jpeg",
+                dataBase64: bytes.toString("base64"),
+            }),
+            GEMINI_TIMEOUT_MS,
+            "gemini"
+        );
+        modelMs += Date.now() - start;
+        model = GEMINI_MODEL;
+        modelRaw = text.slice(0, MAX_MODEL_RAW);
+        fallback = "gemini";
+        stages.push({
+            stage: "gemini",
+            ok: true,
+            ms: Date.now() - start,
+            note: `fallback (${reason})`,
+        });
+        return parseJson(text, "gemini");
+    }
+
+    async function viaDeepSeekVision(reason: string): Promise<ModelOutput> {
+        const bytes = Buffer.from(await image.arrayBuffer());
+        const start = Date.now();
+        const out = await extractWithDeepSeekVision({
+            mimeType: image.type || "image/jpeg",
+            dataBase64: bytes.toString("base64"),
+        });
+        modelMs += Date.now() - start;
+        model = DEEPSEEK_MODEL;
+        finish = out.finish;
+        usage = out.usage;
+        modelRaw = out.text.slice(0, MAX_MODEL_RAW);
+        fallback = "deepseek-vision";
+        stages.push({
+            stage: "deepseek-vision",
+            ok: true,
+            ms: Date.now() - start,
+            note: `fallback (${reason}) · ${out.finish ?? "?"} · ${out.usage?.total_tokens ?? "?"} tok`,
+        });
+        return parseJson(out.text, "deepseek-vision");
+    }
+
+    function parseJson(text: string, label: string): ModelOutput {
         const parseStart = Date.now();
         try {
-            const parsed = JSON.parse(stripJsonFences(out.text)) as ModelOutput;
-            stages.push({ stage: "parse", ok: true, ms: Date.now() - parseStart });
+            const parsed = JSON.parse(stripJsonFences(text)) as ModelOutput;
+            stages.push({ stage: "parse", ok: true, ms: Date.now() - parseStart, note: label });
             return parsed;
         } catch (err) {
             stages.push({
                 stage: "parse",
                 ok: false,
                 ms: Date.now() - parseStart,
-                note: err instanceof Error ? err.message : "invalid JSON",
+                note: `${label}: ${err instanceof Error ? err.message : "invalid JSON"}`,
             });
-            throw new Error("DeepSeek returned invalid JSON");
+            throw new Error(`${label} returned invalid JSON`);
         }
-    }
-
-    async function viaGemini(reason: string): Promise<ModelOutput> {
-        fallback = "gemini";
-        stages.push({
-            stage: "fallback",
-            ok: true,
-            ms: 0,
-            note: `paddle -> gemini (${reason})`,
-        });
-
-        const apiKey = process.env.GEMINI_API_KEY;
-        if (!apiKey) {
-            throw new Error("GEMINI_API_KEY is missing; no fallback available");
-        }
-
-        const bytes = Buffer.from(await image.arrayBuffer());
-        const start = Date.now();
-        const text = await extractWithGemini({
-            apiKey,
-            mimeType: image.type || "image/jpeg",
-            dataBase64: bytes.toString("base64"),
-        });
-        modelMs += Date.now() - start;
-        model = GEMINI_MODEL;
-        modelRaw = text.slice(0, MAX_MODEL_RAW);
-        stages.push({ stage: "gemini", ok: true, ms: Date.now() - start });
-
-        const parsed = JSON.parse(text) as ModelOutput;
-        stages.push({ stage: "parse", ok: true, ms: 0, note: "gemini" });
-        return parsed;
     }
 
     function buildDebug(): ExtractDebug {
         return {
             runId,
-            provider,
+            provider: EXTRACT_PROVIDER,
             fallback,
             ocrFormat: OCR_FORMAT,
             ocrChars,
@@ -220,7 +272,7 @@ export async function runExtraction(image: File): Promise<ExtractionResult> {
                 event: "extract.run",
                 runId,
                 ok,
-                provider,
+                provider: EXTRACT_PROVIDER,
                 fallback,
                 ocrFormat: OCR_FORMAT,
                 ocrChars,
@@ -234,44 +286,37 @@ export async function runExtraction(image: File): Promise<ExtractionResult> {
         );
     }
 
-    let raw: ModelOutput;
-    if (provider === "gemini") {
+    const order: AttemptName[] =
+        EXTRACT_PROVIDER === "gemini"
+            ? ["gemini", "deepseek-vision"]
+            : ["paddle", "gemini", "deepseek-vision"];
+
+    const failures: string[] = [];
+    let raw: ModelOutput | null = null;
+
+    for (const attempt of order) {
+        const attemptStart = Date.now();
         try {
-            raw = await viaGemini("EXTRACT_PROVIDER=gemini");
+            if (attempt === "paddle") raw = await viaPaddle();
+            else if (attempt === "gemini") raw = await viaGemini(failures.join(" | ") || "primary failed");
+            else raw = await viaDeepSeekVision(failures.join(" | ") || "primary failed");
+            break;
         } catch (err) {
-            const debug = buildDebug();
-            logRun(false, errText(err));
-            return {
-                ok: false,
-                error: `Extraction failed: ${errText(err)}`,
-                refusal: null,
-                model_ms: modelMs,
-                debug,
-            };
-        }
-    } else {
-        try {
-            raw = await viaPaddle();
-        } catch (primaryErr) {
-            const reason = errText(primaryErr);
-            try {
-                raw = await viaGemini(reason);
-            } catch (fallbackErr) {
-                const debug = buildDebug();
-                const message = `PaddleOCR+DeepSeek failed (${reason}); Gemini fallback also failed (${errText(fallbackErr)})`;
-                logRun(false, message);
-                return {
-                    ok: false,
-                    error: message,
-                    refusal: null,
-                    model_ms: modelMs,
-                    debug,
-                };
+            const note = errText(err);
+            failures.push(`${attempt}: ${note}`);
+            // paddle's own sub-stages already record its failure.
+            if (attempt !== "paddle") {
+                stages.push({ stage: attempt, ok: false, ms: Date.now() - attemptStart, note });
             }
         }
     }
 
-    const debug = buildDebug();
+    if (!raw) {
+        const debug = buildDebug();
+        const message = failures.join("; ");
+        logRun(false, message);
+        return { ok: false, error: `Extraction failed — ${message}`, refusal: null, model_ms: modelMs, debug };
+    }
 
     if (raw.refusal === "unreadable") {
         logRun(false, "refusal:unreadable");
@@ -280,7 +325,7 @@ export async function runExtraction(image: File): Promise<ExtractionResult> {
             error: "Could not read this photo. Try a clearer shot.",
             refusal: "unreadable",
             model_ms: modelMs,
-            debug,
+            debug: buildDebug(),
         };
     }
     if (raw.refusal === "not_a_receipt") {
@@ -290,7 +335,7 @@ export async function runExtraction(image: File): Promise<ExtractionResult> {
             error: "Not a receipt or invoice.",
             refusal: "not_a_receipt",
             model_ms: modelMs,
-            debug,
+            debug: buildDebug(),
         };
     }
 
@@ -301,6 +346,7 @@ export async function runExtraction(image: File): Promise<ExtractionResult> {
         ms: 0,
         note: `${receipt.line_items.length} items`,
     });
+    const debug = buildDebug();
     logRun(true);
 
     return { ok: true, receipt, model_ms: modelMs, debug };

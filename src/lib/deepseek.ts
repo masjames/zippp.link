@@ -26,20 +26,22 @@ export class DeepSeekError extends Error {
     }
 }
 
-const SYSTEM_PROMPT = `You convert OCR text of a receipt or invoice into a single JSON object.
-The text may be English or Indonesian, and may be imperfect.
+const SYSTEM_PROMPT = `You convert a receipt or invoice into a single JSON object.
+Text may be English or Indonesian, and may be imperfect.
 Return JSON only — no markdown fences, no commentary.
 Use null for any field that is missing or unreadable. Never invent merchants, dates, or amounts.
-If the text is not a receipt or invoice, set refusal to "not_a_receipt" and every other field to null.
+If the input is not a receipt or invoice, set refusal to "not_a_receipt" and every other field to null.
 If it cannot be read at all, set refusal to "unreadable" and every other field to null.
 Otherwise set refusal to null.`;
 
-/**
- * DeepSeek Flash reads OCR text only (never the image) and returns the receipt
- * JSON. Thinking is disabled: flash otherwise spends the whole max_tokens
- * budget on reasoning and returns an empty completion with finish=length.
- */
-export async function structureReceipt(markdown: string): Promise<DeepSeekResult> {
+type Content =
+    | string
+    | (
+          | { type: "text"; text: string }
+          | { type: "image_url"; image_url: { url: string } }
+      )[];
+
+async function postChat(content: Content): Promise<DeepSeekResult> {
     if (!DEEPSEEK_TOKEN) {
         throw new DeepSeekError("DEEPSEEK_API_KEY is missing", "config");
     }
@@ -54,12 +56,11 @@ export async function structureReceipt(markdown: string): Promise<DeepSeekResult
             model: DEEPSEEK_MODEL,
             messages: [
                 { role: "system", content: SYSTEM_PROMPT },
-                {
-                    role: "user",
-                    content: `${RECEIPT_SCHEMA_HINT}\n\nOCR TEXT:\n${markdown}`,
-                },
+                { role: "user", content },
             ],
             response_format: { type: "json_object" },
+            // Thinking is disabled: deepseek-flash otherwise spends the whole
+            // max_tokens budget on reasoning and returns empty (finish=length).
             thinking: { type: "disabled" },
             max_tokens: DEEPSEEK_MAX_TOKENS,
         }),
@@ -77,17 +78,34 @@ export async function structureReceipt(markdown: string): Promise<DeepSeekResult
         usage?: DeepSeekUsage;
     };
     const choice = json.choices?.[0];
-    const content = choice?.message?.content;
-    if (!content) {
+    const text = choice?.message?.content;
+    if (!text) {
         throw new DeepSeekError(
             `empty completion (finish=${choice?.finish_reason ?? "?"})`,
             "empty"
         );
     }
 
-    return {
-        text: content,
-        finish: choice?.finish_reason ?? null,
-        usage: json.usage ?? null,
-    };
+    return { text, finish: choice?.finish_reason ?? null, usage: json.usage ?? null };
+}
+
+/** Attempt 1b: structure compacted OCR text. DeepSeek never receives the image. */
+export function structureReceipt(markdown: string): Promise<DeepSeekResult> {
+    return postChat(`${RECEIPT_SCHEMA_HINT}\n\nOCR TEXT:\n${markdown}`);
+}
+
+/** Attempt 3: DeepSeek Flash reads the image directly (vision -> JSON). */
+export function extractWithDeepSeekVision(args: {
+    mimeType: string;
+    dataBase64: string;
+}): Promise<DeepSeekResult> {
+    return postChat([
+        { type: "text", text: RECEIPT_SCHEMA_HINT },
+        {
+            type: "image_url",
+            image_url: {
+                url: `data:${args.mimeType};base64,${args.dataBase64}`,
+            },
+        },
+    ]);
 }

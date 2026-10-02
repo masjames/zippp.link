@@ -2,8 +2,7 @@ import {
     PADDLEOCR_BASE_URL,
     PADDLEOCR_MODEL,
     PADDLEOCR_POLL_INTERVAL_MS,
-    PADDLEOCR_POLL_TIMEOUT_MS,
-    PADDLEOCR_SUBMIT_TIMEOUT_MS,
+    PADDLEOCR_TIMEOUT_MS,
     PADDLEOCR_TOKEN,
 } from "./config";
 
@@ -50,70 +49,79 @@ async function fetchRetry(
             return await fetch(input, init);
         } catch (err) {
             lastError = err;
-            if (i < attempts - 1) await sleep(500 * (i + 1));
+            if (i < attempts - 1) await sleep(300 * (i + 1));
         }
     }
     throw lastError;
 }
 
-async function submit(image: File): Promise<string> {
+function remaining(deadline: number): number {
+    return Math.max(500, deadline - Date.now());
+}
+
+async function submit(image: File, deadline: number): Promise<string> {
     const form = new FormData();
     form.append("model", PADDLEOCR_MODEL);
     form.append("optionalPayload", JSON.stringify(OCR_OPTIONS));
     form.append("file", image, image.name || "receipt.jpg");
 
-    const res = await fetchRetry(JOBS_URL, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${PADDLEOCR_TOKEN}` },
-        body: form,
-        signal: AbortSignal.timeout(PADDLEOCR_SUBMIT_TIMEOUT_MS),
-        cache: "no-store",
-    });
+    const res = await fetchRetry(
+        JOBS_URL,
+        {
+            method: "POST",
+            headers: { Authorization: `Bearer ${PADDLEOCR_TOKEN}` },
+            body: form,
+            signal: AbortSignal.timeout(remaining(deadline)),
+            cache: "no-store",
+        },
+        1
+    );
 
     const raw = await res.text();
     let json: { code?: number; msg?: string; data?: { jobId?: string } } = {};
     try {
         json = JSON.parse(raw);
     } catch {
-        /* fall through to error below */
+        /* fall through */
     }
-
     if (!res.ok) {
         throw new PaddleOcrError(
-            `submit HTTP ${res.status}: ${(json.msg || raw).slice(0, 240)}`,
+            `submit HTTP ${res.status}: ${(json.msg || raw).slice(0, 200)}`,
             "submit"
         );
     }
     const jobId = json.data?.jobId;
     if (!jobId) {
         throw new PaddleOcrError(
-            `submit returned no jobId: ${(json.msg || raw).slice(0, 240)}`,
+            `submit returned no jobId: ${(json.msg || raw).slice(0, 200)}`,
             "submit"
         );
     }
     return jobId;
 }
 
-type JobStatus = {
-    state?: string;
-    resultUrl?: { jsonUrl?: string };
-};
+type JobStatus = { state?: string; resultUrl?: { jsonUrl?: string } };
 
-async function poll(jobId: string): Promise<{ status: JobStatus; states: string[] }> {
-    const deadline = Date.now() + PADDLEOCR_POLL_TIMEOUT_MS;
+async function poll(
+    jobId: string,
+    deadline: number
+): Promise<{ status: JobStatus; states: string[] }> {
     const states: string[] = [];
 
     while (Date.now() < deadline) {
         let json: { data?: JobStatus; msg?: string };
         try {
-            const res = await fetchRetry(`${JOBS_URL}/${jobId}`, {
-                headers: { Authorization: `Bearer ${PADDLEOCR_TOKEN}` },
-                signal: AbortSignal.timeout(PADDLEOCR_SUBMIT_TIMEOUT_MS),
-                cache: "no-store",
-            });
+            const res = await fetchRetry(
+                `${JOBS_URL}/${jobId}`,
+                {
+                    headers: { Authorization: `Bearer ${PADDLEOCR_TOKEN}` },
+                    signal: AbortSignal.timeout(remaining(deadline)),
+                    cache: "no-store",
+                },
+                1
+            );
             json = (await res.json()) as { data?: JobStatus; msg?: string };
         } catch {
-            // transient network blip — keep polling until the deadline
             await sleep(PADDLEOCR_POLL_INTERVAL_MS);
             continue;
         }
@@ -128,20 +136,24 @@ async function poll(jobId: string): Promise<{ status: JobStatus; states: string[
     }
 
     throw new PaddleOcrError(
-        `poll timed out after ${PADDLEOCR_POLL_TIMEOUT_MS}ms (states: ${states.join(">")})`,
+        `timed out after ${PADDLEOCR_TIMEOUT_MS}ms (states: ${states.join(">") || "none"})`,
         "poll"
     );
 }
 
-async function fetchResult(jsonUrl: string): Promise<{
+async function fetchResult(
+    jsonUrl: string,
+    deadline: number
+): Promise<{
     markdown: string;
     blocks: { label: string; text: string }[];
     pages: number;
 }> {
-    const res = await fetchRetry(jsonUrl, {
-        signal: AbortSignal.timeout(PADDLEOCR_SUBMIT_TIMEOUT_MS),
-        cache: "no-store",
-    });
+    const res = await fetchRetry(
+        jsonUrl,
+        { signal: AbortSignal.timeout(remaining(deadline)), cache: "no-store" },
+        1
+    );
     if (!res.ok) {
         throw new PaddleOcrError(`result HTTP ${res.status}`, "result");
     }
@@ -173,20 +185,25 @@ async function fetchResult(jsonUrl: string): Promise<{
 }
 
 /**
- * Run one image through PaddleOCR-VL. Returns markdown (the payload DeepSeek
- * consumes) plus the structured blocks for debugging.
+ * Run one image through PaddleOCR-VL within a hard budget (default <6s).
+ * The whole stage — submit, poll, result — is bounded by `timeoutMs`.
  */
-export async function runPaddleOcr(image: File): Promise<PaddleOcrResult> {
+export async function runPaddleOcr(
+    image: File,
+    timeoutMs: number = PADDLEOCR_TIMEOUT_MS
+): Promise<PaddleOcrResult> {
     if (!PADDLEOCR_TOKEN) {
         throw new PaddleOcrError("PADDLEOCR_AISTUDIO_TOKEN is missing", "config");
     }
 
+    const deadline = Date.now() + timeoutMs;
+
     const submitStart = Date.now();
-    const jobId = await submit(image);
+    const jobId = await submit(image, deadline);
     const submitMs = Date.now() - submitStart;
 
     const pollStart = Date.now();
-    const { status, states } = await poll(jobId);
+    const { status, states } = await poll(jobId, deadline);
     const pollMs = Date.now() - pollStart;
 
     const jsonUrl = status.resultUrl?.jsonUrl;
@@ -195,7 +212,7 @@ export async function runPaddleOcr(image: File): Promise<PaddleOcrResult> {
     }
 
     const resultStart = Date.now();
-    const parsed = await fetchResult(jsonUrl);
+    const parsed = await fetchResult(jsonUrl, deadline);
     const resultMs = Date.now() - resultStart;
 
     return { ...parsed, jobId, states, submitMs, pollMs, resultMs };

@@ -1,9 +1,10 @@
 /**
  * Extraction configuration.
  *
- * Primary path: PaddleOCR-VL (vision) -> markdown -> DeepSeek Flash (text) ->
- * receipt JSON. Gemini is a fallback only, used when either primary stage
- * fails. `zai`/Zhipu is retired.
+ * Attempt order (fail fast, each attempt capped well under 6s):
+ *   1. PaddleOCR-VL (vision) -> compacted markdown -> DeepSeek Flash (text)
+ *   2. Gemini (vision -> JSON), on any failure of attempt 1
+ *   3. DeepSeek Flash vision (image -> JSON) as the last resort
  */
 
 export const GEMINI_MODEL = "gemini-2.5-flash";
@@ -21,26 +22,23 @@ export const PADDLEOCR_BASE_URL = (
 ).replace(/\/+$/, "");
 export const PADDLEOCR_MODEL = process.env.PADDLEOCR_MODEL || "PaddleOCR-VL-1.6";
 export const PADDLEOCR_TOKEN = process.env.PADDLEOCR_AISTUDIO_TOKEN || "";
-export const PADDLEOCR_SUBMIT_TIMEOUT_MS = Number(
-    process.env.PADDLEOCR_SUBMIT_TIMEOUT_MS || 30_000
-);
-export const PADDLEOCR_POLL_TIMEOUT_MS = Number(
-    process.env.PADDLEOCR_POLL_TIMEOUT_MS || 40_000
-);
+
+/** Whole OCR stage budget. Must stay under 6s so the fallback chain is fast. */
+export const PADDLEOCR_TIMEOUT_MS = Number(process.env.PADDLEOCR_TIMEOUT_MS || 5_500);
 export const PADDLEOCR_POLL_INTERVAL_MS = Number(
-    process.env.PADDLEOCR_POLL_INTERVAL_MS || 1_000
+    process.env.PADDLEOCR_POLL_INTERVAL_MS || 400
 );
 
-/* -------------------------------- DeepSeek ------------------------------ */
+/* --------------------------------- Models ------------------------------- */
 
 export const DEEPSEEK_BASE_URL = (
     process.env.DEEPSEEK_BASE_URL || "https://api.deepseek.com"
 ).replace(/\/+$/, "");
 export const DEEPSEEK_MODEL = process.env.DEEPSEEK_MODEL || "deepseek-flash";
-export const DEEPSEEK_EFFORT = process.env.DEEPSEEK_EFFORT || "low";
 export const DEEPSEEK_MAX_TOKENS = Number(process.env.DEEPSEEK_MAX_TOKENS || 4000);
 export const DEEPSEEK_TOKEN = process.env.DEEPSEEK_API_KEY || "";
-export const DEEPSEEK_TIMEOUT_MS = Number(process.env.DEEPSEEK_TIMEOUT_MS || 30_000);
+export const DEEPSEEK_TIMEOUT_MS = Number(process.env.DEEPSEEK_TIMEOUT_MS || 5_500);
+export const GEMINI_TIMEOUT_MS = Number(process.env.GEMINI_TIMEOUT_MS || 5_500);
 
 /* --------------------------------- Misc --------------------------------- */
 
