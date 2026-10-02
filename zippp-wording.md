@@ -271,6 +271,14 @@ Unggah foto saja
 Take photo
 ## app.capture.shutter.id
 Ambil foto
+## app.capture.starting.en
+Starting camera…
+## app.capture.starting.id
+Menyalakan kamera…
+## app.capture.cameraError.en
+Camera unavailable or blocked. Use upload below.
+## app.capture.cameraError.id
+Kamera tidak tersedia atau diblokir. Gunakan unggah di bawah.
 
 ## app.reading.title.en
 Reading
@@ -409,3 +417,7 @@ Gagal menyiapkan sheet Anda.
 Sign out
 ## app.auth.signout.id
 Keluar
+## app.debug.title.en
+Debug trace
+## app.debug.title.id
+Jejak debug

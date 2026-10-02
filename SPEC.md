@@ -55,13 +55,13 @@ Charlie already has the sheet. Customer-centric means land in **his** columns, n
 1. Google OAuth. Scope: see and write spreadsheets the user picks. No Drive dump of their whole life if a narrower scope exists; do not request Gmail.
 2. Connect **one** spreadsheet + **one** tab per workspace (Charlie = one resto sheet for MVP).
 3. Read header row. Save a field map (`TEMPLATES.md`).
-4. Extract with existing mill (Gemini, EN+ID, null not invented).
+4. Extract: PaddleOCR-VL-1.6 (Baidu AI Studio) reads the photo, DeepSeek Flash structures the text (EN+ID, null not invented). Gemini is a fallback only.
 5. **Correct screen** before send (line text, qty, amounts). Send is opt-in.
 6. Append one row per line item. Numbers as numbers. Dates as dates the sheet already uses, or ISO if the column is empty of style.
 7. Prompt-at-submit: **Staff** (required for resto template), **Outlet** if more than one.
 8. Show success with row count appended. Fail = no write.
-9. Paid Gemini (or billed AI Studio) for **client** fotos. Free tier may train. Tell Charlie.
-10. CSV/JSON download still works if they are not connected (Phase 0 path).
+9. **Client** photos go to Baidu AI Studio (PaddleOCR-VL) for OCR; the extracted text goes to DeepSeek for structuring. Gemini is used only if that pipeline fails. Tell Charlie.
+10. Google Sheets is the only destination; CSV/JSON export was removed.
 
 ### Must not
 
@@ -105,7 +105,10 @@ Op fields: `staff`, `outlet`, `captured_at`. Not from the model.
 
 ## Privacy and ops
 
-- Client notas: billed Gemini, training off, or refuse the job.
+- Client notas: the image is sent to Baidu AI Studio (PaddleOCR-VL) for OCR;
+  the extracted text is sent to DeepSeek for structuring. Gemini is used only as
+  a fallback when that pipeline fails.
+- No free tier is used for client work.
 - OAuth tokens on the server, never `NEXT_PUBLIC`.
 - Charlie can disconnect. Tokens revoked. Sheet remains his.
 

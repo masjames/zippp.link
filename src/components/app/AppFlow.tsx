@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import LangToggle from "@/components/LangToggle";
 import type { Lang, Region } from "@/lib/region";
 import { makeT, type Wording } from "@/lib/t";
-import type { ExtractResponse, Receipt } from "@/types/receipt";
+import type { ExtractDebug, ExtractResponse, Receipt } from "@/types/receipt";
 import { formatMoney } from "./draft";
 import BadPhotoScreen from "./screens/BadPhotoScreen";
 import CaptureScreen from "./screens/CaptureScreen";
@@ -67,6 +67,7 @@ export default function AppFlow({
     const [sending, setSending] = useState(false);
     const [sendError, setSendError] = useState<string | null>(null);
     const [authError, setAuthError] = useState<string | null>(null);
+    const [debug, setDebug] = useState<ExtractDebug | null>(null);
 
     useEffect(() => {
         let alive = true;
@@ -189,18 +190,27 @@ export default function AppFlow({
     async function handleFile(file: File) {
         setPhase("reading");
         setSendError(null);
+        setDebug(null);
         try {
             const form = new FormData();
             form.append("image", file);
             const res = await fetch("/api/extract", { method: "POST", body: form });
             const data = (await res.json()) as ExtractResponse;
+            setDebug(data.debug ?? null);
+            // Always-on console trace, so the failure stage is visible in devtools.
+            console.debug("[extract]", {
+                ok: data.ok,
+                error: data.ok ? undefined : data.error,
+                debug: data.debug,
+            });
             if (data.ok) {
                 setReceipt(data.receipt);
                 setPhase("check");
             } else {
                 setPhase("bad");
             }
-        } catch {
+        } catch (err) {
+            console.debug("[extract] network error", err);
             setPhase("bad");
         }
     }
@@ -248,6 +258,7 @@ export default function AppFlow({
         setReceipt(null);
         setSent(null);
         setSendError(null);
+        setDebug(null);
         setPhase("capture");
     }
 
@@ -301,6 +312,7 @@ export default function AppFlow({
                         sending={sending}
                         sendError={sendError}
                         onSend={send}
+                        debug={debug}
                     />
                 );
             case "sent":
@@ -319,7 +331,9 @@ export default function AppFlow({
                     />
                 );
             case "bad":
-                return <BadPhotoScreen t={t} onRetry={beginAnother} />;
+                return (
+                    <BadPhotoScreen t={t} onRetry={beginAnother} debug={debug} />
+                );
         }
     }
 

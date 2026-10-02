@@ -8,6 +8,25 @@ If this is not a receipt or invoice, set refusal to "not_a_receipt" and all othe
 If the photo cannot be read, set refusal to "unreadable" and all other fields to null.
 Otherwise set refusal to null.`;
 
+/**
+ * Schema as text, for providers without responseSchema (DeepSeek). Kept in
+ * sync with RECEIPT_JSON_SCHEMA below.
+ */
+export const RECEIPT_SCHEMA_HINT = `Return a single JSON object of exactly this shape and no other text:
+{
+  "refusal": "not_a_receipt" | "unreadable" | null,
+  "merchant": string | null,
+  "date": "YYYY-MM-DD" | null,
+  "currency": string | null,
+  "line_items": [
+    { "description": string | null, "qty": number | null, "unit_price": number | null, "amount": number | null }
+  ],
+  "subtotal": number | null,
+  "tax": number | null,
+  "total": number | null
+}
+No markdown fences, no commentary.`;
+
 export const RECEIPT_JSON_SCHEMA = {
   type: Type.OBJECT,
   properties: {

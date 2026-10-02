@@ -1,13 +1,17 @@
 import PhoneShell from "../PhoneShell";
+import DebugPanel from "../DebugPanel";
 import type { T } from "@/lib/t";
+import type { ExtractDebug } from "@/types/receipt";
 
-/** Unreadable photo. */
+/** Unreadable photo, with the full extraction trace expanded. */
 export default function BadPhotoScreen({
     t,
     onRetry,
+    debug,
 }: {
     t: T;
     onRetry: () => void;
+    debug?: ExtractDebug | null;
 }) {
     return (
         <PhoneShell>
@@ -22,6 +26,7 @@ export default function BadPhotoScreen({
                     {t("app.bad.retry")}
                 </button>
             </div>
+            <DebugPanel debug={debug} defaultOpen />
         </PhoneShell>
     );
 }

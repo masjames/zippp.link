@@ -21,7 +21,7 @@ No free twenty. Airparser can give that away because it is already an app.
 
 ## Privacy
 
-Client receipts go through **paid Gemini**. The free tier may train on data — we do not use it for client work. Tell them. (See `COGS.md`.)
+Client receipts are processed by two services: the photo goes to **Baidu AI Studio (PaddleOCR-VL)** for OCR, and the extracted text goes to **DeepSeek** for structuring. **Google Gemini** is used only as a fallback if that pipeline fails. No free tier is used for client work. Tell them. (See `COGS.md`.)
 
 ## What the room wanted (not the quote)
 

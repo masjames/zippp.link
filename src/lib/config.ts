@@ -1,32 +1,48 @@
+/**
+ * Extraction configuration.
+ *
+ * Primary path: PaddleOCR-VL (vision) -> markdown -> DeepSeek Flash (text) ->
+ * receipt JSON. Gemini is a fallback only, used when either primary stage
+ * fails. `zai`/Zhipu is retired.
+ */
+
 export const GEMINI_MODEL = "gemini-2.5-flash";
 
-/**
- * Extraction provider.
- *
- * - "gemini" (default) — the production path, and the only one covered by the
- *   client-privacy promise written in SPEC.md / PRICING.md ("paid Gemini,
- *   training off").
- * - "zai" — dev/test only. Same prompt, routed to Zhipu's GLM-4.6V over an
- *   OpenAI-compatible endpoint, so extraction work can iterate without
- *   spending Gemini quota. Never enable it for client receipts unless the
- *   privacy line is rewritten first.
- */
-export type ExtractProvider = "gemini" | "zai";
+export type ExtractProvider = "paddle" | "gemini";
 
-const requestedProvider = (process.env.EXTRACT_PROVIDER ?? "gemini").toLowerCase();
+const requestedProvider = (process.env.EXTRACT_PROVIDER ?? "paddle").toLowerCase();
 export const EXTRACT_PROVIDER: ExtractProvider =
-  requestedProvider === "zai" ? "zai" : "gemini";
+    requestedProvider === "gemini" ? "gemini" : "paddle";
 
-/** Zhipu GLM vision model used when EXTRACT_PROVIDER=zai. */
-export const ZAI_MODEL = process.env.ZAI_MODEL || "glm-4.6v";
+/* ------------------------------- PaddleOCR ------------------------------ */
 
-/** OpenAI-compatible base URL, no trailing slash. */
-export const ZAI_BASE_URL = (
-  process.env.Z_AI_BASE_URL || "https://api.z.ai/api/paas/v4/"
+export const PADDLEOCR_BASE_URL = (
+    process.env.PADDLEOCR_BASE_URL || "https://paddleocr.aistudio-app.com"
 ).replace(/\/+$/, "");
+export const PADDLEOCR_MODEL = process.env.PADDLEOCR_MODEL || "PaddleOCR-VL-1.6";
+export const PADDLEOCR_TOKEN = process.env.PADDLEOCR_AISTUDIO_TOKEN || "";
+export const PADDLEOCR_SUBMIT_TIMEOUT_MS = Number(
+    process.env.PADDLEOCR_SUBMIT_TIMEOUT_MS || 30_000
+);
+export const PADDLEOCR_POLL_TIMEOUT_MS = Number(
+    process.env.PADDLEOCR_POLL_TIMEOUT_MS || 40_000
+);
+export const PADDLEOCR_POLL_INTERVAL_MS = Number(
+    process.env.PADDLEOCR_POLL_INTERVAL_MS || 1_000
+);
 
-/**
- * GLM reasons before it answers and bills those tokens against max_tokens.
- * Keep headroom or the answer is truncated away entirely.
- */
-export const ZAI_MAX_TOKENS = 3000;
+/* -------------------------------- DeepSeek ------------------------------ */
+
+export const DEEPSEEK_BASE_URL = (
+    process.env.DEEPSEEK_BASE_URL || "https://api.deepseek.com"
+).replace(/\/+$/, "");
+export const DEEPSEEK_MODEL = process.env.DEEPSEEK_MODEL || "deepseek-flash";
+export const DEEPSEEK_EFFORT = process.env.DEEPSEEK_EFFORT || "low";
+export const DEEPSEEK_MAX_TOKENS = Number(process.env.DEEPSEEK_MAX_TOKENS || 4000);
+export const DEEPSEEK_TOKEN = process.env.DEEPSEEK_API_KEY || "";
+export const DEEPSEEK_TIMEOUT_MS = Number(process.env.DEEPSEEK_TIMEOUT_MS || 30_000);
+
+/* --------------------------------- Misc --------------------------------- */
+
+/** Intermediate OCR payload sent to DeepSeek. Only "markdown" is used today. */
+export const OCR_FORMAT = (process.env.OCR_FORMAT || "markdown").toLowerCase();

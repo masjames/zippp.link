@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import PhoneShell from "../PhoneShell";
+import DebugPanel from "../DebugPanel";
 import { fill, type T } from "@/lib/t";
-import type { Receipt } from "@/types/receipt";
+import type { ExtractDebug, Receipt } from "@/types/receipt";
 import { fromDraft, toDraft, type Draft, type DraftLine } from "../draft";
 
 const INPUT =
@@ -22,6 +23,7 @@ export default function CheckScreen({
     sending,
     sendError,
     onSend,
+    debug,
 }: {
     t: T;
     receipt: Receipt;
@@ -32,6 +34,7 @@ export default function CheckScreen({
     sending: boolean;
     sendError: string | null;
     onSend: (receipt: Receipt, staff: string, outlet: string | null) => void;
+    debug?: ExtractDebug | null;
 }) {
     const [draft, setDraft] = useState<Draft>(() => toDraft(receipt));
     const [showErrors, setShowErrors] = useState(false);
@@ -177,6 +180,8 @@ export default function CheckScreen({
             {sendError ? (
                 <p className="text-sm font-medium text-danger">{sendError}</p>
             ) : null}
+
+            <DebugPanel debug={debug} />
 
             <div className="mt-auto grid gap-2">
                 <button
