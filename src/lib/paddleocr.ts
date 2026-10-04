@@ -11,6 +11,8 @@ export type PaddleOcrResult = {
     /** Reconstructed text (one line per visual row) that DeepSeek consumes. */
     markdown: string;
     blocks: { label: string; text: string }[];
+    /** Raw recognized text lines (rec_texts), in detection order. */
+    tokens: string[];
     pages: number;
     jobId: string;
     states: string[];
@@ -32,13 +34,20 @@ export class PaddleOcrError extends Error {
 const JOBS_URL = `${PADDLEOCR_BASE_URL}/api/v2/ocr/jobs`;
 
 /**
- * PP-OCRv6 options (from the AI Studio sample). Orientation / unwarping are
- * off so the model runs fast and predictably on a clean phone photo.
+ * PP-OCRv6 options (tuned for receipt photos: unwarp + textline orientation
+ * on, and a small text-detection side length so fine print survives).
  */
 const OCR_OPTIONS = {
-    useDocOrientationClassify: false,
-    useDocUnwarping: false,
-    useTextlineOrientation: false,
+    markdownIgnoreLabels: [],
+    useDocOrientationClassify: true,
+    useDocUnwarping: true,
+    useTextlineOrientation: true,
+    textDetLimitType: "min",
+    textDetLimitSideLen: 64,
+    textDetThresh: 0.3,
+    textDetBoxThresh: 0.6,
+    textDetUnclipRatio: 1.5,
+    textRecScoreThresh: 0,
 };
 
 function sleep(ms: number) {
@@ -200,6 +209,7 @@ function rowsFromTokens(tokens: RecogToken[]): string[] {
 function parseResultPayload(text: string): {
     markdown: string;
     blocks: { label: string; text: string }[];
+    tokens: string[];
     pages: number;
 } {
     const records: unknown[] = [];
@@ -225,6 +235,7 @@ function parseResultPayload(text: string): {
 
     const blocks: { label: string; text: string }[] = [];
     const lines: string[] = [];
+    const tokens: string[] = [];
     let pages = 0;
 
     for (const record of records) {
@@ -268,18 +279,19 @@ function parseResultPayload(text: string): {
                 const pruned = ocr.prunedResult ?? {};
                 const texts = pruned.rec_texts ?? [];
                 const boxes = pruned.rec_boxes ?? [];
-                const tokens: RecogToken[] = texts.map((t, i) => ({
+                for (const t of texts) tokens.push(t);
+                const recog: RecogToken[] = texts.map((t, i) => ({
                     text: t,
                     box: boxes[i] ?? [],
                 }));
-                const rows = rowsFromTokens(tokens);
+                const rows = rowsFromTokens(recog);
                 for (const r of rows) blocks.push({ label: "line", text: r });
                 if (rows.length) lines.push(rows.join("\n"));
             }
         }
     }
 
-    return { markdown: lines.join("\n\n"), blocks, pages };
+    return { markdown: lines.join("\n\n"), blocks, tokens, pages };
 }
 
 async function fetchResult(
@@ -288,6 +300,7 @@ async function fetchResult(
 ): Promise<{
     markdown: string;
     blocks: { label: string; text: string }[];
+    tokens: string[];
     pages: number;
 }> {
     const res = await fetchRetry(

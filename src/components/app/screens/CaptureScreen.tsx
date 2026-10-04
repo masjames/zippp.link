@@ -51,12 +51,10 @@ export default function CaptureScreen({
     onReviewNext: () => void;
 }) {
     const [mode, setMode] = useState<Mode>("idle");
-    const [autoSnap, setAutoSnap] = useState(false);
     const videoRef = useRef<HTMLVideoElement>(null);
     const streamRef = useRef<MediaStream | null>(null);
     const cameraInputRef = useRef<HTMLInputElement>(null);
     const uploadInputRef = useRef<HTMLInputElement>(null);
-    const armed = useRef(true);
 
     const detection = useReceiptDetector(videoRef, mode === "live");
     const locked = detection.found && detection.sharp && detection.stable;
@@ -128,22 +126,6 @@ export default function CaptureScreen({
         if (file) onFile(file);
         if (fallback) setMode("idle");
     }
-
-    // Re-arm autosnap only after the receipt leaves the frame.
-    useEffect(() => {
-        if (!detection.found) armed.current = true;
-    }, [detection.found]);
-
-    useEffect(() => {
-        if (!autoSnap || mode !== "live") return;
-        const { found, box, sharp, stable } = detection;
-        if (!found || !box || !sharp || !stable) return;
-        if (box.w * box.h < 0.2) return;
-        if (!armed.current) return;
-        armed.current = false;
-        captureFrame();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [autoSnap, mode, detection]);
 
     return (
         <PhoneShell tone="brand" pill={pill}>
@@ -229,18 +211,6 @@ export default function CaptureScreen({
                 className="text-center font-medium text-ink underline underline-offset-4"
             >
                 {t("app.capture.upload")}
-            </button>
-
-            <button
-                type="button"
-                aria-pressed={autoSnap}
-                onClick={() => setAutoSnap((v) => !v)}
-                className={`mx-auto rounded-full px-4 py-2 text-sm font-semibold ${
-                    autoSnap ? "bg-maroon text-white" : "bg-peach text-ink"
-                }`}
-            >
-                {t("app.capture.autoSnap")}
-                {autoSnap ? " · ON" : ""}
             </button>
 
             {locked ? (

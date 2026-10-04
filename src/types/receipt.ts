@@ -43,7 +43,11 @@ export type ExtractDebug = {
         total_tokens?: number;
     } | null;
     stages: ExtractStage[];
+    /** Raw OCR text lines (rec_texts), for step-by-step debugging. */
+    ocrTokens?: string[];
+    /** Reconstructed rows that were sent to DeepSeek. */
     markdownPreview?: string;
+    /** Raw model output (DeepSeek/Gemini) before parsing. */
     modelRaw?: string;
 };
 

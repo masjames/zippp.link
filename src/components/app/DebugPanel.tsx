@@ -3,8 +3,12 @@
 import type { ExtractDebug } from "@/types/receipt";
 
 /**
- * Always-on extraction trace. Shows which pipeline stage ran, how long it
- * took, and where it failed. Secrets are never part of the trace.
+ * Always-on extraction trace, multi-step. Shows the pipeline stages and each
+ * intermediate artifact so you can see exactly where the data goes wrong:
+ *   1. OCR tokens (raw rec_texts)
+ *   2. Rows sent to DeepSeek
+ *   3. Raw model output
+ * Secrets are never part of the trace.
  */
 export default function DebugPanel({
     debug,
@@ -43,45 +47,67 @@ export default function DebugPanel({
                     />
                 </dl>
 
-                <ol className="space-y-1">
-                    {debug.stages.map((stage, i) => (
-                        <li
-                            key={`${stage.stage}-${i}`}
-                            className={stage.ok ? "" : "text-danger"}
-                        >
-                            <span className="font-mono">
-                                {stage.ok ? "✓" : "✗"} {stage.stage}
-                            </span>{" "}
-                            <span className="text-muted">{stage.ms}ms</span>
-                            {stage.note ? (
-                                <span className="text-muted"> · {stage.note}</span>
-                            ) : null}
-                        </li>
-                    ))}
-                </ol>
+                <div>
+                    <p className="mb-1 font-semibold text-muted">Stages</p>
+                    <ol className="space-y-1">
+                        {debug.stages.map((stage, i) => (
+                            <li
+                                key={`${stage.stage}-${i}`}
+                                className={stage.ok ? "" : "text-danger"}
+                            >
+                                <span className="font-mono">
+                                    {stage.ok ? "✓" : "✗"} {stage.stage}
+                                </span>{" "}
+                                <span className="text-muted">{stage.ms}ms</span>
+                                {stage.note ? (
+                                    <span className="text-muted"> · {stage.note}</span>
+                                ) : null}
+                            </li>
+                        ))}
+                    </ol>
+                </div>
 
-                {debug.markdownPreview ? (
-                    <details>
-                        <summary className="cursor-pointer font-semibold text-muted">
-                            OCR markdown (preview)
-                        </summary>
-                        <pre className="mt-1 max-h-56 overflow-auto whitespace-pre-wrap rounded bg-surface p-2 text-[11px]">
-                            {debug.markdownPreview}
-                        </pre>
-                    </details>
-                ) : null}
-
-                {debug.modelRaw ? (
-                    <details>
-                        <summary className="cursor-pointer font-semibold text-muted">
-                            Model raw output
-                        </summary>
-                        <pre className="mt-1 max-h-56 overflow-auto whitespace-pre-wrap rounded bg-surface p-2 text-[11px]">
-                            {debug.modelRaw}
-                        </pre>
-                    </details>
-                ) : null}
+                <Step
+                    n={1}
+                    title="OCR tokens (raw rec_texts)"
+                    empty="—"
+                    body={debug.ocrTokens?.join("\n") ?? ""}
+                />
+                <Step
+                    n={2}
+                    title="Rows sent to DeepSeek"
+                    empty="—"
+                    body={debug.markdownPreview ?? ""}
+                />
+                <Step
+                    n={3}
+                    title="Raw model output"
+                    body={debug.modelRaw ?? ""}
+                />
             </div>
+        </details>
+    );
+}
+
+function Step({
+    n,
+    title,
+    body,
+    empty = "(none)",
+}: {
+    n: number;
+    title: string;
+    body: string;
+    empty?: string;
+}) {
+    return (
+        <details>
+            <summary className="cursor-pointer font-semibold text-muted">
+                {n}. {title}
+            </summary>
+            <pre className="mt-1 max-h-56 overflow-auto whitespace-pre-wrap rounded bg-surface p-2 text-[11px]">
+                {body || empty}
+            </pre>
         </details>
     );
 }

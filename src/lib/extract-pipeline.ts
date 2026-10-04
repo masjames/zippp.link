@@ -119,6 +119,7 @@ export async function runExtraction(image: File): Promise<ExtractionResult> {
 
     let fallback: string | null = null;
     let ocrChars = 0;
+    let ocrTokens: string[] | undefined;
     let markdownPreview: string | undefined;
     let model: string | null = null;
     let finish: string | null = null;
@@ -143,6 +144,7 @@ export async function runExtraction(image: File): Promise<ExtractionResult> {
         const rawLen = ocr.markdown.length;
         const compact = compactOcrMarkdown(ocr.markdown);
         ocrChars = compact.length;
+        ocrTokens = ocr.tokens.slice(0, 250);
         markdownPreview = compact.slice(0, MAX_PREVIEW);
         modelMs += Date.now() - ocrStart;
         stages.push({
@@ -262,6 +264,7 @@ export async function runExtraction(image: File): Promise<ExtractionResult> {
             finish,
             usage,
             stages,
+            ocrTokens,
             markdownPreview,
             modelRaw,
         };
