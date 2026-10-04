@@ -20,7 +20,7 @@ export const EXTRACT_PROVIDER: ExtractProvider =
 export const PADDLEOCR_BASE_URL = (
     process.env.PADDLEOCR_BASE_URL || "https://paddleocr.aistudio-app.com"
 ).replace(/\/+$/, "");
-export const PADDLEOCR_MODEL = process.env.PADDLEOCR_MODEL || "PaddleOCR-VL-1.6";
+export const PADDLEOCR_MODEL = process.env.PADDLEOCR_MODEL || "PP-OCRv6";
 export const PADDLEOCR_TOKEN = process.env.PADDLEOCR_AISTUDIO_TOKEN || "";
 
 /** Whole OCR stage budget. Must stay under 6s so the fallback chain is fast. */
