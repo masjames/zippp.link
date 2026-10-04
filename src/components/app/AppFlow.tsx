@@ -1,26 +1,25 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import LangToggle from "@/components/LangToggle";
 import type { Lang, Region } from "@/lib/region";
 import { makeT, type Wording } from "@/lib/t";
-import type { ExtractDebug, ExtractResponse, Receipt } from "@/types/receipt";
+import type { ExtractResponse, Receipt } from "@/types/receipt";
 import { formatMoney } from "./draft";
+import type { QueueItem, SentInfo } from "./queue";
 import BadPhotoScreen from "./screens/BadPhotoScreen";
 import CaptureScreen from "./screens/CaptureScreen";
 import CheckScreen from "./screens/CheckScreen";
 import IntroScreen from "./screens/IntroScreen";
-import ReadingScreen from "./screens/ReadingScreen";
 import SentScreen from "./screens/SentScreen";
-import SignInScreen from "./screens/SignInScreen";
 import SheetsScreen, { type SheetCandidate } from "./screens/SheetsScreen";
+import SignInScreen from "./screens/SignInScreen";
 
 type Phase =
     | "intro"
     | "signin"
     | "sheets"
     | "capture"
-    | "reading"
     | "check"
     | "sent"
     | "bad";
@@ -42,8 +41,6 @@ type Workspace = {
     headers: string[];
 };
 
-type SentInfo = { count: number; merchant: string; total: string };
-
 export default function AppFlow({
     wording,
     initialLang,
@@ -62,12 +59,15 @@ export default function AppFlow({
     const [candidates, setCandidates] = useState<SheetCandidate[]>([]);
     const [sheetError, setSheetError] = useState(false);
     const [busy, setBusy] = useState(false);
-    const [receipt, setReceipt] = useState<Receipt | null>(null);
-    const [sent, setSent] = useState<SentInfo | null>(null);
+    const [authError, setAuthError] = useState<string | null>(null);
+
+    const [queue, setQueue] = useState<QueueItem[]>([]);
+    const [reviewId, setReviewId] = useState<string | null>(null);
     const [sending, setSending] = useState(false);
     const [sendError, setSendError] = useState<string | null>(null);
-    const [authError, setAuthError] = useState<string | null>(null);
-    const [debug, setDebug] = useState<ExtractDebug | null>(null);
+    const [sent, setSent] = useState<SentInfo | null>(null);
+
+    const inflight = useRef<Set<string>>(new Set());
 
     useEffect(() => {
         let alive = true;
@@ -105,6 +105,106 @@ export default function AppFlow({
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
+    function updateItem(id: string, patch: Partial<QueueItem>) {
+        setQueue((items) =>
+            items.map((item) => (item.id === id ? { ...item, ...patch } : item))
+        );
+    }
+
+    // Process the queue one item at a time, regardless of which screen is open.
+    useEffect(() => {
+        if (queue.some((item) => item.status === "reading")) return;
+        const next = queue.find(
+            (item) => item.status === "queued" && !inflight.current.has(item.id)
+        );
+        if (!next) return;
+        inflight.current.add(next.id);
+        updateItem(next.id, { status: "reading" });
+        void extractItem(next);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [queue]);
+
+    async function extractItem(item: QueueItem) {
+        try {
+            const form = new FormData();
+            form.append("image", item.file, item.file.name);
+            const res = await fetch("/api/extract", { method: "POST", body: form });
+            const data = (await res.json()) as ExtractResponse;
+            console.debug("[extract]", {
+                id: item.id,
+                ok: data.ok,
+                error: data.ok ? undefined : data.error,
+                debug: data.debug,
+            });
+            if (data.ok) {
+                updateItem(item.id, {
+                    status: "ready",
+                    receipt: data.receipt,
+                    debug: data.debug ?? null,
+                });
+            } else {
+                updateItem(item.id, {
+                    status: "failed",
+                    error: data.error,
+                    debug: data.debug ?? null,
+                });
+            }
+        } catch (err) {
+            updateItem(item.id, {
+                status: "failed",
+                error: err instanceof Error ? err.message : "network error",
+                debug: null,
+            });
+        } finally {
+            inflight.current.delete(item.id);
+        }
+    }
+
+    function addFile(file: File) {
+        const id = crypto.randomUUID();
+        setQueue((items) => [
+            ...items,
+            {
+                id,
+                file,
+                previewUrl: URL.createObjectURL(file),
+                status: "queued",
+            },
+        ]);
+    }
+
+    function removeItem(id: string) {
+        setQueue((items) => {
+            const target = items.find((item) => item.id === id);
+            if (target) URL.revokeObjectURL(target.previewUrl);
+            return items.filter((item) => item.id !== id);
+        });
+        if (reviewId === id) setReviewId(null);
+    }
+
+    function retryItem(id: string) {
+        updateItem(id, { status: "queued", error: undefined });
+        if (reviewId === id) setPhase("capture");
+    }
+
+    function openReview(id: string) {
+        setReviewId(id);
+        setSendError(null);
+        setPhase("check");
+    }
+
+    function reviewNext() {
+        const ready = queue.find((item) => item.status === "ready");
+        if (ready) openReview(ready.id);
+    }
+
+    function nextAfterSent() {
+        setSent(null);
+        const ready = queue.find((item) => item.status === "ready");
+        if (ready) openReview(ready.id);
+        else setPhase("capture");
+    }
+
     async function ensureSheet() {
         setSheetError(false);
         setCandidates([]);
@@ -118,7 +218,6 @@ export default function AppFlow({
             });
             if (res.status === 401) {
                 setAuthError(t("app.signin.error"));
-                setAuth({ signedIn: false, oauthConfigured: true, googleUserId: null });
                 setPhase("signin");
                 return;
             }
@@ -164,7 +263,8 @@ export default function AppFlow({
         setAuth({ signedIn: false, oauthConfigured: true, googleUserId: null });
         setAuthError(null);
         setWorkspace(null);
-        setReceipt(null);
+        setQueue([]);
+        setReviewId(null);
         setSent(null);
         setCandidates([]);
         setPhase("intro");
@@ -193,41 +293,16 @@ export default function AppFlow({
         }
     }
 
-    async function handleFile(file: File) {
-        setPhase("reading");
-        setSendError(null);
-        setDebug(null);
-        try {
-            const form = new FormData();
-            form.append("image", file);
-            const res = await fetch("/api/extract", { method: "POST", body: form });
-            const data = (await res.json()) as ExtractResponse;
-            setDebug(data.debug ?? null);
-            // Always-on console trace, so the failure stage is visible in devtools.
-            console.debug("[extract]", {
-                ok: data.ok,
-                error: data.ok ? undefined : data.error,
-                debug: data.debug,
-            });
-            if (data.ok) {
-                setReceipt(data.receipt);
-                setPhase("check");
-            } else {
-                setPhase("bad");
-            }
-        } catch (err) {
-            console.debug("[extract] network error", err);
-            setPhase("bad");
-        }
-    }
-
     async function send(
         edited: Receipt,
         staff: string,
         outlet: string | null
     ) {
+        const item = queue.find((q) => q.id === reviewId);
+        if (!item) return;
         setSending(true);
         setSendError(null);
+        updateItem(item.id, { status: "sending" });
         try {
             const res = await fetch("/api/sheets/append", {
                 method: "POST",
@@ -235,7 +310,7 @@ export default function AppFlow({
                 body: JSON.stringify({ receipt: edited, staff, outlet }),
             });
             if (res.status === 401) {
-                // Session/refresh token lost (e.g. server cold start) — sign in again.
+                updateItem(item.id, { status: "ready", receipt: edited });
                 setAuthError(t("app.signin.error"));
                 setAuth({ signedIn: false, oauthConfigured: true, googleUserId: null });
                 setWorkspace(null);
@@ -245,37 +320,30 @@ export default function AppFlow({
             }
             const data = await res.json();
             if (data.ok) {
+                updateItem(item.id, { status: "sent", receipt: edited });
                 setSent({
                     count:
                         typeof data.rows_written === "number"
                             ? data.rows_written
                             : edited.line_items.length,
                     merchant: edited.merchant || t("app.check.merchantFallback"),
-                    total: formatMoney(
-                        edited.total,
-                        edited.currency,
-                        region,
-                        lang
-                    ),
+                    total: formatMoney(edited.total, edited.currency, region, lang),
                 });
                 setPhase("sent");
             } else {
+                updateItem(item.id, { status: "ready", receipt: edited });
                 setSendError(data.error || t("app.check.sendErr"));
             }
         } catch {
+            updateItem(item.id, { status: "ready", receipt: edited });
             setSendError(t("app.check.sendErr"));
         } finally {
             setSending(false);
         }
     }
 
-    function beginAnother() {
-        setReceipt(null);
-        setSent(null);
-        setSendError(null);
-        setDebug(null);
-        setPhase("capture");
-    }
+    const readyCount = queue.filter((item) => item.status === "ready").length;
+    const reviewItem = queue.find((item) => item.id === reviewId) ?? null;
 
     function renderScreen() {
         switch (phase) {
@@ -301,25 +369,35 @@ export default function AppFlow({
                     <CaptureScreen
                         t={t}
                         pill={workspace?.spreadsheet_title}
-                        onFile={handleFile}
+                        onFile={addFile}
+                        queue={queue}
+                        onReview={openReview}
+                        onRetry={retryItem}
+                        onRemove={removeItem}
+                        readyCount={readyCount}
+                        onReviewNext={reviewNext}
                     />
                 );
-            case "reading":
-                return <ReadingScreen t={t} />;
-            case "check":
-                if (!receipt) {
+            case "check": {
+                if (!reviewItem?.receipt) {
                     return (
                         <CaptureScreen
                             t={t}
                             pill={workspace?.spreadsheet_title}
-                            onFile={handleFile}
+                            onFile={addFile}
+                            queue={queue}
+                            onReview={openReview}
+                            onRetry={retryItem}
+                            onRemove={removeItem}
+                            readyCount={readyCount}
+                            onReviewNext={reviewNext}
                         />
                     );
                 }
                 return (
                     <CheckScreen
                         t={t}
-                        receipt={receipt}
+                        receipt={reviewItem.receipt}
                         sheetTitle={workspace?.spreadsheet_title ?? ""}
                         sheetTab={workspace?.sheet_tab ?? ""}
                         requireStaff={workspace?.template_id === "resto-inventory"}
@@ -327,9 +405,10 @@ export default function AppFlow({
                         sending={sending}
                         sendError={sendError}
                         onSend={send}
-                        debug={debug}
+                        debug={reviewItem.debug}
                     />
                 );
+            }
             case "sent":
                 return (
                     <SentScreen
@@ -342,29 +421,46 @@ export default function AppFlow({
                                 ? `https://docs.google.com/spreadsheets/d/${workspace.spreadsheet_id}`
                                 : null
                         }
-                        onAgain={beginAnother}
+                        onAgain={nextAfterSent}
                     />
                 );
             case "bad":
                 return (
-                    <BadPhotoScreen t={t} onRetry={beginAnother} debug={debug} />
+                    <BadPhotoScreen
+                        t={t}
+                        debug={reviewItem?.debug}
+                        onRetry={() => {
+                            if (reviewItem) retryItem(reviewItem.id);
+                        }}
+                    />
                 );
         }
     }
 
     return (
         <div className="flex min-h-screen flex-col bg-page sm:py-8">
-            <div className="mx-auto flex w-full max-w-[430px] items-center justify-end gap-3 px-4 pb-2">
+            <div className="mx-auto flex w-full max-w-[430px] items-center justify-between gap-3 px-4 pb-2">
                 <LangToggle lang={lang} onChange={setLang} />
-                {auth?.signedIn ? (
-                    <button
-                        type="button"
-                        onClick={signOut}
-                        className="text-xs font-semibold text-muted hover:text-body"
-                    >
-                        {t("app.auth.signout")}
-                    </button>
-                ) : null}
+                <div className="flex items-center gap-3">
+                    {readyCount > 0 ? (
+                        <button
+                            type="button"
+                            onClick={reviewNext}
+                            className="rounded-full bg-brand px-3 py-1 text-xs font-semibold text-ink"
+                        >
+                            {readyCount} ready
+                        </button>
+                    ) : null}
+                    {auth?.signedIn ? (
+                        <button
+                            type="button"
+                            onClick={signOut}
+                            className="text-xs font-semibold text-muted hover:text-body"
+                        >
+                            {t("app.auth.signout")}
+                        </button>
+                    ) : null}
+                </div>
             </div>
             {renderScreen()}
         </div>

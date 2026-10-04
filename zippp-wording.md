@@ -421,3 +421,51 @@ Keluar
 Debug trace
 ## app.debug.title.id
 Jejak debug
+## app.queue.title.en
+{count} in queue
+## app.queue.title.id
+{count} di antrean
+## app.queue.queued.en
+Queued
+## app.queue.queued.id
+Dalam antrean
+## app.queue.reading.en
+Reading…
+## app.queue.reading.id
+Membaca…
+## app.queue.ready.en
+Ready to check
+## app.queue.ready.id
+Siap diperiksa
+## app.queue.sending.en
+Sending…
+## app.queue.sending.id
+Mengirim…
+## app.queue.failed.en
+Could not read
+## app.queue.failed.id
+Tidak terbaca
+## app.queue.sent.en
+Sent
+## app.queue.sent.id
+Terkirim
+## app.queue.check.en
+Check
+## app.queue.check.id
+Periksa
+## app.queue.retry.en
+Retry
+## app.queue.retry.id
+Coba lagi
+## app.queue.remove.en
+Remove
+## app.queue.remove.id
+Hapus
+## app.queue.reviewNext.en
+Check next ({count})
+## app.queue.reviewNext.id
+Periksa berikutnya ({count})
+## app.queue.keepSnapping.en
+Keep snapping — they queue up automatically.
+## app.queue.keepSnapping.id
+Terus foto — otomatis masuk antrean.

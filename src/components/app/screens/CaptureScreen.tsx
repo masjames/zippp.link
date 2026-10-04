@@ -2,7 +2,9 @@
 
 import { useEffect, useRef, useState } from "react";
 import PhoneShell from "../PhoneShell";
-import type { T } from "@/lib/t";
+import QueueStrip from "../QueueStrip";
+import type { QueueItem } from "../queue";
+import { fill, type T } from "@/lib/t";
 
 function Corners() {
     const base = "pointer-events-none absolute h-9 w-9 border-4 border-white";
@@ -21,18 +23,31 @@ type Mode = "idle" | "starting" | "live" | "error";
 /**
  * Screen 03 / Capture.
  *
- * The shutter opens the live camera (getUserMedia) and captures a frame.
- * If the camera is unavailable or blocked it falls back to the native camera
- * input. The "upload a photo" link always opens the file picker instead.
+ * The shutter opens the live camera (getUserMedia) and captures a frame into
+ * the queue without stopping the stream, so you can keep snapping. If the
+ * camera is unavailable it falls back to the native capture input; the
+ * "upload a photo" link always opens the file picker.
  */
 export default function CaptureScreen({
     t,
     pill,
     onFile,
+    queue,
+    onReview,
+    onRetry,
+    onRemove,
+    readyCount,
+    onReviewNext,
 }: {
     t: T;
     pill?: string;
     onFile: (file: File) => void;
+    queue: QueueItem[];
+    onReview: (id: string) => void;
+    onRetry: (id: string) => void;
+    onRemove: (id: string) => void;
+    readyCount: number;
+    onReviewNext: () => void;
 }) {
     const [mode, setMode] = useState<Mode>("idle");
     const videoRef = useRef<HTMLVideoElement>(null);
@@ -85,8 +100,7 @@ export default function CaptureScreen({
         canvas.toBlob(
             (blob) => {
                 if (!blob) return;
-                stopCamera();
-                setMode("idle");
+                // Keep the camera live so the next receipt can be snapped.
                 onFile(
                     new File([blob], `receipt-${Date.now()}.jpg`, {
                         type: "image/jpeg",
@@ -116,7 +130,7 @@ export default function CaptureScreen({
             </h2>
             <p className="max-w-[30ch]">{t("app.capture.body")}</p>
 
-            <div className="relative flex min-h-[250px] flex-1 items-center justify-center overflow-hidden rounded-panel bg-[#2a1410] px-6 text-center text-peach">
+            <div className="relative flex min-h-[220px] flex-1 items-center justify-center overflow-hidden rounded-panel bg-[#2a1410] px-6 text-center text-peach">
                 {mode === "live" ? (
                     <video
                         ref={videoRef}
@@ -137,7 +151,6 @@ export default function CaptureScreen({
                 <Corners />
             </div>
 
-            {/* Native camera fallback (mobile capture, or desktop without webcam). */}
             <input
                 ref={cameraInputRef}
                 type="file"
@@ -149,7 +162,6 @@ export default function CaptureScreen({
                     e.target.value = "";
                 }}
             />
-            {/* Plain file picker for the upload link. */}
             <input
                 ref={uploadInputRef}
                 type="file"
@@ -165,7 +177,7 @@ export default function CaptureScreen({
                 type="button"
                 aria-label={t("app.capture.shutter")}
                 onClick={shutter}
-                className="mx-auto mt-1 block h-[84px] w-[84px] rounded-full border-[6px] border-maroon bg-white active:scale-95"
+                className="mx-auto mt-1 block h-[76px] w-[76px] rounded-full border-[6px] border-maroon bg-white active:scale-95"
             />
             <button
                 type="button"
@@ -174,6 +186,28 @@ export default function CaptureScreen({
             >
                 {t("app.capture.upload")}
             </button>
+
+            {readyCount > 0 ? (
+                <button
+                    type="button"
+                    onClick={onReviewNext}
+                    className="rounded-full bg-maroon px-6 py-4 font-semibold text-white"
+                >
+                    {fill(t("app.queue.reviewNext"), { count: readyCount })}
+                </button>
+            ) : queue.length > 0 ? (
+                <p className="text-center text-xs text-ink opacity-70">
+                    {t("app.queue.keepSnapping")}
+                </p>
+            ) : null}
+
+            <QueueStrip
+                t={t}
+                queue={queue}
+                onReview={onReview}
+                onRetry={onRetry}
+                onRemove={onRemove}
+            />
         </PhoneShell>
     );
 }
