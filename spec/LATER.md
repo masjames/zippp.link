@@ -30,6 +30,20 @@ Stock on hand, recipes, COGS per plate, waste. Phase 1 only **records the nota**
 
 ---
 
+## Specified but not built
+
+- **`personal-expense` and `custom` templates** — only `resto-inventory` ships
+  (`TEMPLATES.md`).
+- **Server-side job queue** — the app uses a per-device client queue today.
+  A Blob-backed async job (`POST` returns a jobId, client polls) is the upgrade
+  if a queue must survive closing the app.
+- **Observability: Axiom log drain** — structured `extract.run` logs go to Vercel
+  runtime logs for now.
+- **Camera auto-snap** — the detection overlay ships as guidance only; automatic
+  capture is disabled.
+- **Real prices / per-market tuning** — plans show `xx` placeholders
+  (`PRICING.md`).
+
 ## Old Phase 2 notes
 
 Freemium zippp-as-database, export paywalls, Google Sheets as a *sync of zippp’s sheet* — superseded. Phase 1 writes **to Google**, it does not replace Google.

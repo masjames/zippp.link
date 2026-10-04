@@ -3,7 +3,10 @@
 Depends on: `SPEC.md`, `USER-FLOW.md`
 Owns: column maps only. One row per **line item**. Header facts repeat. Unknown = empty cell, never invented.
 
-Mill extract (unchanged): merchant, date, currency, line description, qty, unit_price, amount, subtotal, tax, total, plus optional `doc_ref` if printed.
+Mill extract: merchant, date, currency, line description, qty, unit_price, amount, subtotal, tax, total (`Receipt` in `src/types/receipt.ts`). There is no `doc_ref` field.
+
+**Only T1 `resto-inventory` is implemented today.** `connect` only creates/maps
+resto-inventory; T2 and T3 are spec-only (see `LATER.md`).
 
 ---
 
@@ -31,7 +34,7 @@ For a manager whose staff shop for kitchen/inventory. Matches “I used to type 
 
 ---
 
-## T2 — `personal-expense`
+## T2 — `personal-expense` (not implemented)
 
 Intake for one human. **Not** books, VAT, or net worth.
 
@@ -51,7 +54,7 @@ Intake for one human. **Not** books, VAT, or net worth.
 
 ---
 
-## T3 — `custom`
+## T3 — `custom` (not implemented)
 
 Row 1 of the user’s tab is the schema. Each mill field maps to zero or one column. Each extra column is: ignore | constant | prompt-at-submit.
 

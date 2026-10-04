@@ -1,63 +1,63 @@
-# zippp offer (repriced 24 Sep 2026)
+# zippp offer
 
-Not a SaaS. A mill: receipt/invoice photo → structured rows in the sheet they already use.
+Updated: 2 Oct 2026. Supersedes the prepaid-pack offer.
 
-USD/IDR ~ **Rp 17.900** ([spot 24 Sep 2026](https://koran-jakarta.com/2026-09-24/dolar-as-ngamuk-lagi-rupiah-terjun-bebas-lewati-rp17900-ini-pemicunya)). Do not quote Rp and $ as if they match.
+Not a SaaS clone. A mill: a receipt/invoice photo → structured rows in the
+Google Sheet the operator already uses.
 
-## The [NOW] product — one prepaid pack
+USD/IDR ~ **Rp 17.900** ([spot 24 Sep 2026](https://koran-jakarta.com/2026-09-24/dolar-as-ngamuk-lagi-rupiah-terjun-bebas-lewati-rp17900-ini-pemicunya)).
+Do not quote Rp and $ as if they match.
 
-Same pack, two currencies. This is the list (see `PRICING.md`).
+## What we sell now
 
-| | IDR | USD |
-|---|---|---|
-| Pack | **Rp 499.000** | **$29** |
-| Documents | 20 receipts / invoices | 20 receipts / invoices |
-| Extra | buy the pack again | buy the pack again |
-| CSV / JSON | included | included |
-| Their Google Sheet | included (we paste) | included (we paste) |
-| Setup / install fee | no | no |
-| Monthly | no, until they buy again | no, until they buy again |
-| Login / OAuth | no | no |
+- **Self-serve app** at `zippp.link`: sign in with Google, photograph notas,
+  check, send to your sheet.
+- **Bilingual, region-aware:** Indonesia → Indonesian + IDR; everyone else →
+  English (US) + international pricing.
+- **Two paid plans, no free tier, no trial.** Prices are `xx` placeholders until
+  set (see `PRICING.md` / `wording.md`).
+- **Google Sheets only** — no CSV/JSON export.
+- Optional **custom install** (the `$497` class) is a WhatsApp quote after a
+  plan is live and rows are trusted. Not on the pricing page.
 
-We parse after the transfer lands. No OAuth — we paste manually into their sheet. Google OAuth for self-serve sheet write is Phase 1 (see `SPEC.md`), not this pack.
+## What changed from the pack
 
-## What was wrong last time
+- **Was:** $29 / Rp 499.000 prepaid pack for 20 docs, manual paste, no OAuth.
+- **Now:** self-serve Google OAuth (Sheets + Drive-file), find/create the
+  `[zippp]` sheet, append rows; two monthly plans, regional currency.
+- CSV/JSON is gone; the sheet is the destination.
 
-- **Rp 350.000 ≠ $49.** $49 is ~Rp 880.000. Rp 3.500.000 ≠ $497 (~Rp 8.9jt). The two currencies were different products pretending to be twins.
-- **COGS is not the price.** Gemini 2.5 Flash paid is $0.30 / 1M input tokens and $2.50 / 1M output ([Google](https://ai.google.dev/gemini-api/docs/pricing)). Free tier is still free. One receipt is cents or zero. You are selling hands + QA + 48h, not tokens.
-- **Local trial was expensive vs typists, cheap vs APIs.** Fastwork input-nota packs sit around **Rp 50rb / 100rb / 175rb for 50 nota** ([example](https://fastwork.id/user/waliyyunrrz_/data-entry-42433185)). Rp 350.000 for **20** is ~5× that per nota. Taggun's API is ~**$0.05–0.06 / scan** ([Taggun](https://www.taggun.io/pricing)). Veryfi receipts **$0.08** with a **$500 / mo** floor on starter ([Veryfi FAQ, Mar 2026](https://faq.veryfi.com/en/articles/3743986-what-are-the-plans-prices-for-ocr-api)). $49 for 20 ($2.45/doc) is a paid sample with your hands, not an API war.
+## Why the price is what it is
 
-## Two books. Same pack, different channel.
-
-### Book A — Indonesia (pembukuan, UMKM, WA)
-
-Rp 499.000 / 20 docs. WhatsApp-first. Same pack as Book B, IDR price.
-
-### Book B — USD (Product Hunt shape)
-
-$29 / 20 docs. Same pack as Book A, USD price.
-
-PH comps: Nolain ~$25/mo (2,000 pages), Airparser free 20 then $33/100, Receiptor from $29/mo, Receipt Converter $9/100. Lead with the pack — not a subscription, not a free tier. No $497 on the list.
+- **COGS is not the price.** DeepSeek Flash structuring is ~$0.0003 per receipt
+  and PP-OCRv6 is low; you are selling trusted rows + done-for-you setup, not
+  tokens (`COGS.md`).
+- **Local alternatives set the floor.** Fastwork data-entry packs and Indonesian
+  bookkeeping apps are the comparison a UMKM buyer actually makes.
+- **The mill must land in their sheet, in their columns.**
 
 ## Privacy
 
-Client receipts go through **paid Gemini**. The free tier may train on data — we do not use it for client work. Tell them. (See `COGS.md` and `SPEC.md`.)
+Client receipts: photo → **Baidu AI Studio (PP-OCRv6)** for OCR; text →
+**DeepSeek** for structuring; **Gemini** only as a last-resort fallback. No free
+tier for client work. (See `COGS.md`, `SPEC.md`.)
 
 ## One sentence
 
-I automate receipt and invoice data entry. Here it is working. I put it in your stack in days.
+I automate receipt and invoice data entry. Here it is working. I put it in your
+stack in days.
 
-## This week
+## This flow
 
-1. Who already has the Loom: **Book A or Book B. One number.** (Same pack, different currency.)
-2. Nine more names in the same book.
-3. Paid → 20 rows in *their* sheet. We paste. No OAuth.
-4. Rows trusted → quote custom install via WhatsApp (not on this page).
+1. Sign in at `zippp.link` (Google).
+2. Photograph notas; the queue processes them.
+3. Check each one; **Send to sheet** appends the rows.
+4. Rows trusted → quote the custom install via WhatsApp.
 
-Success = one transfer.
+Success = a real nota landing in a real sheet without retyping.
 
-## Parked (not this week)
+## Parked
 
-- **Rp 250.000 trial** — Bryan's "cheaper door if they flinch" (from `PRICING.md`). Not on Lili's list. Revisit if the Rp 499k door sticks.
-- **Monthly (Rp 750k/mo or $29/mo tiers)** — Lili: "Monthly: no, until they buy again." Park until a buyer asks.
-- **Google OAuth self-serve** — Phase 1 spec. Manual paste for now.
+- Per-market price tuning and real numbers (`PRICING.md`).
+- Monthly vs prepaid mechanic — monthly plans are what the app shows today.
+- The `$497` custom install (quote only, after value lands).

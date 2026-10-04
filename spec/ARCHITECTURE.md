@@ -97,6 +97,11 @@ Every user-visible string lives in **`spec/wording.md`** (`## key.lang` entries)
 
 ---
 
+## Templates
+
+Only **`resto-inventory`** is implemented (`src/lib/google/templates.ts`,
+`connect` route). `personal-expense` and `custom` are spec-only (`LATER.md`).
+
 ## Data flow
 
 ```

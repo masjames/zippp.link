@@ -89,10 +89,11 @@ unreadable screen) showing the extraction trace.
 
 ---
 
-## Flow C — Personal expense template
+## Flow C — Personal expense template (not implemented)
 
 Same screens, one person, template `personal-expense`. No staff list, no
-inventory units. Not an accounting system.
+inventory units. Not an accounting system. **Spec-only for now** — the app only
+creates the `resto-inventory` template (`LATER.md`).
 
 ---
 

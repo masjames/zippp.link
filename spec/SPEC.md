@@ -19,8 +19,11 @@ uses.
 
 1. **Primary:** operators who already run a sheet and whose team produces paper
    notas (restaurants, warung, cafes, shops). Their time is spent typing.
-2. **Secondary:** one person using the `personal-expense` template.
+2. **Secondary (spec-only):** one person using the `personal-expense` template.
 3. **Not:** replacing Accurate/Jurnal/Xero, and not a hobby ledger with 40 reports.
+
+> **Implemented today:** only the `resto-inventory` template. `personal-expense`
+> and `custom` are specified but not built (see `LATER.md`, `TEMPLATES.md`).
 
 ---
 
@@ -37,7 +40,7 @@ learn ours. The job is append + one map, not a second general ledger.
 
 1. Google OAuth only. Scopes: `spreadsheets` + `drive.file`. No Gmail.
 2. Connect one spreadsheet + one tab per workspace. Find or create a `[zippp]`
-   spreadsheet; never paste a URL.
+   spreadsheet; never paste a URL. (`resto-inventory` only, for now.)
 3. Read row 1 as headers; map mill/op fields; save constants (e.g. Category).
 4. **Extract**: PP-OCRv6 (vision) reconstructs text rows; DeepSeek Flash
    structures them into JSON (EN+ID, null not invented). DeepSeek vision is the

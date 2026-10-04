@@ -1,37 +1,72 @@
-# zippp COGS (vision model, 24 Sep 2026)
+# zippp COGS — extraction pipeline
 
-Assumption per receipt: Google ~258 image tokens + ~250 prompt + ~600 JSON out. zippp already downscales to 1280px. 10% retry. Labor is not in this table.
+Updated: 2 Oct 2026. Supersedes the old "Gemini vision" COGS.
+Pipeline: `ARCHITECTURE.md`. Privacy line: `SPEC.md`, `PRICING.md`.
 
-## Cheapest that can see a photo
+## What actually runs
 
-| Rank | Model | Paid in / out per 1M tok | Est. **paid** / receipt | Notes |
+```
+photo → PP-OCRv6 (Baidu AI Studio) → reconstructed rows → DeepSeek Flash → receipt JSON
+             │ fails / times out              │ fails
+             ▼                                ▼
+     DeepSeek Flash vision  →  Gemini 2.5 Flash (last resort)
+```
+
+The vision leg is **PP-OCRv6**; the structuring leg is **DeepSeek Flash**.
+Gemini is a rarely-used last resort, not the default.
+
+## Measured usage (prod `extract.run` logs, 1-page 4-item nota)
+
+| Leg | Tokens / time |
+|---|---|
+| PP-OCRv6 | 1 page, ~3–4s OCR (10s budget) |
+| DeepSeek Flash (structure) | prompt ~495, completion ~145 → **~645 total**, ~1.1–1.6s |
+| DeepSeek Flash vision (fallback) | ~750 total, ~1.5s |
+| Gemini 2.5 Flash (fallback) | ~1.6–5s |
+
+## Rates (per 1M tokens)
+
+**DeepSeek Flash** — source: `api-docs.deepseek.com/quick_start/pricing`.
+Off-peak is half price; peak = 01:00–04:00 and 06:00–10:00 UTC, Mon–Fri.
+Vision is supported at the same rate.
+
+| | off-peak | peak |
+|---|---|---|
+| input, cache hit | $0.003 | $0.006 |
+| input, cache miss | $0.15 | $0.30 |
+| output | $0.60 | $1.20 |
+
+Concurrency limit: 2500 (flash).
+
+**Gemini 2.5 Flash** (fallback only): $0.30 input / $2.50 output per 1M.
+
+**PP-OCRv6 / Baidu AI Studio:** billed by Baidu AI Studio against the access
+token (plan/credits based). **Rate to confirm in AI Studio billing** — it is not
+priced here because it is not a public per-token rate we have verified.
+
+## Per-receipt estimate (1-page nota, ~645 DeepSeek tokens)
+
+| Case | DeepSeek Flash | + OCR | + Gemini fallback |
+|---|---|---|---|
+| peak, cache miss | **~$0.00032** (~Rp 6) | TBC | — |
+| off-peak, cache miss | **~$0.00016** (~Rp 3) | TBC | — |
+| last-resort path | ~$0.0003 | TBC | **~$0.0016** (only when used) |
+
+At ~Rp 17.900/USD. So a 20-receipt pack is **well under Rp 5.000** in DeepSeek
+cost; the OCR leg's cost depends on the AI Studio plan.
+
+## Money vs volume (DeepSeek structuring only)
+
+| | 1 | 20 | 100 / mo | 1,000 / mo |
 |---|---|---|---|---|
-| 0 | **Gemini free tier** (what you have) | $0 / $0 | **$0** | [Google](https://ai.google.dev/gemini-api/docs/pricing). May train on data. Fine for cafe nota. Not for client PII. |
-| 1 | **Gemini 2.5 Flash-Lite Flex / Batch** | $0.05 / $0.20 | **~$0.00014** | Same family, slower/queued. Cheapest *paid* Google. |
-| 2 | **Gemini 2.5 Flash-Lite** | $0.10 / $0.40 | **~$0.00029** | Official `gemini-2.5-flash-lite`. Vision + JSON schema. [Google](https://ai.google.dev/gemini-api/docs/pricing) |
-| 3 | Gemini 2.0 Flash-Lite (if still served) | $0.075 / $0.30 | **~$0.00021** | Cited as cheapest token rate in [Mar 2026 comps](https://aicostcheck.com/blog/ai-vision-multimodal-api-pricing-2026). Confirm it still exists before betting. |
-| 4 | **zippp today: Gemini 2.5 Flash** | $0.30 / $2.50 | **~$0.0016** | `gemini-2.5-flash`. ~5× Lite. |
-| 5 | GPT-4o mini | $0.15 / $0.60 | **~$0.0005+** | Image uses ~765 tokens, so not as cheap as the token sticker. |
-| 6 | Groq `qwen/qwen3.8-27b` | $0.80 / $4.00 | **~$0.004** | Vision is live ([Groq](https://console.groq.com/docs/vision)) but **each image = 2048 input tokens**. Fast, not cheap. |
-| 7 | Local Ollama / own GPU | electricity | **$0 API** | Cheapest forever. Quality, speed, and your Mac are the cost. |
-
-OpenRouter `:free` can be $0. Do not build a mill on it (catalog rotates). That is already in `SPEC.md`.
-
-## Money vs the pack
-
-| | 1 receipt | 20 (one pack) | 100 / month | 1,000 / month |
-|---|---|---|---|---|
-| Free Flash / Lite | $0 | $0 | $0 | $0 until quota |
-| Flash-Lite paid | $0.00029 | **$0.006** | $0.03 | $0.29 |
-| Flash paid (now) | $0.0016 | **$0.03** | $0.16 | $1.60 |
-| Groq Qwen vision | $0.004 | $0.08 | $0.40 | $4 |
-
-At ~Rp 17.900 / USD: Flash-Lite is about **Rp 5 per nota**. A 20-pack of model cost is about **Rp 100**.
-
-Revenue on the prepaid pack ($29 / Rp 499k) minus model COGS is ~100%. The real COGS is **your eyes and the cafe hours**, not Gemini.
+| peak | $0.00032 | **$0.0064** | $0.032 | $0.32 |
+| off-peak | $0.00016 | $0.0032 | $0.016 | $0.16 |
 
 ## Verdict
 
-The cheapest *working* vision call is still **Gemini free**. The cheapest *paid* managed vision call that still fits this stack (JSON schema, image in, one key) is **`gemini-2.5-flash-lite`**, Flex if you can wait.
+The model cost is fractions of a cent per nota. The real COGS is **human QA and
+the operator's time**, not tokens. Do not optimise the model bill; optimise the
+Check step and the OCR accuracy.
 
-Do not switch Groq to save money. It is slower-wallet, not slower-model. Do not chase a $0.02/pack save until a client’s receipts fail Lite. Quality on crumpled Indonesian thermal paper is the constraint, not tokens.
+The one cost to nail down is **Baidu AI Studio (PP-OCRv6)** — confirm its
+billing against the token, then update this table.

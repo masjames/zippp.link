@@ -1,37 +1,52 @@
-# zippp pricing (Lili's list, 24 Sep 2026)
+# zippp pricing
 
-Council sat. Lili wrote the books. One pack. Same SKU in two currencies (~Rp 17.900 / USD).
+Updated: 2 Oct 2026. The old prepaid pack ($29 / Rp 499.000) is **superseded** —
+see "History" at the bottom. Numbers below are **not set yet**.
 
-## The list you send
+## Structure
 
-|| | **Prepaid pack** |
+- **Two plans, both paid. No free plan, no free trial.**
+- **Regional pricing:**
+  - Visitors from **Indonesia** see **IDR** and the Indonesian plan copy.
+  - Everyone else sees **USD** and English (US) copy.
+  - The language toggle changes copy only; currency follows the visitor's region.
+- Prices show as **`xx`** placeholders in the app until they are set in
+  [`wording.md`](./wording.md) (`landing.planN.price.id` / `.intl`).
+
+## The plans
+
+| | Business / Usaha | Team / Tim |
 |---|---|---|
-| **USD** | **$29** |
-| **IDR** | **Rp 499.000** |
-| Documents | 20 receipts / invoices |
-| Extra | buy the pack again |
-| CSV / JSON | included |
-| Their Google Sheet | included (we paste) |
-| Setup / install fee | no |
-| Monthly | no, until they buy again |
-| Login / OAuth | no (manual paste for now; Google OAuth is Phase 1, see `SPEC.md`) |
-| We parse | after the transfer lands |
+| Price (ID) | `Rp xx` / month | `Rp xx` / month |
+| Price (intl) | `$xx` / month | `$xx` / month |
+| Scans | 300 / month | 1,000 / month |
+| Google Sheets | 3 | 10 |
+| Staff + outlet per row | yes | yes |
+| Extras | saved categories | up to 10 staff, multiple outlets |
 
-No free twenty. Airparser can give that away because it is already an app.
+Feature lists and names are **drafts** (set in `wording.md`), not a committed
+offer. There is no CSV/JSON export; Google Sheets is the only destination.
+
+## What ships today
+
+- Self-serve **Google sign-in** (Sheets + Drive-file scope) — no manual paste.
+- Find/create the `[zippp]` sheet, map columns, append rows.
+- Bilingual, region-aware landing and app.
 
 ## Privacy
 
-Client receipts are processed by two services: the photo goes to **Baidu AI Studio (PaddleOCR-VL)** for OCR, and the extracted text goes to **DeepSeek** for structuring. **Google Gemini** is used only as a fallback if that pipeline fails. No free tier is used for client work. Tell them. (See `COGS.md`.)
+Client receipts are processed by two services: the photo goes to **Baidu AI
+Studio (PP-OCRv6)** for OCR, and the reconstructed text goes to **DeepSeek** for
+structuring. **Google Gemini** is used only as a last-resort fallback. No free
+tier is used for client work. (See `COGS.md`, `SPEC.md`.)
 
-## What the room wanted (not the quote)
+## History (superseded)
 
-|| Voice | Their number | Lili |
-|---|---|---|---|
-| Carnegie | Rp 350k / $79 / install $397 | too proud for this week |
-| Marc Lou | $9 / $29 / $49 self-serve | $9 is scrap; Stripe later |
-| Pieter | **$29 / 20 prepaid** | **this is the list** |
-| Masa | Rp 149k / 20 then Rp 249k/mo | door too cheap; monthly too soon |
-| Ellison | Rp 250k / $49 / $99 run | never $9 (kept); $49 pack (dropped) |
-| Bryan | Rp 250k local, skip monthly | brother dissent: cheaper door if they flinch |
+The 24 Sep 2026 council set a single prepaid pack: **$29 / Rp 499.000 for 20
+receipts**, no monthly, manual paste. The 29 Sep review argued it was 2–7× a
+human typist and moved the recommendation to **Rp 99.000 / $9** first pack →
+**Rp 149.000 / $12** repeat. Neither is live. The app now presents two paid
+monthly plans with regional currency and `xx` prices.
 
-Custom install ($497 class) is a WhatsApp quote after they have paid a pack and asked. Not on this page.
+The one rule that survives every revision: **do not quote Rp and $ as if they
+match.** Price each market against its own alternative.
