@@ -279,6 +279,14 @@ Menyalakan kamera…
 Camera unavailable or blocked. Use upload below.
 ## app.capture.cameraError.id
 Kamera tidak tersedia atau diblokir. Gunakan unggah di bawah.
+## app.capture.autoSnap.en
+Auto-snap
+## app.capture.autoSnap.id
+Foto otomatis
+## app.capture.detected.en
+Receipt detected — hold steady
+## app.capture.detected.id
+Resi terdeteksi — tahan stabil
 
 ## app.reading.title.en
 Reading

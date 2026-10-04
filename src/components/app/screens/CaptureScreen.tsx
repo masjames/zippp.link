@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import PhoneShell from "../PhoneShell";
 import QueueStrip from "../QueueStrip";
 import type { QueueItem } from "../queue";
+import { useReceiptDetector } from "../useReceiptDetector";
 import { fill, type T } from "@/lib/t";
 
 function Corners() {
@@ -23,10 +24,10 @@ type Mode = "idle" | "starting" | "live" | "error";
 /**
  * Screen 03 / Capture.
  *
- * The shutter opens the live camera (getUserMedia) and captures a frame into
- * the queue without stopping the stream, so you can keep snapping. If the
- * camera is unavailable it falls back to the native capture input; the
- * "upload a photo" link always opens the file picker.
+ * Live camera with an on-device receipt detector (heuristic, no ML). The
+ * detected receipt gets a green box once it holds steady and sharp; Auto-snap
+ * (opt-in) captures it automatically. Manual shutter always works, and the
+ * camera stays live after every snap so receipts queue up.
  */
 export default function CaptureScreen({
     t,
@@ -50,10 +51,15 @@ export default function CaptureScreen({
     onReviewNext: () => void;
 }) {
     const [mode, setMode] = useState<Mode>("idle");
+    const [autoSnap, setAutoSnap] = useState(false);
     const videoRef = useRef<HTMLVideoElement>(null);
     const streamRef = useRef<MediaStream | null>(null);
     const cameraInputRef = useRef<HTMLInputElement>(null);
     const uploadInputRef = useRef<HTMLInputElement>(null);
+    const armed = useRef(true);
+
+    const detection = useReceiptDetector(videoRef, mode === "live");
+    const locked = detection.found && detection.sharp && detection.stable;
 
     function stopCamera() {
         streamRef.current?.getTracks().forEach((track) => track.stop());
@@ -100,7 +106,6 @@ export default function CaptureScreen({
         canvas.toBlob(
             (blob) => {
                 if (!blob) return;
-                // Keep the camera live so the next receipt can be snapped.
                 onFile(
                     new File([blob], `receipt-${Date.now()}.jpg`, {
                         type: "image/jpeg",
@@ -122,6 +127,22 @@ export default function CaptureScreen({
         if (file) onFile(file);
         if (fallback) setMode("idle");
     }
+
+    // Re-arm autosnap only after the receipt leaves the frame.
+    useEffect(() => {
+        if (!detection.found) armed.current = true;
+    }, [detection.found]);
+
+    useEffect(() => {
+        if (!autoSnap || mode !== "live") return;
+        const { found, box, sharp, stable } = detection;
+        if (!found || !box || !sharp || !stable) return;
+        if (box.w * box.h < 0.2) return;
+        if (!armed.current) return;
+        armed.current = false;
+        captureFrame();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [autoSnap, mode, detection]);
 
     return (
         <PhoneShell tone="brand" pill={pill}>
@@ -148,6 +169,21 @@ export default function CaptureScreen({
                               : t("app.capture.frame")}
                     </span>
                 )}
+
+                {mode === "live" && detection.box ? (
+                    <div
+                        className={`pointer-events-none absolute rounded-lg border-2 transition-colors ${
+                            locked ? "border-green-400" : "border-amber-300"
+                        }`}
+                        style={{
+                            left: `${detection.box.x * 100}%`,
+                            top: `${detection.box.y * 100}%`,
+                            width: `${detection.box.w * 100}%`,
+                            height: `${detection.box.h * 100}%`,
+                        }}
+                    />
+                ) : null}
+
                 <Corners />
             </div>
 
@@ -186,6 +222,24 @@ export default function CaptureScreen({
             >
                 {t("app.capture.upload")}
             </button>
+
+            <button
+                type="button"
+                aria-pressed={autoSnap}
+                onClick={() => setAutoSnap((v) => !v)}
+                className={`mx-auto rounded-full px-4 py-2 text-sm font-semibold ${
+                    autoSnap ? "bg-maroon text-white" : "bg-peach text-ink"
+                }`}
+            >
+                {t("app.capture.autoSnap")}
+                {autoSnap ? " · ON" : ""}
+            </button>
+
+            {locked ? (
+                <p className="text-center text-xs font-semibold text-ink">
+                    {t("app.capture.detected")}
+                </p>
+            ) : null}
 
             {readyCount > 0 ? (
                 <button
