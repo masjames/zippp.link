@@ -284,7 +284,7 @@ export async function createSpreadsheet(
   };
 }
 
-/** Create resto sheet, write TEMPLATES.md headers as row 1. */
+/** Create resto sheet, write spec/TEMPLATES.md headers as row 1. */
 export async function createRestoInventorySpreadsheet(): Promise<{
   meta: SpreadsheetMeta;
   sheetTab: string;

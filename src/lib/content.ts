@@ -3,7 +3,7 @@ import path from "path";
 import type { Wording } from "./t";
 
 /**
- * Parse zippp-wording.md — the single source of truth for all copy.
+ * Parse spec/wording.md — the single source of truth for all copy.
  *
  * Format, per entry:
  *
@@ -21,7 +21,7 @@ let cache: Wording | null = null;
 export function loadWording(): Wording {
     if (cache) return cache;
 
-    const file = path.join(process.cwd(), "zippp-wording.md");
+    const file = path.join(process.cwd(), "spec", "wording.md");
     const raw = readFileSync(file, "utf8");
     const map: Wording = {};
 
@@ -35,7 +35,7 @@ export function loadWording(): Wording {
 
     if (Object.keys(map).length === 0) {
         throw new Error(
-            "zippp-wording.md parsed to zero entries — check the ## key format."
+            "spec/wording.md parsed to zero entries — check the ## key format."
         );
     }
 

@@ -7,7 +7,7 @@ export const ZIPPP_RESTO_SHEET_TITLE = "[zippp] Resto inventory";
 /** Name marker used to find zippp-managed spreadsheets (case-insensitive). */
 export const ZIPPP_NAME_MARKER = "[zippp]";
 
-/** Row-1 headers for a new resto-inventory sheet (TEMPLATES.md). */
+/** Row-1 headers for a new resto-inventory sheet (spec/TEMPLATES.md). */
 export const RESTO_INVENTORY_HEADERS = [
   "Date",
   "Supplier",
@@ -113,7 +113,7 @@ function emptyIfNull(v: string | number | null | undefined): CellValue {
 
 /**
  * Resolve one mill/op field for a line. Tax: header tax on last line only
- * (TEMPLATES.md); other lines empty.
+ * (spec/TEMPLATES.md); other lines empty.
  */
 function valueForField(
   fieldId: string,
@@ -159,7 +159,7 @@ function valueForField(
 }
 
 /**
- * One row per line_item. Header facts + op fields repeat per TEMPLATES.md.
+ * One row per line_item. Header facts + op fields repeat per spec/TEMPLATES.md.
  * Column order follows workspace.headers (row 1). Constants applied first;
  * column_map overrides. Unmapped headers stay empty (or constant).
  */

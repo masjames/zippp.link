@@ -23,7 +23,7 @@ type Plan = {
 };
 
 /**
- * Public landing page. Copy comes from zippp-wording.md; prices follow the
+ * Public landing page. Copy comes from spec/wording.md; prices follow the
  * visitor's region (IDR for Indonesia, international elsewhere).
  */
 export default function Landing({ wording, initialLang, region }: Props) {

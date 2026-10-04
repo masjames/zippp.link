@@ -146,7 +146,7 @@ src/
 - API keys management in production
 
 ## Bilingual Content
-See `zippp-wording.md` for complete bilingual text specifications.
+See `spec/wording.md` for complete bilingual text specifications.
 EOF
 
 # Install dependencies

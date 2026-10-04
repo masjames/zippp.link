@@ -1,5 +1,5 @@
 /**
- * Wording lookup. Every user-visible string lives in zippp-wording.md under a
+ * Wording lookup. Every user-visible string lives in spec/wording.md under a
  * flat `key.lang` name (e.g. `landing.hero.cta.en`). This helper is safe on the
  * client; the markdown is loaded once on the server (see content.ts).
  */
