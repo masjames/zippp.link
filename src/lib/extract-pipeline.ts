@@ -105,11 +105,12 @@ async function withTimeout<T>(
 /**
  * One extraction run.
  *
- * Attempt 1: PaddleOCR-VL (vision) -> compacted markdown -> DeepSeek Flash.
- * Attempt 2: Gemini (vision -> JSON).            (on any failure of attempt 1)
- * Attempt 3: DeepSeek Flash vision (image -> JSON). (last resort)
+ * Attempt 1: PaddleOCR (vision) -> reconstructed rows -> DeepSeek Flash.
+ * Attempt 2: DeepSeek Flash vision (image -> JSON). Cheap/fast, absorbs OCR
+ *            timeouts without touching the rate-limited Gemini quota.
+ * Attempt 3: Gemini (vision -> JSON). Last resort.
  *
- * Each attempt is capped under 6s. Every stage is recorded for the debug trace.
+ * Every stage is recorded for the debug trace.
  */
 export async function runExtraction(image: File): Promise<ExtractionResult> {
     const runId = randomUUID();
@@ -289,7 +290,7 @@ export async function runExtraction(image: File): Promise<ExtractionResult> {
     const order: AttemptName[] =
         EXTRACT_PROVIDER === "gemini"
             ? ["gemini", "deepseek-vision"]
-            : ["paddle", "gemini", "deepseek-vision"];
+            : ["paddle", "deepseek-vision", "gemini"];
 
     const failures: string[] = [];
     let raw: ModelOutput | null = null;
