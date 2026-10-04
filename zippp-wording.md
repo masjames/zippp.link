@@ -275,6 +275,10 @@ Ambil foto
 Starting camera…
 ## app.capture.starting.id
 Menyalakan kamera…
+## app.capture.tapStart.en
+Tap the shutter to start the camera
+## app.capture.tapStart.id
+Ketuk tombol untuk menyalakan kamera
 ## app.capture.cameraError.en
 Camera unavailable or blocked. Use upload below.
 ## app.capture.cameraError.id

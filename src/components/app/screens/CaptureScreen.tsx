@@ -81,11 +81,12 @@ export default function CaptureScreen({
                 audio: false,
             });
             streamRef.current = stream;
+            setMode("live");
+            // The video element is always mounted, so the ref is ready here.
             if (videoRef.current) {
                 videoRef.current.srcObject = stream;
                 await videoRef.current.play().catch(() => undefined);
             }
-            setMode("live");
         } catch {
             setMode("error");
             cameraInputRef.current?.click();
@@ -152,23 +153,30 @@ export default function CaptureScreen({
             <p className="max-w-[30ch]">{t("app.capture.body")}</p>
 
             <div className="relative flex min-h-[220px] flex-1 items-center justify-center overflow-hidden rounded-panel bg-[#2a1410] px-6 text-center text-peach">
-                {mode === "live" ? (
-                    <video
-                        ref={videoRef}
-                        playsInline
-                        muted
-                        autoPlay
-                        className="absolute inset-0 h-full w-full object-cover"
-                    />
-                ) : (
-                    <span className="text-sm">
+                {/* Always mounted: the ref must exist before we attach the stream. */}
+                <video
+                    ref={videoRef}
+                    playsInline
+                    muted
+                    autoPlay
+                    className={`absolute inset-0 h-full w-full object-cover transition-opacity ${
+                        mode === "live" ? "opacity-100" : "opacity-0"
+                    }`}
+                />
+
+                {mode !== "live" ? (
+                    <span className="relative z-10 text-sm">
                         {mode === "starting"
                             ? t("app.capture.starting")
                             : mode === "error"
                               ? t("app.capture.cameraError")
-                              : t("app.capture.frame")}
+                              : t("app.capture.tapStart")}
                     </span>
-                )}
+                ) : !detection.box ? (
+                    <span className="absolute bottom-4 left-0 right-0 z-10 px-6 text-xs opacity-80">
+                        {t("app.capture.frame")}
+                    </span>
+                ) : null}
 
                 {mode === "live" && detection.box ? (
                     <div
