@@ -40,20 +40,32 @@ Concurrency limit: 2500 (flash).
 
 **Gemini 2.5 Flash** (fallback only): $0.30 input / $2.50 output per 1M.
 
-**PP-OCRv6 / Baidu AI Studio:** billed by Baidu AI Studio against the access
-token (plan/credits based). **Rate to confirm in AI Studio billing** — it is not
-priced here because it is not a public per-token rate we have verified.
+**PP-OCRv6 / Baidu AI Studio — free under a daily quota (we use the free plan).**
+Source: Baidu _API 配额规则及错误码说明_ (`ai.baidu.com/ai-doc/AISTUDIO/Xmjclapam`).
+
+| Rule | Value |
+|---|---|
+| Daily cap | **20,000 pages / day / user / model** |
+| Over cap | requests return **HTTP 429** (Too Many Requests) |
+| Single file | ≤ 1000 pages recommended; only the first 1000 are parsed |
+| More capacity | **free quota increase** via Baidu's questionnaire |
+| Published price | **none** — no public per-page rate; enterprise goes via sales |
+| Other errors | 403 token, 422 invalid params, 503 too many requests, 504 gateway timeout |
+
+Each photo is 1 page, so the free tier covers **~20,000 receipts/day**
+(≈600k/month) at no cost. Our 10s OCR budget is unrelated to the quota; a 429
+simply triggers the DeepSeek-vision fallback.
 
 ## Per-receipt estimate (1-page nota, ~645 DeepSeek tokens)
 
 | Case | DeepSeek Flash | + OCR | + Gemini fallback |
 |---|---|---|---|
-| peak, cache miss | **~$0.00032** (~Rp 6) | TBC | — |
-| off-peak, cache miss | **~$0.00016** (~Rp 3) | TBC | — |
-| last-resort path | ~$0.0003 | TBC | **~$0.0016** (only when used) |
+| peak, cache miss | **~$0.00032** (~Rp 6) | $0 (quota) | — |
+| off-peak, cache miss | **~$0.00016** (~Rp 3) | $0 (quota) | — |
+| last-resort path | ~$0.0003 | $0 (quota) | **~$0.0016** (only when used) |
 
 At ~Rp 17.900/USD. So a 20-receipt pack is **well under Rp 5.000** in DeepSeek
-cost; the OCR leg's cost depends on the AI Studio plan.
+cost, and **PP-OCRv6 is $0 while inside the 20,000-page/day free quota**.
 
 ## Money vs volume (DeepSeek structuring only)
 
@@ -68,5 +80,7 @@ The model cost is fractions of a cent per nota. The real COGS is **human QA and
 the operator's time**, not tokens. Do not optimise the model bill; optimise the
 Check step and the OCR accuracy.
 
-The one cost to nail down is **Baidu AI Studio (PP-OCRv6)** — confirm its
-billing against the token, then update this table.
+**PP-OCRv6 is free inside the daily quota** (20k pages/day/model); there is no
+published per-page price and increases are granted free on request. So the only
+metered leg in normal operation is **DeepSeek Flash structuring**, at fractions
+of a cent per nota; Gemini appears only on the rare last-resort path.
