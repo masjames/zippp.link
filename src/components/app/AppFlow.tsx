@@ -60,6 +60,7 @@ export default function AppFlow({
     const [sheetError, setSheetError] = useState(false);
     const [busy, setBusy] = useState(false);
     const [authError, setAuthError] = useState<string | null>(null);
+    const [authChecked, setAuthChecked] = useState(false);
 
     const [queue, setQueue] = useState<QueueItem[]>([]);
     const [reviewId, setReviewId] = useState<string | null>(null);
@@ -73,10 +74,19 @@ export default function AppFlow({
         let alive = true;
         (async () => {
             try {
+                const params = new URLSearchParams(window.location.search);
                 const res = await fetch("/api/auth/me", { cache: "no-store" });
                 const data = (await res.json()) as AuthState;
                 if (!alive) return;
                 setAuth(data);
+
+                if (params.get("auth") === "error") {
+                    setAuthError(t("app.signin.error"));
+                    setPhase("signin");
+                    return;
+                }
+
+                // Ask the server who the user is before showing Intro or Sign in.
                 if (!data.signedIn) return;
 
                 const wsRes = await fetch("/api/sheets/workspace", {
@@ -87,16 +97,13 @@ export default function AppFlow({
                 const connected = wsData.ok && wsData.workspace ? wsData.workspace : null;
                 if (connected) setWorkspace(connected);
 
-                const params = new URLSearchParams(window.location.search);
-                if (params.get("auth") === "ok") {
-                    if (connected) setPhase("capture");
-                    else await ensureSheet();
-                } else if (params.get("auth") === "error") {
-                    setAuthError(t("app.signin.error"));
-                    setPhase("signin");
-                }
+                // Session is valid: land in the app, not on Intro.
+                if (connected) setPhase("capture");
+                else await ensureSheet();
             } catch {
-                /* stay on intro */
+                /* leave on Intro */
+            } finally {
+                if (alive) setAuthChecked(true);
             }
         })();
         return () => {
@@ -435,6 +442,18 @@ export default function AppFlow({
                     />
                 );
         }
+    }
+
+    // Hold the loading screen until we know who the user is.
+    if (!authChecked) {
+        return (
+            <div className="flex min-h-screen items-center justify-center bg-page">
+                <span
+                    className="h-8 w-8 animate-spin rounded-full border-4 border-line border-t-brand"
+                    aria-hidden
+                />
+            </div>
+        );
     }
 
     return (
