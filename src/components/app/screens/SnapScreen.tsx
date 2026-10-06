@@ -150,26 +150,25 @@ export default function SnapScreen() {
             void openCamera();
             return;
         }
-        // Blur hard-blocks capture.
-        if (detection.found && !detection.sharp) return;
+        // Manual capture is never blocked (low light etc.); blur only hints.
         setNoReceipt(false);
         void manualCapture();
     }
 
-    // Auto-snap: sharp + steady + large enough, then re-arm.
+    // Re-arm when the scene moves (the next receipt), not on a bright box.
     useEffect(() => {
-        if (!detection.found) {
+        if (!detection.steady) {
             armed.current = true;
             setNoReceipt(false);
         }
-    }, [detection.found]);
+    }, [detection.steady]);
 
-    // Auto-capture only fires once PaddleOCR confirms a receipt is in frame.
+    // Auto-capture: the frame is steady and sharp, then PaddleOCR/DeepSeek
+    // confirms a receipt is actually in frame. The bright box is not required.
     useEffect(() => {
         if (!autoSnap || mode !== "live" || outOfCredits) return;
-        const { found, box, sharp, stable } = detection;
-        if (!found || !box || !sharp || !stable) return;
-        if (box.w * box.h < 0.2) return;
+        const { steady, sharp } = detection;
+        if (!steady || !sharp) return;
         if (!armed.current) return;
         if (Date.now() < cooldown.current) return;
         armed.current = false;
@@ -225,7 +224,7 @@ export default function SnapScreen() {
                               ? t("app.capture.cameraError")
                               : t("app.capture.tapStart")}
                     </span>
-                ) : detection.found && !detection.sharp ? (
+                ) : !detection.sharp ? (
                     <span className="absolute bottom-4 left-0 right-0 z-10 text-xs font-semibold text-amber-200">
                         {t("app.capture.holdSteady")}
                     </span>
@@ -242,7 +241,7 @@ export default function SnapScreen() {
                 {mode === "live" && detection.box ? (
                     <div
                         className={`pointer-events-none absolute rounded-lg border-2 ${
-                            detection.sharp && detection.stable
+                            detection.sharp && detection.steady
                                 ? "border-green-400"
                                 : "border-amber-300"
                         }`}

@@ -23,5 +23,8 @@ export function isLikelyReceipt(text: string): boolean {
             s
         );
 
-    return money >= 2 && (hasDate || hasKeyword);
+    // Lenient on purpose: auto-capture would rather verify a torn, low-light
+    // receipt than miss it. The extraction essentials (date/item/price) still
+    // gate what reaches the sheet.
+    return money >= 1 && (hasDate || hasKeyword);
 }

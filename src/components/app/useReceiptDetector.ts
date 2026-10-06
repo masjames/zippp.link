@@ -5,17 +5,22 @@ import { useEffect, useRef, useState, type RefObject } from "react";
 export type DetectedBox = { x: number; y: number; w: number; h: number };
 
 export type Detection = {
+    /** A bright rectangle was found (used for the overlay only). */
     found: boolean;
     box: DetectedBox | null;
+    /** Sharp enough to read. */
     sharp: boolean;
-    stable: boolean;
+    /** The frame is holding still (motion-based). */
+    steady: boolean;
 };
 
 const PROCESS_WIDTH = 160;
-const FRAME_INTERVAL_MS = 80; // ~12 fps is plenty for guidance
-const STABLE_FRAMES = 6; // ~0.5s at 12fps
+const FRAME_INTERVAL_MS = 80; // ~12 fps
+const STEADY_FRAMES = 6; // ~0.5s
+const MOTION_MAX = 8; // mean abs luma diff (0-255) that still counts as "still"
+const SHARP_MIN = 12; // variance of Laplacian; low light noise keeps this up
 
-const EMPTY: Detection = { found: false, box: null, sharp: false, stable: false };
+const EMPTY: Detection = { found: false, box: null, sharp: false, steady: false };
 
 /** Otsu's method: pick the luminance threshold that best splits the frame. */
 function otsu(hist: number[], total: number): number {
@@ -42,12 +47,17 @@ function otsu(hist: number[], total: number): number {
     return threshold;
 }
 
-/** Find the dominant bright rectangle and whether it is sharp enough. */
+/**
+ * One frame: grayscale, a bright-rectangle box (overlay only) and a sharpness
+ * score. The box is best-effort — low light, a hand, or a torn edge all defeat
+ * it, which is why steady + sharp + a server receipt check drive auto-capture,
+ * not the box.
+ */
 function analyze(
     data: Uint8ClampedArray,
     w: number,
     h: number
-): { box: DetectedBox | null; sharp: boolean } {
+): { box: DetectedBox | null; sharp: boolean; gray: Uint8Array } {
     const gray = new Uint8Array(w * h);
     const hist = new Array<number>(256).fill(0);
     for (let i = 0; i < w * h; i++) {
@@ -74,85 +84,80 @@ function analyze(
         }
     }
 
-    const rowThreshold = 0.15 * w;
-    const colThreshold = 0.15 * h;
     let top = -1;
     let bottom = -1;
     let left = -1;
     let right = -1;
     for (let y = 0; y < h; y++) {
-        if (rowCount[y] >= rowThreshold) {
+        if (rowCount[y] >= 0.15 * w) {
             if (top < 0) top = y;
             bottom = y;
         }
     }
     for (let x = 0; x < w; x++) {
-        if (colCount[x] >= colThreshold) {
+        if (colCount[x] >= 0.15 * h) {
             if (left < 0) left = x;
             right = x;
         }
     }
-    if (top < 0 || left < 0) return { box: null, sharp: false };
 
-    const bw = right - left + 1;
-    const bh = bottom - top + 1;
-    if (bw < 8 || bh < 8) return { box: null, sharp: false };
-
-    const area = (bw * bh) / (w * h);
-    const aspect = bw / bh;
-    if (area < 0.12 || area > 0.97) return { box: null, sharp: false };
-    if (aspect < 0.2 || aspect > 1.3) return { box: null, sharp: false };
-
-    let bright = 0;
-    let total = 0;
-    for (let y = top; y <= bottom; y++) {
-        for (let x = left; x <= right; x++) {
-            total++;
-            if (mask[y * w + x]) bright++;
+    let box: DetectedBox | null = null;
+    if (top >= 0 && left >= 0) {
+        const bw = right - left + 1;
+        const bh = bottom - top + 1;
+        const area = (bw * bh) / (w * h);
+        const aspect = bw / bh;
+        if (bw >= 8 && bh >= 8 && area >= 0.1 && area <= 0.98 && aspect >= 0.15 && aspect <= 1.4) {
+            box = { x: left / w, y: top / h, w: bw / w, h: bh / h };
         }
     }
-    if (total === 0 || bright / total < 0.45) return { box: null, sharp: false };
 
-    // Variance of Laplacian over the box: low variance => blurry.
+    // Sharpen: variance of Laplacian over the whole frame.
     let mean = 0;
     let n = 0;
     const lap: number[] = [];
-    for (let y = top + 1; y < bottom; y++) {
-        for (let x = left + 1; x < right; x++) {
+    for (let y = 1; y < h - 1; y++) {
+        for (let x = 1; x < w - 1; x++) {
             const i = y * w + x;
-            const v = gray[i - w] + gray[i + w] + gray[i - 1] + gray[i + 1] - 4 * gray[i];
+            const v =
+                gray[i - w] +
+                gray[i + w] +
+                gray[i - 1] +
+                gray[i + 1] -
+                4 * gray[i];
             lap.push(v);
             mean += v;
             n++;
         }
     }
-    if (n === 0) return { box: null, sharp: false };
-    mean /= n;
     let variance = 0;
-    for (const v of lap) variance += (v - mean) * (v - mean);
-    variance /= n;
+    if (n > 0) {
+        mean /= n;
+        for (const v of lap) variance += (v - mean) * (v - mean);
+        variance /= n;
+    }
 
-    return {
-        box: { x: left / w, y: top / h, w: bw / w, h: bh / h },
-        sharp: variance > 25,
-    };
+    return { box, sharp: variance > SHARP_MIN, gray };
 }
 
 /**
- * On-device receipt detector. Downscales each frame, finds the dominant bright
- * rectangle, and reports whether it is steady and sharp. Heuristic (no ML),
- * so it is fast and never blocks the preview.
+ * On-device capture gate. Reports a bright-rectangle box for the overlay and a
+ * motion-based "steady" signal. Auto-capture uses steady + sharp (then a server
+ * receipt check); the box is never required.
  */
 export function useReceiptDetector(
     videoRef: RefObject<HTMLVideoElement | null>,
     active: boolean
 ): Detection {
     const [detection, setDetection] = useState<Detection>(EMPTY);
-    const history = useRef<DetectedBox[]>([]);
+    const prevGray = useRef<Uint8Array | null>(null);
+    const steadyCount = useRef(0);
 
     useEffect(() => {
         if (!active) {
             setDetection(EMPTY);
+            prevGray.current = null;
+            steadyCount.current = 0;
             return;
         }
         let stopped = false;
@@ -181,35 +186,34 @@ export function useReceiptDetector(
             }
             ctx.drawImage(video, 0, 0, w, h);
             const frame = ctx.getImageData(0, 0, w, h);
-            const { box, sharp } = analyze(frame.data, w, h);
+            const { box, sharp, gray } = analyze(frame.data, w, h);
 
-            let stable = false;
-            if (box) {
-                history.current.push(box);
-                if (history.current.length > STABLE_FRAMES) history.current.shift();
-                if (history.current.length >= STABLE_FRAMES) {
-                    const first = history.current[0];
-                    const drift =
-                        Math.abs(box.x - first.x) +
-                        Math.abs(box.y - first.y) +
-                        Math.abs(box.w - first.w) +
-                        Math.abs(box.h - first.h);
-                    stable = drift < 0.08;
-                }
-            } else {
-                history.current = [];
+            let motion = 255;
+            const prev = prevGray.current;
+            if (prev && prev.length === gray.length) {
+                let sum = 0;
+                for (let i = 0; i < gray.length; i++) sum += Math.abs(gray[i] - prev[i]);
+                motion = sum / gray.length;
             }
+            prevGray.current = gray;
 
-            setDetection({ found: Boolean(box), box, sharp, stable });
+            if (motion < MOTION_MAX) steadyCount.current++;
+            else steadyCount.current = 0;
+            const steady = steadyCount.current >= STEADY_FRAMES;
+
+            setDetection({ found: Boolean(box), box, sharp, steady });
         };
 
         raf = requestAnimationFrame(loop);
         return () => {
             stopped = true;
             cancelAnimationFrame(raf);
-            history.current = [];
+            prevGray.current = null;
+            steadyCount.current = 0;
         };
     }, [active, videoRef]);
 
     return detection;
 }
+
+export { MOTION_MAX };
