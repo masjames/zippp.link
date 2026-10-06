@@ -429,6 +429,42 @@ Gagal menyiapkan sheet Anda.
 Sign out
 ## app.auth.signout.id
 Keluar
+## app.nav.back.en
+Back
+## app.nav.back.id
+Kembali
+## app.check.missing.en
+This scan is no longer in the queue.
+## app.check.missing.id
+Scan ini tidak lagi di antrean.
+## app.topup.title.en
+Top up
+## app.topup.title.id
+Isi saldo
+## app.topup.soon.en
+Credits arrive in a later task.
+## app.topup.soon.id
+Kredit akan hadir di tahap berikutnya.
+## app.settings.title.en
+Settings
+## app.settings.title.id
+Pengaturan
+## app.settings.soon.en
+Settings arrive in a later task.
+## app.settings.soon.id
+Pengaturan akan hadir di tahap berikutnya.
+## app.sheets.connected.en
+Sheet connected
+## app.sheets.connected.id
+Sheet terhubung
+## app.sheets.reconnect.en
+Reconnect
+## app.sheets.reconnect.id
+Hubungkan ulang
+## app.sheets.continue.en
+Continue
+## app.sheets.continue.id
+Lanjut
 ## app.debug.title.en
 Debug trace
 ## app.debug.title.id

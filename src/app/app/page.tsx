@@ -1,10 +1,6 @@
-import AppFlow from "@/components/app/AppFlow";
-import { loadWording } from "@/lib/content";
-import { getLocale } from "@/lib/server-locale";
+"use client";
 
-export default async function AppPage() {
-    const { region, lang } = await getLocale();
-    const wording = loadWording();
-
-    return <AppFlow wording={wording} initialLang={lang} region={region} />;
+/** Bare /app: AppShell redirects to /app/snap (or the guard target). */
+export default function AppIndex() {
+    return null;
 }

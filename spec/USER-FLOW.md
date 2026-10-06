@@ -29,22 +29,43 @@ The sheet stays the system of record. zippp is the intake mill.
 
 ---
 
-## App `/app` — five screens
+## App routes
 
-1. **Intro** — what zippp does; "Get started".
-2. **Sign in** — Google is the only login. On success the app finds or creates
-   the `[zippp]` sheet, then goes to Capture. If several `[zippp]` sheets exist,
-   a picker is shown.
-3. **Capture** — live camera, receipt-detection overlay, manual shutter, and an
-   "upload a photo" link. Snapped photos go into the **snap queue**; the camera
-   stays live so staff can keep shooting.
-4. **Check** — the editable result for a queued item: merchant, date, staff,
-   outlet, line items, total. Date (and staff, for resto) are required. "Send to
-   sheet" appends one row per line item.
-5. **Sent** — rows added, with a link to open the sheet and "Scan another".
+`/app/snap` is home. State lives in a client provider mounted in
+`/app/layout.tsx`, so the snap queue survives route changes.
 
-A collapsible **Debug** panel is always available on Check (and expands on the
-unreadable screen) showing the extraction trace.
+| Route | Screen | Who |
+|---|---|---|
+| `/app` | redirects via the guard to `/app/snap` | everyone |
+| `/app/start` | Intro, then Sign in | logged out |
+| `/app/snap` | Capture + queue (home) | signed in, sheet OK |
+| `/app/check/[id]` | Check one queued item (or BadPhoto if it failed) | same |
+| `/app/sent` | rows added | same |
+| `/app/topup` | placeholder until Tasks 4/6 | signed in |
+| `/app/settings` | placeholder until Task 3 | signed in |
+| `/app/settings/sheet` | sheet status, reconnect, picker | signed in |
+
+A back-to-Snap control shows on every app screen except Snap and Start.
+
+### Guard (server decides; stop at first failure)
+
+1. `!authChecked` → loading spinner. Never show Sign in first.
+2. No session → `/app/start`.
+3. No usable sheet → `/app/settings/sheet` (auto-attempts find/create).
+4. No credits → `/app/topup` (**stubbed until Task 4**).
+5. Ready: `/app` → `/app/snap`. A signed-in user on `/app/start` → `/app/snap`.
+
+### Screens
+
+- **Intro / Sign in** — what zippp does, then Google (the only login).
+- **Capture** — live camera, receipt-detection overlay, manual shutter, upload
+  link. Snaps go into the queue; the camera stays live.
+- **Check** — editable result: merchant, date, staff, outlet, line items,
+  total. Date (and staff, for resto) required. **Send to sheet** appends one row
+  per line item; the item then leaves the queue.
+- **Sent** — rows added, link to open the sheet, "Scan another".
+- A collapsible **Debug** panel shows the extraction trace on Check and expands
+  on unreadable.
 
 ---
 
