@@ -5,7 +5,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "logs": "python3 scripts/watch-logs.py"
+    "logs": "python3 scripts/watch-logs.py",
+    "grant": "node --env-file=.env.local scripts/grant.mjs"
   },
   "dependencies": {
     "@google/genai": "^2.23.0",

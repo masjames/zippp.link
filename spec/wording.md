@@ -453,6 +453,30 @@ Pengaturan
 Settings arrive in a later task.
 ## app.settings.soon.id
 Pengaturan akan hadir di tahap berikutnya.
+## app.credits.balance.en
+{count} credits
+## app.credits.balance.id
+{count} kredit
+## app.credits.expires.en
+Expires {date}
+## app.credits.expires.id
+Berlaku hingga {date}
+## app.credits.none.en
+No credits. Top up to keep scanning.
+## app.credits.none.id
+Kredit habis. Isi saldo untuk melanjutkan.
+## app.referral.title.en
+Invite a friend
+## app.referral.title.id
+Ajak teman
+## app.referral.body.en
+When they top up, you get 20% back in credit.
+## app.referral.body.id
+Saat mereka isi saldo, Anda dapat 20% kembali dalam kredit.
+## app.referral.link.en
+Your invite link
+## app.referral.link.id
+Tautan undangan Anda
 ## app.sheets.connected.en
 Sheet connected
 ## app.sheets.connected.id

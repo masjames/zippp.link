@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useApp } from "../AppProvider";
 import PhoneShell from "../PhoneShell";
 import QueueStrip from "../QueueStrip";
 import type { QueueItem } from "../queue";
@@ -55,6 +57,10 @@ export default function CaptureScreen({
     const streamRef = useRef<MediaStream | null>(null);
     const cameraInputRef = useRef<HTMLInputElement>(null);
     const uploadInputRef = useRef<HTMLInputElement>(null);
+
+    const { balance } = useApp();
+    const router = useRouter();
+    const outOfCredits = balance?.configured === true && balance.credits <= 0;
 
     const detection = useReceiptDetector(videoRef, mode === "live");
     const locked = detection.found && detection.sharp && detection.stable;
@@ -203,7 +209,8 @@ export default function CaptureScreen({
                 type="button"
                 aria-label={t("app.capture.shutter")}
                 onClick={shutter}
-                className="mx-auto mt-1 block h-[76px] w-[76px] rounded-full border-[6px] border-maroon bg-white active:scale-95"
+                disabled={outOfCredits}
+                className="mx-auto mt-1 block h-[76px] w-[76px] rounded-full border-[6px] border-maroon bg-white active:scale-95 disabled:opacity-40"
             />
             <button
                 type="button"
@@ -212,6 +219,21 @@ export default function CaptureScreen({
             >
                 {t("app.capture.upload")}
             </button>
+
+            {outOfCredits ? (
+                <div className="rounded-2xl bg-peach p-3 text-center text-sm">
+                    <p className="font-semibold text-ink">
+                        {t("app.credits.none")}
+                    </p>
+                    <button
+                        type="button"
+                        onClick={() => router.push("/app/topup")}
+                        className="mt-2 rounded-full bg-maroon px-4 py-2 font-semibold text-white"
+                    >
+                        {t("app.topup.title")}
+                    </button>
+                </div>
+            ) : null}
 
             {locked ? (
                 <p className="text-center text-xs font-semibold text-ink">

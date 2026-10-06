@@ -5,6 +5,7 @@ import { remoteTextStore } from "./kv";
 
 export type StoredGoogleTokens = {
   google_user_id: string;
+  email: string | null;
   refresh_token: string;
   access_token: string | null;
   expiry_date: number | null;
@@ -95,12 +96,14 @@ async function writeFile(data: FileShape): Promise<void> {
 /** Persist tokens. Refresh token is encrypted at rest when TOKEN_ENCRYPTION_KEY is set. */
 export async function saveTokens(input: {
   google_user_id: string;
+  email?: string | null;
   refresh_token: string;
   access_token?: string | null;
   expiry_date?: number | null;
 }): Promise<void> {
   const record: StoredGoogleTokens = {
     google_user_id: input.google_user_id,
+    email: input.email ?? null,
     refresh_token: encryptSecret(input.refresh_token),
     access_token: input.access_token ?? null,
     expiry_date: input.expiry_date ?? null,
@@ -128,6 +131,11 @@ export async function hasTokens(): Promise<boolean> {
 export async function peekGoogleUserId(): Promise<string | null> {
   const file = await readFile();
   return file.tokens?.google_user_id ?? null;
+}
+
+export async function peekGoogleEmail(): Promise<string | null> {
+  const file = await readFile();
+  return file.tokens?.email ?? null;
 }
 
 export async function deleteTokens(): Promise<void> {

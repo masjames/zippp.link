@@ -33,6 +33,13 @@ export type Workspace = {
 
 export type SheetCandidate = { id: string; name: string; modifiedTime: string };
 
+export type BalanceState = {
+    configured: boolean;
+    credits: number;
+    soonestExpiry: number | null;
+    refCode: string | null;
+};
+
 type Value = {
     t: T;
     lang: Lang;
@@ -45,6 +52,8 @@ type Value = {
     candidates: SheetCandidate[];
     sheetError: boolean;
     busy: boolean;
+    balance: BalanceState | null;
+    refreshBalance: () => Promise<void>;
     queue: QueueItem[];
     sent: SentInfo | null;
     sending: boolean;
@@ -100,6 +109,7 @@ export default function AppProvider({
     const [sheetError, setSheetError] = useState(false);
     const [busy, setBusy] = useState(false);
 
+    const [balance, setBalance] = useState<BalanceState | null>(null);
     const [queue, setQueue] = useState<QueueItem[]>([]);
     const [sending, setSending] = useState(false);
     const [sendError, setSendError] = useState<string | null>(null);
@@ -123,12 +133,15 @@ export default function AppProvider({
                 }
                 if (!data.signedIn) return;
 
-                const wsRes = await fetch("/api/sheets/workspace", {
-                    cache: "no-store",
-                });
+                const [wsRes, balRes] = await Promise.all([
+                    fetch("/api/sheets/workspace", { cache: "no-store" }),
+                    fetch("/api/billing/balance", { cache: "no-store" }),
+                ]);
                 const wsData = await wsRes.json();
+                const balData = await balRes.json();
                 if (!alive) return;
                 if (wsData.ok && wsData.workspace) setWorkspace(wsData.workspace);
+                if (balData.ok) setBalance(balData as BalanceState);
             } catch {
                 /* logged-out view */
             } finally {
@@ -140,6 +153,16 @@ export default function AppProvider({
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
+
+    async function refreshBalance() {
+        try {
+            const res = await fetch("/api/billing/balance", { cache: "no-store" });
+            const data = await res.json();
+            if (data.ok) setBalance(data as BalanceState);
+        } catch {
+            /* keep the last value */
+        }
+    }
 
     function updateItem(id: string, patch: Partial<QueueItem>) {
         setQueue((items) =>
@@ -348,6 +371,7 @@ export default function AppProvider({
                     merchant: edited.merchant || t("app.check.merchantFallback"),
                     total: formatMoney(edited.total, edited.currency, region, lang),
                 });
+                void refreshBalance();
                 return true;
             }
             updateItem(itemId, { status: "ready", receipt: edited });
@@ -378,6 +402,8 @@ export default function AppProvider({
         candidates,
         sheetError,
         busy,
+        balance,
+        refreshBalance,
         queue,
         sent,
         sending,

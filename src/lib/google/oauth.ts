@@ -12,9 +12,17 @@ export const GOOGLE_SHEETS_SCOPE =
 export const GOOGLE_DRIVE_FILE_SCOPE =
   "https://www.googleapis.com/auth/drive.file";
 
+/**
+ * Email address, used to identify admins and to grant credits by email.
+ * Adding this scope requires existing users to re-consent once.
+ */
+export const GOOGLE_EMAIL_SCOPE =
+  "https://www.googleapis.com/auth/userinfo.email";
+
 export const GOOGLE_OAUTH_SCOPES = [
   GOOGLE_SHEETS_SCOPE,
   GOOGLE_DRIVE_FILE_SCOPE,
+  GOOGLE_EMAIL_SCOPE,
 ] as const;
 
 export function googleRedirectUri(): string {
@@ -50,19 +58,20 @@ export function buildConsentUrl(client: OAuth2Client, state: string): string {
   });
 }
 
+export type GoogleUser = { id: string; email: string | null };
+
 /**
- * Resolve a stable Google user id from the access token.
- * Sheets/Drive scopes: use tokeninfo `sub` when present; else a local placeholder.
+ * Resolve the stable Google user id (`sub`) and email from the access token.
+ * Email needs the `userinfo.email` scope; without it, email is null.
  */
-export async function resolveGoogleUserId(
+export async function resolveGoogleUser(
   client: OAuth2Client,
   accessToken: string
-): Promise<string> {
+): Promise<GoogleUser> {
   try {
     const info = await client.getTokenInfo(accessToken);
-    if (info.sub) return info.sub;
+    return { id: info.sub || "google-user", email: info.email ?? null };
   } catch {
-    // fall through
+    return { id: "google-user", email: null };
   }
-  return "google-user";
 }

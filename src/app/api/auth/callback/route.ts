@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import {
   createOAuthClient,
   googleOAuthConfigured,
-  resolveGoogleUserId,
+  resolveGoogleUser,
 } from "@/lib/google/oauth";
 import { saveTokens } from "@/lib/google/token-store";
 
@@ -62,13 +62,11 @@ export async function GET(req: Request) {
     }
 
     client.setCredentials(tokens);
-    const googleUserId = await resolveGoogleUserId(
-      client,
-      tokens.access_token
-    );
+    const user = await resolveGoogleUser(client, tokens.access_token);
 
     await saveTokens({
-      google_user_id: googleUserId,
+      google_user_id: user.id,
+      email: user.email,
       refresh_token: tokens.refresh_token,
       access_token: tokens.access_token,
       expiry_date: tokens.expiry_date ?? null,

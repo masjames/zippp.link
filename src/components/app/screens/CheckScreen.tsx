@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useApp } from "../AppProvider";
 import PhoneShell from "../PhoneShell";
 import DebugPanel from "../DebugPanel";
 import { fill, type T } from "@/lib/t";
@@ -36,6 +38,10 @@ export default function CheckScreen({
     onSend: (receipt: Receipt, staff: string, outlet: string | null) => void;
     debug?: ExtractDebug | null;
 }) {
+    const { balance } = useApp();
+    const router = useRouter();
+    const outOfCredits = balance?.configured === true && balance.credits <= 0;
+
     const [draft, setDraft] = useState<Draft>(() => toDraft(receipt));
     const [showErrors, setShowErrors] = useState(false);
 
@@ -184,10 +190,24 @@ export default function CheckScreen({
             <DebugPanel debug={debug} />
 
             <div className="mt-auto grid gap-2">
+                {outOfCredits ? (
+                    <div className="rounded-2xl bg-peach p-3 text-center text-sm">
+                        <p className="font-semibold text-ink">
+                            {t("app.credits.none")}
+                        </p>
+                        <button
+                            type="button"
+                            onClick={() => router.push("/app/topup")}
+                            className="mt-2 rounded-full bg-maroon px-4 py-2 font-semibold text-white"
+                        >
+                            {t("app.topup.title")}
+                        </button>
+                    </div>
+                ) : null}
                 <button
                     type="button"
                     onClick={submit}
-                    disabled={sending}
+                    disabled={sending || outOfCredits}
                     className="rounded-full bg-btn px-6 py-4 font-semibold text-btntext disabled:opacity-60"
                 >
                     {t("app.check.send")}

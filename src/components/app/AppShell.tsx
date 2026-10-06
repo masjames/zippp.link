@@ -14,7 +14,7 @@ import { useApp } from "./AppProvider";
  * /app/snap. Bare /app also lands on /app/snap.
  */
 export default function AppShell({ children }: { children: ReactNode }) {
-    const { t, lang, setLang, auth, authChecked, workspace, queue, signOut } =
+    const { t, lang, setLang, auth, authChecked, workspace, balance, queue, signOut } =
         useApp();
     const pathname = usePathname();
     const router = useRouter();
@@ -36,8 +36,16 @@ export default function AppShell({ children }: { children: ReactNode }) {
             router.replace("/app/settings/sheet");
             return;
         }
+        // No credits: send to Top up (settings stays reachable).
+        const noCredits = balance?.configured === true && balance.credits <= 0;
+        const onTopup = pathname === "/app/topup";
+        const inSettings = pathname.startsWith("/app/settings");
+        if (noCredits && !onTopup && !inSettings) {
+            router.replace("/app/topup");
+            return;
+        }
         if (pathname === "/app") router.replace("/app/snap");
-    }, [authChecked, auth, workspace, pathname, router]);
+    }, [authChecked, auth, workspace, balance, pathname, router]);
 
     if (!authChecked) {
         return (
