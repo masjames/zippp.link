@@ -1,17 +1,18 @@
-"use client";
+import TopUpClient from "@/components/app/screens/TopUpClient";
+import { IDR_PER_CREDIT, MIN_TOPUP_IDR } from "@/lib/billing/config";
+import { paddleConfig, paddleConfigured } from "@/lib/billing/paddle";
+import { getLocale } from "@/lib/server-locale";
 
-import PhoneShell from "@/components/app/PhoneShell";
-import { useApp } from "@/components/app/AppProvider";
+export default async function TopUpPage() {
+    const { region } = await getLocale();
+    const paddle = { ...paddleConfig(), configured: paddleConfigured() };
 
-/** Placeholder. Task 6 builds GoPay; Task 8 builds Paddle; Task 4 adds the gate. */
-export default function TopUpPage() {
-    const { t } = useApp();
     return (
-        <PhoneShell>
-            <h2 className="mt-2 font-head text-3xl font-extrabold leading-none">
-                {t("app.topup.title")}
-            </h2>
-            <p className="text-muted">{t("app.topup.soon")}</p>
-        </PhoneShell>
+        <TopUpClient
+            region={region}
+            paddle={paddle}
+            minIdr={MIN_TOPUP_IDR}
+            idrPerCredit={IDR_PER_CREDIT}
+        />
     );
 }

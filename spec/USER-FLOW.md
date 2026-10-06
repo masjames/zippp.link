@@ -36,14 +36,22 @@ The sheet stays the system of record. zippp is the intake mill.
 
 | Route | Screen | Who |
 |---|---|---|
+| `/` | English landing (international) | everyone |
+| `/id` | Indonesian landing (IDR) | everyone |
 | `/app` | redirects via the guard to `/app/snap` | everyone |
 | `/app/start` | Intro, then Sign in | logged out |
-| `/app/snap` | Capture + queue (home) | signed in, sheet OK |
+| `/app/snap` | Capture + queue (home) | signed in, sheet OK, credits |
 | `/app/check/[id]` | Check one queued item (or BadPhoto if it failed) | same |
 | `/app/sent` | rows added | same |
-| `/app/topup` | placeholder until Tasks 4/6 | signed in |
-| `/app/settings` | placeholder until Task 3 | signed in |
+| `/app/topup` | Top up: GoPay (id) or Paddle (intl) | signed in |
+| `/app/topup/order/[id]` | GoPay order: amount, countdown, "I have paid" | signed in |
+| `/app/settings` | balance, invite link, sheet, sign out | signed in |
 | `/app/settings/sheet` | sheet status, reconnect, picker | signed in |
+| `/admin` | GoPay orders: approve/reject/manual grant | admin emails only |
+
+`/` is English with USD; `/id` is Indonesian with IDR (no language toggle). The
+region cookie is set at entry and drives the app language and top-up channel.
+An Indonesian IP hitting `/` with no cookie is redirected to `/id` once.
 
 A back-to-Snap control shows on every app screen except Snap and Start.
 
@@ -52,7 +60,7 @@ A back-to-Snap control shows on every app screen except Snap and Start.
 1. `!authChecked` → loading spinner. Never show Sign in first.
 2. No session → `/app/start`.
 3. No usable sheet → `/app/settings/sheet` (auto-attempts find/create).
-4. No credits → `/app/topup` (**stubbed until Task 4**).
+4. No credits → `/app/topup` (Settings stays reachable).
 5. Ready: `/app` → `/app/snap`. A signed-in user on `/app/start` → `/app/snap`.
 
 ### Screens

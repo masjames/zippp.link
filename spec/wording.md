@@ -6,15 +6,15 @@ Format: each entry is a `## key.lang` line, then the value on the following
 line(s) until the next `##`. `en` is English (US), `id` is Indonesian.
 Do not put a `##` at the start of a value line.
 
-Prices are regional: `.id` shows to visitors from Indonesia (IDR), `.intl`
-shows everywhere else. Keep amounts as `xx` until you set real numbers.
+Prices are regional: Indonesian copy (id) quotes IDR, English (intl) quotes USD.
+`/` is English (international), `/id` is Indonesian.
 
 ---
 
 ## meta.title.en
-zippp — receipts in, rows out
+zippp: receipts in, rows out
 ## meta.title.id
-zippp — resi masuk, baris keluar
+zippp: resi masuk, baris keluar
 ## meta.description.en
 Photograph a receipt or invoice, check what zippp read, and send the rows to your Google Sheet.
 ## meta.description.id
@@ -97,71 +97,29 @@ Restaurant owners, warung, cafes and home businesses who buy supplies every day 
 Pemilik restoran, warung, kafe, dan usaha rumahan yang belanja bahan setiap hari dan mencatatnya di spreadsheet. Jika itu Anda, ini menghemat malam yang biasa habis untuk mengetik.
 
 ## landing.pricing.title.en
-Two plans. No trial, no free tier.
+Pay for what you scan.
 ## landing.pricing.title.id
-Dua paket. Tanpa uji coba, tanpa paket gratis.
-## landing.pricing.period.en
-a month
-## landing.pricing.period.id
-per bulan
-
-## landing.plan1.name.en
-Business
-## landing.plan1.name.id
-Usaha
-## landing.plan1.price.id
-Rp xx
-## landing.plan1.price.intl
-$xx
-## landing.plan1.f1.en
-300 scans a month
-## landing.plan1.f1.id
-300 scan per bulan
-## landing.plan1.f2.en
-3 Google Sheets
-## landing.plan1.f2.id
-3 Google Sheet
-## landing.plan1.f3.en
-Staff and outlet on every row
-## landing.plan1.f3.id
-Staf dan outlet di setiap baris
-## landing.plan1.f4.en
-Saved categories
-## landing.plan1.f4.id
-Kategori tersimpan
-## landing.plan1.cta.en
-Choose Business
-## landing.plan1.cta.id
-Pilih Usaha
-
-## landing.plan2.name.en
-Team
-## landing.plan2.name.id
-Tim
-## landing.plan2.price.id
-Rp xx
-## landing.plan2.price.intl
-$xx
-## landing.plan2.f1.en
-1,000 scans a month
-## landing.plan2.f1.id
-1.000 scan per bulan
-## landing.plan2.f2.en
-10 Google Sheets
-## landing.plan2.f2.id
-10 Google Sheet
-## landing.plan2.f3.en
-Up to 10 staff
-## landing.plan2.f3.id
-Hingga 10 staf
-## landing.plan2.f4.en
-Multiple outlets
-## landing.plan2.f4.id
-Beberapa outlet
-## landing.plan2.cta.en
-Choose Team
-## landing.plan2.cta.id
-Pilih Tim
+Bayar sesuai jumlah scan.
+## landing.pricing.body.en
+100 scans for $9. Credits last 30 days.
+## landing.pricing.body.id
+Mulai Rp 15.000 untuk 100 scan. Berlaku 30 hari.
+## landing.pricing.cta.en
+Get started
+## landing.pricing.cta.id
+Mulai
+## landing.referral.title.en
+Invite a friend
+## landing.referral.title.id
+Ajak teman
+## landing.referral.body.en
+When they top up, you get 20% back in credit.
+## landing.referral.body.id
+Saat mereka isi saldo, Anda dapat 20% kembali dalam kredit.
+## landing.switch.en
+Bahasa Indonesia
+## landing.switch.id
+English
 
 ## landing.faq.title.en
 Questions
@@ -288,9 +246,9 @@ Auto-snap
 ## app.capture.autoSnap.id
 Foto otomatis
 ## app.capture.detected.en
-Receipt detected — hold steady
+Receipt detected. Hold steady.
 ## app.capture.detected.id
-Resi terdeteksi — tahan stabil
+Resi terdeteksi. Tahan stabil.
 
 ## app.reading.title.en
 Reading
@@ -477,6 +435,105 @@ Saat mereka isi saldo, Anda dapat 20% kembali dalam kredit.
 Your invite link
 ## app.referral.link.id
 Tautan undangan Anda
+## app.referral.earned.en
+Earned {count} credits from referrals
+## app.referral.earned.id
+Dapat {count} kredit dari referal
+
+## app.topup.choose.en
+Choose an amount
+## app.topup.choose.id
+Pilih jumlah
+## app.topup.custom.en
+Or enter an amount
+## app.topup.custom.id
+Atau isi jumlah
+## app.topup.create.en
+Create order
+## app.topup.create.id
+Buat pesanan
+## app.topup.buy.en
+Buy {credits} credits
+## app.topup.buy.id
+Beli {credits} kredit
+## app.topup.packBody.en
+{credits} scans for ${usd}. Credits last 30 days.
+## app.topup.packBody.id
+{credits} scan seharga ${usd}. Berlaku 30 hari.
+## app.topup.unavailable.en
+Top up is not available yet.
+## app.topup.unavailable.id
+Isi saldo belum tersedia.
+
+## app.order.payTo.en
+Pay to this GoPay number
+## app.order.payTo.id
+Bayar ke nomor GoPay ini
+## app.order.amount.en
+Exact amount
+## app.order.amount.id
+Jumlah tepat
+## app.order.expiresIn.en
+Expires in {time}
+## app.order.expiresIn.id
+Kedaluwarsa dalam {time}
+## app.order.paid.en
+I have paid
+## app.order.paid.id
+Saya sudah bayar
+## app.order.waiting.en
+Waiting for your payment.
+## app.order.waiting.id
+Menunggu pembayaran Anda.
+## app.order.claimed.en
+We are checking your payment.
+## app.order.claimed.id
+Kami sedang memeriksa pembayaran Anda.
+## app.order.approved.en
+Credits added.
+## app.order.approved.id
+Kredit ditambahkan.
+## app.order.rejected.en
+Order rejected.
+## app.order.rejected.id
+Pesanan ditolak.
+## app.order.expired.en
+This order expired.
+## app.order.expired.id
+Pesanan ini kedaluwarsa.
+
+## admin.title.en
+Orders
+## admin.title.id
+Pesanan
+## admin.approve.en
+Approve
+## admin.approve.id
+Setujui
+## admin.reject.en
+Reject
+## admin.reject.id
+Tolak
+## admin.grant.en
+Manual grant
+## admin.grant.id
+Beri manual
+## admin.email.en
+Email
+## admin.email.id
+Email
+## admin.credits.en
+Credits
+## admin.credits.id
+Kredit
+## admin.reason.en
+Reason
+## admin.reason.id
+Alasan
+## admin.empty.en
+No orders.
+## admin.empty.id
+Tidak ada pesanan.
 ## app.sheets.connected.en
 Sheet connected
 ## app.sheets.connected.id
@@ -538,6 +595,6 @@ Check next ({count})
 ## app.queue.reviewNext.id
 Periksa berikutnya ({count})
 ## app.queue.keepSnapping.en
-Keep snapping — they queue up automatically.
+Keep snapping. They queue up on their own.
 ## app.queue.keepSnapping.id
-Terus foto — otomatis masuk antrean.
+Terus foto. Otomatis masuk antrean.

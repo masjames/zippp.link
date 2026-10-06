@@ -1,52 +1,52 @@
 # zippp pricing
 
-Updated: 2 Oct 2026. The old prepaid pack ($29 / Rp 499.000) is **superseded** —
-see "History" at the bottom. Numbers below are **not set yet**.
+Updated: 2026-10-06. **Credits, not plans.** Supersedes the prepaid pack and
+the two-plan drafts.
 
-## Structure
+## Credits
 
-- **Two plans, both paid. No free plan, no free trial.**
-- **Regional pricing:**
-  - Visitors from **Indonesia** see **IDR** and the Indonesian plan copy.
-  - Everyone else sees **USD** and English (US) copy.
-  - The language toggle changes copy only; currency follows the visitor's region.
-- Prices show as **`xx`** placeholders in the app until they are set in
-  [`wording.md`](./wording.md) (`landing.planN.price.id` / `.intl`).
+- 1 credit = 1 scan: one receipt sent to the sheet.
+- Credit is spent on **Send**, never on read. A failed read costs nothing.
+- Every top-up creates a **lot**; a lot expires **30 days** after grant.
+- Spending uses the lot that expires first.
+- Zero credits: Snap and Send are blocked and the user is sent to Top up.
 
-## The plans
+## Indonesia (`/id`, GoPay, manual)
 
-| | Business / Usaha | Team / Tim |
-|---|---|---|
-| Price (ID) | `Rp xx` / month | `Rp xx` / month |
-| Price (intl) | `$xx` / month | `$xx` / month |
-| Scans | 300 / month | 1,000 / month |
-| Google Sheets | 3 | 10 |
-| Staff + outlet per row | yes | yes |
-| Extras | saved categories | up to 10 staff, multiple outlets |
+- Minimum top-up **Rp 15.000**. **Rp 150 per credit.** Credits = `floor(base / 150)`.
+- The unique code digits are not credited; only the base amount counts.
+- Pay to the GoPay number in env. The order page shows the exact amount and a
+  60-minute countdown. An admin approves it in `/admin`.
 
-Feature lists and names are **drafts** (set in `wording.md`), not a committed
-offer. There is no CSV/JSON export; Google Sheets is the only destination.
+## International (`/`, Paddle)
 
-## What ships today
+- One pack: **100 credits for $9**, one-time, not a subscription.
+- Bigger packs later.
 
-- Self-serve **Google sign-in** (Sheets + Drive-file scope) — no manual paste.
-- Find/create the `[zippp]` sheet, map columns, append rows.
-- Bilingual, region-aware landing and app.
+## Referral
+
+| Rule | Value |
+|---|---|
+| Referrer reward | 20% of each referred top-up, in credit (floor) |
+| Referred bonus | 20 credits, once, after their first approved top-up |
+| Applies to | GoPay and Paddle |
+| Reward lots | Expire in 30 days |
+| Locked | At first sign-in; one referrer, cannot change |
+| Self-referral | Blocked (same Google account) |
+
+Free credit exists **only** through the referral bonus. No trial, no free tier.
 
 ## Privacy
 
-Client receipts are processed by two services: the photo goes to **Baidu AI
-Studio (PP-OCRv6)** for OCR, and the reconstructed text goes to **DeepSeek** for
-structuring. **Google Gemini** is used only as a last-resort fallback. No free
-tier is used for client work. (See `COGS.md`, `SPEC.md`.)
+Client receipts: the photo goes to **Baidu AI Studio (PP-OCRv6)** for OCR; the
+reconstructed text goes to **DeepSeek** for structuring. **Google Gemini** is
+used only as a last-resort fallback. No free tier is used for client work.
+(See `COGS.md`, `SPEC.md`.)
 
 ## History (superseded)
 
-The 24 Sep 2026 council set a single prepaid pack: **$29 / Rp 499.000 for 20
-receipts**, no monthly, manual paste. The 29 Sep review argued it was 2–7× a
-human typist and moved the recommendation to **Rp 99.000 / $9** first pack →
-**Rp 149.000 / $12** repeat. Neither is live. The app now presents two paid
-monthly plans with regional currency and `xx` prices.
-
-The one rule that survives every revision: **do not quote Rp and $ as if they
-match.** Price each market against its own alternative.
+The 24 Sep 2026 council set a single prepaid pack ($29 / Rp 499.000 for 20).
+The 29 Sep review recommended Rp 99.000 / $9 → Rp 149.000 / $12. Then two paid
+monthly plans were drafted, and v4 replaced all of it with **credits**. Each
+market is still priced against its own alternatives; never quote Rp and $ as if
+they match.

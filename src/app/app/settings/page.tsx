@@ -49,6 +49,11 @@ export default function SettingsPage() {
                     <p className="mt-2 break-all font-mono text-xs">
                         {t("app.referral.link")}: {refLink}
                     </p>
+                    <p className="mt-1 text-muted">
+                        {fill(t("app.referral.earned"), {
+                            count: balance?.referralEarned ?? 0,
+                        })}
+                    </p>
                 </div>
             ) : null}
 

@@ -49,9 +49,12 @@ learn ours. The job is append + one map, not a second general ledger.
 6. Append one row per line item. Header facts + `staff` / `outlet` repeat.
 7. Show success with the number of rows appended. Fail = no write.
 8. **Google Sheets is the only destination.** CSV/JSON export was removed.
-9. **Region-aware**: Indonesia → Indonesian copy + IDR pricing; everyone else →
-   English (US) + international pricing. Language toggle overrides copy only.
-10. **Always-on debug trace** for the extraction pipeline (stages, OCR tokens,
+9. **Credits**: 1 credit = 1 scan, spent on Send. Top-ups (GoPay manual / Paddle)
+   create 30-day lots. Block Send and Snap at zero credits. The **only free
+   credit** is the referral bonus; no trial, no free tier.
+10. **Region-aware**: `/id` is Indonesian + IDR, `/` is English (US) + intl. The
+    region is set at entry; there is no language toggle.
+11. **Always-on debug trace** for the extraction pipeline (stages, OCR tokens,
     rows sent to the model, raw model output).
 
 ### Must not

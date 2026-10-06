@@ -2,7 +2,6 @@
 
 import { useEffect, type ReactNode } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import LangToggle from "@/components/LangToggle";
 import { fill } from "@/lib/t";
 import { useApp } from "./AppProvider";
 
@@ -14,8 +13,7 @@ import { useApp } from "./AppProvider";
  * /app/snap. Bare /app also lands on /app/snap.
  */
 export default function AppShell({ children }: { children: ReactNode }) {
-    const { t, lang, setLang, auth, authChecked, workspace, balance, queue, signOut } =
-        useApp();
+    const { t, auth, authChecked, workspace, balance, queue, signOut } = useApp();
     const pathname = usePathname();
     const router = useRouter();
 
@@ -76,9 +74,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
                             >
                                 &larr; {t("app.nav.back")}
                             </button>
-                        ) : (
-                            <LangToggle lang={lang} onChange={setLang} />
-                        )}
+                        ) : null}
                     </div>
                     <div className="flex items-center gap-3">
                         {ready.length > 0 ? (

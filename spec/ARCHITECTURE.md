@@ -96,7 +96,28 @@ Upstash the app runs unconfigured and does not enforce credits.
 - `GET /api/auth/me` creates the user record (ref code + referral lock) on load.
 
 Keys: `bill:acct:{id}`, `bill:ledger:{id}`, `bill:user:{id}`, `bill:ref:{code}`,
-`bill:email:{email}`, `bill:idem:{key}`, `bill:order:{id}`.
+`bill:email:{email}`, `bill:idem:{key}`, `bill:order:{id}`, `bill:orders:open`,
+`bill:orders:recent`, `bill:codes`, `bill:orders:hour:{id}:{hour}`.
+
+### Top-up and admin
+
+- **Indonesia** (`/id`): manual GoPay. `POST /api/topup/orders` creates an order
+  with a unique code 1-999; the pay amount is base + code. States:
+  `pending -> claimed -> approved | rejected | expired` (60-min TTL, one open
+  order per user, max 5/hour). `/app/topup/order/[id]` shows the number, exact
+  amount, countdown and "I have paid".
+- **International**: Paddle.js checkout (`PADDLE_CLIENT_TOKEN`,
+  `PADDLE_PACK_PRICE_ID`); `POST /api/paddle/webhook` verifies the signature and
+  grants on `transaction.completed` (idempotent on the transaction id).
+- **Admin** (`/admin`, `ADMIN_EMAILS`): approve/reject orders and manual grant.
+  Every admin route checks the email server-side and returns 404 otherwise.
+- **Telegram** (`TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`): new-order and
+  paid-notice alerts; a failure never blocks the order.
+- **Referral**: 20% to the referrer and a 20-credit first-top-up bonus, run on
+  every approved/completed top-up (`src/lib/billing/referral.ts`).
+
+Regions: `/` (English, USD) and `/id` (Indonesian, IDR). Middleware sets the
+region at entry and captures `?ref=CODE`. The language toggle is removed.
 
 ## Region & language
 

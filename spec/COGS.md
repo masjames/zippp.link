@@ -56,6 +56,10 @@ Each photo is 1 page, so the free tier covers **~20,000 receipts/day**
 (≈600k/month) at no cost. Our 10s OCR budget is unrelated to the quota; a 429
 simply triggers the DeepSeek-vision fallback.
 
+At the credit price of **Rp 150 per scan**, DeepSeek Flash structuring is about
+**Rp 6 per scan** (peak) — the OCR leg is $0 inside the quota. The margin is not
+in the model bill.
+
 ## Per-receipt estimate (1-page nota, ~645 DeepSeek tokens)
 
 | Case | DeepSeek Flash | + OCR | + Gemini fallback |

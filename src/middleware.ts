@@ -6,30 +6,46 @@ import {
     regionFromCountry,
 } from "@/lib/region";
 
+const REF_COOKIE = "zippp_ref";
+
 /**
- * Stamp the visitor's region once. Vercel sets `x-vercel-ip-country` on every
- * request; locally we fall back to Accept-Language. The region is written to
- * both the response (so it persists) and the forwarded request (so the very
- * first render already uses it). It never flips under a returning visitor
- * because the existing cookie wins.
+ * Region and referral.
+ *
+ * - `/` is international (English, USD); `/id` is Indonesian (IDR).
+ * - An Indonesian visitor hitting `/` with no region cookie is redirected once
+ *   to `/id`; the cookie then stops any further redirect.
+ * - `?ref=CODE` is stored for 30 days (used at first sign-in).
+ * - The region is forwarded on the request so the first render is correct.
  */
 export function middleware(request: NextRequest) {
+    const { nextUrl } = request;
+    const path = nextUrl.pathname;
     const existing = request.cookies.get(REGION_COOKIE)?.value;
-    // ?region=id|intl lets you preview a market locally; otherwise the
-    // detected country (Vercel) or Accept-Language (local) decides.
-    const override = request.nextUrl.searchParams.get("region");
-    const region =
-        override === "id" || override === "intl"
-            ? override
-            : existing === "id" || existing === "intl"
-              ? existing
-              : request.headers.get("x-vercel-ip-country")
-                ? regionFromCountry(request.headers.get("x-vercel-ip-country"))
-                : regionFromAcceptLanguage(request.headers.get("accept-language"));
+    const ref = nextUrl.searchParams.get("ref");
+
+    // One-time redirect of Indonesian IPs from the English landing.
+    if (path === "/" && !existing) {
+        const country = request.headers.get("x-vercel-ip-country");
+        const detected = country
+            ? regionFromCountry(country)
+            : regionFromAcceptLanguage(request.headers.get("accept-language"));
+        if (detected === "id") {
+            const url = nextUrl.clone();
+            url.pathname = "/id";
+            const res = NextResponse.redirect(url);
+            res.cookies.set(REGION_COOKIE, "id", { path: "/", maxAge: COOKIE_MAX_AGE, sameSite: "lax" });
+            if (ref) res.cookies.set(REF_COOKIE, ref, { path: "/", maxAge: COOKIE_MAX_AGE, sameSite: "lax" });
+            return res;
+        }
+    }
+
+    let region: "id" | "intl" = existing === "id" ? "id" : "intl";
+    if (path === "/id") region = "id";
+    else if (path === "/" && !existing) region = "intl";
 
     const headers = new Headers(request.headers);
-    const cookieHeader = headers.get("cookie") ?? "";
     if (existing !== region) {
+        const cookieHeader = headers.get("cookie") ?? "";
         headers.set(
             "cookie",
             cookieHeader
@@ -40,13 +56,11 @@ export function middleware(request: NextRequest) {
 
     const response = NextResponse.next({ request: { headers } });
     if (existing !== region) {
-        response.cookies.set(REGION_COOKIE, region, {
-            path: "/",
-            maxAge: COOKIE_MAX_AGE,
-            sameSite: "lax",
-        });
+        response.cookies.set(REGION_COOKIE, region, { path: "/", maxAge: COOKIE_MAX_AGE, sameSite: "lax" });
     }
-
+    if (ref) {
+        response.cookies.set(REF_COOKIE, ref, { path: "/", maxAge: COOKIE_MAX_AGE, sameSite: "lax" });
+    }
     return response;
 }
 

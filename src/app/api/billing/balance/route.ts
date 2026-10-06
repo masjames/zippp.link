@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { currentUser } from "@/lib/auth";
-import { balance, loadUser } from "@/lib/billing/ledger";
+import { balance, listLedger, loadUser } from "@/lib/billing/ledger";
 import { billingConfigured } from "@/lib/billing/redis";
 
 export const runtime = "nodejs";
@@ -22,10 +22,14 @@ export async function GET() {
     });
   }
 
-  const [b, record] = await Promise.all([
+  const [b, record, entries] = await Promise.all([
     balance(user.userId),
     loadUser(user.userId),
+    listLedger(user.userId, 200),
   ]);
+  const referralEarned = entries
+    .filter((e) => e.source === "referral_reward")
+    .reduce((sum, e) => sum + Math.max(0, e.credits), 0);
 
   return NextResponse.json({
     ok: true,
@@ -33,5 +37,6 @@ export async function GET() {
     credits: b.credits,
     soonestExpiry: b.soonestExpiry,
     refCode: record?.refCode ?? null,
+    referralEarned,
   });
 }

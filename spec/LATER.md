@@ -20,7 +20,6 @@ Stock on hand, recipes, COGS per plate, waste. Phase 1 only **records the nota**
 
 - zippp-hosted sheet UI as the home screen
 - Multi-sheet / one sheet per client in-app
-- Paywalls, Stripe, credit wallet UI
 - History of images inside zippp
 - Staff logins, roles, permissions beyond a name picker
 - Auto-send without confirm
@@ -31,6 +30,17 @@ Stock on hand, recipes, COGS per plate, waste. Phase 1 only **records the nota**
 ---
 
 ## Specified but not built
+
+Part of the v4 ship plan, deferred:
+
+- **Template picker**: after login, pick **Expense tracker** or **Purchasing and
+  inventory**. Existing workspaces keep their sheet.
+- **Receipt photo to Drive**: on Send, upload a compressed copy to the
+  `[zippp] receipts` folder as `{ref}.jpg`, append `Ref` and `Scan ID`, then
+  spend a credit.
+- **Batch review**, **team members by Google account**, **per-minute guard**,
+  **bigger Paddle packs**, **QRIS gateway** (replaces manual GoPay),
+  **Axiom logs**.
 
 - **`personal-expense` and `custom` templates** — only `resto-inventory` ships
   (`TEMPLATES.md`).
