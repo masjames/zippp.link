@@ -76,6 +76,11 @@ private Vercel Blob  →  Upstash Redis REST  →  filesystem (.data / ZIPPP_DAT
 - Remote read/write failures log `store.read.failed` / `store.write.failed` and
   degrade to the filesystem instead of 500-ing.
 - OAuth `state` lives in a short-lived httpOnly cookie, not server memory.
+- **Per-browser session**: the OAuth callback sets `zippp_sid`, an encrypted
+  (AES-256-GCM) httpOnly cookie holding the Google user id. Token and workspace
+  records are keyed by that id (`google-tokens/{id}.json`, `workspace/{id}.json`),
+  so the app is multi-user and `/admin` is private. Without the cookie, a request
+  is not signed in (admin routes return 404). Logout clears the cookie.
 - The session is **server-side only** (there is no auth cookie). On open, `/app`
   asks `/api/auth/me` before rendering: a signed-in user lands in the app, a
   logged-out one sees Intro/Sign in. This is why a reopen does not log you out.
