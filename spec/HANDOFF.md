@@ -84,7 +84,8 @@ response and shown in the app's Debug panel.
 3. **DeepSeek Flash** (`src/lib/deepseek.ts`): text-only structuring,
    `response_format=json_object`, `thinking: disabled`.
 4. **Essentials gate** (`hasEssentials` in the pipeline): a non-refusal result
-   without **date + item + price** throws → falls through to DeepSeek vision.
+   without **an item and a price** throws → falls through to DeepSeek vision.
+   A missing date is not fatal: the capture date is filled in and marked assumed.
 5. **Fallbacks**: DeepSeek vision (image → JSON), then Gemini.
 
 Observability: `console.log(JSON.stringify({event:"extract.run", ...}))` → Vercel
@@ -92,20 +93,28 @@ runtime logs. `/api/detect` logs `detect.run`.
 
 ---
 
-## 5. Capture / camera (as-is) — the weak part
+## 5. Capture / camera (reliability pass, Phase 1)
 
 `src/components/app/screens/SnapScreen.tsx` + `useReceiptDetector.ts`.
 
-- Viewfinder: a `min-h-[220px] flex-1` block, video `object-cover` (fills a
-  ~16:9-ish area, **crops** the video). Receipts are **portrait, tall** (~1:2–1:3).
-- Detector (`useReceiptDetector`): 160px grayscale; Otsu + row/col projections for
-  a bright-rectangle **box (overlay only)**; **variance of Laplacian** for `sharp`;
-  **frame-to-frame luma diff** for `steady` (`MOTION_MAX=8`, `STEADY_FRAMES=6`);
-  mean luma for `brightness`.
-- Auto-capture: `autoSnap && steady && sharp` → capture frame → **`POST /api/detect`**
-  (PaddleOCR + `isLikelyReceipt`; DeepSeek-vision fallback) → only add the item if
-  `receipt:true`, else "No receipt in view." + 2.5s cooldown. Re-arms when the
-  scene moves. Manual shutter is **never** blocked.
+- Viewfinder: the preview keeps the camera's native aspect with
+  `object-contain`; a static 9:16 portrait guide frames the receipt. The old
+  bright-rectangle overlay (and its misaligned percentage math) is gone.
+- Detector (`useReceiptDetector`): 160px grayscale; **variance of Laplacian** for
+  `sharp`; **frame-to-frame luma diff** for `steady` (`MOTION_MAX=8`,
+  `STEADY_FRAMES=6`); mean luma for `brightness`.
+- Still: `ImageCapture.takePhoto()` gives a full-resolution still where the
+  browser supports it, else the video frame. A high `ideal` camera resolution is
+  requested, and photos are stored at a ~4 MP pixel budget (JPEG 0.85) so tall
+  receipts keep enough width.
+- Auto-capture: `autoSnap && steady && sharp` captures at once, adds the card as
+  `reading`, and **`/api/extract`** decides. A `not_a_receipt` refusal drops the
+  card silently and pauses auto-capture for 2.5s. Re-arms when the scene moves.
+  Manual shutter is always available, but a blurry frame is a hard block.
+- Extractions run 2-3 at a time; the Send queue stays sequential.
+- A missing date is filled from the capture time and marked assumed in the
+  review card.
+- `/api/detect` and its helpers were removed; `receipt-detect.ts` is gone.
 - Torch: `MediaStreamTrack` capability; auto-on when luma < 55, off > 95; manual
   toggle. Not available on iOS Safari or desktop webcams.
 - Batch: `src/lib/batch-db.ts` (IndexedDB) persists image Blob, thumb, status,

@@ -41,8 +41,8 @@ camera (auto-snap on) → item queued → extract → review list → Accept/Edi
   box. While blurry: auto-snap does not fire, the manual shutter refuses, and the
   viewfinder shows "Blurry. Hold steady." The captured frame is re-checked before
   it is stored; a blurry frame never enters the batch. No override.
-- Each captured photo is downscaled (long edge ~1600px, JPEG ~0.7) before storing,
-  to keep IndexedDB small.
+- Each captured photo is downscaled to a ~4 MP pixel budget (JPEG 0.85) before
+  storing, so a tall receipt keeps enough width; IndexedDB stays small enough.
 
 ## 3. Review (one page, accordion, batch)
 

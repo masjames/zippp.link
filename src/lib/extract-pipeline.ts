@@ -66,9 +66,11 @@ function normalizeReceipt(raw: ModelOutput): Receipt {
     };
 }
 
-/** A usable receipt needs a date, an item, and a price. */
+/**
+ * A usable receipt needs an item and a price. A missing date is not fatal: the
+ * capture date is filled in client-side and marked as assumed.
+ */
 function hasEssentials(raw: ModelOutput): boolean {
-    const date = typeof raw.date === "string" && raw.date.trim() !== "";
     const items = Array.isArray(raw.line_items) ? raw.line_items : [];
     const hasItem = items.some(
         (i) =>
@@ -78,7 +80,7 @@ function hasEssentials(raw: ModelOutput): boolean {
     const hasPrice =
         (typeof raw.total === "number" && Number.isFinite(raw.total)) ||
         items.some((i) => typeof i?.amount === "number" && Number.isFinite(i.amount));
-    return date && hasItem && hasPrice;
+    return hasItem && hasPrice;
 }
 
 function errText(err: unknown): string {
@@ -199,16 +201,16 @@ export async function runExtraction(image: File): Promise<ExtractionResult> {
             note: `${DEEPSEEK_MODEL} · ${out.finish ?? "?"} · ${out.usage?.total_tokens ?? "?"} tok`,
         });
         const parsed = parseJson(out.text, "structure");
-        // If PaddleOCR could not yield date + item + price, fall through to
+        // If PaddleOCR could not yield an item and a price, fall through to
         // DeepSeek vision (the next attempt).
         if (!parsed.refusal && !hasEssentials(parsed)) {
             stages.push({
                 stage: "verify",
                 ok: false,
                 ms: 0,
-                note: "missing date, item, or price",
+                note: "missing item or price",
             });
-            throw new Error("Incomplete receipt: missing date, item, or price");
+            throw new Error("Incomplete receipt: missing item or price");
         }
         return parsed;
     }

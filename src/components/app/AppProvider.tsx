@@ -21,7 +21,7 @@ import {
     type CaptureSource,
 } from "@/lib/batch-db";
 import { downscaleImage, makeThumb } from "@/lib/image";
-import { fromDraft, toDraft } from "./draft";
+import { captureDate, fromDraft, toDraft } from "./draft";
 
 export type AuthState = {
     signedIn: boolean;
@@ -71,6 +71,8 @@ type Value = {
     openId: string | null;
     autoSnap: boolean;
     setAutoSnap: (on: boolean) => void;
+    /** Epoch ms until which auto-capture pauses after a not_a_receipt refusal. */
+    autoCooldownUntil: number;
     addFile: (file: File, source?: CaptureSource) => void;
     setOpen: (id: string | null) => void;
     updateDraft: (id: string, draft: BatchItem["draft"]) => void;
@@ -96,6 +98,10 @@ export function useApp(): Value {
 }
 
 const AUTOSNAP_KEY = "zippp_autosnap";
+/** Reads can run in parallel; the Send queue stays sequential. */
+const MAX_CONCURRENT_EXTRACTIONS = 3;
+/** Pause auto-capture after the server says the frame is not a receipt. */
+const REFUSAL_COOLDOWN_MS = 2_500;
 
 export default function AppProvider({
     wording,
@@ -125,6 +131,7 @@ export default function AppProvider({
     const [batch, setBatch] = useState<BatchItem[]>([]);
     const [openId, setOpenIdState] = useState<string | null>(null);
     const [autoSnap, setAutoSnapState] = useState(true);
+    const [autoCooldownUntil, setAutoCooldownUntil] = useState(0);
     const [sending, setSending] = useState(false);
     const [summary, setSummary] = useState<Summary | null>(null);
 
@@ -206,16 +213,22 @@ export default function AppProvider({
         });
     }
 
-    // Extract one queued item at a time.
+    // Extract queued items, up to MAX_CONCURRENT_EXTRACTIONS at a time.
     useEffect(() => {
-        if (batch.some((item) => item.status === "reading")) return;
-        const next = batch.find(
-            (item) => item.status === "queued" && !inflight.current.has(item.id)
-        );
-        if (!next) return;
-        inflight.current.add(next.id);
-        patchItem(next.id, { status: "reading" });
-        void extractItem(next);
+        const reading = batch.filter((item) => item.status === "reading").length;
+        const slots = MAX_CONCURRENT_EXTRACTIONS - reading;
+        if (slots <= 0) return;
+        const next = batch
+            .filter(
+                (item) => item.status === "queued" && !inflight.current.has(item.id)
+            )
+            .slice(0, slots);
+        if (next.length === 0) return;
+        for (const item of next) {
+            inflight.current.add(item.id);
+            patchItem(item.id, { status: "reading" });
+            void extractItem(item);
+        }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [batch]);
 
@@ -226,17 +239,21 @@ export default function AppProvider({
             const res = await fetch("/api/extract", { method: "POST", body: form });
             const data = (await res.json()) as ExtractResponse;
             if (data.ok) {
+                const draft = toDraft(data.receipt);
+                // A missing date is assumed from the capture time and flagged in
+                // the review card, never treated as a failed read.
+                const dateAssumed = !draft.date;
+                if (dateAssumed) draft.date = captureDate(item.createdAt);
                 patchItem(item.id, {
                     status: "ready",
                     receipt: data.receipt,
-                    draft: toDraft(data.receipt),
+                    draft: dateAssumed ? { ...draft, dateAssumed: true } : draft,
                     debug: data.debug ?? null,
                 });
-            } else if (
-                item.source === "auto" &&
-                data.error === "Not a receipt or invoice."
-            ) {
-                // Auto captures only stick if PaddleOCR says it is a receipt.
+            } else if (item.source === "auto" && data.refusal === "not_a_receipt") {
+                // Auto captures only stick if the read is a receipt. Drop it
+                // silently and pause auto-capture so the same scene is not retried.
+                setAutoCooldownUntil(Date.now() + REFUSAL_COOLDOWN_MS);
                 setBatch((items) => items.filter((i) => i.id !== item.id));
                 void dbDeleteItem(item.id);
             } else {
@@ -470,6 +487,7 @@ export default function AppProvider({
         openId,
         autoSnap,
         setAutoSnap,
+        autoCooldownUntil,
         addFile,
         setOpen,
         updateDraft,

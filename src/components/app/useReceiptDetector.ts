@@ -2,12 +2,7 @@
 
 import { useEffect, useRef, useState, type RefObject } from "react";
 
-export type DetectedBox = { x: number; y: number; w: number; h: number };
-
 export type Detection = {
-    /** A bright rectangle was found (used for the overlay only). */
-    found: boolean;
-    box: DetectedBox | null;
     /** Sharp enough to read. */
     sharp: boolean;
     /** The frame is holding still (motion-based). */
@@ -23,51 +18,22 @@ const MOTION_MAX = 8; // mean abs luma diff (0-255) that still counts as "still"
 const SHARP_MIN = 12; // variance of Laplacian; low light noise keeps this up
 
 const EMPTY: Detection = {
-    found: false,
-    box: null,
     sharp: false,
     steady: false,
     brightness: 0,
 };
 
-/** Otsu's method: pick the luminance threshold that best splits the frame. */
-function otsu(hist: number[], total: number): number {
-    let sum = 0;
-    for (let i = 0; i < 256; i++) sum += i * hist[i];
-    let sumB = 0;
-    let weightB = 0;
-    let best = 0;
-    let threshold = 127;
-    for (let i = 0; i < 256; i++) {
-        weightB += hist[i];
-        if (weightB === 0) continue;
-        const weightF = total - weightB;
-        if (weightF === 0) break;
-        sumB += i * hist[i];
-        const meanB = sumB / weightB;
-        const meanF = (sum - sumB) / weightF;
-        const between = weightB * weightF * (meanB - meanF) * (meanB - meanF);
-        if (between > best) {
-            best = between;
-            threshold = i;
-        }
-    }
-    return threshold;
-}
-
 /**
- * One frame: grayscale, a bright-rectangle box (overlay only) and a sharpness
- * score. The box is best-effort — low light, a hand, or a torn edge all defeat
- * it, which is why steady + sharp + a server receipt check drive auto-capture,
- * not the box.
+ * One frame: grayscale, mean luma for the torch, and the variance of the
+ * Laplacian for sharpness. Framing is a static portrait guide in the viewfinder,
+ * so no bright-rectangle detection happens here.
  */
 function analyze(
     data: Uint8ClampedArray,
     w: number,
     h: number
-): { box: DetectedBox | null; sharp: boolean; gray: Uint8Array; brightness: number } {
+): { sharp: boolean; gray: Uint8Array; brightness: number } {
     const gray = new Uint8Array(w * h);
-    const hist = new Array<number>(256).fill(0);
     let lum = 0;
     for (let i = 0; i < w * h; i++) {
         const r = data[i * 4];
@@ -76,52 +42,8 @@ function analyze(
         const y = (r * 299 + g * 587 + b * 114) / 1000;
         gray[i] = y;
         lum += y;
-        hist[y | 0]++;
     }
     const brightness = lum / (w * h);
-
-    const threshold = otsu(hist, w * h);
-    const mask = new Uint8Array(w * h);
-    for (let i = 0; i < w * h; i++) mask[i] = gray[i] > threshold ? 1 : 0;
-
-    const rowCount = new Int32Array(h);
-    const colCount = new Int32Array(w);
-    for (let y = 0; y < h; y++) {
-        for (let x = 0; x < w; x++) {
-            if (mask[y * w + x]) {
-                rowCount[y]++;
-                colCount[x]++;
-            }
-        }
-    }
-
-    let top = -1;
-    let bottom = -1;
-    let left = -1;
-    let right = -1;
-    for (let y = 0; y < h; y++) {
-        if (rowCount[y] >= 0.15 * w) {
-            if (top < 0) top = y;
-            bottom = y;
-        }
-    }
-    for (let x = 0; x < w; x++) {
-        if (colCount[x] >= 0.15 * h) {
-            if (left < 0) left = x;
-            right = x;
-        }
-    }
-
-    let box: DetectedBox | null = null;
-    if (top >= 0 && left >= 0) {
-        const bw = right - left + 1;
-        const bh = bottom - top + 1;
-        const area = (bw * bh) / (w * h);
-        const aspect = bw / bh;
-        if (bw >= 8 && bh >= 8 && area >= 0.1 && area <= 0.98 && aspect >= 0.15 && aspect <= 1.4) {
-            box = { x: left / w, y: top / h, w: bw / w, h: bh / h };
-        }
-    }
 
     // Sharpen: variance of Laplacian over the whole frame.
     let mean = 0;
@@ -148,13 +70,13 @@ function analyze(
         variance /= n;
     }
 
-    return { box, sharp: variance > SHARP_MIN, gray, brightness };
+    return { sharp: variance > SHARP_MIN, gray, brightness };
 }
 
 /**
- * On-device capture gate. Reports a bright-rectangle box for the overlay and a
- * motion-based "steady" signal. Auto-capture uses steady + sharp (then a server
- * receipt check); the box is never required.
+ * On-device capture gate: sharpness and motion only. Auto-capture uses
+ * steady + sharp; the server then decides whether the frame is actually a
+ * receipt (an automatic capture that is not a receipt is dropped).
  */
 export function useReceiptDetector(
     videoRef: RefObject<HTMLVideoElement | null>,
@@ -197,7 +119,7 @@ export function useReceiptDetector(
             }
             ctx.drawImage(video, 0, 0, w, h);
             const frame = ctx.getImageData(0, 0, w, h);
-            const { box, sharp, gray, brightness } = analyze(frame.data, w, h);
+            const { sharp, gray, brightness } = analyze(frame.data, w, h);
 
             let motion = 255;
             const prev = prevGray.current;
@@ -212,7 +134,7 @@ export function useReceiptDetector(
             else steadyCount.current = 0;
             const steady = steadyCount.current >= STEADY_FRAMES;
 
-            setDetection({ found: Boolean(box), box, sharp, steady, brightness });
+            setDetection({ sharp, steady, brightness });
         };
 
         raf = requestAnimationFrame(loop);
@@ -226,5 +148,3 @@ export function useReceiptDetector(
 
     return detection;
 }
-
-export { MOTION_MAX };

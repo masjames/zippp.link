@@ -7,7 +7,6 @@ import DebugPanel from "../DebugPanel";
 import { useApp } from "../AppProvider";
 import { useReceiptDetector } from "../useReceiptDetector";
 import { fill, type T } from "@/lib/t";
-import { downscaleImage } from "@/lib/image";
 import { toDraft, type Draft } from "../draft";
 import type { BatchItem } from "@/lib/batch-db";
 import type { Workspace } from "../AppProvider";
@@ -16,16 +15,21 @@ const INPUT =
     "w-full rounded-xl border-2 border-line bg-surface px-3 py-2 text-body focus:border-brand focus:outline-none";
 const INPUT_BAD =
     "w-full rounded-xl border-2 border-danger bg-surface px-3 py-2 text-body focus:outline-none";
+const INPUT_ASSUMED =
+    "w-full rounded-xl border-2 border-amber-400 bg-surface px-3 py-2 text-body focus:border-amber-500 focus:outline-none";
 
-function Corners() {
-    const base = "pointer-events-none absolute h-9 w-9 border-4 border-white";
+/** Static portrait guide. The video frame itself is not overlayed. */
+function GuideFrame() {
+    const base = "pointer-events-none absolute h-7 w-7 border-4 border-white/90";
     return (
-        <>
-            <span className={`${base} left-4 top-4 rounded-tl-xl border-b-0 border-r-0`} />
-            <span className={`${base} right-4 top-4 rounded-tr-xl border-b-0 border-l-0`} />
-            <span className={`${base} bottom-4 left-4 rounded-bl-xl border-t-0 border-r-0`} />
-            <span className={`${base} bottom-4 right-4 rounded-br-xl border-t-0 border-l-0`} />
-        </>
+        <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+            <div className="relative aspect-[9/16] h-[88%]">
+                <span className={`${base} left-0 top-0 rounded-tl-xl border-b-0 border-r-0`} />
+                <span className={`${base} right-0 top-0 rounded-tr-xl border-b-0 border-l-0`} />
+                <span className={`${base} bottom-0 left-0 rounded-bl-xl border-t-0 border-r-0`} />
+                <span className={`${base} bottom-0 right-0 rounded-br-xl border-t-0 border-l-0`} />
+            </div>
+        </div>
     );
 }
 
@@ -39,6 +43,7 @@ export default function SnapScreen() {
         openId,
         autoSnap,
         setAutoSnap,
+        autoCooldownUntil,
         addFile,
         setOpen,
         updateDraft,
@@ -57,10 +62,9 @@ export default function SnapScreen() {
     const cameraInputRef = useRef<HTMLInputElement>(null);
     const uploadInputRef = useRef<HTMLInputElement>(null);
     const armed = useRef(true);
-    const detecting = useRef(false);
-    const cooldown = useRef(0);
     const flashAuto = useRef(true);
-    const [noReceipt, setNoReceipt] = useState(false);
+    const imageCaptureRef = useRef<{ takePhoto: () => Promise<Blob> } | null>(null);
+    const [videoAspect, setVideoAspect] = useState(3 / 4);
     const [torchSupported, setTorchSupported] = useState(false);
     const [torchOn, setTorchOn] = useState(false);
 
@@ -78,6 +82,7 @@ export default function SnapScreen() {
     function stopCamera() {
         streamRef.current?.getTracks().forEach((track) => track.stop());
         streamRef.current = null;
+        imageCaptureRef.current = null;
         setTorchOn(false);
         flashAuto.current = true;
     }
@@ -113,13 +118,35 @@ export default function SnapScreen() {
         setMode("starting");
         try {
             const stream = await navigator.mediaDevices.getUserMedia({
-                video: { facingMode: { ideal: "environment" } },
+                // Ask for a high still resolution; ideal means a device that
+                // cannot do it still returns a usable stream.
+                video: {
+                    facingMode: { ideal: "environment" },
+                    width: { ideal: 3840 },
+                    height: { ideal: 2160 },
+                },
                 audio: false,
             });
             streamRef.current = stream;
             const track = stream.getVideoTracks()[0];
             const caps = track?.getCapabilities?.() as { torch?: boolean } | undefined;
             setTorchSupported(Boolean(caps?.torch));
+            // Full-resolution stills where the browser supports ImageCapture.
+            imageCaptureRef.current = null;
+            const Ctor = (
+                globalThis as unknown as {
+                    ImageCapture?: new (t: MediaStreamTrack) => {
+                        takePhoto: () => Promise<Blob>;
+                    };
+                }
+            ).ImageCapture;
+            if (track && Ctor) {
+                try {
+                    imageCaptureRef.current = new Ctor(track);
+                } catch {
+                    imageCaptureRef.current = null;
+                }
+            }
             setMode("live");
             if (videoRef.current) {
                 videoRef.current.srcObject = stream;
@@ -131,16 +158,25 @@ export default function SnapScreen() {
         }
     }
 
-    function captureFrameBlob(): Promise<Blob | null> {
+    async function captureFrameBlob(): Promise<Blob | null> {
+        // A full-resolution still when available, else the current video frame.
+        const capture = imageCaptureRef.current;
+        if (capture) {
+            try {
+                return await capture.takePhoto();
+            } catch {
+                /* fall through to the video frame */
+            }
+        }
         const video = videoRef.current;
-        if (!video) return Promise.resolve(null);
+        if (!video) return null;
         const width = video.videoWidth || 1080;
         const height = video.videoHeight || 1440;
         const canvas = document.createElement("canvas");
         canvas.width = width;
         canvas.height = height;
         const ctx = canvas.getContext("2d");
-        if (!ctx) return Promise.resolve(null);
+        if (!ctx) return null;
         ctx.drawImage(video, 0, 0, width, height);
         return new Promise((resolve) =>
             canvas.toBlob((b) => resolve(b), "image/jpeg", 0.92)
@@ -148,23 +184,9 @@ export default function SnapScreen() {
     }
 
     function fileFrom(blob: Blob): File {
-        return new File([blob], `receipt-${Date.now()}.jpg`, {
-            type: "image/jpeg",
-        });
-    }
-
-    /** Ask PaddleOCR (via /api/detect) whether a receipt is actually in frame. */
-    async function detectReceipt(frame: Blob): Promise<boolean> {
-        try {
-            const small = await downscaleImage(frame, 1000, 0.8);
-            const form = new FormData();
-            form.append("image", new File([small], "detect.jpg", { type: "image/jpeg" }));
-            const res = await fetch("/api/detect", { method: "POST", body: form });
-            const data = await res.json();
-            return Boolean(data.ok && data.receipt);
-        } catch {
-            return false;
-        }
+        const type = blob.type || "image/jpeg";
+        const ext = type.includes("png") ? "png" : "jpg";
+        return new File([blob], `receipt-${Date.now()}.${ext}`, { type });
     }
 
     async function manualCapture() {
@@ -178,8 +200,9 @@ export default function SnapScreen() {
             void openCamera();
             return;
         }
-        // Manual capture is never blocked (low light etc.); blur only hints.
-        setNoReceipt(false);
+        // Blur is a hard block: a blurry frame never enters the batch. Manual
+        // capture stays available for everything else.
+        if (!detection.sharp) return;
         void manualCapture();
     }
 
@@ -197,43 +220,27 @@ export default function SnapScreen() {
         }
     }, [detection.brightness, torchSupported, mode, torchOn]);
 
-    // Re-arm when the scene moves (the next receipt), not on a bright box.
+    // Re-arm when the scene moves (the next receipt).
     useEffect(() => {
-        if (!detection.steady) {
-            armed.current = true;
-            setNoReceipt(false);
-        }
+        if (!detection.steady) armed.current = true;
     }, [detection.steady]);
 
-    // Auto-capture: the frame is steady and sharp, then PaddleOCR/DeepSeek
-    // confirms a receipt is actually in frame. The bright box is not required.
+    // Auto-capture: steady and sharp captures at once. The card appears
+    // immediately as "reading" and /api/extract decides. A not_a_receipt
+    // refusal drops the card and pauses auto-capture for a moment.
     useEffect(() => {
         if (!autoSnap || mode !== "live" || outOfCredits) return;
         const { steady, sharp } = detection;
         if (!steady || !sharp) return;
         if (!armed.current) return;
-        if (Date.now() < cooldown.current) return;
+        if (Date.now() < autoCooldownUntil) return;
         armed.current = false;
-        const run = async () => {
-            if (detecting.current) return;
-            detecting.current = true;
-            try {
-                const blob = await captureFrameBlob();
-                if (!blob) return;
-                if (await detectReceipt(blob)) {
-                    setNoReceipt(false);
-                    addFile(fileFrom(blob), "auto");
-                } else {
-                    setNoReceipt(true);
-                    cooldown.current = Date.now() + 2500;
-                }
-            } finally {
-                detecting.current = false;
-            }
-        };
-        void run();
+        void (async () => {
+            const blob = await captureFrameBlob();
+            if (blob) addFile(fileFrom(blob), "auto");
+        })();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [autoSnap, mode, detection, outOfCredits]);
+    }, [autoSnap, mode, detection, outOfCredits, autoCooldownUntil]);
 
     function pick(files: FileList | null, fallback: boolean) {
         const file = files?.[0];
@@ -248,18 +255,28 @@ export default function SnapScreen() {
             </h2>
             <p className="max-w-[30ch]">{t("app.capture.body")}</p>
 
-            <div className="relative flex min-h-[220px] flex-1 items-center justify-center overflow-hidden rounded-panel bg-[#2a1410] px-6 text-center text-peach">
+            <div
+                className="relative w-full flex-none overflow-hidden rounded-panel bg-[#2a1410] text-center text-peach"
+                style={{ aspectRatio: String(videoAspect) }}
+            >
                 <video
                     ref={videoRef}
                     playsInline
                     muted
                     autoPlay
-                    className={`absolute inset-0 h-full w-full object-cover transition-opacity ${
+                    onLoadedMetadata={(e) => {
+                        const v = e.currentTarget;
+                        if (v.videoWidth && v.videoHeight) {
+                            setVideoAspect(v.videoWidth / v.videoHeight);
+                        }
+                    }}
+                    className={`absolute inset-0 h-full w-full object-contain transition-opacity ${
                         mode === "live" ? "opacity-100" : "opacity-0"
                     }`}
                 />
+                {mode === "live" ? <GuideFrame /> : null}
                 {mode !== "live" ? (
-                    <span className="relative z-10 text-sm">
+                    <span className="absolute inset-0 z-10 flex items-center justify-center text-sm">
                         {mode === "starting"
                             ? t("app.capture.starting")
                             : mode === "error"
@@ -270,32 +287,11 @@ export default function SnapScreen() {
                     <span className="absolute bottom-4 left-0 right-0 z-10 text-xs font-semibold text-amber-200">
                         {t("app.capture.holdSteady")}
                     </span>
-                ) : noReceipt ? (
-                    <span className="absolute bottom-4 left-0 right-0 z-10 text-xs font-semibold text-amber-200">
-                        {t("app.capture.noReceipt")}
-                    </span>
-                ) : !detection.box ? (
+                ) : (
                     <span className="absolute bottom-4 left-0 right-0 z-10 px-6 text-xs opacity-80">
                         {t("app.capture.frame")}
                     </span>
-                ) : null}
-
-                {mode === "live" && detection.box ? (
-                    <div
-                        className={`pointer-events-none absolute rounded-lg border-2 ${
-                            detection.sharp && detection.steady
-                                ? "border-green-400"
-                                : "border-amber-300"
-                        }`}
-                        style={{
-                            left: `${detection.box.x * 100}%`,
-                            top: `${detection.box.y * 100}%`,
-                            width: `${detection.box.w * 100}%`,
-                            height: `${detection.box.h * 100}%`,
-                        }}
-                    />
-                ) : null}
-                <Corners />
+                )}
             </div>
 
             <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" className="hidden"
@@ -477,9 +473,9 @@ function ExpandedCard({
     }
 
     const d: Draft = draft;
-    // Staff is optional. The essentials are date, an item, and a price.
+    // Staff is optional. The essentials are an item and a price. A date that
+    // was not read is assumed from the capture time and flagged for a check.
     const requireOutlet = (workspace?.outlets?.length ?? 0) > 1;
-    const dateMissing = d.date.trim() === "";
     const outletMissing = requireOutlet && d.outlet.trim() === "";
     const noLines = !d.lines.some((l) => l.description.trim() || l.amount.trim());
     const noPrice =
@@ -498,7 +494,7 @@ function ExpandedCard({
     }
     function tryAccept() {
         setShowErrors(true);
-        if (dateMissing || outletMissing || noLines || noPrice) return;
+        if (outletMissing || noLines || noPrice) return;
         onAccept();
     }
 
@@ -518,8 +514,19 @@ function ExpandedCard({
             <div className="grid grid-cols-2 gap-2">
                 <label className="grid gap-1">
                     <span className="text-xs font-semibold">{t("app.check.date")}</span>
-                    <input value={draft.date} onChange={(e) => patch({ date: e.target.value })}
-                        placeholder="dd/mm/yyyy" className={showErrors && dateMissing ? INPUT_BAD : INPUT} />
+                    <input
+                        value={draft.date}
+                        onChange={(e) =>
+                            patch({ date: e.target.value, dateAssumed: false })
+                        }
+                        placeholder="dd/mm/yyyy"
+                        className={d.dateAssumed ? INPUT_ASSUMED : INPUT}
+                    />
+                    {d.dateAssumed ? (
+                        <span className="text-xs font-medium text-amber-600">
+                            {t("app.review.dateAssumed")}
+                        </span>
+                    ) : null}
                 </label>
                 <label className="grid gap-1">
                     <span className="text-xs font-semibold">

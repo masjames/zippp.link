@@ -61,6 +61,8 @@ export type ExtractSuccess = {
 export type ExtractFailure = {
     ok: false;
     error: string;
+    /** Present so the client can react to a refusal without matching strings. */
+    refusal?: "unreadable" | "not_a_receipt" | null;
     debug?: ExtractDebug;
 };
 

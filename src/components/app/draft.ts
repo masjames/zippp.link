@@ -16,7 +16,17 @@ export type Draft = {
     tax: string;
     total: string;
     lines: DraftLine[];
+    /** Set when the date could not be read and was filled from the capture time. */
+    dateAssumed?: boolean;
 };
+
+/** Local calendar date (YYYY-MM-DD) for a capture timestamp. */
+export function captureDate(ms: number): string {
+    const d = new Date(ms);
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${d.getFullYear()}-${month}-${day}`;
+}
 
 export function toDraft(receipt: Receipt): Draft {
     return {

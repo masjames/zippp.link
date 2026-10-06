@@ -45,6 +45,7 @@ export async function POST(req: Request) {
     const body: ExtractResponse = {
         ok: false,
         error: result.error,
+        refusal: result.refusal,
         debug: result.debug,
     };
     return NextResponse.json(body, { status: result.refusal ? 422 : 502 });

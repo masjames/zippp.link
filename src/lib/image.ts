@@ -23,18 +23,22 @@ async function loadBitmap(
     }
 }
 
-/** Downscale to `maxEdge` on the long side, JPEG `quality`. Returns the input on failure. */
+/**
+ * Downscale to a pixel budget (default ~4 MP), JPEG `quality`. Width and height
+ * scale by the same factor, so a tall receipt keeps enough width to read.
+ * Returns the input on failure.
+ */
 export async function downscaleImage(
     file: Blob,
-    maxEdge = 1600,
-    quality = 0.7
+    maxPixels = 4_000_000,
+    quality = 0.85
 ): Promise<Blob> {
     try {
         const src = await loadBitmap(file);
         const w0 = src.width;
         const h0 = src.height;
         if (!w0 || !h0) return file;
-        const scale = Math.min(1, maxEdge / Math.max(w0, h0));
+        const scale = Math.min(1, Math.sqrt(maxPixels / (w0 * h0)));
         const canvas = document.createElement("canvas");
         canvas.width = Math.max(1, Math.round(w0 * scale));
         canvas.height = Math.max(1, Math.round(h0 * scale));

@@ -269,6 +269,10 @@ Ubah
 Tap a value to edit
 ## app.review.tapToEdit.id
 Ketuk nilai untuk mengubah
+## app.review.dateAssumed.en
+Date assumed from the photo time. Check it.
+## app.review.dateAssumed.id
+Tanggal diasumsikan dari waktu foto. Periksa.
 ## app.review.sendAll.en
 Send all accepted ({count})
 ## app.review.sendAll.id

@@ -94,65 +94,7 @@ export function structureReceipt(markdown: string): Promise<DeepSeekResult> {
     return postChat(`${RECEIPT_SCHEMA_HINT}\n\nOCR TEXT:\n${markdown}`);
 }
 
-const DETECT_SYSTEM = `You decide whether an image shows a receipt or invoice: a record of a purchase listing items and prices (printed or written). Return JSON only: {"receipt": true} or {"receipt": false}.`;
-
-/**
- * Fallback receipt detector: DeepSeek vision yes/no, used when PaddleOCR is
- * unavailable or times out. Cheap: tiny output, thinking off.
- */
-export async function detectReceiptWithDeepSeekVision(args: {
-    mimeType: string;
-    dataBase64: string;
-}): Promise<boolean> {
-    if (!DEEPSEEK_TOKEN) {
-        throw new DeepSeekError("DEEPSEEK_API_KEY is missing", "config");
-    }
-    const res = await fetch(`${DEEPSEEK_BASE_URL}/chat/completions`, {
-        method: "POST",
-        headers: {
-            Authorization: `Bearer ${DEEPSEEK_TOKEN}`,
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-            model: DEEPSEEK_MODEL,
-            messages: [
-                { role: "system", content: DETECT_SYSTEM },
-                {
-                    role: "user",
-                    content: [
-                        { type: "text", text: "Is there a receipt or invoice in this image?" },
-                        {
-                            type: "image_url",
-                            image_url: {
-                                url: `data:${args.mimeType};base64,${args.dataBase64}`,
-                            },
-                        },
-                    ],
-                },
-            ],
-            response_format: { type: "json_object" },
-            thinking: { type: "disabled" },
-            max_tokens: 50,
-        }),
-        signal: AbortSignal.timeout(DEEPSEEK_TIMEOUT_MS),
-        cache: "no-store",
-    });
-    if (!res.ok) {
-        throw new DeepSeekError(`HTTP ${res.status}`, "http");
-    }
-    const json = (await res.json()) as {
-        choices?: { message?: { content?: string | null } }[];
-    };
-    const text = json.choices?.[0]?.message?.content ?? "";
-    try {
-        const parsed = JSON.parse(text) as { receipt?: boolean };
-        return parsed.receipt === true;
-    } catch {
-        return false;
-    }
-}
-
-/** Attempt 3: DeepSeek Flash reads the image directly (vision -> JSON). */
+/** Attempt 2: DeepSeek Flash reads the image directly (vision -> JSON). */
 export function extractWithDeepSeekVision(args: {
     mimeType: string;
     dataBase64: string;
