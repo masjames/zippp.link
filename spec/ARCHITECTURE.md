@@ -82,6 +82,22 @@ private Vercel Blob  →  Upstash Redis REST  →  filesystem (.data / ZIPPP_DAT
 
 ---
 
+## Billing (credits)
+
+Upstash Redis REST (`src/lib/billing/*`), separate from the session store.
+1 credit = 1 scan, spent on **Send**. Top-ups are lots with a 30-day expiry;
+spend takes the earliest lot and is **atomic** (Lua `EVAL`); grants are
+**idempotent** on a key. `billingConfigured()` gates enforcement: without
+Upstash the app runs unconfigured and does not enforce credits.
+
+- `GET /api/billing/balance` → `{ configured, credits, soonestExpiry, refCode }`.
+- Guard redirects to `/app/topup` at zero credits; Snap/Send are blocked.
+- `npm run grant -- <email> <credits>` writes an `admin_grant` lot.
+- `GET /api/auth/me` creates the user record (ref code + referral lock) on load.
+
+Keys: `bill:acct:{id}`, `bill:ledger:{id}`, `bill:user:{id}`, `bill:ref:{code}`,
+`bill:email:{email}`, `bill:idem:{key}`, `bill:order:{id}`.
+
 ## Region & language
 
 `src/middleware.ts` stamps `zippp_region` (`id` / `intl`) from
