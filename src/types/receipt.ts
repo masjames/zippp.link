@@ -76,6 +76,8 @@ export type ExtractDebug = {
         total_tokens?: number;
     } | null;
     stages: ExtractStage[];
+    /** Per-stage total milliseconds, keyed by stage name. */
+    stageMs?: Record<string, number>;
     /** Verification flags produced by the anti-hallucination pass. */
     flags?: ReceiptFlag[];
     /** Raw OCR text lines (rec_texts), for step-by-step debugging. */

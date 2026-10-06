@@ -45,6 +45,17 @@ export default function DebugPanel({
                         value={`${debug.ocrFormat} · ${debug.ocrChars} chars`}
                         mono
                     />
+                    <Row
+                        label="stage ms"
+                        value={
+                            debug.stageMs
+                                ? Object.entries(debug.stageMs)
+                                      .map(([stage, ms]) => `${stage} ${ms}`)
+                                      .join(" · ")
+                                : "(none)"
+                        }
+                        mono
+                    />
                 </dl>
 
                 {debug.flags && debug.flags.length > 0 ? (

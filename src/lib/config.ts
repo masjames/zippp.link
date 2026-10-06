@@ -32,6 +32,11 @@ export const PADDLEOCR_TIMEOUT_MS = Number(process.env.PADDLEOCR_TIMEOUT_MS || 1
 export const PADDLEOCR_POLL_INTERVAL_MS = Number(
     process.env.PADDLEOCR_POLL_INTERVAL_MS || 400
 );
+/**
+ * If PaddleOCR has not answered within this many ms, start the vision leg in
+ * parallel and take the first result that passes the verifier. 0 disables.
+ */
+export const PADDLEOCR_HEDGE_MS = Number(process.env.PADDLEOCR_HEDGE_MS || 5_000);
 
 /* --------------------------------- Models ------------------------------- */
 

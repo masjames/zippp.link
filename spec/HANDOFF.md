@@ -57,7 +57,8 @@ spec/                    all specs (this file is the index of record)
 ## 3. Env (all set on Vercel production/preview/development)
 
 `EXTRACT_PROVIDER`, `PADDLEOCR_AISTUDIO_TOKEN`, `PADDLEOCR_MODEL=PP-OCRv6`,
-`PADDLEOCR_BASE_URL`, `PADDLEOCR_TIMEOUT_MS`, `DEEPSEEK_API_KEY`,
+`PADDLEOCR_BASE_URL`, `PADDLEOCR_TIMEOUT_MS`, `PADDLEOCR_HEDGE_MS`,
+`DEEPSEEK_API_KEY`,
 `DEEPSEEK_MODEL=deepseek-flash`, `DEEPSEEK_BASE_URL`, `DEEPSEEK_MAX_TOKENS`,
 `GEMINI_API_KEY`, `GOOGLE_CLIENT_ID/SECRET/REDIRECT_URI`, `TOKEN_ENCRYPTION_KEY`,
 `BLOB_READ_WRITE_TOKEN`, `UPSTASH_REDIS_REST_URL/TOKEN`, `ADMIN_EMAILS`,
@@ -79,6 +80,8 @@ response and shown in the app's Debug panel.
 1. **PaddleOCR** (`src/lib/paddleocr.ts`): submit → poll → result. PP-OCRv6
    returns JSONL `ocrResults` with `rec_texts`/`rec_boxes`/`rec_scores`; tokens
    are grouped into rows by y-centre (`|` joined). `PADDLEOCR_TIMEOUT_MS=10000`.
+   If it has not answered within `PADDLEOCR_HEDGE_MS` (default 5000), the vision
+   leg starts in parallel; the first result that passes the verifier is used.
 2. **Compactor** (`src/lib/ocr-compact.ts`): the row text is the payload to
    DeepSeek (HTML tables → compact text). Rows are prefixed with their zero-based
    index so the model can report where each field came from.
@@ -233,6 +236,7 @@ score.
 
 ## 10. Commands
 - `npm run dev` · `npm run build` · `npx tsc --noEmit`
+- `npm test` (verifier unit tests) · `npm run eval` (accuracy harness, see `eval/README.md`)
 - `npm run logs` (stream `extract.run`/`detect.run` from production)
 - `npm run grant -- <email> <credits>`
 - Deploy: push to `main` (Vercel builds automatically). Verify with `curl -I`.

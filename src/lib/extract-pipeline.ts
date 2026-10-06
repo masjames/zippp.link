@@ -5,6 +5,7 @@ import {
     GEMINI_MODEL,
     GEMINI_TIMEOUT_MS,
     OCR_FORMAT,
+    PADDLEOCR_HEDGE_MS,
     PADDLEOCR_MODEL,
 } from "./config";
 import {
@@ -147,6 +148,16 @@ export async function runExtraction(image: File): Promise<ExtractionResult> {
     let grounding: OcrGrounding | null = null;
     let verified: VerifyResult | null = null;
 
+    // Hedged vision: if PaddleOCR is slow, the vision leg starts in parallel and
+    // is verified against the OCR text once it arrives. The first result that
+    // passes the verifier wins.
+    let hedgePromise: Promise<{ raw: ModelOutput; result: VerifyResult } | null> | null =
+        null;
+    let resolveOcrGround: ((g: OcrGrounding | null) => void) | null = null;
+    const ocrGroundReady = new Promise<OcrGrounding | null>((resolve) => {
+        resolveOcrGround = resolve;
+    });
+
     function pushVerifyStage(result: VerifyResult, note: string) {
         stages.push({
             stage: "verify",
@@ -170,6 +181,39 @@ export async function runExtraction(image: File): Promise<ExtractionResult> {
                 note: `${label}: ${err instanceof Error ? err.message : "invalid JSON"}`,
             });
             throw new Error(`${label} returned invalid JSON`);
+        }
+    }
+
+    /** The hedged vision leg. Its verification waits for the OCR grounding. */
+    async function runVisionHedge(): Promise<
+        { raw: ModelOutput; result: VerifyResult } | null
+    > {
+        try {
+            const bytes = Buffer.from(await image.arrayBuffer());
+            const start = Date.now();
+            const out = await extractWithDeepSeekVision({
+                mimeType: image.type || "image/jpeg",
+                dataBase64: bytes.toString("base64"),
+            });
+            modelMs += Date.now() - start;
+            model = DEEPSEEK_MODEL;
+            finish = out.finish;
+            usage = out.usage;
+            modelRaw = out.text.slice(0, MAX_MODEL_RAW);
+            stages.push({
+                stage: "hedge",
+                ok: true,
+                ms: Date.now() - start,
+                note: `vision started after ${PADDLEOCR_HEDGE_MS}ms`,
+            });
+            const parsed = parseJson(out.text, "deepseek-vision");
+            if (parsed.refusal) return null;
+            const ground = await ocrGroundReady;
+            const result = verifyReceipt(parsed, ground ?? { tokens: [] });
+            return { raw: parsed, result };
+        } catch (err) {
+            stages.push({ stage: "hedge", ok: false, ms: 0, note: errText(err) });
+            return null;
         }
     }
 
@@ -216,10 +260,19 @@ export async function runExtraction(image: File): Promise<ExtractionResult> {
 
     async function viaPaddle(): Promise<ModelOutput> {
         const ocrStart = Date.now();
+        const ocrPromise = runPaddleOcr(image);
+        const hedgeTimer =
+            PADDLEOCR_HEDGE_MS > 0
+                ? setTimeout(() => {
+                      if (!hedgePromise) hedgePromise = runVisionHedge();
+                  }, PADDLEOCR_HEDGE_MS)
+                : undefined;
         let ocr;
         try {
-            ocr = await runPaddleOcr(image);
+            ocr = await ocrPromise;
         } catch (err) {
+            if (hedgeTimer) clearTimeout(hedgeTimer);
+            resolveOcrGround?.(null);
             stages.push({
                 stage: "ocr",
                 ok: false,
@@ -228,6 +281,7 @@ export async function runExtraction(image: File): Promise<ExtractionResult> {
             });
             throw err;
         }
+        if (hedgeTimer) clearTimeout(hedgeTimer);
         const rawLen = ocr.markdown.length;
         const compact = compactOcrMarkdown(ocr.markdown);
         const { text: numbered, rows } = numberOcrRows(compact);
@@ -243,10 +297,32 @@ export async function runExtraction(image: File): Promise<ExtractionResult> {
         });
         if (!compact.trim()) {
             const err = new PaddleOcrError("OCR returned no text", "result");
+            resolveOcrGround?.(null);
             stages.push({ stage: "ocr", ok: false, ms: 0, note: errText(err) });
             throw err;
         }
         grounding = { tokens: ocr.tokens, scores: ocr.scores, rows };
+        resolveOcrGround?.(grounding);
+
+        // If the hedge already passed cleanly, take it before structuring.
+        if (hedgePromise) {
+            const leg = await hedgePromise;
+            if (
+                leg &&
+                leg.result.flags.length === 0 &&
+                hasEssentials(leg.result.receipt)
+            ) {
+                verified = leg.result;
+                fallback = "deepseek-vision-hedge";
+                stages.push({
+                    stage: "hedge",
+                    ok: true,
+                    ms: 0,
+                    note: "hedge accepted (clean)",
+                });
+                return leg.raw;
+            }
+        }
 
         const structureStart = Date.now();
         let out;
@@ -272,7 +348,7 @@ export async function runExtraction(image: File): Promise<ExtractionResult> {
             ms: Date.now() - structureStart,
             note: `${DEEPSEEK_MODEL} · ${out.finish ?? "?"} · ${out.usage?.total_tokens ?? "?"} tok`,
         });
-        const parsed = parseJson(out.text, "structure");
+        let parsed = parseJson(out.text, "structure");
         if (parsed.refusal) return parsed;
 
         let result = verifyReceipt(parsed, grounding);
@@ -282,13 +358,36 @@ export async function runExtraction(image: File): Promise<ExtractionResult> {
         if (result.retry || !hasEssentials(result.receipt)) {
             try {
                 const retry = await visionRetry(numbered, grounding, result);
-                if (retry) result = retry.result;
+                if (retry) {
+                    result = retry.result;
+                    parsed = retry.parsed;
+                }
             } catch (err) {
                 stages.push({
                     stage: "vision-retry",
                     ok: false,
                     ms: 0,
                     note: errText(err),
+                });
+            }
+        }
+
+        // A hedge result can still win if it is cleaner than the structure.
+        if (hedgePromise) {
+            const leg = await hedgePromise;
+            if (
+                leg &&
+                (leg.result.flags.length === 0 ||
+                    leg.result.severity < result.severity)
+            ) {
+                parsed = leg.raw;
+                result = leg.result;
+                fallback = "deepseek-vision-hedge";
+                stages.push({
+                    stage: "hedge",
+                    ok: true,
+                    ms: 0,
+                    note: "hedge chosen over structure",
                 });
             }
         }
@@ -335,6 +434,21 @@ export async function runExtraction(image: File): Promise<ExtractionResult> {
     }
 
     async function viaDeepSeekVision(reason: string): Promise<ModelOutput> {
+        // Reuse the hedged vision call instead of paying for a second one.
+        if (hedgePromise) {
+            const leg = await hedgePromise;
+            if (leg) {
+                verified = leg.result;
+                fallback = "deepseek-vision";
+                stages.push({
+                    stage: "deepseek-vision",
+                    ok: true,
+                    ms: 0,
+                    note: "hedge result reused",
+                });
+                return leg.raw;
+            }
+        }
         const bytes = Buffer.from(await image.arrayBuffer());
         const start = Date.now();
         const out = await extractWithDeepSeekVision({
@@ -356,6 +470,14 @@ export async function runExtraction(image: File): Promise<ExtractionResult> {
         return parseJson(out.text, "deepseek-vision");
     }
 
+    function buildStageMs(): Record<string, number> {
+        const out: Record<string, number> = {};
+        for (const stage of stages) {
+            out[stage.stage] = (out[stage.stage] ?? 0) + stage.ms;
+        }
+        return out;
+    }
+
     function buildDebug(): ExtractDebug {
         return {
             runId,
@@ -367,6 +489,7 @@ export async function runExtraction(image: File): Promise<ExtractionResult> {
             finish,
             usage,
             stages,
+            stageMs: buildStageMs(),
             flags: verified?.flags,
             ocrTokens,
             markdownPreview,
@@ -387,6 +510,7 @@ export async function runExtraction(image: File): Promise<ExtractionResult> {
                 model,
                 finish,
                 usage,
+                stage_ms: buildStageMs(),
                 flags: verified?.flags.length ?? 0,
                 total_ms: Date.now() - started,
                 stages,

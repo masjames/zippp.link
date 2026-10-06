@@ -58,8 +58,10 @@ photo → PP-OCRv6 (Baidu AI Studio) → indexed rows → DeepSeek Flash → ver
   mismatches get flags. A bad failure allows one vision re-read with the OCR text.
 - **Gemini** (`src/lib/gemini.ts`): last-resort fallback.
 - **Orchestration** (`src/lib/extract-pipeline.ts`): attempt order
-  `paddle → deepseek-vision → gemini`, verification, per-stage timings, and the
-  debug trace (`debug.flags`).
+  `paddle → deepseek-vision → gemini`, verification, per-stage timings
+  (`debug.stageMs`), and the debug trace (`debug.flags`). If PaddleOCR has not
+  answered within `PADDLEOCR_HEDGE_MS` (default 5000), the vision leg starts in
+  parallel and the first result that passes the verifier is used.
 - Timeouts are env-tunable (`PADDLEOCR_TIMEOUT_MS`, `DEEPSEEK_TIMEOUT_MS`,
   `GEMINI_TIMEOUT_MS`).
 
@@ -183,7 +185,7 @@ Staff phone
 | Name | Where |
 |---|---|
 | `EXTRACT_PROVIDER` (`paddle` \| `gemini`) | server |
-| `PADDLEOCR_AISTUDIO_TOKEN` / `PADDLEOCR_MODEL` / `PADDLEOCR_BASE_URL` / `PADDLEOCR_TIMEOUT_MS` | server |
+| `PADDLEOCR_AISTUDIO_TOKEN` / `PADDLEOCR_MODEL` / `PADDLEOCR_BASE_URL` / `PADDLEOCR_TIMEOUT_MS` / `PADDLEOCR_POLL_INTERVAL_MS` / `PADDLEOCR_HEDGE_MS` | server |
 | `DEEPSEEK_API_KEY` / `DEEPSEEK_MODEL` / `DEEPSEEK_BASE_URL` / `DEEPSEEK_MAX_TOKENS` / `DEEPSEEK_TIMEOUT_MS` | server |
 | `GEMINI_API_KEY` / `GEMINI_TIMEOUT_MS` | server |
 | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` / `GOOGLE_REDIRECT_URI` | server |
