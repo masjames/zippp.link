@@ -47,6 +47,22 @@ export default function DebugPanel({
                     />
                 </dl>
 
+                {debug.flags && debug.flags.length > 0 ? (
+                    <div>
+                        <p className="mb-1 font-semibold text-amber-700">
+                            Verification flags
+                        </p>
+                        <ul className="space-y-1 font-mono text-amber-700">
+                            {debug.flags.map((flag, i) => (
+                                <li key={`${flag.path}-${i}`}>
+                                    {flag.path} · {flag.reason}
+                                    {flag.detail ? ` · ${flag.detail}` : ""}
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                ) : null}
+
                 <div>
                     <p className="mb-1 font-semibold text-muted">Stages</p>
                     <ol className="space-y-1">

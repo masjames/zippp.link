@@ -273,6 +273,58 @@ Ketuk nilai untuk mengubah
 Date assumed from the photo time. Check it.
 ## app.review.dateAssumed.id
 Tanggal diasumsikan dari waktu foto. Periksa.
+## app.review.checkThis.en
+Check this
+## app.review.checkThis.id
+Periksa ini
+## app.review.flagsTitle.en
+Check these before sending
+## app.review.flagsTitle.id
+Periksa ini sebelum mengirim
+## app.review.tapToConfirm.en
+Tap to confirm
+## app.review.tapToConfirm.id
+Ketuk untuk konfirmasi
+## app.review.lineFlag.en
+Line {n}: {field}
+## app.review.lineFlag.id
+Baris {n}: {field}
+## app.review.flagNotInOcr.en
+Not found in the photo text
+## app.review.flagNotInOcr.id
+Tidak ada di teks foto
+## app.review.flagRowMismatch.en
+Source row does not match
+## app.review.flagRowMismatch.id
+Baris sumber tidak cocok
+## app.review.flagLowConfidence.en
+Unclear digits in the photo
+## app.review.flagLowConfidence.id
+Angka di foto kurang jelas
+## app.review.flagArithmetic.en
+The numbers do not add up
+## app.review.flagArithmetic.id
+Angka tidak cocok
+## app.review.flagMissing.en
+Not read from the photo
+## app.review.flagMissing.id
+Tidak terbaca dari foto
+## app.review.flagUngrounded.en
+Could not be checked against the photo
+## app.review.flagUngrounded.id
+Tidak bisa dicek ke foto
+## app.check.subtotal.en
+Subtotal
+## app.check.subtotal.id
+Subtotal
+## app.check.tax.en
+Tax
+## app.check.tax.id
+Pajak
+## app.check.unitPrice.en
+Unit price
+## app.check.unitPrice.id
+Harga satuan
 ## app.review.sendAll.en
 Send all accepted ({count})
 ## app.review.sendAll.id

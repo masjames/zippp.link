@@ -38,22 +38,28 @@ spec/                  all specs and docs (archived/ for inactive)
 `POST /api/extract` returns the receipt JSON plus an always-on `debug` trace.
 
 ```
-photo → PP-OCRv6 (Baidu AI Studio)  →  reconstructed rows  →  DeepSeek Flash  →  receipt JSON
-             │ fails / times out              │ fails
-             ▼                                ▼
-     DeepSeek Flash vision  →  Gemini (last resort)
+photo → PP-OCRv6 (Baidu AI Studio) → indexed rows → DeepSeek Flash → verifier → receipt JSON
+             │ fails / times out          │ fails                        │ fails badly
+             ▼                            ▼                              ▼
+     DeepSeek Flash vision → Gemini (last resort)   DeepSeek Flash vision + OCR text (once)
 ```
 
 - **PP-OCRv6** (`src/lib/paddleocr.ts`): submit → poll → result. The result is
-  JSONL `ocrResults` with `rec_texts` + `rec_boxes`; tokens are grouped into
-  visual rows by y-centre and joined with ` | `.
+  JSONL `ocrResults` with `rec_texts` + `rec_boxes` + `rec_scores`; tokens are
+  grouped into visual rows by y-centre and joined with ` | `.
 - **Compactor** (`src/lib/ocr-compact.ts`): strips HTML tables / whitespace so
-  DeepSeek gets a compact payload.
+  DeepSeek gets a compact payload. Rows are prefixed with a zero-based index.
 - **DeepSeek Flash** (`src/lib/deepseek.ts`): text-only structuring with
   `response_format=json_object` and thinking disabled; also the vision fallback.
+  Every field carries a `*_source` row index.
+- **Verifier** (`src/lib/verify-receipt.ts`): deterministic grounding of every
+  amount, qty, total, date and the merchant in the OCR tokens; ungrounded values
+  become `null` and get a flag. Row mismatches, low OCR scores and arithmetic
+  mismatches get flags. A bad failure allows one vision re-read with the OCR text.
 - **Gemini** (`src/lib/gemini.ts`): last-resort fallback.
 - **Orchestration** (`src/lib/extract-pipeline.ts`): attempt order
-  `paddle → deepseek-vision → gemini`, per-stage timings, and the debug trace.
+  `paddle → deepseek-vision → gemini`, verification, per-stage timings, and the
+  debug trace (`debug.flags`).
 - Timeouts are env-tunable (`PADDLEOCR_TIMEOUT_MS`, `DEEPSEEK_TIMEOUT_MS`,
   `GEMINI_TIMEOUT_MS`).
 

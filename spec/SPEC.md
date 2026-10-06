@@ -73,8 +73,10 @@ learn ours. The job is append + one map, not a second general ledger.
 
 ## Data contract
 
-- Extract schema: `src/types/receipt.ts` (`Receipt`, `LineItem`) plus a `refusal`
-  signal (`not_a_receipt` / `unreadable`).
+- Extract schema: `src/types/receipt.ts` (`Receipt`, `LineItem`, `RawReceipt`,
+  `ReceiptFlag`) plus a `refusal` signal (`not_a_receipt` / `unreadable`). The
+  verifier attaches `Receipt.flags`; the raw model output carries `*_source` OCR
+  row indices.
 - Sheet write: array of rows, order = header map. Empty string for null.
 - Workspace config (persisted):
 

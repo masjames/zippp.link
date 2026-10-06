@@ -77,19 +77,28 @@ Each attempt is bounded; the debug trace is returned in every `/api/extract`
 response and shown in the app's Debug panel.
 
 1. **PaddleOCR** (`src/lib/paddleocr.ts`): submit → poll → result. PP-OCRv6
-   returns JSONL `ocrResults` with `rec_texts`/`rec_boxes`; tokens are grouped
-   into rows by y-centre (`|` joined). `PADDLEOCR_TIMEOUT_MS=10000`.
+   returns JSONL `ocrResults` with `rec_texts`/`rec_boxes`/`rec_scores`; tokens
+   are grouped into rows by y-centre (`|` joined). `PADDLEOCR_TIMEOUT_MS=10000`.
 2. **Compactor** (`src/lib/ocr-compact.ts`): the row text is the payload to
-   DeepSeek (HTML tables → compact text).
+   DeepSeek (HTML tables → compact text). Rows are prefixed with their zero-based
+   index so the model can report where each field came from.
 3. **DeepSeek Flash** (`src/lib/deepseek.ts`): text-only structuring,
-   `response_format=json_object`, `thinking: disabled`.
-4. **Essentials gate** (`hasEssentials` in the pipeline): a non-refusal result
+   `response_format=json_object`, `thinking: disabled`, with `*_source` row
+   indices on every field.
+4. **Verifier** (`src/lib/verify-receipt.ts`, deterministic): grounds every
+   amount, qty, total, date and the merchant in the OCR tokens. An ungrounded
+   value becomes `null` and gets a flag; row mismatches, low OCR scores and
+   arithmetic mismatches get flags. When the result fails badly, one vision
+   re-read with the OCR text is allowed, taken only if it passes cleanly.
+5. **Essentials gate** (`hasEssentials` in the pipeline): a non-refusal result
    without **an item and a price** throws → falls through to DeepSeek vision.
    A missing date is not fatal: the capture date is filled in and marked assumed.
-5. **Fallbacks**: DeepSeek vision (image → JSON), then Gemini.
+6. **Fallbacks**: DeepSeek vision (image → JSON), then Gemini. Fallback results
+   are verified too (against any OCR text, else flagged `ungrounded`).
 
 Observability: `console.log(JSON.stringify({event:"extract.run", ...}))` → Vercel
-runtime logs. `/api/detect` logs `detect.run`.
+runtime logs. Flags are in the `extract.run` line, the `/api/extract` response and
+the Debug panel.
 
 ---
 
@@ -124,13 +133,12 @@ runtime logs. `/api/detect` logs `detect.run`.
   `/api/sheets/append`, idempotent on the scan id, refunded on failure).
 
 ### Known problems (user feedback)
-- **Viewfinder looks ~16:9 while receipts are tall.** The overlay box coordinates
-  are percentages of the container, but the video is `object-cover` (cropped), so
-  the box is **misaligned** and the framing guide is wrong for portrait receipts.
-- **Auto-capture detection is still bad**, especially low light / hand in frame /
-  torn edge. The client box was made non-required, but the practical gate is now
-  the server `detect`, which is only as good as the vision model.
-- **The vision model is bad** and **hallucinates** (see §6).
+- **Auto-capture is still the weak part**, especially low light, a hand in frame,
+  or a torn edge. Steady + sharp can fire on a non-receipt, which the server then
+  drops and cools down. There is no on-device document detector yet.
+- **The vision model still hallucinates** when it is used (see §6). The verifier
+  now catches ungrounded values, but a plausible number that happens to appear
+  somewhere in the OCR can survive grounding.
 
 ---
 
@@ -142,18 +150,20 @@ Hallucination sources:
    (e.g., a plausible total or a merchant name).
 2. **DeepSeek vision fallback** reads the image and can invent totals/items when
    the image is poor.
-3. **OCR digit errors** (0/8, 1/7, 5/6) are silently "corrected" by the model to
-   plausible numbers instead of being left null.
+3. **OCR digit errors** (0/8, 1/7, 5/6) can be silently "corrected" by the model
+   to plausible numbers. The verifier now catches these: a swapped digit no
+   longer matches an OCR token, so the field becomes `null` and is flagged.
 
-Current guardrails: `null` when absent (prompt), the essentials gate (date/item/
-price), and user review before Send. Missing: grounding to the OCR text,
-arithmetic cross-checks, digit verification against OCR tokens, confidence.
+Guardrails (Phase 2): the deterministic verifier (`verify-receipt.ts`) grounds
+amounts, qty, totals, dates and the merchant in the OCR tokens (ungrounded values
+become `null`), fuzzy-matches the merchant, checks qty x unit price and the
+totals, checks the reported row indices, flags low OCR scores, and retries once
+through the vision path. Every flag must be tapped in the review card before
+Accept. The essentials gate (item + price) and user review remain.
 
-Candidate fixes (to discuss): ground every field in a source span from the OCR
-text; arithmetic validation (sum of line amounts ≈ subtotal ≈ total); reject
-values not found in the OCR tokens (fuzzy match); return per-field confidence;
-prefer a stronger structuring model; A/B the vision model (PP-OCRv6 vs
-PaddleOCR-VL-1.6; DeepSeek Flash vs Pro vs Gemini).
+Still open: A/B the vision model (PP-OCRv6 vs PaddleOCR-VL-1.6; DeepSeek Flash vs
+Pro vs Gemini) on real notas (Phase 3), and per-field confidence beyond the OCR
+score.
 
 ---
 

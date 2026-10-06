@@ -18,6 +18,15 @@ const INPUT_BAD =
 const INPUT_ASSUMED =
     "w-full rounded-xl border-2 border-amber-400 bg-surface px-3 py-2 text-body focus:border-amber-500 focus:outline-none";
 
+/** Small "check this" hint shown under a flagged field. */
+function FlagHint({ t }: { t: T }) {
+    return (
+        <span className="text-xs font-medium text-amber-600">
+            {t("app.review.checkThis")}
+        </span>
+    );
+}
+
 /** Static portrait guide. The video frame itself is not overlayed. */
 function GuideFrame() {
     const base = "pointer-events-none absolute h-7 w-7 border-4 border-white/90";
@@ -481,6 +490,14 @@ function ExpandedCard({
     const noPrice =
         !d.lines.some((l) => l.amount.trim() !== "") && d.total.trim() === "";
 
+    // Verification flags. Every flagged field must be tapped before Accept.
+    const flagged = d.flagged ?? [];
+    const reviewed = d.reviewed ?? [];
+    const pending = flagged.filter((path) => !reviewed.includes(path));
+    const flagByPath = new Map(
+        (item.receipt?.flags ?? []).map((flag) => [flag.path, flag])
+    );
+
     function patch(next: Partial<Draft>) {
         onChange({ ...d, ...next } as Draft);
     }
@@ -492,9 +509,56 @@ function ExpandedCard({
             ),
         } as Draft);
     }
+    function review(path: string) {
+        if (!flagged.includes(path) || reviewed.includes(path)) return;
+        patch({ reviewed: [...reviewed, path] });
+    }
+    function isPending(path: string): boolean {
+        return pending.includes(path);
+    }
+    function fieldClass(path: string): string {
+        return isPending(path) ? INPUT_ASSUMED : INPUT;
+    }
+    function flagLabel(path: string): string {
+        if (path === "merchant") return t("app.check.merchantFallback");
+        if (path === "date") return t("app.check.date");
+        if (path === "total") return t("app.check.total");
+        if (path === "subtotal") return t("app.check.subtotal");
+        if (path === "tax") return t("app.check.tax");
+        const line = path.match(/^line_items\[(\d+)\]\.(qty|unit_price|amount)$/);
+        if (line) {
+            const field =
+                line[2] === "qty"
+                    ? t("app.check.qty")
+                    : line[2] === "unit_price"
+                      ? t("app.check.unitPrice")
+                      : t("app.check.amt");
+            return fill(t("app.review.lineFlag"), { n: Number(line[1]) + 1, field });
+        }
+        return path;
+    }
+    function flagReason(path: string): string {
+        const reason = flagByPath.get(path)?.reason;
+        switch (reason) {
+            case "not_in_ocr":
+                return t("app.review.flagNotInOcr");
+            case "row_mismatch":
+                return t("app.review.flagRowMismatch");
+            case "low_confidence":
+                return t("app.review.flagLowConfidence");
+            case "arithmetic":
+                return t("app.review.flagArithmetic");
+            case "missing":
+                return t("app.review.flagMissing");
+            case "ungrounded":
+                return t("app.review.flagUngrounded");
+            default:
+                return t("app.review.checkThis");
+        }
+    }
     function tryAccept() {
         setShowErrors(true);
-        if (outletMissing || noLines || noPrice) return;
+        if (outletMissing || noLines || noPrice || pending.length > 0) return;
         onAccept();
     }
 
@@ -504,23 +568,32 @@ function ExpandedCard({
                 {t("app.review.tapToEdit")}
             </p>
 
-            <input
-                value={draft.merchant}
-                onChange={(e) => patch({ merchant: e.target.value })}
-                placeholder={t("app.check.merchantFallback")}
-                className={`${INPUT} mb-2 font-head text-xl font-extrabold`}
-            />
+            <div className="mb-2 grid gap-1">
+                <input
+                    value={draft.merchant}
+                    onFocus={() => review("merchant")}
+                    onChange={(e) => patch({ merchant: e.target.value })}
+                    placeholder={t("app.check.merchantFallback")}
+                    className={`${fieldClass("merchant")} font-head text-xl font-extrabold`}
+                />
+                {isPending("merchant") ? <FlagHint t={t} /> : null}
+            </div>
 
             <div className="grid grid-cols-2 gap-2">
                 <label className="grid gap-1">
                     <span className="text-xs font-semibold">{t("app.check.date")}</span>
                     <input
                         value={draft.date}
+                        onFocus={() => review("date")}
                         onChange={(e) =>
                             patch({ date: e.target.value, dateAssumed: false })
                         }
                         placeholder="dd/mm/yyyy"
-                        className={d.dateAssumed ? INPUT_ASSUMED : INPUT}
+                        className={
+                            isPending("date") || d.dateAssumed
+                                ? INPUT_ASSUMED
+                                : INPUT
+                        }
                     />
                     {d.dateAssumed ? (
                         <span className="text-xs font-medium text-amber-600">
@@ -546,19 +619,28 @@ function ExpandedCard({
             </label>
 
             <div className="mt-2 grid gap-2">
-                {draft.lines.map((line, i) => (
-                    <div key={i} className="grid gap-2 rounded-xl border-2 border-line p-2">
-                        <input value={line.description} onChange={(e) => patchLine(i, { description: e.target.value })}
-                            placeholder={t("app.check.item")} className={INPUT} />
-                        <div className="flex gap-2">
-                            <input value={line.qty} onChange={(e) => patchLine(i, { qty: e.target.value })}
-                                placeholder={t("app.check.qty")} inputMode="decimal" className={`${INPUT} w-20`} />
-                            <input value={line.amount} onChange={(e) => patchLine(i, { amount: e.target.value })}
-                                placeholder={t("app.check.amt")} inputMode="decimal"
-                                className={`${INPUT} flex-1 text-right tabular-money`} />
+                {draft.lines.map((line, i) => {
+                    const qtyPath = `line_items[${i}].qty`;
+                    const amountPath = `line_items[${i}].amount`;
+                    return (
+                        <div key={i} className="grid gap-2 rounded-xl border-2 border-line p-2">
+                            <input value={line.description} onChange={(e) => patchLine(i, { description: e.target.value })}
+                                placeholder={t("app.check.item")} className={INPUT} />
+                            <div className="flex gap-2">
+                                <input value={line.qty} onFocus={() => review(qtyPath)}
+                                    onChange={(e) => patchLine(i, { qty: e.target.value })}
+                                    placeholder={t("app.check.qty")} inputMode="decimal"
+                                    className={`${fieldClass(qtyPath)} w-20`} />
+                                <input value={line.amount} onFocus={() => review(amountPath)}
+                                    onChange={(e) => patchLine(i, { amount: e.target.value })}
+                                    placeholder={t("app.check.amt")} inputMode="decimal"
+                                    className={`${fieldClass(amountPath)} flex-1 text-right tabular-money`} />
+                            </div>
+                            {isPending(qtyPath) ? <FlagHint t={t} /> : null}
+                            {isPending(amountPath) ? <FlagHint t={t} /> : null}
                         </div>
-                    </div>
-                ))}
+                    );
+                })}
                 {showErrors && noLines ? (
                     <span className="text-xs font-medium text-danger">{t("app.check.itemsErr")}</span>
                 ) : null}
@@ -567,15 +649,45 @@ function ExpandedCard({
                 ) : null}
             </div>
 
-            <label className="mt-2 flex items-center justify-between gap-2">
+            <label className="mt-2 grid gap-1">
                 <span className="text-xs font-semibold">{t("app.check.total")}</span>
-                <input value={draft.total} onChange={(e) => patch({ total: e.target.value })}
-                    inputMode="decimal" className={`${INPUT} w-32 text-right font-extrabold tabular-money`} />
+                <input value={draft.total} onFocus={() => review("total")}
+                    onChange={(e) => patch({ total: e.target.value })}
+                    inputMode="decimal"
+                    className={`${fieldClass("total")} w-32 text-right font-extrabold tabular-money`} />
+                {isPending("total") ? <FlagHint t={t} /> : null}
             </label>
 
+            {pending.length > 0 ? (
+                <div className="mt-3 rounded-xl border-2 border-amber-400 bg-amber-50 p-2">
+                    <p className="text-xs font-semibold text-amber-700">
+                        {t("app.review.flagsTitle")}
+                    </p>
+                    <ul className="mt-1 grid gap-1">
+                        {pending.map((path) => (
+                            <li key={path}>
+                                <button
+                                    type="button"
+                                    onClick={() => review(path)}
+                                    className="w-full rounded-lg bg-white px-2 py-1 text-left text-xs"
+                                >
+                                    <span className="font-semibold text-ink">
+                                        {flagLabel(path)}
+                                    </span>
+                                    <span className="text-muted"> · {flagReason(path)}</span>
+                                    <span className="ml-1 font-semibold text-amber-700">
+                                        {t("app.review.tapToConfirm")}
+                                    </span>
+                                </button>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            ) : null}
+
             <div className="mt-3 flex gap-2">
-                <button type="button" onClick={tryAccept}
-                    className="flex-1 rounded-full bg-maroon px-4 py-3 font-semibold text-white">
+                <button type="button" onClick={tryAccept} disabled={pending.length > 0}
+                    className="flex-1 rounded-full bg-maroon px-4 py-3 font-semibold text-white disabled:opacity-60">
                     {t("app.review.accept")}
                 </button>
                 <button type="button" onClick={onCollapse}

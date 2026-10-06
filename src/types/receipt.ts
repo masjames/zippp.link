@@ -5,6 +5,17 @@ export type LineItem = {
     amount: number | null;
 };
 
+/**
+ * One verification flag. `path` identifies the field (e.g. "total",
+ * "line_items[0].amount"). `reason` is a machine code, `detail` is for humans.
+ */
+export type ReceiptFlag = {
+    path: string;
+    reason: string;
+    detail?: string;
+    row?: number | null;
+};
+
 export type Receipt = {
     merchant: string | null;
     date: string | null;
@@ -13,6 +24,28 @@ export type Receipt = {
     subtotal: number | null;
     tax: number | null;
     total: number | null;
+    /** Present when the verifier flagged one or more fields. */
+    flags?: ReceiptFlag[];
+};
+
+/** A line item as the model returned it, with OCR row provenance. */
+export type RawLineItem = LineItem & { source?: number | null };
+
+/** The raw structuring output, before verification. */
+export type RawReceipt = {
+    refusal?: "not_a_receipt" | "unreadable" | null;
+    merchant: string | null;
+    merchant_source?: number | null;
+    date: string | null;
+    date_source?: number | null;
+    currency: string | null;
+    line_items: RawLineItem[];
+    subtotal: number | null;
+    subtotal_source?: number | null;
+    tax: number | null;
+    tax_source?: number | null;
+    total: number | null;
+    total_source?: number | null;
 };
 
 export type ExtractTimings = {
@@ -43,6 +76,8 @@ export type ExtractDebug = {
         total_tokens?: number;
     } | null;
     stages: ExtractStage[];
+    /** Verification flags produced by the anti-hallucination pass. */
+    flags?: ReceiptFlag[];
     /** Raw OCR text lines (rec_texts), for step-by-step debugging. */
     ocrTokens?: string[];
     /** Reconstructed rows that were sent to DeepSeek. */

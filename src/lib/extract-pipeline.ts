@@ -16,11 +16,16 @@ import { extractWithGemini } from "./gemini";
 import { stripJsonFences } from "./json";
 import { compactOcrMarkdown } from "./ocr-compact";
 import { PaddleOcrError, runPaddleOcr } from "./paddleocr";
-import type { ExtractDebug, ExtractStage, LineItem, Receipt } from "@/types/receipt";
+import { verifyReceipt, type OcrGrounding, type VerifyResult } from "./verify-receipt";
+import type {
+    ExtractDebug,
+    ExtractStage,
+    LineItem,
+    RawReceipt,
+    Receipt,
+} from "@/types/receipt";
 
-type ModelOutput = Receipt & {
-    refusal?: "not_a_receipt" | "unreadable" | null;
-};
+type ModelOutput = RawReceipt;
 
 type AttemptName = "paddle" | "gemini" | "deepseek-vision";
 
@@ -37,40 +42,14 @@ export type ExtractionResult =
 const MAX_PREVIEW = 800;
 const MAX_MODEL_RAW = 4000;
 
-function asNumber(value: unknown): number | null {
-    return typeof value === "number" && Number.isFinite(value) ? value : null;
-}
-
-function asString(value: unknown): string | null {
-    return typeof value === "string" && value.length > 0 ? value : null;
-}
-
-function normalizeReceipt(raw: ModelOutput): Receipt {
-    const items: LineItem[] = Array.isArray(raw.line_items)
-        ? raw.line_items.map((item) => ({
-              description: asString(item?.description),
-              qty: asNumber(item?.qty),
-              unit_price: asNumber(item?.unit_price),
-              amount: asNumber(item?.amount),
-          }))
-        : [];
-
-    return {
-        merchant: asString(raw.merchant),
-        date: asString(raw.date),
-        currency: asString(raw.currency),
-        line_items: items,
-        subtotal: asNumber(raw.subtotal),
-        tax: asNumber(raw.tax),
-        total: asNumber(raw.total),
-    };
-}
-
 /**
  * A usable receipt needs an item and a price. A missing date is not fatal: the
  * capture date is filled in client-side and marked as assumed.
  */
-function hasEssentials(raw: ModelOutput): boolean {
+function hasEssentials(raw: {
+    line_items?: LineItem[] | null;
+    total?: number | null;
+}): boolean {
     const items = Array.isArray(raw.line_items) ? raw.line_items : [];
     const hasItem = items.some(
         (i) =>
@@ -120,11 +99,32 @@ async function withTimeout<T>(
 }
 
 /**
+ * Prefix every OCR row with its zero-based index, so the model can report the
+ * row each field came from and the verifier can check it.
+ */
+function numberOcrRows(compact: string): { text: string; rows: string[] } {
+    const rows = compact
+        .split("\n")
+        .map((row) => row.trim())
+        .filter(Boolean);
+    return { text: rows.map((row, i) => `[${i}] ${row}`).join("\n"), rows };
+}
+
+function verifyNote(result: VerifyResult): string {
+    if (result.flags.length === 0) return "no flags";
+    const reasons = Array.from(new Set(result.flags.map((f) => f.reason)));
+    return `${result.flags.length} flag(s): ${reasons.join(", ")}`;
+}
+
+/**
  * One extraction run.
  *
- * Attempt 1: PaddleOCR (vision) -> reconstructed rows -> DeepSeek Flash.
- * Attempt 2: DeepSeek Flash vision (image -> JSON). Cheap/fast, absorbs OCR
- *            timeouts without touching the rate-limited Gemini quota.
+ * Attempt 1: PaddleOCR (vision) -> numbered rows -> DeepSeek Flash.
+ *            The result is verified against the OCR tokens. If it fails badly,
+ *            one vision re-read with the OCR text is allowed, taken only when it
+ *            passes verification cleanly (or is strictly better).
+ * Attempt 2: DeepSeek Flash vision (image -> JSON), verified against any OCR
+ *            text that was captured before the failure.
  * Attempt 3: Gemini (vision -> JSON). Last resort.
  *
  * Every stage is recorded for the debug trace.
@@ -144,6 +144,76 @@ export async function runExtraction(image: File): Promise<ExtractionResult> {
     let modelRaw: string | undefined;
     let modelMs = 0;
 
+    let grounding: OcrGrounding | null = null;
+    let verified: VerifyResult | null = null;
+
+    function pushVerifyStage(result: VerifyResult, note: string) {
+        stages.push({
+            stage: "verify",
+            ok: result.flags.length === 0,
+            ms: 0,
+            note: `${note} · ${verifyNote(result)}`,
+        });
+    }
+
+    function parseJson(text: string, label: string): ModelOutput {
+        const parseStart = Date.now();
+        try {
+            const parsed = JSON.parse(stripJsonFences(text)) as ModelOutput;
+            stages.push({ stage: "parse", ok: true, ms: Date.now() - parseStart, note: label });
+            return parsed;
+        } catch (err) {
+            stages.push({
+                stage: "parse",
+                ok: false,
+                ms: Date.now() - parseStart,
+                note: `${label}: ${err instanceof Error ? err.message : "invalid JSON"}`,
+            });
+            throw new Error(`${label} returned invalid JSON`);
+        }
+    }
+
+    /** One vision re-read with the OCR text, used when verification fails badly. */
+    async function visionRetry(
+        numbered: string,
+        g: OcrGrounding,
+        previous: VerifyResult
+    ): Promise<{ parsed: ModelOutput; result: VerifyResult } | null> {
+        const bytes = Buffer.from(await image.arrayBuffer());
+        const start = Date.now();
+        const out = await extractWithDeepSeekVision({
+            mimeType: image.type || "image/jpeg",
+            dataBase64: bytes.toString("base64"),
+            ocrText: numbered,
+        });
+        modelMs += Date.now() - start;
+        model = DEEPSEEK_MODEL;
+        finish = out.finish;
+        usage = out.usage;
+        modelRaw = out.text.slice(0, MAX_MODEL_RAW);
+        fallback = "deepseek-vision-verify";
+        stages.push({
+            stage: "vision-retry",
+            ok: true,
+            ms: Date.now() - start,
+            note: `${DEEPSEEK_MODEL} · ${out.finish ?? "?"} · ${out.usage?.total_tokens ?? "?"} tok`,
+        });
+        const parsed = parseJson(out.text, "deepseek-vision");
+        if (parsed.refusal) return null;
+        const result = verifyReceipt(parsed, g);
+        if (result.flags.length === 0 || result.severity < previous.severity) {
+            pushVerifyStage(result, "vision-retry accepted");
+            return { parsed, result };
+        }
+        stages.push({
+            stage: "verify",
+            ok: false,
+            ms: 0,
+            note: `vision-retry rejected · ${verifyNote(result)}`,
+        });
+        return null;
+    }
+
     async function viaPaddle(): Promise<ModelOutput> {
         const ocrStart = Date.now();
         let ocr;
@@ -160,9 +230,10 @@ export async function runExtraction(image: File): Promise<ExtractionResult> {
         }
         const rawLen = ocr.markdown.length;
         const compact = compactOcrMarkdown(ocr.markdown);
+        const { text: numbered, rows } = numberOcrRows(compact);
         ocrChars = compact.length;
         ocrTokens = ocr.tokens.slice(0, 250);
-        markdownPreview = compact.slice(0, MAX_PREVIEW);
+        markdownPreview = numbered.slice(0, MAX_PREVIEW);
         modelMs += Date.now() - ocrStart;
         stages.push({
             stage: "ocr",
@@ -175,11 +246,12 @@ export async function runExtraction(image: File): Promise<ExtractionResult> {
             stages.push({ stage: "ocr", ok: false, ms: 0, note: errText(err) });
             throw err;
         }
+        grounding = { tokens: ocr.tokens, scores: ocr.scores, rows };
 
         const structureStart = Date.now();
         let out;
         try {
-            out = await structureReceipt(compact);
+            out = await structureReceipt(numbered);
         } catch (err) {
             stages.push({
                 stage: "structure",
@@ -201,9 +273,27 @@ export async function runExtraction(image: File): Promise<ExtractionResult> {
             note: `${DEEPSEEK_MODEL} · ${out.finish ?? "?"} · ${out.usage?.total_tokens ?? "?"} tok`,
         });
         const parsed = parseJson(out.text, "structure");
-        // If PaddleOCR could not yield an item and a price, fall through to
-        // DeepSeek vision (the next attempt).
-        if (!parsed.refusal && !hasEssentials(parsed)) {
+        if (parsed.refusal) return parsed;
+
+        let result = verifyReceipt(parsed, grounding);
+        pushVerifyStage(result, "structure");
+
+        // Fails badly: allow one vision re-read that can see the OCR text too.
+        if (result.retry || !hasEssentials(result.receipt)) {
+            try {
+                const retry = await visionRetry(numbered, grounding, result);
+                if (retry) result = retry.result;
+            } catch (err) {
+                stages.push({
+                    stage: "vision-retry",
+                    ok: false,
+                    ms: 0,
+                    note: errText(err),
+                });
+            }
+        }
+
+        if (!hasEssentials(result.receipt)) {
             stages.push({
                 stage: "verify",
                 ok: false,
@@ -212,6 +302,7 @@ export async function runExtraction(image: File): Promise<ExtractionResult> {
             });
             throw new Error("Incomplete receipt: missing item or price");
         }
+        verified = result;
         return parsed;
     }
 
@@ -265,23 +356,6 @@ export async function runExtraction(image: File): Promise<ExtractionResult> {
         return parseJson(out.text, "deepseek-vision");
     }
 
-    function parseJson(text: string, label: string): ModelOutput {
-        const parseStart = Date.now();
-        try {
-            const parsed = JSON.parse(stripJsonFences(text)) as ModelOutput;
-            stages.push({ stage: "parse", ok: true, ms: Date.now() - parseStart, note: label });
-            return parsed;
-        } catch (err) {
-            stages.push({
-                stage: "parse",
-                ok: false,
-                ms: Date.now() - parseStart,
-                note: `${label}: ${err instanceof Error ? err.message : "invalid JSON"}`,
-            });
-            throw new Error(`${label} returned invalid JSON`);
-        }
-    }
-
     function buildDebug(): ExtractDebug {
         return {
             runId,
@@ -293,6 +367,7 @@ export async function runExtraction(image: File): Promise<ExtractionResult> {
             finish,
             usage,
             stages,
+            flags: verified?.flags,
             ocrTokens,
             markdownPreview,
             modelRaw,
@@ -312,6 +387,7 @@ export async function runExtraction(image: File): Promise<ExtractionResult> {
                 model,
                 finish,
                 usage,
+                flags: verified?.flags.length ?? 0,
                 total_ms: Date.now() - started,
                 stages,
                 error,
@@ -335,6 +411,7 @@ export async function runExtraction(image: File): Promise<ExtractionResult> {
             else raw = await viaDeepSeekVision(failures.join(" | ") || "primary failed");
             break;
         } catch (err) {
+            verified = null;
             const note = errText(err);
             failures.push(`${attempt}: ${note}`);
             // paddle's own sub-stages already record its failure.
@@ -348,7 +425,7 @@ export async function runExtraction(image: File): Promise<ExtractionResult> {
         const debug = buildDebug();
         const message = failures.join("; ");
         logRun(false, message);
-        return { ok: false, error: `Extraction failed — ${message}`, refusal: null, model_ms: modelMs, debug };
+        return { ok: false, error: `Extraction failed: ${message}`, refusal: null, model_ms: modelMs, debug };
     }
 
     if (raw.refusal === "unreadable") {
@@ -372,7 +449,13 @@ export async function runExtraction(image: File): Promise<ExtractionResult> {
         };
     }
 
-    const receipt = normalizeReceipt(raw);
+    // Fallback paths never ran verification. Ground them against any OCR text
+    // that was captured before the primary failed.
+    if (!verified) {
+        verified = verifyReceipt(raw, grounding ?? { tokens: [] });
+        pushVerifyStage(verified, grounding ? "fallback" : "no-ocr");
+    }
+    const receipt = verified.receipt;
     stages.push({
         stage: "normalize",
         ok: true,

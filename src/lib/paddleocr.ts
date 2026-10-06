@@ -13,6 +13,8 @@ export type PaddleOcrResult = {
     blocks: { label: string; text: string }[];
     /** Raw recognized text lines (rec_texts), in detection order. */
     tokens: string[];
+    /** PP-OCRv6 per-token recognition score (0-1), aligned with `tokens`. */
+    scores: (number | null)[];
     pages: number;
     jobId: string;
     states: string[];
@@ -211,6 +213,7 @@ function parseResultPayload(text: string): {
     markdown: string;
     blocks: { label: string; text: string }[];
     tokens: string[];
+    scores: (number | null)[];
     pages: number;
 } {
     const records: unknown[] = [];
@@ -237,6 +240,7 @@ function parseResultPayload(text: string): {
     const blocks: { label: string; text: string }[] = [];
     const lines: string[] = [];
     const tokens: string[] = [];
+    const scores: (number | null)[] = [];
     let pages = 0;
 
     for (const record of records) {
@@ -271,6 +275,7 @@ function parseResultPayload(text: string): {
                   prunedResult?: {
                       rec_texts?: string[];
                       rec_boxes?: number[][];
+                      rec_scores?: number[];
                   };
               }[]
             | undefined;
@@ -280,7 +285,13 @@ function parseResultPayload(text: string): {
                 const pruned = ocr.prunedResult ?? {};
                 const texts = pruned.rec_texts ?? [];
                 const boxes = pruned.rec_boxes ?? [];
-                for (const t of texts) tokens.push(t);
+                const recScores = pruned.rec_scores ?? [];
+                for (let i = 0; i < texts.length; i++) {
+                    tokens.push(texts[i]);
+                    scores.push(
+                        typeof recScores[i] === "number" ? recScores[i] : null
+                    );
+                }
                 const recog: RecogToken[] = texts.map((t, i) => ({
                     text: t,
                     box: boxes[i] ?? [],
@@ -292,7 +303,7 @@ function parseResultPayload(text: string): {
         }
     }
 
-    return { markdown: lines.join("\n\n"), blocks, tokens, pages };
+    return { markdown: lines.join("\n\n"), blocks, tokens, scores, pages };
 }
 
 async function fetchResult(
@@ -302,6 +313,7 @@ async function fetchResult(
     markdown: string;
     blocks: { label: string; text: string }[];
     tokens: string[];
+    scores: (number | null)[];
     pages: number;
 }> {
     const res = await fetchRetry(

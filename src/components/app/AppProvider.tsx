@@ -242,12 +242,17 @@ export default function AppProvider({
                 const draft = toDraft(data.receipt);
                 // A missing date is assumed from the capture time and flagged in
                 // the review card, never treated as a failed read.
-                const dateAssumed = !draft.date;
-                if (dateAssumed) draft.date = captureDate(item.createdAt);
+                if (!draft.date) {
+                    draft.date = captureDate(item.createdAt);
+                    draft.dateAssumed = true;
+                    draft.flagged = Array.from(
+                        new Set([...(draft.flagged ?? []), "date"])
+                    );
+                }
                 patchItem(item.id, {
                     status: "ready",
                     receipt: data.receipt,
-                    draft: dateAssumed ? { ...draft, dateAssumed: true } : draft,
+                    draft,
                     debug: data.debug ?? null,
                 });
             } else if (item.source === "auto" && data.refusal === "not_a_receipt") {

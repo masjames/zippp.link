@@ -5,7 +5,7 @@ import {
     DEEPSEEK_TIMEOUT_MS,
     DEEPSEEK_TOKEN,
 } from "./config";
-import { RECEIPT_SCHEMA_HINT } from "./schema";
+import { RECEIPT_SCHEMA_HINT, SOURCE_INSTRUCTIONS } from "./schema";
 
 export type DeepSeekUsage = {
     prompt_tokens?: number;
@@ -28,8 +28,9 @@ export class DeepSeekError extends Error {
 
 const SYSTEM_PROMPT = `You convert a receipt or invoice into a single JSON object.
 Text may be English or Indonesian, and may be imperfect.
-Return JSON only — no markdown fences, no commentary.
+Return JSON only, no markdown fences, no commentary.
 Use null for any field that is missing or unreadable. Never invent merchants, dates, or amounts.
+${SOURCE_INSTRUCTIONS}
 If the input is not a receipt or invoice, set refusal to "not_a_receipt" and every other field to null.
 If it cannot be read at all, set refusal to "unreadable" and every other field to null.
 Otherwise set refusal to null.`;
@@ -94,13 +95,21 @@ export function structureReceipt(markdown: string): Promise<DeepSeekResult> {
     return postChat(`${RECEIPT_SCHEMA_HINT}\n\nOCR TEXT:\n${markdown}`);
 }
 
-/** Attempt 2: DeepSeek Flash reads the image directly (vision -> JSON). */
+/**
+ * Attempt 2: DeepSeek Flash reads the image directly (vision -> JSON).
+ * When `ocrText` is provided (the verification retry), the model can also
+ * ground its answer in the OCR rows.
+ */
 export function extractWithDeepSeekVision(args: {
     mimeType: string;
     dataBase64: string;
+    ocrText?: string | null;
 }): Promise<DeepSeekResult> {
+    const text = args.ocrText
+        ? `${RECEIPT_SCHEMA_HINT}\n\nOCR TEXT:\n${args.ocrText}`
+        : RECEIPT_SCHEMA_HINT;
     return postChat([
-        { type: "text", text: RECEIPT_SCHEMA_HINT },
+        { type: "text", text },
         {
             type: "image_url",
             image_url: {

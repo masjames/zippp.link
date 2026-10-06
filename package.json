@@ -6,6 +6,7 @@
     "build": "next build",
     "start": "next start",
     "logs": "python3 scripts/watch-logs.py",
+    "test": "node --test src/lib/verify-receipt.test.ts",
     "grant": "node --env-file=.env.local scripts/grant.mjs"
   },
   "dependencies": {
