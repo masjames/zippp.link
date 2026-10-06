@@ -411,6 +411,14 @@ Pengaturan
 Settings arrive in a later task.
 ## app.settings.soon.id
 Pengaturan akan hadir di tahap berikutnya.
+## app.settings.admin.en
+Admin
+## app.settings.admin.id
+Admin
+## admin.back.en
+Back to app
+## admin.back.id
+Kembali ke app
 ## app.credits.balance.en
 {count} credits
 ## app.credits.balance.id

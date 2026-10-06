@@ -58,10 +58,19 @@ export default function SettingsPage() {
             ) : null}
 
             <div className="mt-auto grid gap-3">
+                {balance?.admin ? (
+                    <button
+                        type="button"
+                        onClick={() => router.push("/admin")}
+                        className="rounded-full bg-brand px-6 py-4 font-semibold text-ink"
+                    >
+                        {t("app.settings.admin")}
+                    </button>
+                ) : null}
                 <button
                     type="button"
                     onClick={() => router.push("/app/topup")}
-                    className="rounded-full bg-brand px-6 py-4 font-semibold text-ink"
+                    className="rounded-full bg-mist px-6 py-4 font-semibold text-ink"
                 >
                     {t("app.topup.title")}
                 </button>

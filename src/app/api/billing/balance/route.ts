@@ -19,6 +19,7 @@ export async function GET() {
       credits: 0,
       soonestExpiry: null,
       refCode: null,
+      admin: user.admin,
     });
   }
 
@@ -38,5 +39,6 @@ export async function GET() {
     soonestExpiry: b.soonestExpiry,
     refCode: record?.refCode ?? null,
     referralEarned,
+    admin: user.admin,
   });
 }

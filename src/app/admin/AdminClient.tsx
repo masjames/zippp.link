@@ -73,7 +73,13 @@ export default function AdminClient({ wording }: { wording: Wording }) {
 
     return (
         <div className="mx-auto max-w-4xl px-5 py-10">
-            <h1 className="font-head text-4xl font-extrabold tracking-tight">
+            <a
+                href="/app/snap"
+                className="text-sm font-semibold text-muted hover:text-body"
+            >
+                &larr; {t("admin.back")}
+            </a>
+            <h1 className="mt-2 font-head text-4xl font-extrabold tracking-tight">
                 {t("admin.title")}
             </h1>
 

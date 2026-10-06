@@ -42,7 +42,10 @@ export default function AppShell({ children }: { children: ReactNode }) {
             router.replace("/app/topup");
             return;
         }
-        if (pathname === "/app") router.replace("/app/snap");
+        // Admins land on the admin panel from the app entry point.
+        if (pathname === "/app") {
+            router.replace(balance?.admin ? "/admin" : "/app/snap");
+        }
     }, [authChecked, auth, workspace, balance, pathname, router]);
 
     if (!authChecked) {

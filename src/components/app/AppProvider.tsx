@@ -39,6 +39,7 @@ export type BalanceState = {
     soonestExpiry: number | null;
     refCode: string | null;
     referralEarned?: number;
+    admin?: boolean;
 };
 
 type Value = {
