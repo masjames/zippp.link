@@ -171,27 +171,52 @@ export default function AppFlow({
         const id = crypto.randomUUID();
         setQueue((items) => [
             ...items,
-            {
-                id,
-                file,
-                previewUrl: URL.createObjectURL(file),
-                status: "queued",
-            },
+            { id, file, thumb: "", status: "queued" },
         ]);
+        // Fill the thumbnail in after; a data URL never goes stale.
+        void makeThumb(file).then((thumb) => {
+            if (thumb) updateItem(id, { thumb });
+        });
     }
 
     function removeItem(id: string) {
-        setQueue((items) => {
-            const target = items.find((item) => item.id === id);
-            if (target) URL.revokeObjectURL(target.previewUrl);
-            return items.filter((item) => item.id !== id);
-        });
+        setQueue((items) => items.filter((item) => item.id !== id));
         if (reviewId === id) setReviewId(null);
     }
 
     function retryItem(id: string) {
         updateItem(id, { status: "queued", error: undefined });
         if (reviewId === id) setPhase("capture");
+    }
+
+    /** Square JPEG data URL (~96px) from a captured photo. */
+    function makeThumb(file: File): Promise<string> {
+        return new Promise((resolve) => {
+            const url = URL.createObjectURL(file);
+            const image = new window.Image();
+            image.onload = () => {
+                const size = 96;
+                const canvas = document.createElement("canvas");
+                canvas.width = size;
+                canvas.height = size;
+                const ctx = canvas.getContext("2d");
+                if (ctx && image.width && image.height) {
+                    const scale = Math.max(size / image.width, size / image.height);
+                    const w = image.width * scale;
+                    const h = image.height * scale;
+                    ctx.drawImage(image, (size - w) / 2, (size - h) / 2, w, h);
+                    resolve(canvas.toDataURL("image/jpeg", 0.6));
+                } else {
+                    resolve("");
+                }
+                URL.revokeObjectURL(url);
+            };
+            image.onerror = () => {
+                URL.revokeObjectURL(url);
+                resolve("");
+            };
+            image.src = url;
+        });
     }
 
     function openReview(id: string) {
@@ -327,7 +352,8 @@ export default function AppFlow({
             }
             const data = await res.json();
             if (data.ok) {
-                updateItem(item.id, { status: "sent", receipt: edited });
+                // Sent: drop it from the queue so old snaps do not pile up.
+                setQueue((items) => items.filter((i) => i.id !== item.id));
                 setSent({
                     count:
                         typeof data.rows_written === "number"

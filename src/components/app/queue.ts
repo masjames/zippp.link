@@ -5,8 +5,11 @@ export type QueueStatus = "queued" | "reading" | "ready" | "failed" | "sending" 
 export type QueueItem = {
     id: string;
     file: File;
-    /** Object URL for the thumbnail. */
-    previewUrl: string;
+    /**
+     * Small data-URL thumbnail. A data URL (not an object URL) survives
+     * navigation and back/forward-cache restores, so it never renders broken.
+     */
+    thumb: string;
     status: QueueStatus;
     receipt?: Receipt;
     debug?: ExtractDebug | null;

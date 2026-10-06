@@ -42,12 +42,19 @@ export default function QueueStrip({
                         key={item.id}
                         className="flex items-center gap-3 rounded-2xl bg-surface p-2"
                     >
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                            src={item.previewUrl}
-                            alt=""
-                            className="h-11 w-11 flex-none rounded-lg object-cover"
-                        />
+                        {item.thumb ? (
+                            /* eslint-disable-next-line @next/next/no-img-element */
+                            <img
+                                src={item.thumb}
+                                alt=""
+                                className="h-11 w-11 flex-none rounded-lg object-cover"
+                            />
+                        ) : (
+                            <span
+                                aria-hidden
+                                className="h-11 w-11 flex-none rounded-lg bg-card"
+                            />
+                        )}
                         <div className="min-w-0 flex-1">
                             <p className="truncate text-sm font-medium">
                                 {item.receipt?.merchant ??
