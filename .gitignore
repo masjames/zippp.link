@@ -34,3 +34,7 @@ Thumbs.db
 # local oauth/token store (never commit)
 .data/
 .vercel
+
+# eval photos (not committed)
+eval/images/*
+!eval/images/.gitkeep

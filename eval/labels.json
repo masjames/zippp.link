@@ -1,0 +1,35 @@
+{
+  "notes": "Synthetic placeholders only. Put real photos in eval/images/ (not committed). Drop a case here per photo.",
+  "cases": [
+    {
+      "file": "sample-warmad.jpg",
+      "merchant": "Warung Makan Sederhana",
+      "date": "2026-10-06",
+      "items": [
+        { "description": "Nasi putih", "qty": 3, "amount": 15000 },
+        { "description": "Ayam goreng", "qty": 2, "amount": 30000 }
+      ],
+      "total": 45000
+    },
+    {
+      "file": "sample-supermarket.jpg",
+      "merchant": "Toko Sumber Jaya",
+      "date": "2026-10-05",
+      "items": [
+        { "description": "Beras 5kg", "qty": 1, "amount": 75000 },
+        { "description": "Minyak 2L", "qty": 2, "amount": 36000 },
+        { "description": "Gula 1kg", "qty": 1, "amount": 18000 }
+      ],
+      "total": 129000
+    },
+    {
+      "file": "sample-invoice.jpg",
+      "merchant": "PT Sinar Abadi",
+      "date": "2026-09-30",
+      "items": [
+        { "description": "Kertas A4", "qty": 5, "amount": 250000 }
+      ],
+      "total": 250000
+    }
+  ]
+}
