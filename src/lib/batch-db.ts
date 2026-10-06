@@ -10,12 +10,16 @@ export type BatchStatus =
     | "accepted"
     | "sending";
 
+export type CaptureSource = "auto" | "manual";
+
 export type BatchItem = {
     id: string;
     createdAt: number;
     blob: Blob;
     thumb: string;
     status: BatchStatus;
+    /** How it was captured; auto captures that are not receipts are dropped. */
+    source?: CaptureSource;
     receipt?: Receipt;
     draft?: Draft;
     debug?: ExtractDebug | null;

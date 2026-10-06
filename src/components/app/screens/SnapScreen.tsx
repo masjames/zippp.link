@@ -7,6 +7,7 @@ import DebugPanel from "../DebugPanel";
 import { useApp } from "../AppProvider";
 import { useReceiptDetector } from "../useReceiptDetector";
 import { fill, type T } from "@/lib/t";
+import { downscaleImage } from "@/lib/image";
 import { toDraft, type Draft } from "../draft";
 import type { BatchItem } from "@/lib/batch-db";
 import type { Workspace } from "../AppProvider";
@@ -56,6 +57,9 @@ export default function SnapScreen() {
     const cameraInputRef = useRef<HTMLInputElement>(null);
     const uploadInputRef = useRef<HTMLInputElement>(null);
     const armed = useRef(true);
+    const detecting = useRef(false);
+    const cooldown = useRef(0);
+    const [noReceipt, setNoReceipt] = useState(false);
 
     const detection = useReceiptDetector(videoRef, mode === "live");
     const outOfCredits = balance?.configured === true && balance.credits <= 0;
@@ -99,29 +103,45 @@ export default function SnapScreen() {
         }
     }
 
-    function captureFrame() {
+    function captureFrameBlob(): Promise<Blob | null> {
         const video = videoRef.current;
-        if (!video) return;
+        if (!video) return Promise.resolve(null);
         const width = video.videoWidth || 1080;
         const height = video.videoHeight || 1440;
         const canvas = document.createElement("canvas");
         canvas.width = width;
         canvas.height = height;
         const ctx = canvas.getContext("2d");
-        if (!ctx) return;
+        if (!ctx) return Promise.resolve(null);
         ctx.drawImage(video, 0, 0, width, height);
-        canvas.toBlob(
-            (blob) => {
-                if (!blob) return;
-                addFile(
-                    new File([blob], `receipt-${Date.now()}.jpg`, {
-                        type: "image/jpeg",
-                    })
-                );
-            },
-            "image/jpeg",
-            0.92
+        return new Promise((resolve) =>
+            canvas.toBlob((b) => resolve(b), "image/jpeg", 0.92)
         );
+    }
+
+    function fileFrom(blob: Blob): File {
+        return new File([blob], `receipt-${Date.now()}.jpg`, {
+            type: "image/jpeg",
+        });
+    }
+
+    /** Ask PaddleOCR (via /api/detect) whether a receipt is actually in frame. */
+    async function detectReceipt(frame: Blob): Promise<boolean> {
+        try {
+            const small = await downscaleImage(frame, 1000, 0.8);
+            const form = new FormData();
+            form.append("image", new File([small], "detect.jpg", { type: "image/jpeg" }));
+            const res = await fetch("/api/detect", { method: "POST", body: form });
+            const data = await res.json();
+            return Boolean(data.ok && data.receipt);
+        } catch {
+            return false;
+        }
+    }
+
+    async function manualCapture() {
+        const blob = await captureFrameBlob();
+        if (blob) addFile(fileFrom(blob), "manual");
     }
 
     function shutter() {
@@ -132,22 +152,45 @@ export default function SnapScreen() {
         }
         // Blur hard-blocks capture.
         if (detection.found && !detection.sharp) return;
-        captureFrame();
+        setNoReceipt(false);
+        void manualCapture();
     }
 
     // Auto-snap: sharp + steady + large enough, then re-arm.
     useEffect(() => {
-        if (!detection.found) armed.current = true;
+        if (!detection.found) {
+            armed.current = true;
+            setNoReceipt(false);
+        }
     }, [detection.found]);
 
+    // Auto-capture only fires once PaddleOCR confirms a receipt is in frame.
     useEffect(() => {
         if (!autoSnap || mode !== "live" || outOfCredits) return;
         const { found, box, sharp, stable } = detection;
         if (!found || !box || !sharp || !stable) return;
         if (box.w * box.h < 0.2) return;
         if (!armed.current) return;
+        if (Date.now() < cooldown.current) return;
         armed.current = false;
-        captureFrame();
+        const run = async () => {
+            if (detecting.current) return;
+            detecting.current = true;
+            try {
+                const blob = await captureFrameBlob();
+                if (!blob) return;
+                if (await detectReceipt(blob)) {
+                    setNoReceipt(false);
+                    addFile(fileFrom(blob), "auto");
+                } else {
+                    setNoReceipt(true);
+                    cooldown.current = Date.now() + 2500;
+                }
+            } finally {
+                detecting.current = false;
+            }
+        };
+        void run();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [autoSnap, mode, detection, outOfCredits]);
 
@@ -185,6 +228,10 @@ export default function SnapScreen() {
                 ) : detection.found && !detection.sharp ? (
                     <span className="absolute bottom-4 left-0 right-0 z-10 text-xs font-semibold text-amber-200">
                         {t("app.capture.holdSteady")}
+                    </span>
+                ) : noReceipt ? (
+                    <span className="absolute bottom-4 left-0 right-0 z-10 text-xs font-semibold text-amber-200">
+                        {t("app.capture.noReceipt")}
                     </span>
                 ) : !detection.box ? (
                     <span className="absolute bottom-4 left-0 right-0 z-10 px-6 text-xs opacity-80">
@@ -271,27 +318,39 @@ export default function SnapScreen() {
                             }}
                         />
                     ) : (
-                        <button
+                        <div
                             key={item.id}
-                            type="button"
-                            onClick={() => setOpen(item.id)}
-                            className="flex items-center gap-3 rounded-2xl bg-surface p-2 text-left"
+                            className="flex items-center gap-2 rounded-2xl bg-surface p-2"
                         >
-                            {item.thumb ? (
-                                // eslint-disable-next-line @next/next/no-img-element
-                                <img src={item.thumb} alt="" className="h-10 w-10 flex-none rounded-lg object-cover" />
-                            ) : (
-                                <span className="h-10 w-10 flex-none rounded-lg bg-card" aria-hidden />
-                            )}
-                            <span className="min-w-0 flex-1">
-                                <span className="block truncate text-sm font-medium">
-                                    {item.receipt?.merchant ?? t("app.queue.ready")}
+                            <button
+                                type="button"
+                                onClick={() => setOpen(item.id)}
+                                className="flex min-w-0 flex-1 items-center gap-3 text-left"
+                            >
+                                {item.thumb ? (
+                                    // eslint-disable-next-line @next/next/no-img-element
+                                    <img src={item.thumb} alt="" className="h-10 w-10 flex-none rounded-lg object-cover" />
+                                ) : (
+                                    <span className="h-10 w-10 flex-none rounded-lg bg-card" aria-hidden />
+                                )}
+                                <span className="min-w-0 flex-1">
+                                    <span className="block truncate text-sm font-medium">
+                                        {item.receipt?.merchant ?? t("app.queue.ready")}
+                                    </span>
+                                    <span className="block text-xs text-muted">
+                                        {t("app.review.tapToEdit")}
+                                    </span>
                                 </span>
-                                <span className="block text-xs text-muted">
-                                    {t("app.review.tapToEdit")}
-                                </span>
-                            </span>
-                        </button>
+                            </button>
+                            <button
+                                type="button"
+                                aria-label={t("app.queue.remove")}
+                                onClick={() => removeItem(item.id)}
+                                className="flex-none px-2 text-lg leading-none text-danger"
+                            >
+                                ×
+                            </button>
+                        </div>
                     )
                 )}
             </div>
@@ -455,6 +514,13 @@ function ExpandedCard({
                     {t("app.review.edit")}
                 </button>
             </div>
+            <button
+                type="button"
+                onClick={onRemove}
+                className="mt-2 w-full rounded-full border-2 border-line px-4 py-2 text-sm font-semibold text-danger"
+            >
+                {t("app.queue.remove")}
+            </button>
             <DebugPanel debug={item.debug} />
         </div>
     );

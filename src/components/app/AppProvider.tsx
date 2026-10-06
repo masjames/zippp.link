@@ -18,6 +18,7 @@ import {
     putItem,
     setOpenId as dbSetOpenId,
     type BatchItem,
+    type CaptureSource,
 } from "@/lib/batch-db";
 import { downscaleImage, makeThumb } from "@/lib/image";
 import { fromDraft, toDraft } from "./draft";
@@ -70,7 +71,7 @@ type Value = {
     openId: string | null;
     autoSnap: boolean;
     setAutoSnap: (on: boolean) => void;
-    addFile: (file: File) => void;
+    addFile: (file: File, source?: CaptureSource) => void;
     setOpen: (id: string | null) => void;
     updateDraft: (id: string, draft: BatchItem["draft"]) => void;
     acceptItem: (id: string) => void;
@@ -231,6 +232,13 @@ export default function AppProvider({
                     draft: toDraft(data.receipt),
                     debug: data.debug ?? null,
                 });
+            } else if (
+                item.source === "auto" &&
+                data.error === "Not a receipt or invoice."
+            ) {
+                // Auto captures only stick if PaddleOCR says it is a receipt.
+                setBatch((items) => items.filter((i) => i.id !== item.id));
+                void dbDeleteItem(item.id);
             } else {
                 patchItem(item.id, {
                     status: "failed",
@@ -248,7 +256,7 @@ export default function AppProvider({
         }
     }
 
-    function addFile(file: File) {
+    function addFile(file: File, source: CaptureSource = "manual") {
         const id = crypto.randomUUID();
         const createdAt = Date.now();
         void (async () => {
@@ -260,6 +268,7 @@ export default function AppProvider({
                 blob,
                 thumb,
                 status: "queued",
+                source,
             };
             await putItem(item);
             setBatch((items) => [item, ...items]);

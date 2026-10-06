@@ -277,6 +277,10 @@ Kirim semua yang diterima ({count})
 {sent} of {total} sent
 ## app.review.summary.id
 {sent} dari {total} terkirim
+## app.capture.noReceipt.en
+No receipt in view.
+## app.capture.noReceipt.id
+Tidak ada resi di pandangan.
 
 ## app.reading.title.en
 Reading
