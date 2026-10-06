@@ -1,4 +1,8 @@
+import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
+import { currentUser } from "@/lib/auth";
+import { refundScan, spend } from "@/lib/billing/ledger";
+import { billingConfigured } from "@/lib/billing/redis";
 import {
   appendRows,
   SheetsApiError,
@@ -15,6 +19,8 @@ type AppendBody = {
   receipt?: Receipt;
   staff?: string;
   outlet?: string | null;
+  /** Stable id for this scan; makes the credit charge idempotent. */
+  scanId?: string;
 };
 
 function isFiniteNumber(v: unknown): v is number {
@@ -67,6 +73,8 @@ function parseReceipt(raw: unknown): Receipt | null {
 }
 
 export async function POST(req: Request) {
+  let chargedUserId: string | null = null;
+  let chargedScanId: string | null = null;
   try {
     if (!(await hasTokens())) {
       return NextResponse.json(
@@ -170,6 +178,40 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: false, error: message }, { status: 400 });
     }
 
+    // Charge one credit on Send (idempotent on the scan id).
+    if (billingConfigured()) {
+      const user = await currentUser();
+      if (!user.signedIn || !user.userId) {
+        return NextResponse.json(
+          { ok: false, error: "Not signed in with Google." },
+          { status: 401 }
+        );
+      }
+      const scanId =
+        typeof body.scanId === "string" && body.scanId
+          ? body.scanId
+          : randomUUID();
+      const spent = await spend({
+        userId: user.userId,
+        credits: 1,
+        idem: `scan:${scanId}`,
+      });
+      if (spent === "insufficient") {
+        return NextResponse.json(
+          { ok: false, error: "No credits. Top up to send.", needsCredits: true },
+          { status: 402 }
+        );
+      }
+      if (spent === "duplicate") {
+        return NextResponse.json(
+          { ok: false, error: "This scan was already sent." },
+          { status: 409 }
+        );
+      }
+      chargedUserId = user.userId;
+      chargedScanId = scanId;
+    }
+
     const result = await appendRows(
       workspace.spreadsheet_id,
       workspace.sheet_tab,
@@ -183,6 +225,14 @@ export async function POST(req: Request) {
       sheet_tab: workspace.sheet_tab,
     });
   } catch (err) {
+    // Append failed after charging: give the credit back.
+    if (chargedUserId && chargedScanId) {
+      try {
+        await refundScan(chargedUserId, chargedScanId);
+      } catch {
+        /* ignore */
+      }
+    }
     if (err instanceof SheetsAuthError) {
       return NextResponse.json(
         { ok: false, error: err.message, needsReconsent: true },

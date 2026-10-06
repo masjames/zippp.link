@@ -197,8 +197,9 @@ export async function grant(input: {
 /* ------------------------------- spending ------------------------------ */
 
 const SPEND_LUA = `
+if redis.call('SET', KEYS[3], '1', 'NX') == false then return 2 end
 local raw = redis.call('GET', KEYS[1])
-if not raw then return 0 end
+if not raw then redis.call('DEL', KEYS[3]) return 0 end
 local a = cjson.decode(raw)
 local now = tonumber(ARGV[1])
 local need = tonumber(ARGV[2])
@@ -211,18 +212,20 @@ for _,lot in ipairs(a.lots) do
     if need == 0 then break end
   end
 end
-if need > 0 then return 0 end
+if need > 0 then redis.call('DEL', KEYS[3]) return 0 end
 redis.call('SET', KEYS[1], cjson.encode(a))
 redis.call('LPUSH', KEYS[2], ARGV[3])
 return 1
 `;
 
-/** Spend credits, earliest-expiry lot first. Atomic. */
+export type SpendResult = "ok" | "insufficient" | "duplicate";
+
+/** Spend credits, earliest-expiry lot first. Atomic and idempotent on `idem`. */
 export async function spend(input: {
     userId: string;
     credits: number;
     idem: string;
-}): Promise<boolean> {
+}): Promise<SpendResult> {
     const now = Date.now();
     const entry: LedgerEntry = {
         id: randomUUID(),
@@ -236,13 +239,14 @@ export async function spend(input: {
     if (billingConfigured()) {
         const result = await evalScript(
             SPEND_LUA,
-            [acctKey(input.userId), ledgerKey(input.userId)],
+            [acctKey(input.userId), ledgerKey(input.userId), idemKey(input.idem)],
             [now, input.credits, JSON.stringify(entry)]
         );
-        return result === 1;
+        return result === 1 ? "ok" : result === 2 ? "duplicate" : "insufficient";
     }
 
     return withLock(async () => {
+        if (mem.get(idemKey(input.idem))) return "duplicate";
         const account = await getAccount(input.userId);
         account.lots.sort((a, b) => a.expiresAt - b.expiresAt);
         let need = input.credits;
@@ -254,12 +258,33 @@ export async function spend(input: {
                 if (need === 0) break;
             }
         }
-        if (need > 0) return false;
+        if (need > 0) return "insufficient";
+        mem.set(idemKey(input.idem), "1");
         mem.set(acctKey(input.userId), JSON.stringify(account));
         const list = memLedger.get(input.userId) ?? [];
         list.unshift(entry);
         memLedger.set(input.userId, list);
-        return true;
+        return "ok";
+    });
+}
+
+/** Refund a scan charge and free its idempotency key so a retry can re-spend. */
+export async function refundScan(userId: string, scanId: string): Promise<boolean> {
+    if (billingConfigured()) {
+        try {
+            await command(["DEL", idemKey(`scan:${scanId}`)]);
+        } catch {
+            /* ignore */
+        }
+    } else {
+        mem.delete(idemKey(`scan:${scanId}`));
+    }
+    return grant({
+        userId,
+        credits: 1,
+        source: "refund",
+        idem: `refund:${scanId}`,
+        note: `refund for scan ${scanId}`,
     });
 }
 

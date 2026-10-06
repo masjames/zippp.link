@@ -352,7 +352,12 @@ export default function AppProvider({
             const res = await fetch("/api/sheets/append", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ receipt: edited, staff, outlet }),
+                body: JSON.stringify({
+                    receipt: edited,
+                    staff,
+                    outlet,
+                    scanId: itemId,
+                }),
             });
             if (res.status === 401) {
                 updateItem(itemId, { status: "ready", receipt: edited });
