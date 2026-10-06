@@ -5,6 +5,7 @@ import {
   googleOAuthConfigured,
   resolveGoogleUser,
 } from "@/lib/google/oauth";
+import { applySession } from "@/lib/google/session";
 import { saveTokens } from "@/lib/google/token-store";
 
 export const runtime = "nodejs";
@@ -72,7 +73,10 @@ export async function GET(req: Request) {
       expiry_date: tokens.expiry_date ?? null,
     });
 
-    return redirectHome(req, "ok");
+    // Bind this browser to the user so tokens/workspace/billing are per-user.
+    const response = redirectHome(req, "ok");
+    applySession(user.id, response);
+    return response;
   } catch (e) {
     const message = e instanceof Error ? e.message : "token_exchange_failed";
     console.error("OAuth callback failed:", message);
