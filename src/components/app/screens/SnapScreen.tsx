@@ -59,7 +59,10 @@ export default function SnapScreen() {
     const armed = useRef(true);
     const detecting = useRef(false);
     const cooldown = useRef(0);
+    const flashAuto = useRef(true);
     const [noReceipt, setNoReceipt] = useState(false);
+    const [torchSupported, setTorchSupported] = useState(false);
+    const [torchOn, setTorchOn] = useState(false);
 
     const detection = useReceiptDetector(videoRef, mode === "live");
     const outOfCredits = balance?.configured === true && balance.credits <= 0;
@@ -75,6 +78,28 @@ export default function SnapScreen() {
     function stopCamera() {
         streamRef.current?.getTracks().forEach((track) => track.stop());
         streamRef.current = null;
+        setTorchOn(false);
+        flashAuto.current = true;
+    }
+
+    /** Torch (camera flash) is a track capability; unsupported on many browsers. */
+    async function applyTorch(on: boolean) {
+        const track = streamRef.current?.getVideoTracks()[0];
+        if (!track) return;
+        try {
+            await track.applyConstraints({
+                advanced: [{ torch: on }],
+            } as unknown as MediaTrackConstraints);
+        } catch {
+            /* not supported; ignore */
+        }
+    }
+
+    function toggleFlash() {
+        flashAuto.current = false;
+        const next = !torchOn;
+        setTorchOn(next);
+        void applyTorch(next);
     }
 
     useEffect(() => () => stopCamera(), []);
@@ -92,6 +117,9 @@ export default function SnapScreen() {
                 audio: false,
             });
             streamRef.current = stream;
+            const track = stream.getVideoTracks()[0];
+            const caps = track?.getCapabilities?.() as { torch?: boolean } | undefined;
+            setTorchSupported(Boolean(caps?.torch));
             setMode("live");
             if (videoRef.current) {
                 videoRef.current.srcObject = stream;
@@ -154,6 +182,20 @@ export default function SnapScreen() {
         setNoReceipt(false);
         void manualCapture();
     }
+
+    // Low light turns the torch on; bright turns it off. A manual tap wins.
+    useEffect(() => {
+        if (!torchSupported || !flashAuto.current || mode !== "live") return;
+        const b = detection.brightness;
+        if (b <= 0) return;
+        if (b < 55 && !torchOn) {
+            setTorchOn(true);
+            void applyTorch(true);
+        } else if (b > 95 && torchOn) {
+            setTorchOn(false);
+            void applyTorch(false);
+        }
+    }, [detection.brightness, torchSupported, mode, torchOn]);
 
     // Re-arm when the scene moves (the next receipt), not on a bright box.
     useEffect(() => {
@@ -273,11 +315,26 @@ export default function SnapScreen() {
                     className="font-medium text-ink underline underline-offset-4">
                     {t("app.capture.upload")}
                 </button>
-                <button type="button" aria-pressed={autoSnap} onClick={() => setAutoSnap(!autoSnap)}
-                    className={`rounded-full px-3 py-1 font-semibold ${autoSnap ? "bg-maroon text-white" : "bg-peach text-ink"}`}>
-                    {t("app.capture.autoSnap")}
-                    {autoSnap ? " · ON" : ""}
-                </button>
+                <div className="flex items-center gap-2">
+                    {torchSupported ? (
+                        <button
+                            type="button"
+                            aria-pressed={torchOn}
+                            onClick={toggleFlash}
+                            className={`rounded-full px-3 py-1 font-semibold ${
+                                torchOn ? "bg-brand text-ink" : "bg-peach text-ink"
+                            }`}
+                        >
+                            {t("app.capture.flash")}
+                            {torchOn ? " · ON" : ""}
+                        </button>
+                    ) : null}
+                    <button type="button" aria-pressed={autoSnap} onClick={() => setAutoSnap(!autoSnap)}
+                        className={`rounded-full px-3 py-1 font-semibold ${autoSnap ? "bg-maroon text-white" : "bg-peach text-ink"}`}>
+                        {t("app.capture.autoSnap")}
+                        {autoSnap ? " · ON" : ""}
+                    </button>
+                </div>
             </div>
 
             {outOfCredits ? (

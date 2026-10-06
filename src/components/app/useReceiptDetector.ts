@@ -12,6 +12,8 @@ export type Detection = {
     sharp: boolean;
     /** The frame is holding still (motion-based). */
     steady: boolean;
+    /** Mean luma 0-255; drives the low-light torch. */
+    brightness: number;
 };
 
 const PROCESS_WIDTH = 160;
@@ -20,7 +22,13 @@ const STEADY_FRAMES = 6; // ~0.5s
 const MOTION_MAX = 8; // mean abs luma diff (0-255) that still counts as "still"
 const SHARP_MIN = 12; // variance of Laplacian; low light noise keeps this up
 
-const EMPTY: Detection = { found: false, box: null, sharp: false, steady: false };
+const EMPTY: Detection = {
+    found: false,
+    box: null,
+    sharp: false,
+    steady: false,
+    brightness: 0,
+};
 
 /** Otsu's method: pick the luminance threshold that best splits the frame. */
 function otsu(hist: number[], total: number): number {
@@ -57,17 +65,20 @@ function analyze(
     data: Uint8ClampedArray,
     w: number,
     h: number
-): { box: DetectedBox | null; sharp: boolean; gray: Uint8Array } {
+): { box: DetectedBox | null; sharp: boolean; gray: Uint8Array; brightness: number } {
     const gray = new Uint8Array(w * h);
     const hist = new Array<number>(256).fill(0);
+    let lum = 0;
     for (let i = 0; i < w * h; i++) {
         const r = data[i * 4];
         const g = data[i * 4 + 1];
         const b = data[i * 4 + 2];
         const y = (r * 299 + g * 587 + b * 114) / 1000;
         gray[i] = y;
+        lum += y;
         hist[y | 0]++;
     }
+    const brightness = lum / (w * h);
 
     const threshold = otsu(hist, w * h);
     const mask = new Uint8Array(w * h);
@@ -137,7 +148,7 @@ function analyze(
         variance /= n;
     }
 
-    return { box, sharp: variance > SHARP_MIN, gray };
+    return { box, sharp: variance > SHARP_MIN, gray, brightness };
 }
 
 /**
@@ -186,7 +197,7 @@ export function useReceiptDetector(
             }
             ctx.drawImage(video, 0, 0, w, h);
             const frame = ctx.getImageData(0, 0, w, h);
-            const { box, sharp, gray } = analyze(frame.data, w, h);
+            const { box, sharp, gray, brightness } = analyze(frame.data, w, h);
 
             let motion = 255;
             const prev = prevGray.current;
@@ -201,7 +212,7 @@ export function useReceiptDetector(
             else steadyCount.current = 0;
             const steady = steadyCount.current >= STEADY_FRAMES;
 
-            setDetection({ found: Boolean(box), box, sharp, steady });
+            setDetection({ found: Boolean(box), box, sharp, steady, brightness });
         };
 
         raf = requestAnimationFrame(loop);

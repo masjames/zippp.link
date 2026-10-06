@@ -281,6 +281,10 @@ Kirim semua yang diterima ({count})
 No receipt in view.
 ## app.capture.noReceipt.id
 Tidak ada resi di pandangan.
+## app.capture.flash.en
+Flash
+## app.capture.flash.id
+Lampu
 
 ## app.reading.title.en
 Reading
