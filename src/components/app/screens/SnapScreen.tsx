@@ -421,12 +421,13 @@ function ExpandedCard({
     }
 
     const d: Draft = draft;
-    const requireStaff = workspace?.template_id === "resto-inventory";
+    // Staff is optional. The essentials are date, an item, and a price.
     const requireOutlet = (workspace?.outlets?.length ?? 0) > 1;
     const dateMissing = d.date.trim() === "";
-    const staffMissing = requireStaff && d.staff.trim() === "";
     const outletMissing = requireOutlet && d.outlet.trim() === "";
     const noLines = !d.lines.some((l) => l.description.trim() || l.amount.trim());
+    const noPrice =
+        !d.lines.some((l) => l.amount.trim() !== "") && d.total.trim() === "";
 
     function patch(next: Partial<Draft>) {
         onChange({ ...d, ...next } as Draft);
@@ -441,7 +442,7 @@ function ExpandedCard({
     }
     function tryAccept() {
         setShowErrors(true);
-        if (dateMissing || staffMissing || outletMissing || noLines) return;
+        if (dateMissing || outletMissing || noLines || noPrice) return;
         onAccept();
     }
 
@@ -465,9 +466,11 @@ function ExpandedCard({
                         placeholder="dd/mm/yyyy" className={showErrors && dateMissing ? INPUT_BAD : INPUT} />
                 </label>
                 <label className="grid gap-1">
-                    <span className="text-xs font-semibold">{t("app.check.staff")}</span>
+                    <span className="text-xs font-semibold">
+                        {t("app.check.staff")} ({t("app.check.optional")})
+                    </span>
                     <input value={draft.staff} onChange={(e) => patch({ staff: e.target.value })}
-                        className={showErrors && staffMissing ? INPUT_BAD : INPUT} />
+                        className={INPUT} />
                 </label>
             </div>
 
@@ -495,6 +498,9 @@ function ExpandedCard({
                 ))}
                 {showErrors && noLines ? (
                     <span className="text-xs font-medium text-danger">{t("app.check.itemsErr")}</span>
+                ) : null}
+                {showErrors && noPrice ? (
+                    <span className="text-xs font-medium text-danger">{t("app.check.priceErr")}</span>
                 ) : null}
             </div>
 

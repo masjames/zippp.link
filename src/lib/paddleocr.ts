@@ -125,7 +125,8 @@ type JobStatus = {
 
 async function poll(
     jobId: string,
-    deadline: number
+    deadline: number,
+    timeoutMs: number
 ): Promise<{ status: JobStatus; states: string[] }> {
     const states: string[] = [];
 
@@ -157,7 +158,7 @@ async function poll(
     }
 
     throw new PaddleOcrError(
-        `timed out after ${PADDLEOCR_TIMEOUT_MS}ms (states: ${states.join(">") || "none"})`,
+        `timed out after ${timeoutMs}ms (states: ${states.join(">") || "none"})`,
         "poll"
     );
 }
@@ -333,7 +334,7 @@ export async function runPaddleOcr(
     const submitMs = Date.now() - submitStart;
 
     const pollStart = Date.now();
-    const { status, states } = await poll(jobId, deadline);
+    const { status, states } = await poll(jobId, deadline, timeoutMs);
     const pollMs = Date.now() - pollStart;
 
     const jsonUrl = status.resultUrl?.jsonUrl;

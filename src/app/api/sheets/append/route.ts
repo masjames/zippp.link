@@ -125,18 +125,10 @@ export async function POST(req: Request) {
       );
     }
 
+    // Staff is optional.
     const staff =
       typeof body.staff === "string" ? body.staff.trim() : "";
     const isResto = workspace.template_id === "resto-inventory";
-    if (isResto && !staff) {
-      return NextResponse.json(
-        {
-          ok: false,
-          error: "Staff is required before sending to the sheet.",
-        },
-        { status: 400 }
-      );
-    }
 
     let outlet: string | null = null;
     if (typeof body.outlet === "string" && body.outlet.trim()) {
@@ -145,11 +137,7 @@ export async function POST(req: Request) {
       outlet = workspace.default_outlet;
     }
 
-    if (
-      isResto &&
-      workspace.outlets.length > 1 &&
-      !outlet
-    ) {
+    if (workspace.outlets.length > 1 && !outlet) {
       return NextResponse.json(
         {
           ok: false,

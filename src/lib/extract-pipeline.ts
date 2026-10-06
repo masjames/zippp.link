@@ -66,6 +66,21 @@ function normalizeReceipt(raw: ModelOutput): Receipt {
     };
 }
 
+/** A usable receipt needs a date, an item, and a price. */
+function hasEssentials(raw: ModelOutput): boolean {
+    const date = typeof raw.date === "string" && raw.date.trim() !== "";
+    const items = Array.isArray(raw.line_items) ? raw.line_items : [];
+    const hasItem = items.some(
+        (i) =>
+            (typeof i?.description === "string" && i.description.trim() !== "") ||
+            (typeof i?.amount === "number" && Number.isFinite(i.amount))
+    );
+    const hasPrice =
+        (typeof raw.total === "number" && Number.isFinite(raw.total)) ||
+        items.some((i) => typeof i?.amount === "number" && Number.isFinite(i.amount));
+    return date && hasItem && hasPrice;
+}
+
 function errText(err: unknown): string {
     if (err instanceof PaddleOcrError) return `[ocr.${err.stage}] ${err.message}`;
     if (err instanceof DeepSeekError) return `[deepseek.${err.stage}] ${err.message}`;
@@ -183,7 +198,19 @@ export async function runExtraction(image: File): Promise<ExtractionResult> {
             ms: Date.now() - structureStart,
             note: `${DEEPSEEK_MODEL} · ${out.finish ?? "?"} · ${out.usage?.total_tokens ?? "?"} tok`,
         });
-        return parseJson(out.text, "structure");
+        const parsed = parseJson(out.text, "structure");
+        // If PaddleOCR could not yield date + item + price, fall through to
+        // DeepSeek vision (the next attempt).
+        if (!parsed.refusal && !hasEssentials(parsed)) {
+            stages.push({
+                stage: "verify",
+                ok: false,
+                ms: 0,
+                note: "missing date, item, or price",
+            });
+            throw new Error("Incomplete receipt: missing date, item, or price");
+        }
+        return parsed;
     }
 
     async function viaGemini(reason: string): Promise<ModelOutput> {

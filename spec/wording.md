@@ -360,6 +360,10 @@ Staf wajib diisi sebelum mengirim.
 Add at least one line item.
 ## app.check.itemsErr.id
 Tambahkan minimal satu item.
+## app.check.priceErr.en
+Add a price.
+## app.check.priceErr.id
+Isi harga.
 ## app.check.sendErr.en
 Could not send. Check your connection and try again.
 ## app.check.sendErr.id
