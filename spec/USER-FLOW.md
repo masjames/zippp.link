@@ -22,10 +22,9 @@ The sheet stays the system of record. zippp is the intake mill.
 
 ## Landing page `/`
 
-- Region-aware, bilingual. Indonesian visitors get Indonesian + IDR pricing.
-- Sections: hero ("Receipts in. Rows out."), How it works (Snap / Check / Send),
-  audience, two paid plans (no free tier), FAQ, sign-in CTA.
-- Prices are `xx` placeholders until set in `wording.md`.
+- English `/` (USD) and Indonesian `/id` (IDR), no language toggle.
+- Sections: hero ("Receipts in. Rows out."), How it works, audience, credit
+  pricing + referral, FAQ, and CTAs that sign in with Google directly.
 
 ---
 
@@ -40,9 +39,7 @@ The sheet stays the system of record. zippp is the intake mill.
 | `/id` | Indonesian landing (IDR) | everyone |
 | `/app` | redirects via the guard to `/app/snap` | everyone |
 | `/app/start` | Intro, then Sign in | logged out |
-| `/app/snap` | Capture + queue (home) | signed in, sheet OK, credits |
-| `/app/check/[id]` | Check one queued item (or BadPhoto if it failed) | same |
-| `/app/sent` | rows added | same |
+| `/app/snap` | Single screen: camera + batch review (home) | signed in, sheet OK, credits |
 | `/app/topup` | Top up: GoPay (id) or Paddle (intl) | signed in |
 | `/app/topup/order/[id]` | GoPay order: amount, countdown, "I have paid" | signed in |
 | `/app/settings` | balance, invite link, sheet, sign out | signed in |
@@ -66,27 +63,29 @@ A back-to-Snap control shows on every app screen except Snap and Start.
 ### Screens
 
 - **Intro / Sign in** — what zippp does, then Google (the only login).
-- **Capture** — live camera, receipt-detection overlay, manual shutter, upload
-  link. Snaps go into the queue; the camera stays live.
-- **Check** — editable result: merchant, date, staff, outlet, line items,
-  total. Date (and staff, for resto) required. **Send to sheet** appends one row
-  per line item; the item then leaves the queue.
-- **Sent** — rows added, link to open the sheet, "Scan another".
-- A collapsible **Debug** panel shows the extraction trace on Check and expands
-  on unreadable.
+- **Snap** (single screen) — live camera with auto-snap (on by default), blur
+  blocks capture, manual shutter + upload. Captured receipts join the batch
+  **below the camera**: one card expanded (the current one), the rest collapsed,
+  accepted cards hidden. Each expanded card is an editable form with
+  **Accept** / **Edit**; after the last accept, **Send all accepted**.
+- **Success** — after a batch send: "{sent} of {total} sent", **Open the sheet**
+  and **Scan more**. Failed items reappear in the batch to retry.
+- A collapsible **Debug** panel shows the extraction trace in the expanded card.
 
 ---
 
-## Snap queue
+## Capture + batch review (Revision 1, implemented)
 
-- Per device, in memory. Each snap becomes a queue item.
-- Items process **one at a time**: `queued → reading → ready/failed`.
-- The queue strip under the viewfinder shows thumbnails and status.
-- **Check is required per item** before it is sent (review-before-send).
-- After a send, the next ready item opens automatically.
-- Failed items stay in the strip with **Retry**; nothing is lost.
-- Concurrency across users is handled by the platform: extraction is stateless,
-  so Vercel runs requests in parallel instances.
+See `REVISION-1.md`. In short:
+
+- Auto-snap is **on by default**; a **blurry frame cannot be captured**
+  (hard block, "Blurry. Hold steady.").
+- One screen holds camera + review. Cards: **one expanded**, rest collapsed,
+  accepted hidden; **Accept**/ **Edit** per card; progress "{done} of {total}".
+- **Send all accepted** appends sequentially, **1 credit per successful append**
+  (charge on success); failures return to the batch to retry.
+- The batch **survives a refresh** (IndexedDB): image, extraction, draft, status
+  and the open card are restored; interrupted reads/sends become retryable.
 
 ---
 

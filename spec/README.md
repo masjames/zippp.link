@@ -7,6 +7,7 @@ built today; `archived/` holds superseded material kept for history.
 
 | File | Owns |
 |---|---|
+| [`REVISION-1.md`](./REVISION-1.md) | **Proposed** capture + batch-review revision (from user feedback): auto-snap, blur blocks, one screen, Accept/Edit, IndexedDB persistence |
 | [`SPEC.md`](./SPEC.md) | What Phase 1 is: scope, requirements, data contract, privacy, definition of done |
 | [`USER-FLOW.md`](./USER-FLOW.md) | Who does what, in order (screens, snap queue, fail paths) |
 | [`ARCHITECTURE.md`](./ARCHITECTURE.md) | How it is built: stack, extraction pipeline, stores, env |

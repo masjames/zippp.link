@@ -249,6 +249,34 @@ Foto otomatis
 Receipt detected. Hold steady.
 ## app.capture.detected.id
 Resi terdeteksi. Tahan stabil.
+## app.capture.holdSteady.en
+Blurry. Hold steady.
+## app.capture.holdSteady.id
+Buram. Tahan stabil.
+## app.review.progress.en
+{done} of {total} accepted
+## app.review.progress.id
+{done} dari {total} diterima
+## app.review.accept.en
+Accept
+## app.review.accept.id
+Terima
+## app.review.edit.en
+Edit
+## app.review.edit.id
+Ubah
+## app.review.tapToEdit.en
+Tap a value to edit
+## app.review.tapToEdit.id
+Ketuk nilai untuk mengubah
+## app.review.sendAll.en
+Send all accepted ({count})
+## app.review.sendAll.id
+Kirim semua yang diterima ({count})
+## app.review.summary.en
+{sent} of {total} sent
+## app.review.summary.id
+{sent} dari {total} terkirim
 
 ## app.reading.title.en
 Reading

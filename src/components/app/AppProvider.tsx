@@ -10,9 +10,17 @@ import {
 } from "react";
 import type { Lang, Region } from "@/lib/region";
 import { makeT, type T, type Wording } from "@/lib/t";
-import type { ExtractResponse, Receipt } from "@/types/receipt";
-import { formatMoney } from "./draft";
-import type { QueueItem, SentInfo } from "./queue";
+import type { ExtractResponse } from "@/types/receipt";
+import {
+    allItems,
+    deleteItem as dbDeleteItem,
+    getMeta,
+    putItem,
+    setOpenId as dbSetOpenId,
+    type BatchItem,
+} from "@/lib/batch-db";
+import { downscaleImage, makeThumb } from "@/lib/image";
+import { fromDraft, toDraft } from "./draft";
 
 export type AuthState = {
     signedIn: boolean;
@@ -42,6 +50,8 @@ export type BalanceState = {
     admin?: boolean;
 };
 
+type Summary = { sent: number; total: number };
+
 type Value = {
     t: T;
     lang: Lang;
@@ -56,24 +66,24 @@ type Value = {
     busy: boolean;
     balance: BalanceState | null;
     refreshBalance: () => Promise<void>;
-    queue: QueueItem[];
-    sent: SentInfo | null;
-    sending: boolean;
-    sendError: string | null;
+    batch: BatchItem[];
+    openId: string | null;
+    autoSnap: boolean;
+    setAutoSnap: (on: boolean) => void;
     addFile: (file: File) => void;
+    setOpen: (id: string | null) => void;
+    updateDraft: (id: string, draft: BatchItem["draft"]) => void;
+    acceptItem: (id: string) => void;
     removeItem: (id: string) => void;
     retryItem: (id: string) => void;
-    send: (
-        edited: Receipt,
-        staff: string,
-        outlet: string | null,
-        itemId: string
-    ) => Promise<boolean>;
+    sendAll: () => Promise<void>;
+    sending: boolean;
+    summary: Summary | null;
+    clearSummary: () => void;
     login: () => void;
     signOut: () => Promise<void>;
     ensureSheet: () => Promise<void>;
     pickSheet: (id: string) => Promise<void>;
-    resetSent: () => void;
 };
 
 const Ctx = createContext<Value | null>(null);
@@ -84,10 +94,8 @@ export function useApp(): Value {
     return value;
 }
 
-/**
- * Shared app state, mounted in /app/layout.tsx so it (and the in-memory snap
- * queue) survives route changes.
- */
+const AUTOSNAP_KEY = "zippp_autosnap";
+
 export default function AppProvider({
     wording,
     initialLang,
@@ -112,12 +120,44 @@ export default function AppProvider({
     const [busy, setBusy] = useState(false);
 
     const [balance, setBalance] = useState<BalanceState | null>(null);
-    const [queue, setQueue] = useState<QueueItem[]>([]);
+
+    const [batch, setBatch] = useState<BatchItem[]>([]);
+    const [openId, setOpenIdState] = useState<string | null>(null);
+    const [autoSnap, setAutoSnapState] = useState(true);
     const [sending, setSending] = useState(false);
-    const [sendError, setSendError] = useState<string | null>(null);
-    const [sent, setSent] = useState<SentInfo | null>(null);
+    const [summary, setSummary] = useState<Summary | null>(null);
 
     const inflight = useRef<Set<string>>(new Set());
+
+    // Restore the persisted batch and preferences.
+    useEffect(() => {
+        let alive = true;
+        (async () => {
+            try {
+                const [items, meta] = await Promise.all([allItems(), getMeta()]);
+                if (!alive) return;
+                // Interrupted reads/sends become retryable.
+                const restored = items.map((it) =>
+                    it.status === "reading" || it.status === "sending"
+                        ? { ...it, status: "ready" as const }
+                        : it
+                );
+                setBatch(restored);
+                setOpenIdState(meta.openId);
+            } catch {
+                /* ignore */
+            }
+            try {
+                const pref = localStorage.getItem(AUTOSNAP_KEY);
+                if (pref === "0") setAutoSnapState(false);
+            } catch {
+                /* ignore */
+            }
+        })();
+        return () => {
+            alive = false;
+        };
+    }, []);
 
     useEffect(() => {
         let alive = true;
@@ -128,13 +168,11 @@ export default function AppProvider({
                 const data = (await res.json()) as AuthState;
                 if (!alive) return;
                 setAuth(data);
-
                 if (params.get("auth") === "error") {
                     setAuthError(t("app.signin.error"));
                     return;
                 }
                 if (!data.signedIn) return;
-
                 const [wsRes, balRes] = await Promise.all([
                     fetch("/api/sheets/workspace", { cache: "no-store" }),
                     fetch("/api/billing/balance", { cache: "no-store" }),
@@ -156,114 +194,189 @@ export default function AppProvider({
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    async function refreshBalance() {
-        try {
-            const res = await fetch("/api/billing/balance", { cache: "no-store" });
-            const data = await res.json();
-            if (data.ok) setBalance(data as BalanceState);
-        } catch {
-            /* keep the last value */
-        }
+    function patchItem(id: string, patch: Partial<BatchItem>) {
+        setBatch((items) => {
+            const next = items.map((it) =>
+                it.id === id ? { ...it, ...patch } : it
+            );
+            const changed = next.find((it) => it.id === id);
+            if (changed) void putItem(changed);
+            return next;
+        });
     }
 
-    function updateItem(id: string, patch: Partial<QueueItem>) {
-        setQueue((items) =>
-            items.map((item) => (item.id === id ? { ...item, ...patch } : item))
-        );
-    }
-
-    // Process the queue one item at a time, on any route.
+    // Extract one queued item at a time.
     useEffect(() => {
-        if (queue.some((item) => item.status === "reading")) return;
-        const next = queue.find(
+        if (batch.some((item) => item.status === "reading")) return;
+        const next = batch.find(
             (item) => item.status === "queued" && !inflight.current.has(item.id)
         );
         if (!next) return;
         inflight.current.add(next.id);
-        updateItem(next.id, { status: "reading" });
+        patchItem(next.id, { status: "reading" });
         void extractItem(next);
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [queue]);
+    }, [batch]);
 
-    async function extractItem(item: QueueItem) {
+    async function extractItem(item: BatchItem) {
         try {
             const form = new FormData();
-            form.append("image", item.file, item.file.name);
+            form.append("image", item.blob, "receipt.jpg");
             const res = await fetch("/api/extract", { method: "POST", body: form });
             const data = (await res.json()) as ExtractResponse;
-            console.debug("[extract]", {
-                id: item.id,
-                ok: data.ok,
-                error: data.ok ? undefined : data.error,
-                debug: data.debug,
-            });
             if (data.ok) {
-                updateItem(item.id, {
+                patchItem(item.id, {
                     status: "ready",
                     receipt: data.receipt,
+                    draft: toDraft(data.receipt),
                     debug: data.debug ?? null,
                 });
             } else {
-                updateItem(item.id, {
+                patchItem(item.id, {
                     status: "failed",
                     error: data.error,
                     debug: data.debug ?? null,
                 });
             }
         } catch (err) {
-            updateItem(item.id, {
+            patchItem(item.id, {
                 status: "failed",
                 error: err instanceof Error ? err.message : "network error",
-                debug: null,
             });
         } finally {
             inflight.current.delete(item.id);
         }
     }
 
-    function makeThumb(file: File): Promise<string> {
-        return new Promise((resolve) => {
-            const url = URL.createObjectURL(file);
-            const image = new window.Image();
-            image.onload = () => {
-                const size = 96;
-                const canvas = document.createElement("canvas");
-                canvas.width = size;
-                canvas.height = size;
-                const ctx = canvas.getContext("2d");
-                if (ctx && image.width && image.height) {
-                    const scale = Math.max(size / image.width, size / image.height);
-                    const w = image.width * scale;
-                    const h = image.height * scale;
-                    ctx.drawImage(image, (size - w) / 2, (size - h) / 2, w, h);
-                    resolve(canvas.toDataURL("image/jpeg", 0.6));
-                } else {
-                    resolve("");
-                }
-                URL.revokeObjectURL(url);
-            };
-            image.onerror = () => {
-                URL.revokeObjectURL(url);
-                resolve("");
-            };
-            image.src = url;
-        });
-    }
-
     function addFile(file: File) {
         const id = crypto.randomUUID();
-        setQueue((items) => [...items, { id, file, thumb: "", status: "queued" }]);
-        void makeThumb(file).then((thumb) => {
-            if (thumb) updateItem(id, { thumb });
-        });
+        const createdAt = Date.now();
+        void (async () => {
+            const blob = await downscaleImage(file);
+            const thumb = await makeThumb(blob);
+            const item: BatchItem = {
+                id,
+                createdAt,
+                blob,
+                thumb,
+                status: "queued",
+            };
+            await putItem(item);
+            setBatch((items) => [item, ...items]);
+        })();
+    }
+
+    function setAutoSnap(on: boolean) {
+        setAutoSnapState(on);
+        try {
+            localStorage.setItem(AUTOSNAP_KEY, on ? "1" : "0");
+        } catch {
+            /* ignore */
+        }
+    }
+
+    function setOpen(id: string | null) {
+        setOpenIdState(id);
+        void dbSetOpenId(id);
+    }
+
+    function updateDraft(id: string, draft: BatchItem["draft"]) {
+        patchItem(id, { draft });
+    }
+
+    function acceptItem(id: string) {
+        patchItem(id, { status: "accepted" });
+        const remaining = batch.filter(
+            (i) => i.id !== id && i.status !== "accepted"
+        );
+        setOpen(remaining[0]?.id ?? null);
     }
 
     function removeItem(id: string) {
-        setQueue((items) => items.filter((item) => item.id !== id));
+        setBatch((items) => items.filter((i) => i.id !== id));
+        void dbDeleteItem(id);
+        if (openId === id) {
+            const remaining = batch.filter((i) => i.id !== id);
+            setOpen(remaining[0]?.id ?? null);
+        }
     }
 
     function retryItem(id: string) {
-        updateItem(id, { status: "queued", error: undefined });
+        patchItem(id, { status: "queued", error: undefined });
+    }
+
+    async function refreshBalance() {
+        try {
+            const res = await fetch("/api/billing/balance", { cache: "no-store" });
+            const data = await res.json();
+            if (data.ok) setBalance(data as BalanceState);
+        } catch {
+            /* keep last */
+        }
+    }
+
+    async function sendAll() {
+        const accepted = batch.filter((item) => item.status === "accepted");
+        if (accepted.length === 0) return;
+        setSending(true);
+        let sent = 0;
+        let stop = false;
+
+        for (const item of accepted) {
+            if (stop) break;
+            patchItem(item.id, { status: "sending" });
+            try {
+                const edited = item.draft ? fromDraft(item.draft) : item.receipt;
+                if (!edited) {
+                    patchItem(item.id, { status: "failed", error: "No data." });
+                    continue;
+                }
+                const res = await fetch("/api/sheets/append", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        receipt: edited,
+                        staff: (item.draft?.staff ?? "").trim(),
+                        outlet: (item.draft?.outlet ?? "").trim() || null,
+                        scanId: item.id,
+                    }),
+                });
+                if (res.status === 401) {
+                    setAuth({
+                        signedIn: false,
+                        oauthConfigured: true,
+                        googleUserId: null,
+                    });
+                    setAuthError(t("app.signin.error"));
+                    patchItem(item.id, { status: "accepted" });
+                    stop = true;
+                    continue;
+                }
+                if (res.status === 402) {
+                    patchItem(item.id, { status: "ready", error: "No credits." });
+                    stop = true;
+                    continue;
+                }
+                const data = await res.json();
+                if (data.ok) {
+                    sent++;
+                    await dbDeleteItem(item.id);
+                    setBatch((items) => items.filter((i) => i.id !== item.id));
+                } else {
+                    patchItem(item.id, { status: "ready", error: data.error });
+                }
+            } catch {
+                patchItem(item.id, { status: "ready", error: "network error" });
+            }
+        }
+
+        setSending(false);
+        setSummary({ sent, total: accepted.length });
+        void refreshBalance();
+    }
+
+    function clearSummary() {
+        setSummary(null);
     }
 
     async function ensureSheet() {
@@ -282,13 +395,10 @@ export default function AppProvider({
                 return;
             }
             const data = await res.json();
-            if (data.ok && data.workspace) {
-                setWorkspace(data.workspace);
-            } else if (data.needsPick && Array.isArray(data.candidates)) {
+            if (data.ok && data.workspace) setWorkspace(data.workspace);
+            else if (data.needsPick && Array.isArray(data.candidates))
                 setCandidates(data.candidates as SheetCandidate[]);
-            } else {
-                setSheetError(true);
-            }
+            else setSheetError(true);
         } catch {
             setSheetError(true);
         } finally {
@@ -308,9 +418,7 @@ export default function AppProvider({
             if (data.ok && data.workspace) {
                 setWorkspace(data.workspace);
                 setCandidates([]);
-            } else {
-                setSheetError(true);
-            }
+            } else setSheetError(true);
         } catch {
             setSheetError(true);
         } finally {
@@ -332,69 +440,7 @@ export default function AppProvider({
         setAuth({ signedIn: false, oauthConfigured: true, googleUserId: null });
         setAuthError(null);
         setWorkspace(null);
-        setQueue([]);
-        setSent(null);
         setCandidates([]);
-    }
-
-    async function send(
-        edited: Receipt,
-        staff: string,
-        outlet: string | null,
-        itemId: string
-    ): Promise<boolean> {
-        const item = queue.find((q) => q.id === itemId);
-        if (!item) return false;
-        setSending(true);
-        setSendError(null);
-        updateItem(itemId, { status: "sending" });
-        try {
-            const res = await fetch("/api/sheets/append", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    receipt: edited,
-                    staff,
-                    outlet,
-                    scanId: itemId,
-                }),
-            });
-            if (res.status === 401) {
-                updateItem(itemId, { status: "ready", receipt: edited });
-                setAuthError(t("app.signin.error"));
-                setAuth({ signedIn: false, oauthConfigured: true, googleUserId: null });
-                setWorkspace(null);
-                setSendError(null);
-                return false;
-            }
-            const data = await res.json();
-            if (data.ok) {
-                setQueue((items) => items.filter((i) => i.id !== itemId));
-                setSent({
-                    count:
-                        typeof data.rows_written === "number"
-                            ? data.rows_written
-                            : edited.line_items.length,
-                    merchant: edited.merchant || t("app.check.merchantFallback"),
-                    total: formatMoney(edited.total, edited.currency, region, lang),
-                });
-                void refreshBalance();
-                return true;
-            }
-            updateItem(itemId, { status: "ready", receipt: edited });
-            setSendError(data.error || t("app.check.sendErr"));
-            return false;
-        } catch {
-            updateItem(itemId, { status: "ready", receipt: edited });
-            setSendError(t("app.check.sendErr"));
-            return false;
-        } finally {
-            setSending(false);
-        }
-    }
-
-    function resetSent() {
-        setSent(null);
     }
 
     const value: Value = {
@@ -411,19 +457,24 @@ export default function AppProvider({
         busy,
         balance,
         refreshBalance,
-        queue,
-        sent,
-        sending,
-        sendError,
+        batch,
+        openId,
+        autoSnap,
+        setAutoSnap,
         addFile,
+        setOpen,
+        updateDraft,
+        acceptItem,
         removeItem,
         retryItem,
-        send,
+        sendAll,
+        sending,
+        summary,
+        clearSummary,
         login,
         signOut,
         ensureSheet,
         pickSheet,
-        resetSent,
     };
 
     return <Ctx.Provider value={value}>{children}</Ctx.Provider>;

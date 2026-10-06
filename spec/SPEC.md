@@ -96,11 +96,17 @@ Op fields (`staff`, `outlet`, `captured_at`) never come from the model.
 
 ## UX contract
 
-- Five screens: **Intro → Sign in → Capture → Check → Sent** (`USER-FLOW.md`).
-- The snap queue is per device: snapping never blocks; items process one at a
-  time; Check is required per item before send.
-- The capture screen keeps the camera live, with a heuristic receipt-detection
-  overlay (guidance only — auto-snap is disabled).
+See `REVISION-1.md`. Current:
+
+- Routes: **Intro/Sign in, Snap (single screen), Success, Top up, Settings,
+  Sheet, Admin**. There is no separate Check or Sent route.
+- **Snap** = live camera + batch review on one screen. **Auto-snap on by
+  default**; a **blurry frame is blocked**; the camera stays live.
+- Review is an accordion: **one card open**, accepted hidden, **Accept/Edit**
+  per card, then **Send all accepted**.
+- **1 credit per successful append** (charge on success).
+- The batch **persists in IndexedDB** and survives a refresh (image, extraction,
+  draft, status, open card).
 
 ---
 

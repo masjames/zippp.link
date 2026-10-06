@@ -2,7 +2,6 @@
 
 import { useEffect, type ReactNode } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { fill } from "@/lib/t";
 import { useApp } from "./AppProvider";
 
 /**
@@ -13,7 +12,7 @@ import { useApp } from "./AppProvider";
  * /app/snap. Bare /app also lands on /app/snap.
  */
 export default function AppShell({ children }: { children: ReactNode }) {
-    const { t, auth, authChecked, workspace, balance, queue, signOut } = useApp();
+    const { t, auth, authChecked, workspace, balance, signOut } = useApp();
     const pathname = usePathname();
     const router = useRouter();
 
@@ -62,7 +61,6 @@ export default function AppShell({ children }: { children: ReactNode }) {
     const signedIn = auth?.signedIn === true;
     const onSnap = pathname === "/app/snap";
     const showBack = signedIn && !onSnap && pathname !== "/app/start";
-    const ready = queue.filter((item) => item.status === "ready");
 
     return (
         <div className="flex min-h-screen flex-col bg-page sm:py-8">
@@ -87,19 +85,6 @@ export default function AppShell({ children }: { children: ReactNode }) {
                                 className="rounded-full bg-brand px-3 py-1 text-xs font-semibold text-ink"
                             >
                                 {t("app.settings.admin")}
-                            </button>
-                        ) : null}
-                        {ready.length > 0 ? (
-                            <button
-                                type="button"
-                                onClick={() =>
-                                    router.push(`/app/check/${ready[0].id}`)
-                                }
-                                className="rounded-full bg-brand px-3 py-1 text-xs font-semibold text-ink"
-                            >
-                                {fill(t("app.queue.reviewNext"), {
-                                    count: ready.length,
-                                })}
                             </button>
                         ) : null}
                         <button
