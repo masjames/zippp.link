@@ -18,12 +18,16 @@ export async function onTopupApproved(
     if (!user) return;
 
     if (!user.firstTopupDone) {
-        await grant({
-            userId,
-            credits: REFERRED_BONUS_CREDITS,
-            source: "referral_bonus",
-            idem: `${idemBase}:bonus`,
-        });
+        // The bonus is only for users who arrived through a referral; without a
+        // referrer there is no free credit (no trial, no free tier).
+        if (user.referredBy) {
+            await grant({
+                userId,
+                credits: REFERRED_BONUS_CREDITS,
+                source: "referral_bonus",
+                idem: `${idemBase}:bonus`,
+            });
+        }
         await updateUser(userId, { firstTopupDone: true });
     }
 
