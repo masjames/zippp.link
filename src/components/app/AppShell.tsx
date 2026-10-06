@@ -80,6 +80,15 @@ export default function AppShell({ children }: { children: ReactNode }) {
                         ) : null}
                     </div>
                     <div className="flex items-center gap-3">
+                        {balance?.admin ? (
+                            <button
+                                type="button"
+                                onClick={() => router.push("/admin")}
+                                className="rounded-full bg-brand px-3 py-1 text-xs font-semibold text-ink"
+                            >
+                                {t("app.settings.admin")}
+                            </button>
+                        ) : null}
                         {ready.length > 0 ? (
                             <button
                                 type="button"

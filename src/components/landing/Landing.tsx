@@ -49,7 +49,7 @@ export default function Landing({
                                 {t("landing.switch")}
                             </a>
                             <a
-                                href="/app"
+                                href="/api/auth/login"
                                 className="inline-flex items-center rounded-full bg-btn px-5 py-2.5 text-sm font-semibold text-btntext"
                             >
                                 {t("nav.signin")}
@@ -69,7 +69,7 @@ export default function Landing({
                             </p>
                             <div className="mt-8 flex flex-wrap gap-3">
                                 <a
-                                    href="/app"
+                                    href="/api/auth/login"
                                     className="inline-flex items-center rounded-full bg-maroon px-7 py-4 font-semibold text-white"
                                 >
                                     {t("landing.hero.cta")}
@@ -125,7 +125,7 @@ export default function Landing({
                             {t("landing.pricing.body")}
                         </p>
                         <a
-                            href="/app"
+                            href="/api/auth/login"
                             className="mt-6 inline-flex items-center rounded-full bg-maroon px-7 py-4 font-semibold text-white"
                         >
                             {t("landing.pricing.cta")}
@@ -170,7 +170,7 @@ export default function Landing({
                             {t("landing.foot.title")}
                         </h2>
                         <a
-                            href="/app"
+                            href="/api/auth/login"
                             className="mt-6 inline-flex items-center rounded-full bg-brand px-7 py-4 font-semibold text-ink"
                         >
                             {t("landing.foot.cta")}

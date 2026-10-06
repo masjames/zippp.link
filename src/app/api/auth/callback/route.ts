@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
+import { isAdmin } from "@/lib/billing/config";
 import {
   createOAuthClient,
   googleOAuthConfigured,
@@ -15,9 +16,10 @@ const STATE_COOKIE = "zippp_oauth_state";
 function redirectHome(
   req: Request,
   auth: "ok" | "error",
-  reason?: string
+  reason?: string,
+  path = "/app"
 ): NextResponse {
-  const url = new URL("/app", req.url);
+  const url = new URL(path, req.url);
   url.searchParams.set("auth", auth);
   if (reason) url.searchParams.set("reason", reason);
   const res = NextResponse.redirect(url);
@@ -74,7 +76,13 @@ export async function GET(req: Request) {
     });
 
     // Bind this browser to the user so tokens/workspace/billing are per-user.
-    const response = redirectHome(req, "ok");
+    // Admins land straight on the admin panel.
+    const response = redirectHome(
+      req,
+      "ok",
+      undefined,
+      isAdmin(user.email) ? "/admin" : "/app"
+    );
     applySession(user.id, response);
     return response;
   } catch (e) {
