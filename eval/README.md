@@ -49,7 +49,9 @@ Do not run paid model comparisons without asking first.
 the browser:
 
 - edit the model configs (provider, OCR model, DeepSeek model, Gemini model),
-- upload photos and label merchant, date, total and items,
+- take a photo with the phone camera or upload several, and label merchant,
+  date, total and items; the photo list and labels persist in the browser, so a
+  phone session survives a refresh,
 - optionally import a `labels.json` to fill labels by file name,
 - run, then read the per-config accuracy table and the wrong-and-unflagged count.
 

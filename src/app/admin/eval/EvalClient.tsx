@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { makeT, type Wording } from "@/lib/t";
 import { downscaleImage, makeThumb } from "@/lib/image";
 import {
@@ -14,6 +14,14 @@ import {
     type EvalItem,
     type Totals,
 } from "@/lib/eval-score";
+import {
+    allEvalImages,
+    clearEvalImages,
+    deleteEvalImage,
+    putEvalImage,
+    type EvalImageRecord,
+    type EvalLabelDraft,
+} from "@/lib/eval-db";
 import DebugPanel from "@/components/app/DebugPanel";
 import type { ExtractDebug, Receipt } from "@/types/receipt";
 
@@ -27,12 +35,7 @@ type Config = {
     geminiModel: string;
 };
 
-type LabelDraft = {
-    merchant: string;
-    date: string;
-    total: string;
-    itemsJson: string;
-};
+type LabelDraft = EvalLabelDraft;
 
 type ImageItem = {
     id: string;
@@ -115,9 +118,11 @@ function toEvalCase(name: string, draft: LabelDraft): EvalCase {
 export default function EvalClient({ wording }: { wording: Wording }) {
     const t = makeT(wording, "en");
     const fileRef = useRef<HTMLInputElement>(null);
+    const captureRef = useRef<HTMLInputElement>(null);
     const labelRef = useRef<HTMLInputElement>(null);
 
-    const [configs, setConfigs] = useState<Config[]>(PRESETS);
+    // Start with one config so a phone run stays cheap; add more to compare.
+    const [configs, setConfigs] = useState<Config[]>(PRESETS.slice(0, 1));
     const [images, setImages] = useState<ImageItem[]>([]);
     const [results, setResults] = useState<ConfigResult[]>([]);
     const [forceVisionRetry, setForceVisionRetry] = useState(false);
@@ -146,6 +151,33 @@ export default function EvalClient({ wording }: { wording: Wording }) {
             return { config, totals, scores };
         });
     }, [configs, images, results]);
+
+    // Restore a phone session after a refresh.
+    useEffect(() => {
+        let alive = true;
+        void (async () => {
+            try {
+                const records = await allEvalImages();
+                if (!alive || records.length === 0) return;
+                setImages(
+                    records.map((rec) => ({
+                        id: rec.id,
+                        name: rec.name,
+                        file: new File([rec.blob], rec.name, {
+                            type: rec.blob.type || "image/jpeg",
+                        }),
+                        thumb: rec.thumb,
+                        label: rec.label,
+                    }))
+                );
+            } catch {
+                /* ignore */
+            }
+        })();
+        return () => {
+            alive = false;
+        };
+    }, []);
 
     function patchConfig(id: string, patch: Partial<Config>) {
         setConfigs((list) =>
@@ -178,7 +210,7 @@ export default function EvalClient({ wording }: { wording: Wording }) {
         for (const file of Array.from(files)) {
             const blob = await downscaleImage(file);
             const thumb = await makeThumb(blob);
-            next.push({
+            const item: ImageItem = {
                 id: crypto.randomUUID(),
                 name: file.name,
                 file: new File([blob], file.name, {
@@ -186,9 +218,28 @@ export default function EvalClient({ wording }: { wording: Wording }) {
                 }),
                 thumb,
                 label: { ...EMPTY_LABEL },
+            };
+            await putEvalImage({
+                id: item.id,
+                name: item.name,
+                blob: item.file,
+                thumb: item.thumb,
+                label: item.label,
             });
+            next.push(item);
         }
         setImages((list) => [...list, ...next]);
+    }
+
+    function removeImage(id: string) {
+        setImages((list) => list.filter((image) => image.id !== id));
+        void deleteEvalImage(id);
+    }
+
+    function clearAll() {
+        setImages([]);
+        setResults([]);
+        void clearEvalImages();
     }
 
     async function importLabels(files: FileList | null) {
@@ -224,11 +275,19 @@ export default function EvalClient({ wording }: { wording: Wording }) {
 
     function patchLabel(id: string, patch: Partial<LabelDraft>) {
         setImages((list) =>
-            list.map((image) =>
-                image.id === id
-                    ? { ...image, label: { ...image.label, ...patch } }
-                    : image
-            )
+            list.map((image) => {
+                if (image.id !== id) return image;
+                const label = { ...image.label, ...patch };
+                const record: EvalImageRecord = {
+                    id: image.id,
+                    name: image.name,
+                    blob: image.file,
+                    thumb: image.thumb,
+                    label,
+                };
+                void putEvalImage(record);
+                return { ...image, label };
+            })
         );
     }
 
@@ -290,7 +349,7 @@ export default function EvalClient({ wording }: { wording: Wording }) {
     }
 
     return (
-        <div className="mx-auto max-w-6xl px-5 py-10">
+        <div className="mx-auto max-w-6xl px-4 py-6 sm:px-5 sm:py-10">
             <div className="flex items-center justify-between">
                 <a
                     href="/admin"
@@ -306,7 +365,7 @@ export default function EvalClient({ wording }: { wording: Wording }) {
                 </a>
             </div>
 
-            <h1 className="mt-2 font-head text-4xl font-extrabold tracking-tight">
+            <h1 className="mt-2 font-head text-3xl font-extrabold tracking-tight sm:text-4xl">
                 {t("admin.eval.title")}
             </h1>
             <p className="mt-1 max-w-3xl text-sm text-muted">
@@ -404,18 +463,45 @@ export default function EvalClient({ wording }: { wording: Wording }) {
                 <div className="mt-3 flex flex-wrap gap-3">
                     <button
                         type="button"
+                        onClick={() => captureRef.current?.click()}
+                        className="rounded-full bg-btn px-5 py-3 text-base font-semibold text-btntext"
+                    >
+                        {t("admin.eval.takePhoto")}
+                    </button>
+                    <button
+                        type="button"
                         onClick={() => fileRef.current?.click()}
-                        className="rounded-full bg-btn px-5 py-2 text-sm font-semibold text-btntext"
+                        className="rounded-full bg-surface px-5 py-3 text-base font-semibold"
                     >
                         {t("admin.eval.upload")}
                     </button>
                     <button
                         type="button"
                         onClick={() => labelRef.current?.click()}
-                        className="rounded-full bg-surface px-5 py-2 text-sm font-semibold"
+                        className="rounded-full bg-surface px-5 py-3 text-base font-semibold"
                     >
                         {t("admin.eval.importLabels")}
                     </button>
+                    {images.length > 0 ? (
+                        <button
+                            type="button"
+                            onClick={clearAll}
+                            className="rounded-full bg-surface px-5 py-3 text-base font-semibold text-danger"
+                        >
+                            {t("admin.eval.clearAll")}
+                        </button>
+                    ) : null}
+                    <input
+                        ref={captureRef}
+                        type="file"
+                        accept="image/*"
+                        capture="environment"
+                        className="hidden"
+                        onChange={(e) => {
+                            void addFiles(e.target.files);
+                            e.target.value = "";
+                        }}
+                    />
                     <input
                         ref={fileRef}
                         type="file"
@@ -507,13 +593,7 @@ export default function EvalClient({ wording }: { wording: Wording }) {
                                 />
                                 <button
                                     type="button"
-                                    onClick={() =>
-                                        setImages((list) =>
-                                            list.filter(
-                                                (i) => i.id !== image.id
-                                            )
-                                        )
-                                    }
+                                    onClick={() => removeImage(image.id)}
                                     className="justify-self-start text-xs font-semibold text-danger"
                                 >
                                     {t("admin.eval.remove")}

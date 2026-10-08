@@ -670,6 +670,14 @@ Resi
 Upload photos
 ## admin.eval.upload.id
 Unggah foto
+## admin.eval.takePhoto.en
+Take photo
+## admin.eval.takePhoto.id
+Ambil foto
+## admin.eval.clearAll.en
+Clear all
+## admin.eval.clearAll.id
+Hapus semua
 ## admin.eval.importLabels.en
 Import labels.json
 ## admin.eval.importLabels.id
