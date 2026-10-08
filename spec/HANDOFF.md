@@ -162,7 +162,9 @@ amounts, qty, totals, dates and the merchant in the OCR tokens (ungrounded value
 become `null`), fuzzy-matches the merchant, checks qty x unit price and the
 totals, checks the reported row indices, flags low OCR scores, and retries once
 through the vision path. Every flag must be tapped in the review card before
-Accept. The essentials gate (item + price) and user review remain.
+Accept. A missing field is not flagged: it is empty, not a guess. The client
+flags an assumed date, and the essentials gate (item + price) still applies.
+The admin comparison tool lives at `/admin/eval` (see `eval/README.md`).
 
 Still open: A/B the vision model (PP-OCRv6 vs PaddleOCR-VL-1.6; DeepSeek Flash vs
 Pro vs Gemini) on real notas (Phase 3), and per-field confidence beyond the OCR

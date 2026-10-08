@@ -332,11 +332,11 @@ export function verifyReceipt(raw: RawReceipt, ocr: OcrGrounding): VerifyResult 
         return n;
     }
 
-    // Merchant.
+    // Merchant. A missing merchant is not flagged: it is empty, not a guess.
     let merchant = asString(raw.merchant);
     const merchantRow = asIndex(raw.merchant_source);
     if (merchant === null) {
-        flags.push({ path: "merchant", reason: "missing" });
+        /* no flag: nothing was extracted */
     } else if (!grounded) {
         flags.push({ path: "merchant", reason: "ungrounded" });
     } else if (!merchantMatches(merchant, candidates)) {
@@ -355,10 +355,11 @@ export function verifyReceipt(raw: RawReceipt, ocr: OcrGrounding): VerifyResult 
         }
     }
 
-    // Date.
+    // Date. A missing date is not flagged here: the client fills the capture
+    // date and flags it as assumed.
     let date = asString(raw.date);
     if (date === null) {
-        flags.push({ path: "date", reason: "missing" });
+        /* no flag: the client handles the assumed date */
     } else if (!grounded) {
         flags.push({ path: "date", reason: "ungrounded" });
     } else if (!dateMatches(date, candidates)) {
@@ -402,7 +403,7 @@ export function verifyReceipt(raw: RawReceipt, ocr: OcrGrounding): VerifyResult 
     // Totals.
     const subtotal = ground(raw.subtotal, "subtotal", raw.subtotal_source, false);
     const tax = ground(raw.tax, "tax", raw.tax_source, false);
-    const total = ground(raw.total, "total", raw.total_source, true);
+    const total = ground(raw.total, "total", raw.total_source, false);
 
     const allAmounts =
         line_items.length > 0 && line_items.every((l) => l.amount !== null);

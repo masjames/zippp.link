@@ -325,7 +325,7 @@ export default function EvalClient({ wording }: { wording: Wording }) {
                         >
                             <div className="grid gap-2 sm:grid-cols-4">
                                 <label className="grid gap-1 text-xs font-semibold">
-                                    provider
+                                    {t("admin.eval.field.provider")}
                                     <select
                                         value={config.provider}
                                         onChange={(e) =>
@@ -341,7 +341,7 @@ export default function EvalClient({ wording }: { wording: Wording }) {
                                     </select>
                                 </label>
                                 <label className="grid gap-1 text-xs font-semibold">
-                                    ocr
+                                    {t("admin.eval.field.ocr")}
                                     <input
                                         value={config.ocrModel}
                                         onChange={(e) =>
@@ -353,7 +353,7 @@ export default function EvalClient({ wording }: { wording: Wording }) {
                                     />
                                 </label>
                                 <label className="grid gap-1 text-xs font-semibold">
-                                    deepseek
+                                    {t("admin.eval.field.deepseek")}
                                     <input
                                         value={config.deepseekModel}
                                         onChange={(e) =>
@@ -366,7 +366,7 @@ export default function EvalClient({ wording }: { wording: Wording }) {
                                     />
                                 </label>
                                 <label className="grid gap-1 text-xs font-semibold">
-                                    gemini
+                                    {t("admin.eval.field.gemini")}
                                     <input
                                         value={config.geminiModel}
                                         onChange={(e) =>
@@ -547,7 +547,7 @@ export default function EvalClient({ wording }: { wording: Wording }) {
                             onChange={(e) => setHedgeMs(Number(e.target.value))}
                             className="w-24 rounded-lg border-2 border-line bg-surface px-2 py-1"
                         />
-                        ms
+                        {t("admin.eval.ms")}
                     </label>
                 </div>
                 <button
@@ -584,14 +584,26 @@ export default function EvalClient({ wording }: { wording: Wording }) {
                         <table className="w-full text-sm">
                             <thead className="bg-surface text-left">
                                 <tr>
-                                    <th className="px-3 py-2">config</th>
-                                    <th className="px-3 py-2">merchant</th>
-                                    <th className="px-3 py-2">date</th>
-                                    <th className="px-3 py-2">total</th>
-                                    <th className="px-3 py-2">item amt</th>
-                                    <th className="px-3 py-2">item count</th>
+                                    <th className="px-3 py-2">
+                                        {t("admin.eval.col.config")}
+                                    </th>
+                                    <th className="px-3 py-2">
+                                        {t("admin.eval.col.merchant")}
+                                    </th>
+                                    <th className="px-3 py-2">
+                                        {t("admin.eval.col.date")}
+                                    </th>
+                                    <th className="px-3 py-2">
+                                        {t("admin.eval.col.total")}
+                                    </th>
+                                    <th className="px-3 py-2">
+                                        {t("admin.eval.col.itemAmount")}
+                                    </th>
+                                    <th className="px-3 py-2">
+                                        {t("admin.eval.col.itemCount")}
+                                    </th>
                                     <th className="px-3 py-2 text-danger">
-                                        wrong+unflagged
+                                        {t("admin.eval.col.wrongUnflagged")}
                                     </th>
                                 </tr>
                             </thead>
@@ -665,7 +677,7 @@ export default function EvalClient({ wording }: { wording: Wording }) {
                                         }`}
                                     >
                                         {result.ok
-                                            ? `${result.model_ms}ms`
+                                            ? `${result.model_ms} ${t("admin.eval.ms")}`
                                             : result.error}
                                     </span>
                                 </button>

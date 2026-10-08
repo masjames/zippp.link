@@ -710,6 +710,54 @@ Belum ada hasil.
 Running this calls the paid models. Each photo runs OCR once per OCR model and one structuring call per config.
 ## admin.eval.costHint.id
 Menjalankan ini memanggil model berbayar. Setiap foto menjalankan OCR sekali per model OCR dan satu panggilan penyusunan per konfigurasi.
+## admin.eval.field.provider.en
+provider
+## admin.eval.field.provider.id
+provider
+## admin.eval.field.ocr.en
+OCR
+## admin.eval.field.ocr.id
+OCR
+## admin.eval.field.deepseek.en
+DeepSeek
+## admin.eval.field.deepseek.id
+DeepSeek
+## admin.eval.field.gemini.en
+Gemini
+## admin.eval.field.gemini.id
+Gemini
+## admin.eval.ms.en
+ms
+## admin.eval.ms.id
+ms
+## admin.eval.col.config.en
+config
+## admin.eval.col.config.id
+konfigurasi
+## admin.eval.col.merchant.en
+merchant
+## admin.eval.col.merchant.id
+merchant
+## admin.eval.col.date.en
+date
+## admin.eval.col.date.id
+tanggal
+## admin.eval.col.total.en
+total
+## admin.eval.col.total.id
+total
+## admin.eval.col.itemAmount.en
+item amt
+## admin.eval.col.itemAmount.id
+jumlah item
+## admin.eval.col.itemCount.en
+item count
+## admin.eval.col.itemCount.id
+jumlah baris
+## admin.eval.col.wrongUnflagged.en
+wrong+unflagged
+## admin.eval.col.wrongUnflagged.id
+salah tanpa tanda
 ## admin.empty.en
 No orders.
 ## admin.empty.id

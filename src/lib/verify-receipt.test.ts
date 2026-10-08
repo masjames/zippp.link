@@ -104,14 +104,13 @@ test("a line where qty x unit price does not match is flagged", () => {
     assert.ok(reasons(result).includes("line_items[0].amount:arithmetic"));
 });
 
-test("a missing date is flagged, not treated as a hallucination", () => {
+test("a missing date stays null and is not flagged as a hallucination", () => {
     const result = verifyReceipt(
         raw({ merchant: "Toko Sumber", total: 15000, date: null, total_source: 0 }),
         { tokens: ["Toko Sumber", "Total 15.000"], rows: ["[0] Toko Sumber", "[1] Total 15.000"] }
     );
     assert.equal(result.receipt.date, null);
-    assert.ok(reasons(result).includes("date:missing"));
-    assert.ok(!reasons(result).some((r) => r === "date:not_in_ocr"));
+    assert.ok(!reasons(result).some((r) => r.startsWith("date:")));
 });
 
 test("merchant must fuzzy match an OCR row", () => {
@@ -165,6 +164,14 @@ test("without OCR everything present is flagged ungrounded, not nulled", () => {
     assert.equal(result.receipt.total, 15000);
     assert.ok(reasons(result).includes("total:ungrounded"));
     assert.ok(reasons(result).includes("merchant:ungrounded"));
+});
+
+test("a missing merchant and total are not flagged", () => {
+    const result = verifyReceipt(
+        raw({ merchant: null, total: null, date: null }),
+        { tokens: ["Total 15.000"], rows: ["[0] Total 15.000"] }
+    );
+    assert.deepEqual(result.flags, []);
 });
 
 test("a fully grounded receipt has no flags", () => {
