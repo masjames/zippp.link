@@ -7,6 +7,7 @@ import {
     OCR_FORMAT,
     PADDLEOCR_HEDGE_MS,
     PADDLEOCR_MODEL,
+    type ExtractProvider,
 } from "./config";
 import {
     DeepSeekError,
@@ -16,7 +17,7 @@ import {
 import { extractWithGemini } from "./gemini";
 import { stripJsonFences } from "./json";
 import { compactOcrMarkdown } from "./ocr-compact";
-import { PaddleOcrError, runPaddleOcr } from "./paddleocr";
+import { PaddleOcrError, runPaddleOcr, type PaddleOcrResult } from "./paddleocr";
 import { verifyReceipt, type OcrGrounding, type VerifyResult } from "./verify-receipt";
 import type {
     ExtractDebug,
@@ -39,6 +40,21 @@ export type ExtractionResult =
           model_ms: number;
           debug: ExtractDebug;
       };
+
+/**
+ * Per-run overrides for the admin eval comparison. Production omits them, so
+ * behaviour is unchanged. `precomputedOcr` reuses one OCR pass across several
+ * structuring models; `forceVisionRetry` exercises the vision retry path.
+ */
+export type ExtractOptions = {
+    provider?: ExtractProvider;
+    ocrModel?: string;
+    deepseekModel?: string;
+    geminiModel?: string;
+    hedgeMs?: number;
+    precomputedOcr?: PaddleOcrResult;
+    forceVisionRetry?: boolean;
+};
 
 const MAX_PREVIEW = 800;
 const MAX_MODEL_RAW = 4000;
@@ -130,7 +146,18 @@ function verifyNote(result: VerifyResult): string {
  *
  * Every stage is recorded for the debug trace.
  */
-export async function runExtraction(image: File): Promise<ExtractionResult> {
+export async function runExtraction(
+    image: File,
+    options: ExtractOptions = {}
+): Promise<ExtractionResult> {
+    const provider = options.provider ?? EXTRACT_PROVIDER;
+    const ocrModel = options.ocrModel ?? PADDLEOCR_MODEL;
+    const deepseekModel = options.deepseekModel ?? DEEPSEEK_MODEL;
+    const geminiModel = options.geminiModel ?? GEMINI_MODEL;
+    const hedgeMs = options.hedgeMs ?? PADDLEOCR_HEDGE_MS;
+    const precomputedOcr = options.precomputedOcr;
+    const forceVisionRetry = options.forceVisionRetry === true;
+
     const runId = randomUUID();
     const started = Date.now();
     const stages: ExtractStage[] = [];
@@ -194,9 +221,10 @@ export async function runExtraction(image: File): Promise<ExtractionResult> {
             const out = await extractWithDeepSeekVision({
                 mimeType: image.type || "image/jpeg",
                 dataBase64: bytes.toString("base64"),
+                model: deepseekModel,
             });
             modelMs += Date.now() - start;
-            model = DEEPSEEK_MODEL;
+            model = deepseekModel;
             finish = out.finish;
             usage = out.usage;
             modelRaw = out.text.slice(0, MAX_MODEL_RAW);
@@ -204,7 +232,7 @@ export async function runExtraction(image: File): Promise<ExtractionResult> {
                 stage: "hedge",
                 ok: true,
                 ms: Date.now() - start,
-                note: `vision started after ${PADDLEOCR_HEDGE_MS}ms`,
+                note: `vision started after ${hedgeMs}ms`,
             });
             const parsed = parseJson(out.text, "deepseek-vision");
             if (parsed.refusal) return null;
@@ -229,9 +257,10 @@ export async function runExtraction(image: File): Promise<ExtractionResult> {
             mimeType: image.type || "image/jpeg",
             dataBase64: bytes.toString("base64"),
             ocrText: numbered,
+            model: deepseekModel,
         });
         modelMs += Date.now() - start;
-        model = DEEPSEEK_MODEL;
+        model = deepseekModel;
         finish = out.finish;
         usage = out.usage;
         modelRaw = out.text.slice(0, MAX_MODEL_RAW);
@@ -240,7 +269,7 @@ export async function runExtraction(image: File): Promise<ExtractionResult> {
             stage: "vision-retry",
             ok: true,
             ms: Date.now() - start,
-            note: `${DEEPSEEK_MODEL} · ${out.finish ?? "?"} · ${out.usage?.total_tokens ?? "?"} tok`,
+            note: `${deepseekModel} · ${out.finish ?? "?"} · ${out.usage?.total_tokens ?? "?"} tok`,
         });
         const parsed = parseJson(out.text, "deepseek-vision");
         if (parsed.refusal) return null;
@@ -260,12 +289,14 @@ export async function runExtraction(image: File): Promise<ExtractionResult> {
 
     async function viaPaddle(): Promise<ModelOutput> {
         const ocrStart = Date.now();
-        const ocrPromise = runPaddleOcr(image);
+        const ocrPromise = precomputedOcr
+            ? Promise.resolve(precomputedOcr)
+            : runPaddleOcr(image, { model: ocrModel });
         const hedgeTimer =
-            PADDLEOCR_HEDGE_MS > 0
+            hedgeMs > 0
                 ? setTimeout(() => {
                       if (!hedgePromise) hedgePromise = runVisionHedge();
-                  }, PADDLEOCR_HEDGE_MS)
+                  }, hedgeMs)
                 : undefined;
         let ocr;
         try {
@@ -293,7 +324,7 @@ export async function runExtraction(image: File): Promise<ExtractionResult> {
             stage: "ocr",
             ok: true,
             ms: Date.now() - ocrStart,
-            note: `${PADDLEOCR_MODEL} · ${ocr.pages}p · ${rawLen}->${compact.length} chars · ${ocr.states.join(">")}`,
+            note: `${ocrModel} · ${ocr.pages}p · ${rawLen}->${compact.length} chars · ${ocr.states.join(">")}`,
         });
         if (!compact.trim()) {
             const err = new PaddleOcrError("OCR returned no text", "result");
@@ -327,7 +358,7 @@ export async function runExtraction(image: File): Promise<ExtractionResult> {
         const structureStart = Date.now();
         let out;
         try {
-            out = await structureReceipt(numbered);
+            out = await structureReceipt(numbered, deepseekModel);
         } catch (err) {
             stages.push({
                 stage: "structure",
@@ -338,7 +369,7 @@ export async function runExtraction(image: File): Promise<ExtractionResult> {
             throw err;
         }
         modelMs += Date.now() - structureStart;
-        model = DEEPSEEK_MODEL;
+        model = deepseekModel;
         finish = out.finish;
         usage = out.usage;
         modelRaw = out.text.slice(0, MAX_MODEL_RAW);
@@ -346,7 +377,7 @@ export async function runExtraction(image: File): Promise<ExtractionResult> {
             stage: "structure",
             ok: true,
             ms: Date.now() - structureStart,
-            note: `${DEEPSEEK_MODEL} · ${out.finish ?? "?"} · ${out.usage?.total_tokens ?? "?"} tok`,
+            note: `${deepseekModel} · ${out.finish ?? "?"} · ${out.usage?.total_tokens ?? "?"} tok`,
         });
         let parsed = parseJson(out.text, "structure");
         if (parsed.refusal) return parsed;
@@ -355,7 +386,7 @@ export async function runExtraction(image: File): Promise<ExtractionResult> {
         pushVerifyStage(result, "structure");
 
         // Fails badly: allow one vision re-read that can see the OCR text too.
-        if (result.retry || !hasEssentials(result.receipt)) {
+        if (forceVisionRetry || result.retry || !hasEssentials(result.receipt)) {
             try {
                 const retry = await visionRetry(numbered, grounding, result);
                 if (retry) {
@@ -416,12 +447,13 @@ export async function runExtraction(image: File): Promise<ExtractionResult> {
                 apiKey,
                 mimeType: image.type || "image/jpeg",
                 dataBase64: bytes.toString("base64"),
+                model: geminiModel,
             }),
             GEMINI_TIMEOUT_MS,
             "gemini"
         );
         modelMs += Date.now() - start;
-        model = GEMINI_MODEL;
+        model = geminiModel;
         modelRaw = text.slice(0, MAX_MODEL_RAW);
         fallback = "gemini";
         stages.push({
@@ -454,9 +486,10 @@ export async function runExtraction(image: File): Promise<ExtractionResult> {
         const out = await extractWithDeepSeekVision({
             mimeType: image.type || "image/jpeg",
             dataBase64: bytes.toString("base64"),
+            model: deepseekModel,
         });
         modelMs += Date.now() - start;
-        model = DEEPSEEK_MODEL;
+        model = deepseekModel;
         finish = out.finish;
         usage = out.usage;
         modelRaw = out.text.slice(0, MAX_MODEL_RAW);
@@ -481,7 +514,7 @@ export async function runExtraction(image: File): Promise<ExtractionResult> {
     function buildDebug(): ExtractDebug {
         return {
             runId,
-            provider: EXTRACT_PROVIDER,
+            provider,
             fallback,
             ocrFormat: OCR_FORMAT,
             ocrChars,
@@ -503,7 +536,7 @@ export async function runExtraction(image: File): Promise<ExtractionResult> {
                 event: "extract.run",
                 runId,
                 ok,
-                provider: EXTRACT_PROVIDER,
+                provider,
                 fallback,
                 ocrFormat: OCR_FORMAT,
                 ocrChars,
@@ -520,7 +553,7 @@ export async function runExtraction(image: File): Promise<ExtractionResult> {
     }
 
     const order: AttemptName[] =
-        EXTRACT_PROVIDER === "gemini"
+        provider === "gemini"
             ? ["gemini", "deepseek-vision"]
             : ["paddle", "deepseek-vision", "gemini"];
 

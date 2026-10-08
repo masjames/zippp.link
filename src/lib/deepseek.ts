@@ -42,7 +42,10 @@ type Content =
           | { type: "image_url"; image_url: { url: string } }
       )[];
 
-async function postChat(content: Content): Promise<DeepSeekResult> {
+async function postChat(
+    content: Content,
+    model: string = DEEPSEEK_MODEL
+): Promise<DeepSeekResult> {
     if (!DEEPSEEK_TOKEN) {
         throw new DeepSeekError("DEEPSEEK_API_KEY is missing", "config");
     }
@@ -54,7 +57,7 @@ async function postChat(content: Content): Promise<DeepSeekResult> {
             "Content-Type": "application/json",
         },
         body: JSON.stringify({
-            model: DEEPSEEK_MODEL,
+            model,
             messages: [
                 { role: "system", content: SYSTEM_PROMPT },
                 { role: "user", content },
@@ -91,8 +94,11 @@ async function postChat(content: Content): Promise<DeepSeekResult> {
 }
 
 /** Attempt 1b: structure compacted OCR text. DeepSeek never receives the image. */
-export function structureReceipt(markdown: string): Promise<DeepSeekResult> {
-    return postChat(`${RECEIPT_SCHEMA_HINT}\n\nOCR TEXT:\n${markdown}`);
+export function structureReceipt(
+    markdown: string,
+    model?: string
+): Promise<DeepSeekResult> {
+    return postChat(`${RECEIPT_SCHEMA_HINT}\n\nOCR TEXT:\n${markdown}`, model);
 }
 
 /**
@@ -104,17 +110,21 @@ export function extractWithDeepSeekVision(args: {
     mimeType: string;
     dataBase64: string;
     ocrText?: string | null;
+    model?: string;
 }): Promise<DeepSeekResult> {
     const text = args.ocrText
         ? `${RECEIPT_SCHEMA_HINT}\n\nOCR TEXT:\n${args.ocrText}`
         : RECEIPT_SCHEMA_HINT;
-    return postChat([
-        { type: "text", text },
-        {
-            type: "image_url",
-            image_url: {
-                url: `data:${args.mimeType};base64,${args.dataBase64}`,
+    return postChat(
+        [
+            { type: "text", text },
+            {
+                type: "image_url",
+                image_url: {
+                    url: `data:${args.mimeType};base64,${args.dataBase64}`,
+                },
             },
-        },
-    ]);
+        ],
+        args.model
+    );
 }

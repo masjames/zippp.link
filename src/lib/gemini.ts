@@ -10,10 +10,11 @@ export async function extractWithGemini(args: {
     apiKey: string;
     mimeType: string;
     dataBase64: string;
+    model?: string;
 }): Promise<string> {
     const ai = new GoogleGenAI({ apiKey: args.apiKey });
     const response = await ai.models.generateContent({
-        model: GEMINI_MODEL,
+        model: args.model ?? GEMINI_MODEL,
         contents: [
             {
                 role: "user",

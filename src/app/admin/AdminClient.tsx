@@ -73,12 +73,20 @@ export default function AdminClient({ wording }: { wording: Wording }) {
 
     return (
         <div className="mx-auto max-w-4xl px-5 py-10">
-            <a
-                href="/app/snap"
-                className="text-sm font-semibold text-muted hover:text-body"
-            >
-                &larr; {t("admin.back")}
-            </a>
+            <div className="flex items-center justify-between">
+                <a
+                    href="/app/snap"
+                    className="text-sm font-semibold text-muted hover:text-body"
+                >
+                    &larr; {t("admin.back")}
+                </a>
+                <a
+                    href="/admin/eval"
+                    className="rounded-full bg-btn px-4 py-2 text-sm font-semibold text-btntext"
+                >
+                    {t("admin.eval.link")}
+                </a>
+            </div>
             <h1 className="mt-2 font-head text-4xl font-extrabold tracking-tight">
                 {t("admin.title")}
             </h1>

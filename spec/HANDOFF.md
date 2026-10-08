@@ -236,7 +236,8 @@ score.
 
 ## 10. Commands
 - `npm run dev` · `npm run build` · `npx tsc --noEmit`
-- `npm test` (verifier unit tests) · `npm run eval` (accuracy harness, see `eval/README.md`)
+- `npm test` (unit tests) · `npm run eval` (accuracy harness, see `eval/README.md`)
+- Admin eval UI: `/admin/eval` (compare models, exercise the vision retry and hedge)
 - `npm run logs` (stream `extract.run`/`detect.run` from production)
 - `npm run grant -- <email> <credits>`
 - Deploy: push to `main` (Vercel builds automatically). Verify with `curl -I`.

@@ -78,9 +78,9 @@ function remaining(deadline: number): number {
     return Math.max(500, deadline - Date.now());
 }
 
-async function submit(image: File, deadline: number): Promise<string> {
+async function submit(image: File, deadline: number, model: string): Promise<string> {
     const form = new FormData();
-    form.append("model", PADDLEOCR_MODEL);
+    form.append("model", model);
     form.append("optionalPayload", JSON.stringify(OCR_OPTIONS));
     form.append("file", image, image.name || "receipt.jpg");
 
@@ -328,21 +328,23 @@ async function fetchResult(
 }
 
 /**
- * Run one image through PaddleOCR within a hard budget (default <6s).
- * The whole stage — submit, poll, result — is bounded by `timeoutMs`.
+ * Run one image through PaddleOCR within a hard budget.
+ * The whole stage (submit, poll, result) is bounded by `timeoutMs`.
  */
 export async function runPaddleOcr(
     image: File,
-    timeoutMs: number = PADDLEOCR_TIMEOUT_MS
+    options: { model?: string; timeoutMs?: number } = {}
 ): Promise<PaddleOcrResult> {
     if (!PADDLEOCR_TOKEN) {
         throw new PaddleOcrError("PADDLEOCR_AISTUDIO_TOKEN is missing", "config");
     }
 
+    const model = options.model || PADDLEOCR_MODEL;
+    const timeoutMs = options.timeoutMs ?? PADDLEOCR_TIMEOUT_MS;
     const deadline = Date.now() + timeoutMs;
 
     const submitStart = Date.now();
-    const jobId = await submit(image, deadline);
+    const jobId = await submit(image, deadline, model);
     const submitMs = Date.now() - submitStart;
 
     const pollStart = Date.now();

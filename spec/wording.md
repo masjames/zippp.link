@@ -634,6 +634,82 @@ Kredit
 Reason
 ## admin.reason.id
 Alasan
+## admin.eval.link.en
+Eval
+## admin.eval.link.id
+Eval
+## admin.eval.orders.en
+Orders
+## admin.eval.orders.id
+Pesanan
+## admin.eval.title.en
+Extraction eval
+## admin.eval.title.id
+Evaluasi ekstraksi
+## admin.eval.subtitle.en
+Compare OCR and structuring models on your own receipts. Upload photos, label what you expect, and the tool reports wrong values that were not flagged.
+## admin.eval.subtitle.id
+Bandingkan model OCR dan penyusun pada resi Anda. Unggah foto, isi nilai yang diharapkan, lalu alat ini melaporkan nilai salah yang tidak ditandai.
+## admin.eval.models.en
+Models
+## admin.eval.models.id
+Model
+## admin.eval.remove.en
+Remove
+## admin.eval.remove.id
+Hapus
+## admin.eval.addModel.en
+Add model
+## admin.eval.addModel.id
+Tambah model
+## admin.eval.images.en
+Receipts
+## admin.eval.images.id
+Resi
+## admin.eval.upload.en
+Upload photos
+## admin.eval.upload.id
+Unggah foto
+## admin.eval.importLabels.en
+Import labels.json
+## admin.eval.importLabels.id
+Impor labels.json
+## admin.eval.labelsHint.en
+Labels are optional. A field you leave empty is not scored.
+## admin.eval.labelsHint.id
+Label opsional. Kolom yang dikosongkan tidak dinilai.
+## admin.eval.exercise.en
+Exercise
+## admin.eval.exercise.id
+Uji jalur
+## admin.eval.forceRetry.en
+Force the vision retry
+## admin.eval.forceRetry.id
+Paksa coba ulang vision
+## admin.eval.hedge.en
+Hedge delay
+## admin.eval.hedge.id
+Jeda hedge
+## admin.eval.run.en
+Run eval
+## admin.eval.run.id
+Jalankan eval
+## admin.eval.running.en
+Running...
+## admin.eval.running.id
+Berjalan...
+## admin.eval.results.en
+Results
+## admin.eval.results.id
+Hasil
+## admin.eval.noResults.en
+No results yet.
+## admin.eval.noResults.id
+Belum ada hasil.
+## admin.eval.costHint.en
+Running this calls the paid models. Each photo runs OCR once per OCR model and one structuring call per config.
+## admin.eval.costHint.id
+Menjalankan ini memanggil model berbayar. Setiap foto menjalankan OCR sekali per model OCR dan satu panggilan penyusunan per konfigurasi.
 ## admin.empty.en
 No orders.
 ## admin.empty.id
