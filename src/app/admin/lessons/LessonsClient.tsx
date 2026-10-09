@@ -129,13 +129,13 @@ export default function LessonsClient({ wording }: { wording: Wording }) {
                 return;
             }
             if (action === "approve") {
-                const deploy = data.deploy as Release["deploy"];
+                const prUrl = typeof data.prUrl === "string" ? data.prUrl : null;
+                const githubError =
+                    typeof data.githubError === "string" ? data.githubError : "";
                 setMessage(
-                    deploy.attempted
-                        ? deploy.ok
-                            ? t("admin.lessons.deployed")
-                            : `${t("admin.lessons.deployFailed")}: ${deploy.error ?? ""}`
-                        : t("admin.lessons.deploySkipped")
+                    prUrl
+                        ? `${t("admin.lessons.opened")} ${prUrl}`
+                        : `${t("admin.lessons.openedNoPr")} ${githubError}`
                 );
             } else if (action === "reject") {
                 setMessage(t("admin.lessons.rejected"));

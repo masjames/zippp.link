@@ -831,9 +831,9 @@ Decided
 ## admin.lessons.decided.id
 Diputuskan
 ## admin.lessons.approve.en
-Approve and deploy
+Approve and open change request
 ## admin.lessons.approve.id
-Setujui dan deploy
+Setujui dan buka permintaan perubahan
 ## admin.lessons.reject.en
 Reject
 ## admin.lessons.reject.id
@@ -910,6 +910,34 @@ gagal
 not configured
 ## admin.releases.deploySkipped.id
 belum diatur
+## admin.releases.branch.en
+branch
+## admin.releases.branch.id
+branch
+## admin.releases.pr.en
+open change request
+## admin.releases.pr.id
+buka permintaan perubahan
+## admin.releases.noPr.en
+no change request
+## admin.releases.noPr.id
+tanpa permintaan perubahan
+## admin.releases.notified.en
+Telegram sent
+## admin.releases.notified.id
+Telegram terkirim
+## admin.releases.deployNow.en
+Deploy now
+## admin.releases.deployNow.id
+Deploy sekarang
+## admin.lessons.opened.en
+Change request opened and Telegram notified:
+## admin.lessons.opened.id
+Permintaan perubahan dibuka dan Telegram diberi tahu:
+## admin.lessons.openedNoPr.en
+Saved. No change request opened:
+## admin.lessons.openedNoPr.id
+Tersimpan. Tidak ada permintaan perubahan:
 ## admin.empty.en
 No orders.
 ## admin.empty.id

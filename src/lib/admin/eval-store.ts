@@ -64,6 +64,10 @@ export type Release = {
     summary: string;
     lessonIds: string[];
     commit: string | null;
+    /** Change request opened from the lesson, when GitHub is configured. */
+    branch?: string | null;
+    prUrl?: string | null;
+    notified?: boolean;
     deploy: DeployResult;
 };
 
@@ -200,6 +204,9 @@ export async function createRelease(input: {
     title: string;
     summary: string;
     lessonIds: string[];
+    branch?: string | null;
+    prUrl?: string | null;
+    notified?: boolean;
 }): Promise<Release> {
     const release: Release = {
         id: randomUUID(),
@@ -209,6 +216,9 @@ export async function createRelease(input: {
         summary: input.summary,
         lessonIds: input.lessonIds,
         commit: process.env.VERCEL_GIT_COMMIT_SHA ?? null,
+        branch: input.branch ?? null,
+        prUrl: input.prUrl ?? null,
+        notified: input.notified ?? false,
         deploy: { attempted: false, ok: false, at: Date.now() },
     };
     const releases = await listReleases();

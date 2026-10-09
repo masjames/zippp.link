@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { makeT, type Wording } from "@/lib/t";
 
 type Release = {
@@ -11,20 +11,40 @@ type Release = {
     summary: string;
     lessonIds: string[];
     commit: string | null;
+    branch?: string | null;
+    prUrl?: string | null;
+    notified?: boolean;
     deploy: { attempted: boolean; ok: boolean; error?: string; at: number };
 };
 
 export default function ReleasesClient({ wording }: { wording: Wording }) {
     const t = makeT(wording, "en");
     const [releases, setReleases] = useState<Release[]>([]);
+    const [busy, setBusy] = useState<string | null>(null);
+
+    const load = useCallback(async () => {
+        const res = await fetch("/api/admin/releases", { cache: "no-store" });
+        const data = await res.json();
+        if (data.ok) setReleases(data.releases as Release[]);
+    }, []);
 
     useEffect(() => {
-        void (async () => {
-            const res = await fetch("/api/admin/releases", { cache: "no-store" });
-            const data = await res.json();
-            if (data.ok) setReleases(data.releases as Release[]);
-        })();
-    }, []);
+        void load();
+    }, [load]);
+
+    async function deploy(release: Release) {
+        setBusy(release.id);
+        try {
+            await fetch("/api/admin/releases", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ id: release.id, action: "deploy" }),
+            });
+            await load();
+        } finally {
+            setBusy(null);
+        }
+    }
 
     return (
         <div className="mx-auto max-w-4xl px-4 py-6 sm:px-5 sm:py-10">
@@ -67,7 +87,7 @@ export default function ReleasesClient({ wording }: { wording: Wording }) {
                             <p className="mt-1 whitespace-pre-wrap text-sm text-muted">
                                 {release.summary}
                             </p>
-                            <div className="mt-2 flex flex-wrap gap-3 text-xs">
+                            <div className="mt-2 flex flex-wrap items-center gap-3 text-xs">
                                 <span>
                                     {t("admin.releases.commit")}:{" "}
                                     <span className="font-mono">
@@ -77,6 +97,30 @@ export default function ReleasesClient({ wording }: { wording: Wording }) {
                                 <span>
                                     {t("admin.releases.lessonsCount")}: {release.lessonIds.length}
                                 </span>
+                                {release.branch ? (
+                                    <span className="font-mono">
+                                        {t("admin.releases.branch")}: {release.branch}
+                                    </span>
+                                ) : null}
+                                {release.prUrl ? (
+                                    <a
+                                        href={release.prUrl}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="font-semibold text-brand underline"
+                                    >
+                                        {t("admin.releases.pr")}
+                                    </a>
+                                ) : (
+                                    <span className="text-muted">
+                                        {t("admin.releases.noPr")}
+                                    </span>
+                                )}
+                                {release.notified ? (
+                                    <span className="text-muted">
+                                        {t("admin.releases.notified")}
+                                    </span>
+                                ) : null}
                                 <span
                                     className={
                                         release.deploy.ok
@@ -93,6 +137,14 @@ export default function ReleasesClient({ wording }: { wording: Wording }) {
                                             : `${t("admin.releases.deployFailed")} (${release.deploy.error ?? ""})`
                                         : t("admin.releases.deploySkipped")}
                                 </span>
+                                <button
+                                    type="button"
+                                    disabled={busy === release.id}
+                                    onClick={() => void deploy(release)}
+                                    className="rounded-full bg-surface px-3 py-1 font-semibold disabled:opacity-60"
+                                >
+                                    {t("admin.releases.deployNow")}
+                                </button>
                             </div>
                         </li>
                     ))}
