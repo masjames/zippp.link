@@ -66,6 +66,9 @@ spec/                    all specs (this file is the index of record)
 `PADDLE_ENV=sandbox`, `PADDLE_API_KEY`, `PADDLE_WEBHOOK_SECRET`,
 `PADDLE_PACK_PRICE_ID`, `PADDLE_CLIENT_TOKEN`.
 
+Optional: `VERCEL_DEPLOY_HOOK_URL` lets an approved lesson on `/admin/lessons`
+trigger a rebuild and redeploy.
+
 Never commit secrets. `.env.example` holds names only. `npm run grant -- <email> <credits>`
 (uses `.env.local`). `npm run logs` streams structured production logs.
 

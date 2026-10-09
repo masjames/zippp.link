@@ -67,3 +67,21 @@ OCR is computed once per (photo, OCR model) and reused across the structuring
 configs, both inside one request and in a short-lived in-process cache, so a
 comparison does not pay for the same OCR several times. Keep the hedge disabled
 (0, the default) for fair comparisons.
+
+## The improvement loop
+
+1. Run a comparison, pick the best reading per photo, or mark it all wrong and
+   describe what zippp got wrong and how it should be. Save feedback.
+2. An all-wrong correction becomes a **lesson** on `/admin/lessons`, together
+   with a summary of which config won the most.
+3. Review the lesson, edit its title and detail, then approve or reject it.
+4. Approving records a **release** on `/admin/releases` (version, commit,
+   summary) and, when `VERCEL_DEPLOY_HOOK_URL` is set, triggers a rebuild and
+   redeploy. Without it, the release is recorded and the deploy is marked as not
+   configured.
+
+The deploy hook only runs code that is already on the deployed branch. The
+lesson review is where the correction is turned into a code change; the deploy
+is what ships it. Feedback, lessons and releases are stored with the same
+backend as the session store (Vercel Blob or Upstash Redis, else the `.data`
+filesystem).

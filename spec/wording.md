@@ -766,6 +766,150 @@ jumlah baris
 wrong+unflagged
 ## admin.eval.col.wrongUnflagged.id
 salah tanpa tanda
+## admin.eval.trace.en
+Trace
+## admin.eval.trace.id
+Jejak
+## admin.eval.allWrong.en
+All wrong
+## admin.eval.allWrong.id
+Semua salah
+## admin.eval.correctionPlaceholder.en
+What did zippp get wrong, and how should it be?
+## admin.eval.correctionPlaceholder.id
+Apa yang salah dari zippp, dan seharusnya apa?
+## admin.eval.saveFeedback.en
+Save feedback
+## admin.eval.saveFeedback.id
+Simpan masukan
+## admin.eval.saving.en
+Saving...
+## admin.eval.saving.id
+Menyimpan...
+## admin.eval.feedbackSaved.en
+Feedback saved.
+## admin.eval.feedbackSaved.id
+Masukan tersimpan.
+## admin.eval.items.en
+items
+## admin.eval.items.id
+item
+## admin.eval.flags.en
+flags
+## admin.eval.flags.id
+tanda
+## admin.lessons.link.en
+Lessons
+## admin.lessons.link.id
+Pelajaran
+## admin.lessons.title.en
+Lessons
+## admin.lessons.title.id
+Pelajaran
+## admin.lessons.subtitle.en
+Corrections from the eval, grouped for review. Approving one records a release and can trigger a redeploy.
+## admin.lessons.subtitle.id
+Koreksi dari eval, dikelompokkan untuk ditinjau. Menyetujui satu akan mencatat rilis dan bisa memicu deploy ulang.
+## admin.lessons.wins.en
+Model wins
+## admin.lessons.wins.id
+Model menang
+## admin.lessons.winsEmpty.en
+No picks yet.
+## admin.lessons.winsEmpty.id
+Belum ada pilihan.
+## admin.lessons.pending.en
+Pending
+## admin.lessons.pending.id
+Menunggu
+## admin.lessons.empty.en
+No pending lessons. Save all-wrong feedback in Eval first.
+## admin.lessons.empty.id
+Tidak ada pelajaran menunggu. Simpan masukan semua salah di Eval dulu.
+## admin.lessons.decided.en
+Decided
+## admin.lessons.decided.id
+Diputuskan
+## admin.lessons.approve.en
+Approve and deploy
+## admin.lessons.approve.id
+Setujui dan deploy
+## admin.lessons.reject.en
+Reject
+## admin.lessons.reject.id
+Tolak
+## admin.lessons.save.en
+Save
+## admin.lessons.save.id
+Simpan
+## admin.lessons.original.en
+Original feedback
+## admin.lessons.original.id
+Masukan asli
+## admin.lessons.release.en
+Release
+## admin.lessons.release.id
+Rilis
+## admin.lessons.deployed.en
+Deploy triggered.
+## admin.lessons.deployed.id
+Deploy dipicu.
+## admin.lessons.deployFailed.en
+Deploy failed
+## admin.lessons.deployFailed.id
+Deploy gagal
+## admin.lessons.deploySkipped.en
+Saved. No deploy hook configured.
+## admin.lessons.deploySkipped.id
+Tersimpan. Deploy hook belum diatur.
+## admin.lessons.rejected.en
+Rejected.
+## admin.lessons.rejected.id
+Ditolak.
+## admin.lessons.saved.en
+Saved.
+## admin.lessons.saved.id
+Tersimpan.
+## admin.releases.link.en
+Releases
+## admin.releases.link.id
+Rilis
+## admin.releases.title.en
+Releases
+## admin.releases.title.id
+Rilis
+## admin.releases.subtitle.en
+Every approved lesson, the commit it shipped from, and the deploy that followed.
+## admin.releases.subtitle.id
+Setiap pelajaran yang disetujui, commit sumbernya, dan deploy setelahnya.
+## admin.releases.empty.en
+No releases yet.
+## admin.releases.empty.id
+Belum ada rilis.
+## admin.releases.commit.en
+commit
+## admin.releases.commit.id
+commit
+## admin.releases.lessonsCount.en
+lessons
+## admin.releases.lessonsCount.id
+pelajaran
+## admin.releases.deploy.en
+deploy
+## admin.releases.deploy.id
+deploy
+## admin.releases.deployed.en
+ok
+## admin.releases.deployed.id
+ok
+## admin.releases.deployFailed.en
+failed
+## admin.releases.deployFailed.id
+gagal
+## admin.releases.deploySkipped.en
+not configured
+## admin.releases.deploySkipped.id
+belum diatur
 ## admin.empty.en
 No orders.
 ## admin.empty.id

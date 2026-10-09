@@ -48,6 +48,10 @@ type ImageItem = {
 type ConfigResult = {
     configId: string;
     imageId: string;
+    provider: string;
+    ocrModel: string;
+    deepseekModel: string;
+    geminiModel: string;
     ok: boolean;
     receipt: Receipt | null;
     error: string | null;
@@ -131,6 +135,10 @@ export default function EvalClient({ wording }: { wording: Wording }) {
     const [progress, setProgress] = useState("");
     const [message, setMessage] = useState<string | null>(null);
     const [openResult, setOpenResult] = useState<string | null>(null);
+    const [bestByImage, setBestByImage] = useState<Record<string, string>>({});
+    const [correctionByImage, setCorrectionByImage] = useState<Record<string, string>>({});
+    const [saving, setSaving] = useState<string | null>(null);
+    const [saved, setSaved] = useState<Record<string, boolean>>({});
 
     const comparison = useMemo(() => {
         return configs.map((config) => {
@@ -341,6 +349,49 @@ export default function EvalClient({ wording }: { wording: Wording }) {
         } finally {
             setBusy(false);
             setProgress("");
+        }
+    }
+
+    async function saveFeedback(image: ImageItem) {
+        setSaving(image.id);
+        try {
+            const imageResults = results.filter((r) => r.imageId === image.id);
+            const best = bestByImage[image.id] ?? null;
+            const allWrong = best === "all_wrong";
+            const res = await fetch("/api/admin/feedback", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    file: image.name,
+                    chosenConfigId: allWrong ? null : best,
+                    allWrong,
+                    correction: correctionByImage[image.id] ?? "",
+                    configs: imageResults.map((r) => ({
+                        configId: r.configId,
+                        provider: r.provider,
+                        ocrModel: r.ocrModel,
+                        deepseekModel: r.deepseekModel,
+                        geminiModel: r.geminiModel,
+                        merchant: r.receipt?.merchant ?? null,
+                        date: r.receipt?.date ?? null,
+                        total: r.receipt?.total ?? null,
+                        items: r.receipt?.line_items.length ?? 0,
+                        flags: (r.receipt?.flags ?? []).map(
+                            (f) => `${f.path}:${f.reason}`
+                        ),
+                    })),
+                }),
+            });
+            const data = await res.json();
+            if (data.ok) {
+                setSaved((all) => ({ ...all, [image.id]: true }));
+            } else {
+                setMessage(data.error ?? "Failed.");
+            }
+        } catch (err) {
+            setMessage(err instanceof Error ? err.message : "Failed.");
+        } finally {
+            setSaving(null);
         }
     }
 
@@ -721,102 +772,186 @@ export default function EvalClient({ wording }: { wording: Wording }) {
                     </div>
                 )}
 
-                <div className="mt-4 grid gap-3">
-                    {results.map((result) => {
-                        const image = images.find(
-                            (i) => i.id === result.imageId
+                <div className="mt-4 grid gap-4">
+                    {images.map((image) => {
+                        const imageResults = results.filter(
+                            (r) => r.imageId === image.id
                         );
-                        const key = resultKey(
-                            result.configId,
-                            result.imageId
-                        );
-                        const open = openResult === key;
-                        const label = image
-                            ? toEvalCase(image.name, image.label)
-                            : null;
+                        if (imageResults.length === 0) return null;
+                        const best = bestByImage[image.id] ?? "";
+                        const label = toEvalCase(image.name, image.label);
                         return (
                             <div
-                                key={key}
+                                key={image.id}
                                 className="rounded-2xl border-2 border-line bg-card p-3"
                             >
+                                <p className="text-sm font-semibold">
+                                    {image.name}
+                                </p>
+                                <div className="mt-2 grid gap-2">
+                                    {imageResults.map((result) => {
+                                        const key = resultKey(
+                                            result.configId,
+                                            result.imageId
+                                        );
+                                        const open = openResult === key;
+                                        return (
+                                            <div
+                                                key={key}
+                                                className="rounded-xl border-2 border-line bg-surface p-2"
+                                            >
+                                                <label className="flex items-start gap-2">
+                                                    <input
+                                                        type="radio"
+                                                        name={`best-${image.id}`}
+                                                        checked={
+                                                            best ===
+                                                            result.configId
+                                                        }
+                                                        onChange={() =>
+                                                            setBestByImage(
+                                                                (all) => ({
+                                                                    ...all,
+                                                                    [image.id]:
+                                                                        result.configId,
+                                                                })
+                                                            )
+                                                        }
+                                                        className="mt-1"
+                                                    />
+                                                    <span className="min-w-0 flex-1">
+                                                        <span className="block font-mono text-xs">
+                                                            {result.configId}
+                                                        </span>
+                                                        {result.ok ? (
+                                                            <span className="block text-xs">
+                                                                {result.receipt?.merchant ?? "(null)"} ·{" "}
+                                                                {result.receipt?.date ?? "(null)"} ·{" "}
+                                                                {result.receipt?.total ?? "(null)"} ·{" "}
+                                                                {result.receipt?.line_items.length ?? 0}{" "}
+                                                                {t("admin.eval.items")} ·{" "}
+                                                                {result.receipt?.flags?.length ?? 0}{" "}
+                                                                {t("admin.eval.flags")}
+                                                            </span>
+                                                        ) : (
+                                                            <span className="block text-xs text-danger">
+                                                                {result.error}
+                                                            </span>
+                                                        )}
+                                                    </span>
+                                                </label>
+                                                <div className="mt-1 grid gap-2 text-xs sm:grid-cols-3">
+                                                    <Field
+                                                        label="merchant"
+                                                        value={
+                                                            result.receipt?.merchant ??
+                                                            "(null)"
+                                                        }
+                                                        ok={
+                                                            label.merchant === undefined
+                                                                ? null
+                                                                : sameText(
+                                                                      result.receipt?.merchant,
+                                                                      label.merchant
+                                                                  )
+                                                        }
+                                                    />
+                                                    <Field
+                                                        label="date"
+                                                        value={
+                                                            result.receipt?.date ?? "(null)"
+                                                        }
+                                                        ok={
+                                                            label.date === undefined
+                                                                ? null
+                                                                : result.receipt?.date ===
+                                                                  label.date
+                                                        }
+                                                    />
+                                                    <Field
+                                                        label="total"
+                                                        value={String(
+                                                            result.receipt?.total ??
+                                                                "(null)"
+                                                        )}
+                                                        ok={
+                                                            label.total === undefined
+                                                                ? null
+                                                                : sameNumber(
+                                                                      result.receipt?.total,
+                                                                      label.total
+                                                                  )
+                                                        }
+                                                    />
+                                                </div>
+                                                <button
+                                                    type="button"
+                                                    onClick={() =>
+                                                        setOpenResult(
+                                                            open ? null : key
+                                                        )
+                                                    }
+                                                    className="mt-1 text-xs font-semibold underline"
+                                                >
+                                                    {t("admin.eval.trace")}
+                                                </button>
+                                                {open ? (
+                                                    <DebugPanel
+                                                        debug={result.debug}
+                                                        defaultOpen
+                                                    />
+                                                ) : null}
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+
+                                <label className="mt-2 flex items-center gap-2 text-sm">
+                                    <input
+                                        type="radio"
+                                        name={`best-${image.id}`}
+                                        checked={best === "all_wrong"}
+                                        onChange={() =>
+                                            setBestByImage((all) => ({
+                                                ...all,
+                                                [image.id]: "all_wrong",
+                                            }))
+                                        }
+                                    />
+                                    {t("admin.eval.allWrong")}
+                                </label>
+                                <textarea
+                                    value={correctionByImage[image.id] ?? ""}
+                                    onChange={(e) =>
+                                        setCorrectionByImage((all) => ({
+                                            ...all,
+                                            [image.id]: e.target.value,
+                                        }))
+                                    }
+                                    rows={2}
+                                    placeholder={t("admin.eval.correctionPlaceholder")}
+                                    className="mt-2 w-full rounded-lg border-2 border-line bg-surface px-2 py-1 text-sm"
+                                />
                                 <button
                                     type="button"
-                                    onClick={() =>
-                                        setOpenResult(open ? null : key)
+                                    disabled={
+                                        saving === image.id ||
+                                        (!best &&
+                                            !(
+                                                correctionByImage[image.id] ?? ""
+                                            ).trim())
                                     }
-                                    className="flex w-full items-center justify-between gap-3 text-left"
+                                    onClick={() => void saveFeedback(image)}
+                                    className="mt-2 rounded-full bg-btn px-5 py-2 text-sm font-semibold text-btntext disabled:opacity-60"
                                 >
-                                    <span className="text-sm font-semibold">
-                                        {result.configId} · {result.imageId.slice(0, 6)}
-                                    </span>
-                                    <span
-                                        className={`text-xs font-semibold ${
-                                            result.ok
-                                                ? "text-muted"
-                                                : "text-danger"
-                                        }`}
-                                    >
-                                        {result.ok
-                                            ? `${result.model_ms} ${t("admin.eval.ms")}`
-                                            : result.error}
-                                    </span>
+                                    {saving === image.id
+                                        ? t("admin.eval.saving")
+                                        : t("admin.eval.saveFeedback")}
                                 </button>
-                                {open ? (
-                                    <div className="mt-3 grid gap-3">
-                                        <div className="grid gap-2 text-xs sm:grid-cols-2">
-                                            <Field
-                                                label="merchant"
-                                                value={
-                                                    result.receipt?.merchant ??
-                                                    "(null)"
-                                                }
-                                                ok={
-                                                    label?.merchant ===
-                                                    undefined
-                                                        ? null
-                                                        : sameText(
-                                                              result.receipt
-                                                                  ?.merchant,
-                                                              label.merchant
-                                                          )
-                                                }
-                                            />
-                                            <Field
-                                                label="date"
-                                                value={
-                                                    result.receipt?.date ??
-                                                    "(null)"
-                                                }
-                                                ok={
-                                                    label?.date === undefined
-                                                        ? null
-                                                        : result.receipt
-                                                              ?.date ===
-                                                          label.date
-                                                }
-                                            />
-                                            <Field
-                                                label="total"
-                                                value={String(
-                                                    result.receipt?.total ??
-                                                        "(null)"
-                                                )}
-                                                ok={
-                                                    label?.total === undefined
-                                                        ? null
-                                                        : sameNumber(
-                                                              result.receipt
-                                                                  ?.total,
-                                                              label.total
-                                                          )
-                                                }
-                                            />
-                                        </div>
-                                        <DebugPanel
-                                            debug={result.debug}
-                                            defaultOpen
-                                        />
-                                    </div>
+                                {saved[image.id] ? (
+                                    <p className="mt-1 text-xs font-medium text-green-700">
+                                        {t("admin.eval.feedbackSaved")}
+                                    </p>
                                 ) : null}
                             </div>
                         );
