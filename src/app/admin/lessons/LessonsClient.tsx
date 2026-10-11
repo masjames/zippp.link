@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { makeT, type Wording } from "@/lib/t";
+import { METHOD_LABEL_KEYS, isMethodId } from "@/lib/admin/method-labels";
 
 type FeedbackConfig = {
     configId: string;
@@ -49,7 +50,8 @@ type Release = {
     deploy: { attempted: boolean; ok: boolean; error?: string; at: number };
 };
 
-function configLabel(c: FeedbackConfig): string {
+function configLabel(c: FeedbackConfig, t: ReturnType<typeof makeT>): string {
+    if (isMethodId(c.configId)) return t(METHOD_LABEL_KEYS[c.configId]);
     const parts = [c.provider, c.ocrModel, c.deepseekModel, c.geminiModel].filter(
         Boolean
     );
@@ -189,8 +191,8 @@ export default function LessonsClient({ wording }: { wording: Wording }) {
                             const config = latestByConfig.get(configId);
                             return (
                                 <li key={configId} className="flex justify-between gap-3 rounded-lg bg-surface px-3 py-1">
-                                    <span className="truncate font-mono text-xs">
-                                        {config ? configLabel(config) : configId}
+                                    <span className="truncate text-xs font-semibold">
+                                        {config ? configLabel(config, t) : configId}
                                     </span>
                                     <span className="font-semibold">{count}</span>
                                 </li>
@@ -307,7 +309,7 @@ function OriginalFeedback({
             <ul className="mt-1 grid gap-0.5 font-mono text-[11px]">
                 {source.configs.map((c) => (
                     <li key={c.configId}>
-                        {configLabel(c)} · total {c.total ?? "(null)"} · {c.items}{" "}
+                        {configLabel(c, t)} · total {c.total ?? "(null)"} · {c.items}{" "}
                         {t("admin.eval.items")} · {c.flags.length}{" "}
                         {t("admin.eval.flags")}
                     </li>

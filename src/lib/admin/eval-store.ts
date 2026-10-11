@@ -123,8 +123,9 @@ export async function appendFeedback(
     all.unshift(record);
     await writeJson(KEYS.feedback, all.slice(0, 500));
 
-    // An all-wrong correction becomes a lesson to review.
-    if (record.allWrong && record.correction.trim()) {
+    // Any correction becomes a lesson to review, not only an all-wrong one. A
+    // correction typed next to a chosen winner is still something to act on.
+    if (record.correction.trim()) {
         const lesson: Lesson = {
             id: randomUUID(),
             createdAt: Date.now(),

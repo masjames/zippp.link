@@ -13,6 +13,7 @@ import {
     EXTRACT_METHODS,
     type ExtractMethodId,
 } from "@/lib/admin/methods";
+import { METHOD_LABEL_KEYS as METHOD_LABEL_KEY } from "@/lib/admin/method-labels";
 import {
     allEvalImages,
     clearEvalImages,
@@ -77,13 +78,6 @@ const EMPTY_LABEL: LabelDraft = {
     date: "",
     total: "",
     itemsJson: "",
-};
-
-const METHOD_LABEL_KEY: Record<ExtractMethodId, string> = {
-    "ocr-deepseek": "admin.eval.method.ocrDeepseek",
-    "vision-deepseek": "admin.eval.method.visionDeepseek",
-    "ocr-gemini": "admin.eval.method.ocrGemini",
-    "vision-gemini": "admin.eval.method.visionGemini",
 };
 
 function toEvalCase(name: string, draft: LabelDraft): EvalCase {
