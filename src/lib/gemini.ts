@@ -1,6 +1,7 @@
 import { GoogleGenAI } from "@google/genai";
 import { GEMINI_MODEL } from "./config";
 import { EXTRACT_PROMPT, RECEIPT_JSON_SCHEMA } from "./schema";
+import { SOURCE_INSTRUCTIONS } from "./schema";
 
 /**
  * Fallback extractor: Gemini reads the image and returns the receipt JSON.
@@ -25,6 +26,37 @@ export async function extractWithGemini(args: {
                             mimeType: args.mimeType,
                             data: args.dataBase64,
                         },
+                    },
+                ],
+            },
+        ],
+        config: {
+            responseMimeType: "application/json",
+            responseSchema: RECEIPT_JSON_SCHEMA,
+            thinkingConfig: { thinkingBudget: 0 },
+        },
+    });
+    return response?.text ?? "";
+}
+
+/**
+ * Structure OCR rows with Gemini (text only). Used by the admin eval as the
+ * "OCR + Gemini" method; not part of the production fallback chain.
+ */
+export async function structureWithGemini(args: {
+    apiKey: string;
+    text: string;
+    model?: string;
+}): Promise<string> {
+    const ai = new GoogleGenAI({ apiKey: args.apiKey });
+    const response = await ai.models.generateContent({
+        model: args.model ?? GEMINI_MODEL,
+        contents: [
+            {
+                role: "user",
+                parts: [
+                    {
+                        text: `${EXTRACT_PROMPT}\n${SOURCE_INSTRUCTIONS}\n\nOCR TEXT:\n${args.text}`,
                     },
                 ],
             },

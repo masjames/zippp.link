@@ -45,28 +45,38 @@ Do not run paid model comparisons without asking first.
 
 ## Admin UI
 
-`/admin/eval` (admins only, linked from `/admin`) does the same comparison in
-the browser:
+`/admin/eval` (admins only, linked from `/admin`) runs four fixed methods on each
+photo and shows the reads side by side:
 
-- edit the model configs (provider, OCR model, DeepSeek model, Gemini model),
-- take a photo with the phone camera or upload several, and label merchant,
-  date, total and items; the photo list and labels persist in the browser, so a
-  phone session survives a refresh,
-- optionally import a `labels.json` to fill labels by file name,
-- run, then read the per-config accuracy table and the wrong-and-unflagged count.
+- OCR + DeepSeek Flash
+- DeepSeek Flash vision only
+- OCR + Gemini Flash
+- Gemini Flash vision only
 
-Two exercise toggles let you observe the reliability paths:
+Workflow:
 
-- **Force the vision retry** runs the OCR-aware vision re-read even when the
-  verifier did not ask for it. The Debug panel then shows the `vision-retry`
-  stage and whether it was accepted.
-- **Hedge delay** overrides `PADDLEOCR_HEDGE_MS`. Set it to a small value (for
-  example 1) to start the vision leg in parallel and observe the `hedge` stage.
+- Take a photo with the phone camera or upload several. Photos and labels persist
+  in the browser, so a phone session survives a refresh.
+- Press Run on one photo, or Run all.
+- The photo is shown large and tappable to zoom, next to each method's merchant,
+  date, total, items and verification flags.
+- A **Test OCR** button shows the raw PP-OCRv6 result or the exact error, so a
+  slow or failed OCR is visible instead of silently falling back to vision.
+- Tap the method that read it best, or **All wrong** with a correction. The pick
+  is also the label. Expected values are optional and collapsed; fill them to
+  score accuracy against the fields.
+- Save feedback. An all-wrong correction becomes a lesson.
 
-OCR is computed once per (photo, OCR model) and reused across the structuring
-configs, both inside one request and in a short-lived in-process cache, so a
-comparison does not pay for the same OCR several times. Keep the hedge disabled
-(0, the default) for fair comparisons.
+The model names and the exercise toggles live in an **Advanced** drawer, closed
+by default. **Force the vision retry** runs the OCR-aware re-read so you can
+observe the `vision-retry` stage, and **Hedge delay** set to a small value
+starts the vision leg in parallel to observe the `hedge` stage. Leave both off
+for a fair comparison.
+
+OCR is computed once per (photo, OCR model), reused across the OCR methods, and
+cached in process memory for a short time. The eval gives OCR a longer budget
+than production (30s) so the comparison reflects real OCR rather than a slow
+fallback.
 
 ## The improvement loop
 

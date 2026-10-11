@@ -1,39 +1,27 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { makeT, type Wording } from "@/lib/t";
 import { downscaleImage, makeThumb } from "@/lib/image";
 import {
-    addScore,
-    emptyTotals,
-    percent,
     sameNumber,
-    scoreCase,
-    type CaseScore,
+    sameText,
     type EvalCase,
     type EvalItem,
-    type Totals,
 } from "@/lib/eval-score";
+import {
+    EXTRACT_METHODS,
+    type ExtractMethodId,
+} from "@/lib/admin/methods";
 import {
     allEvalImages,
     clearEvalImages,
     deleteEvalImage,
     putEvalImage,
-    type EvalImageRecord,
     type EvalLabelDraft,
 } from "@/lib/eval-db";
 import DebugPanel from "@/components/app/DebugPanel";
 import type { ExtractDebug, Receipt } from "@/types/receipt";
-
-type Provider = "paddle" | "gemini";
-
-type Config = {
-    id: string;
-    provider: Provider;
-    ocrModel: string;
-    deepseekModel: string;
-    geminiModel: string;
-};
 
 type LabelDraft = EvalLabelDraft;
 
@@ -45,20 +33,25 @@ type ImageItem = {
     label: LabelDraft;
 };
 
-type ConfigResult = {
-    configId: string;
-    imageId: string;
-    provider: string;
-    ocrModel: string;
-    deepseekModel: string;
-    geminiModel: string;
+type MethodResult = {
+    method: ExtractMethodId;
     ok: boolean;
-    receipt: Receipt | null;
     error: string | null;
+    receipt: Receipt | null;
     debug: ExtractDebug | null;
     model_ms: number;
     wallMs: number;
-    ocrCached: boolean;
+    ocrError: string | null;
+};
+
+type OcrTest = {
+    ok: boolean;
+    ocrModel?: string;
+    pages?: number;
+    chars?: number;
+    error?: string;
+    tokens?: string[];
+    markdownPreview?: string;
 };
 
 const EMPTY_LABEL: LabelDraft = {
@@ -68,36 +61,12 @@ const EMPTY_LABEL: LabelDraft = {
     itemsJson: "",
 };
 
-const PRESETS: Config[] = [
-    {
-        id: "paddle-flash",
-        provider: "paddle",
-        ocrModel: "PP-OCRv6",
-        deepseekModel: "deepseek-flash",
-        geminiModel: "",
-    },
-    {
-        id: "paddle-pro",
-        provider: "paddle",
-        ocrModel: "PP-OCRv6",
-        deepseekModel: "deepseek-v4-pro",
-        geminiModel: "",
-    },
-    {
-        id: "paddle-vl",
-        provider: "paddle",
-        ocrModel: "PaddleOCR-VL-1.6",
-        deepseekModel: "deepseek-flash",
-        geminiModel: "",
-    },
-    {
-        id: "gemini-flash",
-        provider: "gemini",
-        ocrModel: "PP-OCRv6",
-        deepseekModel: "",
-        geminiModel: "gemini-2.5-flash",
-    },
-];
+const METHOD_LABEL_KEY: Record<ExtractMethodId, string> = {
+    "ocr-deepseek": "admin.eval.method.ocrDeepseek",
+    "vision-deepseek": "admin.eval.method.visionDeepseek",
+    "ocr-gemini": "admin.eval.method.ocrGemini",
+    "vision-gemini": "admin.eval.method.visionGemini",
+};
 
 function toEvalCase(name: string, draft: LabelDraft): EvalCase {
     const total = draft.total.trim() === "" ? undefined : Number(draft.total);
@@ -119,48 +88,45 @@ function toEvalCase(name: string, draft: LabelDraft): EvalCase {
     };
 }
 
+function hasLabel(label: EvalCase): boolean {
+    return (
+        label.merchant !== undefined ||
+        label.date !== undefined ||
+        label.total !== undefined ||
+        (label.items?.length ?? 0) > 0
+    );
+}
+
+function flagsOf(receipt: Receipt | null): string[] {
+    return (receipt?.flags ?? []).map((flag) => `${flag.path}:${flag.reason}`);
+}
+
 export default function EvalClient({ wording }: { wording: Wording }) {
     const t = makeT(wording, "en");
     const fileRef = useRef<HTMLInputElement>(null);
     const captureRef = useRef<HTMLInputElement>(null);
     const labelRef = useRef<HTMLInputElement>(null);
 
-    // Start with one config so a phone run stays cheap; add more to compare.
-    const [configs, setConfigs] = useState<Config[]>(PRESETS.slice(0, 1));
     const [images, setImages] = useState<ImageItem[]>([]);
-    const [results, setResults] = useState<ConfigResult[]>([]);
-    const [forceVisionRetry, setForceVisionRetry] = useState(false);
-    const [hedgeMs, setHedgeMs] = useState(0);
-    const [busy, setBusy] = useState(false);
-    const [progress, setProgress] = useState("");
-    const [message, setMessage] = useState<string | null>(null);
-    const [openResult, setOpenResult] = useState<string | null>(null);
-    const [bestByImage, setBestByImage] = useState<Record<string, string>>({});
-    const [correctionByImage, setCorrectionByImage] = useState<Record<string, string>>({});
-    const [saving, setSaving] = useState<string | null>(null);
+    const [results, setResults] = useState<Record<string, MethodResult[]>>({});
+    const [ocrTests, setOcrTests] = useState<Record<string, OcrTest>>({});
+    const [winner, setWinner] = useState<Record<string, string>>({});
+    const [correction, setCorrection] = useState<Record<string, string>>({});
     const [saved, setSaved] = useState<Record<string, boolean>>({});
 
-    const comparison = useMemo(() => {
-        return configs.map((config) => {
-            const totals: Totals = emptyTotals();
-            const scores: (CaseScore & { imageId: string })[] = [];
-            for (const image of images) {
-                const result = results.find(
-                    (r) => r.configId === config.id && r.imageId === image.id
-                );
-                if (!result || !result.ok || !result.receipt) continue;
-                const score = scoreCase(
-                    toEvalCase(image.name, image.label),
-                    result.receipt
-                );
-                addScore(totals, score);
-                scores.push({ ...score, imageId: image.id });
-            }
-            return { config, totals, scores };
-        });
-    }, [configs, images, results]);
+    const [advanced, setAdvanced] = useState(false);
+    const [ocrModel, setOcrModel] = useState("PP-OCRv6");
+    const [deepseekModel, setDeepseekModel] = useState("deepseek-flash");
+    const [geminiModel, setGeminiModel] = useState("gemini-2.5-flash");
+    const [hedgeMs, setHedgeMs] = useState(0);
+    const [forceVisionRetry, setForceVisionRetry] = useState(false);
 
-    // Restore a phone session after a refresh.
+    const [busy, setBusy] = useState<string | null>(null);
+    const [testing, setTesting] = useState<string | null>(null);
+    const [progress, setProgress] = useState("");
+    const [message, setMessage] = useState<string | null>(null);
+    const [zoom, setZoom] = useState<{ src: string; name: string } | null>(null);
+
     useEffect(() => {
         let alive = true;
         void (async () => {
@@ -186,31 +152,6 @@ export default function EvalClient({ wording }: { wording: Wording }) {
             alive = false;
         };
     }, []);
-
-    function patchConfig(id: string, patch: Partial<Config>) {
-        setConfigs((list) =>
-            list.map((c) => (c.id === id ? { ...c, ...patch } : c))
-        );
-    }
-
-    function removeConfig(id: string) {
-        setConfigs((list) => list.filter((c) => c.id !== id));
-        setResults((list) => list.filter((r) => r.configId !== id));
-    }
-
-    function addConfig() {
-        const id = `config-${Date.now()}`;
-        setConfigs((list) => [
-            ...list,
-            {
-                id,
-                provider: "paddle",
-                ocrModel: "PP-OCRv6",
-                deepseekModel: "deepseek-flash",
-                geminiModel: "",
-            },
-        ]);
-    }
 
     async function addFiles(files: FileList | null) {
         if (!files) return;
@@ -246,8 +187,26 @@ export default function EvalClient({ wording }: { wording: Wording }) {
 
     function clearAll() {
         setImages([]);
-        setResults([]);
+        setResults({});
+        setOcrTests({});
         void clearEvalImages();
+    }
+
+    function patchLabel(id: string, patch: Partial<LabelDraft>) {
+        setImages((list) =>
+            list.map((image) => {
+                if (image.id !== id) return image;
+                const label = { ...image.label, ...patch };
+                void putEvalImage({
+                    id: image.id,
+                    name: image.name,
+                    blob: image.file,
+                    thumb: image.thumb,
+                    label,
+                });
+                return { ...image, label };
+            })
+        );
     }
 
     async function importLabels(files: FileList | null) {
@@ -267,97 +226,98 @@ export default function EvalClient({ wording }: { wording: Wording }) {
                         label: {
                             merchant: match.merchant ?? "",
                             date: match.date ?? "",
-                            total:
-                                match.total == null ? "" : String(match.total),
-                            itemsJson: match.items
-                                ? JSON.stringify(match.items)
-                                : "",
+                            total: match.total == null ? "" : String(match.total),
+                            itemsJson: match.items ? JSON.stringify(match.items) : "",
                         },
                     };
                 })
             );
+            setMessage(t("admin.eval.labelsImported"));
         } catch {
-            setMessage("Could not parse labels.json.");
+            setMessage(t("admin.eval.labelsBad"));
         }
     }
 
-    function patchLabel(id: string, patch: Partial<LabelDraft>) {
-        setImages((list) =>
-            list.map((image) => {
-                if (image.id !== id) return image;
-                const label = { ...image.label, ...patch };
-                const record: EvalImageRecord = {
-                    id: image.id,
-                    name: image.name,
-                    blob: image.file,
-                    thumb: image.thumb,
-                    label,
-                };
-                void putEvalImage(record);
-                return { ...image, label };
-            })
-        );
+    function exercisePayload() {
+        return {
+            ocrModel,
+            deepseekModel,
+            geminiModel,
+            hedgeMs,
+            forceVisionRetry,
+        };
     }
 
-    async function run() {
-        if (images.length === 0 || configs.length === 0) return;
-        setBusy(true);
+    async function runImage(image: ImageItem) {
+        setBusy(image.id);
         setMessage(null);
-        setResults([]);
-        const collected: ConfigResult[] = [];
         try {
-            for (let i = 0; i < images.length; i++) {
-                const image = images[i];
-                setProgress(`${i + 1}/${images.length}: ${image.name}`);
-                const form = new FormData();
-                form.append("image", image.file, image.name);
-                form.append(
-                    "configs",
-                    JSON.stringify(
-                        configs.map((c) => ({
-                            id: c.id,
-                            provider: c.provider,
-                            ocrModel: c.ocrModel || undefined,
-                            deepseekModel: c.deepseekModel || undefined,
-                            geminiModel: c.geminiModel || undefined,
-                        }))
-                    )
-                );
-                form.append(
-                    "exercise",
-                    JSON.stringify({ hedgeMs, forceVisionRetry })
-                );
-                const res = await fetch("/api/admin/eval", {
-                    method: "POST",
-                    body: form,
-                });
-                const data = await res.json();
-                if (!data.ok) {
-                    setMessage(data.error ?? "Eval failed.");
-                    break;
-                }
-                for (const r of data.results as Omit<
-                    ConfigResult,
-                    "imageId"
-                >[]) {
-                    collected.push({ ...r, imageId: image.id });
-                }
-                setResults([...collected]);
+            const form = new FormData();
+            form.append("image", image.file, image.name);
+            form.append("methods", JSON.stringify(EXTRACT_METHODS.map((m) => m.id)));
+            form.append("exercise", JSON.stringify(exercisePayload()));
+            const res = await fetch("/api/admin/eval", { method: "POST", body: form });
+            const data = await res.json();
+            if (!data.ok) {
+                setMessage(data.error ?? t("admin.eval.runFailed"));
+                return;
             }
+            setResults((prev) => ({ ...prev, [image.id]: data.results as MethodResult[] }));
         } catch (err) {
-            setMessage(err instanceof Error ? err.message : "Eval failed.");
+            setMessage(err instanceof Error ? err.message : t("admin.eval.runFailed"));
         } finally {
-            setBusy(false);
-            setProgress("");
+            setBusy(null);
         }
+    }
+
+    async function runAll() {
+        for (let i = 0; i < images.length; i++) {
+            setProgress(`${i + 1}/${images.length}: ${images[i].name}`);
+            await runImage(images[i]);
+        }
+        setProgress("");
+    }
+
+    async function testOcr(image: ImageItem) {
+        setTesting(image.id);
+        setMessage(null);
+        try {
+            const form = new FormData();
+            form.append("image", image.file, image.name);
+            form.append("action", "ocr");
+            form.append("exercise", JSON.stringify({ ocrModel }));
+            const res = await fetch("/api/admin/eval", { method: "POST", body: form });
+            const data = (await res.json()) as OcrTest;
+            setOcrTests((prev) => ({ ...prev, [image.id]: data }));
+        } catch (err) {
+            setOcrTests((prev) => ({
+                ...prev,
+                [image.id]: {
+                    ok: false,
+                    error: err instanceof Error ? err.message : "failed",
+                },
+            }));
+        } finally {
+            setTesting(null);
+        }
+    }
+
+    function openZoom(image: ImageItem) {
+        setZoom({ src: URL.createObjectURL(image.file), name: image.name });
+    }
+
+    function closeZoom() {
+        if (zoom) URL.revokeObjectURL(zoom.src);
+        setZoom(null);
     }
 
     async function saveFeedback(image: ImageItem) {
-        setSaving(image.id);
+        const imageResults = results[image.id] ?? [];
+        const best = winner[image.id] ?? null;
+        const allWrong = best === "all_wrong";
+        if (!best && !(correction[image.id] ?? "").trim()) return;
+        setBusy(image.id);
         try {
-            const imageResults = results.filter((r) => r.imageId === image.id);
-            const best = bestByImage[image.id] ?? null;
-            const allWrong = best === "all_wrong";
             const res = await fetch("/api/admin/feedback", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -365,55 +325,58 @@ export default function EvalClient({ wording }: { wording: Wording }) {
                     file: image.name,
                     chosenConfigId: allWrong ? null : best,
                     allWrong,
-                    correction: correctionByImage[image.id] ?? "",
+                    correction: correction[image.id] ?? "",
                     configs: imageResults.map((r) => ({
-                        configId: r.configId,
-                        provider: r.provider,
-                        ocrModel: r.ocrModel,
-                        deepseekModel: r.deepseekModel,
-                        geminiModel: r.geminiModel,
+                        configId: r.method,
+                        provider:
+                            EXTRACT_METHODS.find((m) => m.id === r.method)?.provider ??
+                            "deepseek",
+                        ocrModel:
+                            EXTRACT_METHODS.find((m) => m.id === r.method)?.needsOcr
+                                ? ocrModel
+                                : "",
+                        deepseekModel:
+                            EXTRACT_METHODS.find((m) => m.id === r.method)?.provider ===
+                            "deepseek"
+                                ? deepseekModel
+                                : "",
+                        geminiModel:
+                            EXTRACT_METHODS.find((m) => m.id === r.method)?.provider ===
+                            "gemini"
+                                ? geminiModel
+                                : "",
                         merchant: r.receipt?.merchant ?? null,
                         date: r.receipt?.date ?? null,
                         total: r.receipt?.total ?? null,
                         items: r.receipt?.line_items.length ?? 0,
-                        flags: (r.receipt?.flags ?? []).map(
-                            (f) => `${f.path}:${f.reason}`
-                        ),
+                        flags: flagsOf(r.receipt),
                     })),
                 }),
             });
             const data = await res.json();
-            if (data.ok) {
-                setSaved((all) => ({ ...all, [image.id]: true }));
-            } else {
-                setMessage(data.error ?? "Failed.");
-            }
+            if (data.ok) setSaved((all) => ({ ...all, [image.id]: true }));
+            else setMessage(data.error ?? t("admin.eval.runFailed"));
         } catch (err) {
-            setMessage(err instanceof Error ? err.message : "Failed.");
+            setMessage(err instanceof Error ? err.message : t("admin.eval.runFailed"));
         } finally {
-            setSaving(null);
+            setBusy(null);
         }
-    }
-
-    function resultKey(configId: string, imageId: string) {
-        return `${configId}:${imageId}`;
     }
 
     return (
         <div className="mx-auto max-w-6xl px-4 py-6 sm:px-5 sm:py-10">
-            <div className="flex items-center justify-between">
-                <a
-                    href="/admin"
-                    className="text-sm font-semibold text-muted hover:text-body"
-                >
+            <div className="flex flex-wrap items-center justify-between gap-2">
+                <a href="/admin" className="text-sm font-semibold text-muted hover:text-body">
                     &larr; {t("admin.back")}
                 </a>
-                <a
-                    href="/admin"
-                    className="rounded-full bg-surface px-4 py-2 text-sm font-semibold"
-                >
-                    {t("admin.eval.orders")}
-                </a>
+                <div className="flex gap-2">
+                    <a href="/admin/lessons" className="rounded-full bg-surface px-4 py-2 text-sm font-semibold">
+                        {t("admin.lessons.link")}
+                    </a>
+                    <a href="/admin/releases" className="rounded-full bg-surface px-4 py-2 text-sm font-semibold">
+                        {t("admin.releases.link")}
+                    </a>
+                </div>
             </div>
 
             <h1 className="mt-2 font-head text-3xl font-extrabold tracking-tight sm:text-4xl">
@@ -423,250 +386,119 @@ export default function EvalClient({ wording }: { wording: Wording }) {
                 {t("admin.eval.subtitle")}
             </p>
 
-            <section className="mt-8">
-                <h2 className="font-head text-2xl font-extrabold">
-                    {t("admin.eval.models")}
-                </h2>
-                <div className="mt-3 grid gap-3">
-                    {configs.map((config) => (
-                        <div
-                            key={config.id}
-                            className="grid gap-2 rounded-2xl border-2 border-line bg-card p-3 sm:grid-cols-[1fr_auto]"
-                        >
-                            <div className="grid gap-2 sm:grid-cols-4">
-                                <label className="grid gap-1 text-xs font-semibold">
-                                    {t("admin.eval.field.provider")}
-                                    <select
-                                        value={config.provider}
-                                        onChange={(e) =>
-                                            patchConfig(config.id, {
-                                                provider: e.target
-                                                    .value as Provider,
-                                            })
-                                        }
-                                        className="rounded-lg border-2 border-line bg-surface px-2 py-1"
-                                    >
-                                        <option value="paddle">paddle</option>
-                                        <option value="gemini">gemini</option>
-                                    </select>
-                                </label>
-                                <label className="grid gap-1 text-xs font-semibold">
-                                    {t("admin.eval.field.ocr")}
-                                    <input
-                                        value={config.ocrModel}
-                                        onChange={(e) =>
-                                            patchConfig(config.id, {
-                                                ocrModel: e.target.value,
-                                            })
-                                        }
-                                        className="rounded-lg border-2 border-line bg-surface px-2 py-1"
-                                    />
-                                </label>
-                                <label className="grid gap-1 text-xs font-semibold">
-                                    {t("admin.eval.field.deepseek")}
-                                    <input
-                                        value={config.deepseekModel}
-                                        onChange={(e) =>
-                                            patchConfig(config.id, {
-                                                deepseekModel:
-                                                    e.target.value,
-                                            })
-                                        }
-                                        className="rounded-lg border-2 border-line bg-surface px-2 py-1"
-                                    />
-                                </label>
-                                <label className="grid gap-1 text-xs font-semibold">
-                                    {t("admin.eval.field.gemini")}
-                                    <input
-                                        value={config.geminiModel}
-                                        onChange={(e) =>
-                                            patchConfig(config.id, {
-                                                geminiModel: e.target.value,
-                                            })
-                                        }
-                                        className="rounded-lg border-2 border-line bg-surface px-2 py-1"
-                                    />
-                                </label>
-                            </div>
-                            <button
-                                type="button"
-                                onClick={() => removeConfig(config.id)}
-                                className="self-start rounded-full bg-mist px-3 py-1 text-xs font-semibold text-ink"
-                            >
-                                {t("admin.eval.remove")}
-                            </button>
-                        </div>
-                    ))}
-                </div>
+            <div className="mt-4 flex flex-wrap gap-3">
                 <button
                     type="button"
-                    onClick={addConfig}
-                    className="mt-3 rounded-full bg-surface px-4 py-2 text-sm font-semibold"
+                    onClick={() => captureRef.current?.click()}
+                    className="rounded-full bg-btn px-5 py-3 text-base font-semibold text-btntext"
                 >
-                    {t("admin.eval.addModel")}
+                    {t("admin.eval.takePhoto")}
                 </button>
-            </section>
+                <button
+                    type="button"
+                    onClick={() => fileRef.current?.click()}
+                    className="rounded-full bg-surface px-5 py-3 text-base font-semibold"
+                >
+                    {t("admin.eval.upload")}
+                </button>
+                <button
+                    type="button"
+                    disabled={images.length === 0 || busy !== null}
+                    onClick={() => void runAll()}
+                    className="rounded-full bg-btn px-5 py-3 text-base font-semibold text-btntext disabled:opacity-60"
+                >
+                    {t("admin.eval.runAll")}
+                </button>
+                {images.length > 0 ? (
+                    <button
+                        type="button"
+                        onClick={clearAll}
+                        className="rounded-full bg-surface px-5 py-3 text-base font-semibold text-danger"
+                    >
+                        {t("admin.eval.clearAll")}
+                    </button>
+                ) : null}
+                <button
+                    type="button"
+                    onClick={() => labelRef.current?.click()}
+                    className="rounded-full bg-surface px-5 py-3 text-base font-semibold"
+                >
+                    {t("admin.eval.importLabels")}
+                </button>
+                <input
+                    ref={captureRef}
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                    className="hidden"
+                    onChange={(e) => {
+                        void addFiles(e.target.files);
+                        e.target.value = "";
+                    }}
+                />
+                <input
+                    ref={fileRef}
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    className="hidden"
+                    onChange={(e) => {
+                        void addFiles(e.target.files);
+                        e.target.value = "";
+                    }}
+                />
+                <input
+                    ref={labelRef}
+                    type="file"
+                    accept="application/json"
+                    className="hidden"
+                    onChange={(e) => {
+                        void importLabels(e.target.files);
+                        e.target.value = "";
+                    }}
+                />
+            </div>
 
-            <section className="mt-8">
-                <h2 className="font-head text-2xl font-extrabold">
-                    {t("admin.eval.images")}
-                </h2>
-                <div className="mt-3 flex flex-wrap gap-3">
-                    <button
-                        type="button"
-                        onClick={() => captureRef.current?.click()}
-                        className="rounded-full bg-btn px-5 py-3 text-base font-semibold text-btntext"
-                    >
-                        {t("admin.eval.takePhoto")}
-                    </button>
-                    <button
-                        type="button"
-                        onClick={() => fileRef.current?.click()}
-                        className="rounded-full bg-surface px-5 py-3 text-base font-semibold"
-                    >
-                        {t("admin.eval.upload")}
-                    </button>
-                    <button
-                        type="button"
-                        onClick={() => labelRef.current?.click()}
-                        className="rounded-full bg-surface px-5 py-3 text-base font-semibold"
-                    >
-                        {t("admin.eval.importLabels")}
-                    </button>
-                    {images.length > 0 ? (
-                        <button
-                            type="button"
-                            onClick={clearAll}
-                            className="rounded-full bg-surface px-5 py-3 text-base font-semibold text-danger"
-                        >
-                            {t("admin.eval.clearAll")}
-                        </button>
-                    ) : null}
-                    <input
-                        ref={captureRef}
-                        type="file"
-                        accept="image/*"
-                        capture="environment"
-                        className="hidden"
-                        onChange={(e) => {
-                            void addFiles(e.target.files);
-                            e.target.value = "";
-                        }}
-                    />
-                    <input
-                        ref={fileRef}
-                        type="file"
-                        accept="image/*"
-                        multiple
-                        className="hidden"
-                        onChange={(e) => {
-                            void addFiles(e.target.files);
-                            e.target.value = "";
-                        }}
-                    />
-                    <input
-                        ref={labelRef}
-                        type="file"
-                        accept="application/json"
-                        className="hidden"
-                        onChange={(e) => {
-                            void importLabels(e.target.files);
-                            e.target.value = "";
-                        }}
-                    />
+            <details
+                open={advanced}
+                onToggle={(e) => setAdvanced((e.target as HTMLDetailsElement).open)}
+                className="mt-4 rounded-2xl border-2 border-line bg-card p-3 text-sm"
+            >
+                <summary className="cursor-pointer font-semibold">
+                    {t("admin.eval.advanced")}
+                </summary>
+                <div className="mt-3 grid gap-2 sm:grid-cols-3">
+                    <label className="grid gap-1 text-xs font-semibold">
+                        {t("admin.eval.ocrModel")}
+                        <input
+                            value={ocrModel}
+                            onChange={(e) => setOcrModel(e.target.value)}
+                            className="rounded-lg border-2 border-line bg-surface px-2 py-1"
+                        />
+                    </label>
+                    <label className="grid gap-1 text-xs font-semibold">
+                        {t("admin.eval.deepseekModel")}
+                        <input
+                            value={deepseekModel}
+                            onChange={(e) => setDeepseekModel(e.target.value)}
+                            className="rounded-lg border-2 border-line bg-surface px-2 py-1"
+                        />
+                    </label>
+                    <label className="grid gap-1 text-xs font-semibold">
+                        {t("admin.eval.geminiModel")}
+                        <input
+                            value={geminiModel}
+                            onChange={(e) => setGeminiModel(e.target.value)}
+                            className="rounded-lg border-2 border-line bg-surface px-2 py-1"
+                        />
+                    </label>
                 </div>
-                <p className="mt-2 text-xs text-muted">
-                    {t("admin.eval.labelsHint")}
-                </p>
-
-                <div className="mt-4 grid gap-3">
-                    {images.map((image) => (
-                        <div
-                            key={image.id}
-                            className="grid gap-3 rounded-2xl border-2 border-line bg-card p-3 sm:grid-cols-[80px_1fr]"
-                        >
-                            {image.thumb ? (
-                                // eslint-disable-next-line @next/next/no-img-element
-                                <img
-                                    src={image.thumb}
-                                    alt=""
-                                    className="h-20 w-20 rounded-lg object-cover"
-                                />
-                            ) : (
-                                <span className="h-20 w-20 rounded-lg bg-surface" />
-                            )}
-                            <div className="grid gap-2">
-                                <p className="truncate text-xs font-semibold">
-                                    {image.name}
-                                </p>
-                                <div className="grid gap-2 sm:grid-cols-3">
-                                    <input
-                                        value={image.label.merchant}
-                                        onChange={(e) =>
-                                            patchLabel(image.id, {
-                                                merchant: e.target.value,
-                                            })
-                                        }
-                                        placeholder="merchant"
-                                        className="rounded-lg border-2 border-line bg-surface px-2 py-1 text-sm"
-                                    />
-                                    <input
-                                        value={image.label.date}
-                                        onChange={(e) =>
-                                            patchLabel(image.id, {
-                                                date: e.target.value,
-                                            })
-                                        }
-                                        placeholder="date YYYY-MM-DD"
-                                        className="rounded-lg border-2 border-line bg-surface px-2 py-1 text-sm"
-                                    />
-                                    <input
-                                        value={image.label.total}
-                                        onChange={(e) =>
-                                            patchLabel(image.id, {
-                                                total: e.target.value,
-                                            })
-                                        }
-                                        placeholder="total"
-                                        className="rounded-lg border-2 border-line bg-surface px-2 py-1 text-sm"
-                                    />
-                                </div>
-                                <textarea
-                                    value={image.label.itemsJson}
-                                    onChange={(e) =>
-                                        patchLabel(image.id, {
-                                            itemsJson: e.target.value,
-                                        })
-                                    }
-                                    placeholder='[{"description":"Beras","qty":1,"amount":75000}]'
-                                    rows={2}
-                                    className="rounded-lg border-2 border-line bg-surface px-2 py-1 font-mono text-xs"
-                                />
-                                <button
-                                    type="button"
-                                    onClick={() => removeImage(image.id)}
-                                    className="justify-self-start text-xs font-semibold text-danger"
-                                >
-                                    {t("admin.eval.remove")}
-                                </button>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </section>
-
-            <section className="mt-8">
-                <h2 className="font-head text-2xl font-extrabold">
-                    {t("admin.eval.exercise")}
-                </h2>
-                <div className="mt-3 flex flex-wrap items-center gap-4 text-sm">
+                <div className="mt-3 flex flex-wrap items-center gap-4 text-xs">
                     <label className="flex items-center gap-2">
                         <input
                             type="checkbox"
                             checked={forceVisionRetry}
-                            onChange={(e) =>
-                                setForceVisionRetry(e.target.checked)
-                            }
+                            onChange={(e) => setForceVisionRetry(e.target.checked)}
                         />
                         {t("admin.eval.forceRetry")}
                     </label>
@@ -676,325 +508,400 @@ export default function EvalClient({ wording }: { wording: Wording }) {
                             type="number"
                             value={hedgeMs}
                             onChange={(e) => setHedgeMs(Number(e.target.value))}
-                            className="w-24 rounded-lg border-2 border-line bg-surface px-2 py-1"
+                            className="w-20 rounded-lg border-2 border-line bg-surface px-2 py-1"
                         />
                         {t("admin.eval.ms")}
                     </label>
+                    <span className="text-muted">{t("admin.eval.exerciseHint")}</span>
                 </div>
-                <button
-                    type="button"
-                    disabled={busy || images.length === 0 || configs.length === 0}
-                    onClick={run}
-                    className="mt-4 rounded-full bg-btn px-6 py-3 font-semibold text-btntext disabled:opacity-60"
-                >
-                    {busy ? t("admin.eval.running") : t("admin.eval.run")}
-                </button>
-                <p className="mt-2 text-xs text-muted">
-                    {t("admin.eval.costHint")}
-                </p>
-                {progress ? (
-                    <p className="mt-2 text-sm font-medium">{progress}</p>
-                ) : null}
-                {message ? (
-                    <p className="mt-2 text-sm font-medium text-danger">
-                        {message}
-                    </p>
-                ) : null}
-            </section>
+            </details>
 
-            <section className="mt-10">
-                <h2 className="font-head text-2xl font-extrabold">
-                    {t("admin.eval.results")}
-                </h2>
-                {results.length === 0 ? (
-                    <p className="mt-2 text-sm text-muted">
-                        {t("admin.eval.noResults")}
-                    </p>
-                ) : (
-                    <div className="mt-3 overflow-x-auto rounded-2xl border-2 border-line bg-card">
-                        <table className="w-full text-sm">
-                            <thead className="bg-surface text-left">
-                                <tr>
-                                    <th className="px-3 py-2">
-                                        {t("admin.eval.col.config")}
-                                    </th>
-                                    <th className="px-3 py-2">
-                                        {t("admin.eval.col.merchant")}
-                                    </th>
-                                    <th className="px-3 py-2">
-                                        {t("admin.eval.col.date")}
-                                    </th>
-                                    <th className="px-3 py-2">
-                                        {t("admin.eval.col.total")}
-                                    </th>
-                                    <th className="px-3 py-2">
-                                        {t("admin.eval.col.itemAmount")}
-                                    </th>
-                                    <th className="px-3 py-2">
-                                        {t("admin.eval.col.itemCount")}
-                                    </th>
-                                    <th className="px-3 py-2 text-danger">
-                                        {t("admin.eval.col.wrongUnflagged")}
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {comparison.map(({ config, totals }) => (
-                                    <tr
-                                        key={config.id}
-                                        className="border-t border-line"
-                                    >
-                                        <td className="px-3 py-2 font-mono text-xs">
-                                            {config.id}
-                                        </td>
-                                        <td className="px-3 py-2">
-                                            {percent(totals.merchant)}
-                                        </td>
-                                        <td className="px-3 py-2">
-                                            {percent(totals.date)}
-                                        </td>
-                                        <td className="px-3 py-2">
-                                            {percent(totals.total)}
-                                        </td>
-                                        <td className="px-3 py-2">
-                                            {percent(totals.itemAmount)}
-                                        </td>
-                                        <td className="px-3 py-2">
-                                            {percent(totals.itemCount)}
-                                        </td>
-                                        <td className="px-3 py-2 font-semibold text-danger">
-                                            {totals.wrongUnflagged}
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                )}
+            <p className="mt-2 text-xs text-muted">{t("admin.eval.costHint")}</p>
+            {progress ? <p className="mt-2 text-sm font-medium">{progress}</p> : null}
+            {message ? <p className="mt-2 text-sm font-medium text-danger">{message}</p> : null}
 
-                <div className="mt-4 grid gap-4">
-                    {images.map((image) => {
-                        const imageResults = results.filter(
-                            (r) => r.imageId === image.id
-                        );
-                        if (imageResults.length === 0) return null;
-                        const best = bestByImage[image.id] ?? "";
-                        const label = toEvalCase(image.name, image.label);
-                        return (
-                            <div
-                                key={image.id}
-                                className="rounded-2xl border-2 border-line bg-card p-3"
-                            >
-                                <p className="text-sm font-semibold">
-                                    {image.name}
-                                </p>
-                                <div className="mt-2 grid gap-2">
-                                    {imageResults.map((result) => {
-                                        const key = resultKey(
-                                            result.configId,
-                                            result.imageId
-                                        );
-                                        const open = openResult === key;
-                                        return (
-                                            <div
-                                                key={key}
-                                                className="rounded-xl border-2 border-line bg-surface p-2"
-                                            >
-                                                <label className="flex items-start gap-2">
-                                                    <input
-                                                        type="radio"
-                                                        name={`best-${image.id}`}
-                                                        checked={
-                                                            best ===
-                                                            result.configId
-                                                        }
-                                                        onChange={() =>
-                                                            setBestByImage(
-                                                                (all) => ({
-                                                                    ...all,
-                                                                    [image.id]:
-                                                                        result.configId,
-                                                                })
-                                                            )
-                                                        }
-                                                        className="mt-1"
-                                                    />
-                                                    <span className="min-w-0 flex-1">
-                                                        <span className="block font-mono text-xs">
-                                                            {result.configId}
-                                                        </span>
-                                                        {result.ok ? (
-                                                            <span className="block text-xs">
-                                                                {result.receipt?.merchant ?? "(null)"} ·{" "}
-                                                                {result.receipt?.date ?? "(null)"} ·{" "}
-                                                                {result.receipt?.total ?? "(null)"} ·{" "}
-                                                                {result.receipt?.line_items.length ?? 0}{" "}
-                                                                {t("admin.eval.items")} ·{" "}
-                                                                {result.receipt?.flags?.length ?? 0}{" "}
-                                                                {t("admin.eval.flags")}
-                                                            </span>
-                                                        ) : (
-                                                            <span className="block text-xs text-danger">
-                                                                {result.error}
-                                                            </span>
-                                                        )}
-                                                    </span>
-                                                </label>
-                                                <div className="mt-1 grid gap-2 text-xs sm:grid-cols-3">
-                                                    <Field
-                                                        label="merchant"
-                                                        value={
-                                                            result.receipt?.merchant ??
-                                                            "(null)"
-                                                        }
-                                                        ok={
-                                                            label.merchant === undefined
-                                                                ? null
-                                                                : sameText(
-                                                                      result.receipt?.merchant,
-                                                                      label.merchant
-                                                                  )
-                                                        }
-                                                    />
-                                                    <Field
-                                                        label="date"
-                                                        value={
-                                                            result.receipt?.date ?? "(null)"
-                                                        }
-                                                        ok={
-                                                            label.date === undefined
-                                                                ? null
-                                                                : result.receipt?.date ===
-                                                                  label.date
-                                                        }
-                                                    />
-                                                    <Field
-                                                        label="total"
-                                                        value={String(
-                                                            result.receipt?.total ??
-                                                                "(null)"
-                                                        )}
-                                                        ok={
-                                                            label.total === undefined
-                                                                ? null
-                                                                : sameNumber(
-                                                                      result.receipt?.total,
-                                                                      label.total
-                                                                  )
-                                                        }
-                                                    />
-                                                </div>
-                                                <button
-                                                    type="button"
-                                                    onClick={() =>
-                                                        setOpenResult(
-                                                            open ? null : key
-                                                        )
-                                                    }
-                                                    className="mt-1 text-xs font-semibold underline"
-                                                >
-                                                    {t("admin.eval.trace")}
-                                                </button>
-                                                {open ? (
-                                                    <DebugPanel
-                                                        debug={result.debug}
-                                                        defaultOpen
-                                                    />
-                                                ) : null}
-                                            </div>
-                                        );
-                                    })}
+            <div className="mt-6 grid gap-6">
+                {images.map((image) => {
+                    const imageResults = results[image.id] ?? [];
+                    const label = toEvalCase(image.name, image.label);
+                    const scored = hasLabel(label);
+                    const ocrTest = ocrTests[image.id];
+                    const best = winner[image.id] ?? "";
+                    return (
+                        <div
+                            key={image.id}
+                            className="rounded-2xl border-2 border-line bg-card p-3"
+                        >
+                            <div className="grid gap-4 lg:grid-cols-[minmax(0,340px)_1fr]">
+                                <div>
+                                    <PhotoPreview
+                                        file={image.file}
+                                        alt={image.name}
+                                        onZoom={() => openZoom(image)}
+                                    />
+                                    <p className="mt-1 truncate text-xs text-muted">
+                                        {image.name}
+                                    </p>
+                                    <div className="mt-2 flex flex-wrap gap-2">
+                                        <button
+                                            type="button"
+                                            disabled={busy === image.id}
+                                            onClick={() => void runImage(image)}
+                                            className="rounded-full bg-btn px-4 py-2 text-sm font-semibold text-btntext disabled:opacity-60"
+                                        >
+                                            {busy === image.id
+                                                ? t("admin.eval.running")
+                                                : t("admin.eval.run")}
+                                        </button>
+                                        <button
+                                            type="button"
+                                            disabled={testing === image.id}
+                                            onClick={() => void testOcr(image)}
+                                            className="rounded-full bg-surface px-4 py-2 text-sm font-semibold disabled:opacity-60"
+                                        >
+                                            {t("admin.eval.testOcr")}
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => removeImage(image.id)}
+                                            className="rounded-full bg-surface px-4 py-2 text-sm font-semibold text-danger"
+                                        >
+                                            {t("admin.eval.remove")}
+                                        </button>
+                                    </div>
+                                    {ocrTest ? <OcrTestBox t={t} test={ocrTest} /> : null}
                                 </div>
 
-                                <label className="mt-2 flex items-center gap-2 text-sm">
-                                    <input
-                                        type="radio"
-                                        name={`best-${image.id}`}
-                                        checked={best === "all_wrong"}
-                                        onChange={() =>
-                                            setBestByImage((all) => ({
+                                <div className="grid gap-3">
+                                    <ExpectedBox
+                                        t={t}
+                                        label={image.label}
+                                        onChange={(patch) => patchLabel(image.id, patch)}
+                                    />
+
+                                    {imageResults.length === 0 ? (
+                                        <p className="text-sm text-muted">
+                                            {t("admin.eval.notRun")}
+                                        </p>
+                                    ) : (
+                                        <div className="grid gap-2">
+                                            {imageResults.map((result) => (
+                                                <MethodRow
+                                                    key={result.method}
+                                                    t={t}
+                                                    group={`winner-${image.id}`}
+                                                    result={result}
+                                                    label={scored ? label : null}
+                                                    best={best}
+                                                    ocrModel={ocrModel}
+                                                    deepseekModel={deepseekModel}
+                                                    geminiModel={geminiModel}
+                                                    onPick={(id) =>
+                                                        setWinner((all) => ({
+                                                            ...all,
+                                                            [image.id]: id,
+                                                        }))
+                                                    }
+                                                />
+                                            ))}
+                                        </div>
+                                    )}
+
+                                    <label className="flex items-center gap-2 text-sm">
+                                        <input
+                                            type="radio"
+                                            name={`winner-${image.id}`}
+                                            checked={best === "all_wrong"}
+                                            onChange={() =>
+                                                setWinner((all) => ({
+                                                    ...all,
+                                                    [image.id]: "all_wrong",
+                                                }))
+                                            }
+                                        />
+                                        {t("admin.eval.allWrong")}
+                                    </label>
+                                    <textarea
+                                        value={correction[image.id] ?? ""}
+                                        onChange={(e) =>
+                                            setCorrection((all) => ({
                                                 ...all,
-                                                [image.id]: "all_wrong",
+                                                [image.id]: e.target.value,
                                             }))
                                         }
+                                        rows={2}
+                                        placeholder={t("admin.eval.correctionPlaceholder")}
+                                        className="w-full rounded-lg border-2 border-line bg-surface px-2 py-1 text-sm"
                                     />
-                                    {t("admin.eval.allWrong")}
-                                </label>
-                                <textarea
-                                    value={correctionByImage[image.id] ?? ""}
-                                    onChange={(e) =>
-                                        setCorrectionByImage((all) => ({
-                                            ...all,
-                                            [image.id]: e.target.value,
-                                        }))
-                                    }
-                                    rows={2}
-                                    placeholder={t("admin.eval.correctionPlaceholder")}
-                                    className="mt-2 w-full rounded-lg border-2 border-line bg-surface px-2 py-1 text-sm"
-                                />
-                                <button
-                                    type="button"
-                                    disabled={
-                                        saving === image.id ||
-                                        (!best &&
-                                            !(
-                                                correctionByImage[image.id] ?? ""
-                                            ).trim())
-                                    }
-                                    onClick={() => void saveFeedback(image)}
-                                    className="mt-2 rounded-full bg-btn px-5 py-2 text-sm font-semibold text-btntext disabled:opacity-60"
-                                >
-                                    {saving === image.id
-                                        ? t("admin.eval.saving")
-                                        : t("admin.eval.saveFeedback")}
-                                </button>
-                                {saved[image.id] ? (
-                                    <p className="mt-1 text-xs font-medium text-green-700">
-                                        {t("admin.eval.feedbackSaved")}
-                                    </p>
-                                ) : null}
+                                    <button
+                                        type="button"
+                                        disabled={
+                                            busy === image.id ||
+                                            (!best &&
+                                                !(correction[image.id] ?? "").trim())
+                                        }
+                                        onClick={() => void saveFeedback(image)}
+                                        className="justify-self-start rounded-full bg-btn px-5 py-2 text-sm font-semibold text-btntext disabled:opacity-60"
+                                    >
+                                        {saved[image.id]
+                                            ? t("admin.eval.feedbackSaved")
+                                            : t("admin.eval.saveFeedback")}
+                                    </button>
+                                </div>
                             </div>
-                        );
-                    })}
+                        </div>
+                    );
+                })}
+            </div>
+
+            {zoom ? (
+                <div
+                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-4"
+                    onClick={closeZoom}
+                >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                        src={zoom.src}
+                        alt={zoom.name}
+                        className="max-h-full max-w-full object-contain"
+                    />
                 </div>
-            </section>
+            ) : null}
         </div>
     );
 }
 
-function sameText(
-    a: string | null | undefined,
-    b: string | null | undefined
-): boolean {
-    const x = (a ?? "").toLowerCase().trim();
-    const y = (b ?? "").toLowerCase().trim();
-    if (!x || !y) return x === y;
-    return x === y || x.includes(y) || y.includes(x);
+function PhotoPreview({
+    file,
+    alt,
+    onZoom,
+}: {
+    file: Blob;
+    alt: string;
+    onZoom: () => void;
+}) {
+    const [url, setUrl] = useState("");
+    useEffect(() => {
+        const objectUrl = URL.createObjectURL(file);
+        setUrl(objectUrl);
+        return () => URL.revokeObjectURL(objectUrl);
+    }, [file]);
+    if (!url) return null;
+    return (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+            src={url}
+            alt={alt}
+            onClick={onZoom}
+            className="max-h-[420px] w-full cursor-zoom-in rounded-xl border-2 border-line bg-surface object-contain"
+        />
+    );
+}
+
+function ExpectedBox({
+    t,
+    label,
+    onChange,
+}: {
+    t: ReturnType<typeof makeT>;
+    label: LabelDraft;
+    onChange: (patch: Partial<LabelDraft>) => void;
+}) {
+    return (
+        <details className="rounded-xl border-2 border-line bg-surface p-2 text-sm">
+            <summary className="cursor-pointer font-semibold">
+                {t("admin.eval.expected")}
+            </summary>
+            <p className="mt-1 text-xs text-muted">{t("admin.eval.expectedHint")}</p>
+            <div className="mt-2 grid gap-2 sm:grid-cols-3">
+                <input
+                    value={label.merchant}
+                    onChange={(e) => onChange({ merchant: e.target.value })}
+                    placeholder={t("admin.eval.merchantPlaceholder")}
+                    className="rounded-lg border-2 border-line bg-card px-2 py-1"
+                />
+                <input
+                    value={label.date}
+                    onChange={(e) => onChange({ date: e.target.value })}
+                    placeholder="YYYY-MM-DD"
+                    className="rounded-lg border-2 border-line bg-card px-2 py-1"
+                />
+                <input
+                    value={label.total}
+                    onChange={(e) => onChange({ total: e.target.value })}
+                    placeholder={t("admin.eval.totalPlaceholder")}
+                    className="rounded-lg border-2 border-line bg-card px-2 py-1"
+                />
+            </div>
+            <textarea
+                value={label.itemsJson}
+                onChange={(e) => onChange({ itemsJson: e.target.value })}
+                rows={2}
+                placeholder="[]"
+                className="mt-2 w-full rounded-lg border-2 border-line bg-card px-2 py-1 font-mono text-xs"
+            />
+        </details>
+    );
+}
+
+function MethodRow({
+    t,
+    group,
+    result,
+    label,
+    best,
+    ocrModel,
+    deepseekModel,
+    geminiModel,
+    onPick,
+}: {
+    t: ReturnType<typeof makeT>;
+    group: string;
+    result: MethodResult;
+    label: EvalCase | null;
+    best: string;
+    ocrModel: string;
+    deepseekModel: string;
+    geminiModel: string;
+    onPick: (id: string) => void;
+}) {
+    const methodInfo = EXTRACT_METHODS.find((m) => m.id === result.method);
+    const models =
+        methodInfo?.kind === "structuring"
+            ? `${methodInfo.provider === "deepseek" ? deepseekModel : geminiModel} on ${ocrModel}`
+            : methodInfo?.provider === "deepseek"
+              ? deepseekModel
+              : geminiModel;
+    const flags = flagsOf(result.receipt);
+    const items = result.receipt?.line_items ?? [];
+
+    return (
+        <div
+            className={`rounded-xl border-2 p-2 ${
+                best === result.method ? "border-brand bg-card" : "border-line bg-surface"
+            }`}
+        >
+            <div className="flex items-start justify-between gap-2">
+                <label className="flex items-center gap-2">
+                    <input
+                        type="radio"
+                        name={group}
+                        checked={best === result.method}
+                        onChange={() => onPick(result.method)}
+                    />
+                    <span className="text-sm font-semibold">
+                        {t(METHOD_LABEL_KEY[result.method])}
+                    </span>
+                </label>
+                <span className="text-xs text-muted">{models}</span>
+            </div>
+
+            {result.ok && result.receipt ? (
+                <div className="mt-2 grid gap-1 text-xs">
+                    <Field
+                        name={t("admin.eval.field.merchant")}
+                        value={result.receipt.merchant ?? "(null)"}
+                        ok={label?.merchant === undefined ? null : sameText(result.receipt.merchant, label.merchant)}
+                    />
+                    <Field
+                        name={t("admin.eval.field.date")}
+                        value={result.receipt.date ?? "(null)"}
+                        ok={label?.date === undefined ? null : result.receipt.date === label.date}
+                    />
+                    <Field
+                        name={t("admin.eval.field.total")}
+                        value={String(result.receipt.total ?? "(null)")}
+                        ok={label?.total === undefined ? null : sameNumber(result.receipt.total, label.total)}
+                    />
+                    <span className="text-muted">
+                        {items.length} {t("admin.eval.items")}
+                        {items.length > 0
+                            ? ` · ${items
+                                  .map((i) => i.amount ?? "?")
+                                  .join(", ")}`
+                            : ""}
+                    </span>
+                    {flags.length > 0 ? (
+                        <span className="font-medium text-amber-700">
+                            {flags.length} {t("admin.eval.flags")}: {flags.join(", ")}
+                        </span>
+                    ) : (
+                        <span className="font-medium text-green-700">
+                            {t("admin.eval.noFlags")}
+                        </span>
+                    )}
+                </div>
+            ) : (
+                <p className="mt-2 text-xs text-danger">
+                    {result.ocrError ?? result.error ?? t("admin.eval.runFailed")}
+                </p>
+            )}
+
+            {result.debug ? (
+                <details className="mt-2 text-xs">
+                    <summary className="cursor-pointer font-semibold text-muted">
+                        {t("admin.eval.trace")}
+                    </summary>
+                    {result.debug.ocrTokens?.length ? (
+                        <p className="mt-1 break-words text-muted">
+                            {t("admin.eval.ocrTokens")}:{" "}
+                            <span className="font-mono">
+                                {result.debug.ocrTokens.slice(0, 40).join(" | ")}
+                            </span>
+                        </p>
+                    ) : null}
+                    <DebugPanel debug={result.debug} />
+                </details>
+            ) : null}
+        </div>
+    );
 }
 
 function Field({
-    label,
+    name,
     value,
     ok,
 }: {
-    label: string;
+    name: string;
     value: string;
     ok: boolean | null;
 }) {
+    const color = ok === null ? "" : ok ? "text-green-700" : "font-semibold text-danger";
     return (
-        <div className="rounded-lg border-2 border-line bg-surface px-2 py-1">
-            <span className="font-semibold text-muted">{label}</span>
-            <div
-                className={
-                    ok === null
-                        ? ""
-                        : ok
-                          ? "text-green-700"
-                          : "font-semibold text-danger"
-                }
-            >
-                {value}
-            </div>
+        <span className="flex gap-2">
+            <span className="w-20 shrink-0 text-muted">{name}</span>
+            <span className={`break-words ${color}`}>{value}</span>
+        </span>
+    );
+}
+
+function OcrTestBox({
+    t,
+    test,
+}: {
+    t: ReturnType<typeof makeT>;
+    test: OcrTest;
+}) {
+    return (
+        <div className="mt-2 rounded-xl border-2 border-line bg-surface p-2 text-xs">
+            <p className="font-semibold">{t("admin.eval.ocrResult")}</p>
+            {test.ok ? (
+                <>
+                    <p className="text-muted">
+                        {test.ocrModel}: {test.pages} {t("admin.eval.pages")},{" "}
+                        {test.chars} {t("admin.eval.chars")}
+                    </p>
+                    {test.tokens?.length ? (
+                        <p className="mt-1 break-words font-mono">
+                            {test.tokens.slice(0, 60).join(" | ")}
+                        </p>
+                    ) : null}
+                </>
+            ) : (
+                <p className="font-medium text-danger">
+                    {t("admin.eval.ocrFailed")}: {test.error}
+                </p>
+            )}
         </div>
     );
 }

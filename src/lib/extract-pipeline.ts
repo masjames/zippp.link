@@ -14,7 +14,8 @@ import {
     extractWithDeepSeekVision,
     structureReceipt,
 } from "./deepseek";
-import { extractWithGemini } from "./gemini";
+import { extractWithGemini, structureWithGemini } from "./gemini";
+import type { ExtractMethodId } from "./admin/methods";
 import { stripJsonFences } from "./json";
 import { compactOcrMarkdown } from "./ocr-compact";
 import { PaddleOcrError, runPaddleOcr, type PaddleOcrResult } from "./paddleocr";
@@ -29,7 +30,7 @@ import type {
 
 type ModelOutput = RawReceipt;
 
-type AttemptName = "paddle" | "gemini" | "deepseek-vision";
+type AttemptName = "paddle" | "paddle-gemini" | "gemini" | "deepseek-vision";
 
 export type ExtractionResult =
     | { ok: true; receipt: Receipt; model_ms: number; debug: ExtractDebug }
@@ -54,6 +55,8 @@ export type ExtractOptions = {
     hedgeMs?: number;
     precomputedOcr?: PaddleOcrResult;
     forceVisionRetry?: boolean;
+    /** Run exactly one method: no fallback, no hedge, no vision retry. */
+    method?: ExtractMethodId;
 };
 
 const MAX_PREVIEW = 800;
@@ -154,9 +157,10 @@ export async function runExtraction(
     const ocrModel = options.ocrModel ?? PADDLEOCR_MODEL;
     const deepseekModel = options.deepseekModel ?? DEEPSEEK_MODEL;
     const geminiModel = options.geminiModel ?? GEMINI_MODEL;
-    const hedgeMs = options.hedgeMs ?? PADDLEOCR_HEDGE_MS;
+    const method = options.method;
+    const hedgeMs = method ? 0 : (options.hedgeMs ?? PADDLEOCR_HEDGE_MS);
     const precomputedOcr = options.precomputedOcr;
-    const forceVisionRetry = options.forceVisionRetry === true;
+    const forceVisionRetry = method ? false : options.forceVisionRetry === true;
 
     const runId = randomUUID();
     const started = Date.now();
@@ -287,13 +291,15 @@ export async function runExtraction(
         return null;
     }
 
-    async function viaPaddle(): Promise<ModelOutput> {
+    async function viaPaddle(
+        kind: "deepseek" | "gemini" = "deepseek"
+    ): Promise<ModelOutput> {
         const ocrStart = Date.now();
         const ocrPromise = precomputedOcr
             ? Promise.resolve(precomputedOcr)
             : runPaddleOcr(image, { model: ocrModel });
         const hedgeTimer =
-            hedgeMs > 0
+            !method && hedgeMs > 0
                 ? setTimeout(() => {
                       if (!hedgePromise) hedgePromise = runVisionHedge();
                   }, hedgeMs)
@@ -336,7 +342,7 @@ export async function runExtraction(
         resolveOcrGround?.(grounding);
 
         // If the hedge already passed cleanly, take it before structuring.
-        if (hedgePromise) {
+        if (!method && hedgePromise) {
             const leg = await hedgePromise;
             if (
                 leg &&
@@ -356,12 +362,26 @@ export async function runExtraction(
         }
 
         const structureStart = Date.now();
-        let out;
+        const stageName = kind === "gemini" ? "structure-gemini" : "structure";
+        let rawText: string;
         try {
-            out = await structureReceipt(numbered, deepseekModel);
+            if (kind === "gemini") {
+                const apiKey = process.env.GEMINI_API_KEY;
+                if (!apiKey) throw new Error("GEMINI_API_KEY is missing");
+                rawText = await structureWithGemini({
+                    apiKey,
+                    text: numbered,
+                    model: geminiModel,
+                });
+            } else {
+                const out = await structureReceipt(numbered, deepseekModel);
+                rawText = out.text;
+                finish = out.finish;
+                usage = out.usage;
+            }
         } catch (err) {
             stages.push({
-                stage: "structure",
+                stage: stageName,
                 ok: false,
                 ms: Date.now() - structureStart,
                 note: errText(err),
@@ -369,24 +389,28 @@ export async function runExtraction(
             throw err;
         }
         modelMs += Date.now() - structureStart;
-        model = deepseekModel;
-        finish = out.finish;
-        usage = out.usage;
-        modelRaw = out.text.slice(0, MAX_MODEL_RAW);
+        model = kind === "gemini" ? geminiModel : deepseekModel;
+        modelRaw = rawText.slice(0, MAX_MODEL_RAW);
         stages.push({
-            stage: "structure",
+            stage: stageName,
             ok: true,
             ms: Date.now() - structureStart,
-            note: `${deepseekModel} · ${out.finish ?? "?"} · ${out.usage?.total_tokens ?? "?"} tok`,
+            note:
+                kind === "gemini"
+                    ? geminiModel
+                    : `${deepseekModel} · ${finish ?? "?"} · ${usage?.total_tokens ?? "?"} tok`,
         });
-        let parsed = parseJson(out.text, "structure");
+        let parsed = parseJson(rawText, kind === "gemini" ? "gemini" : "structure");
         if (parsed.refusal) return parsed;
 
         let result = verifyReceipt(parsed, grounding);
-        pushVerifyStage(result, "structure");
+        pushVerifyStage(result, stageName);
 
         // Fails badly: allow one vision re-read that can see the OCR text too.
-        if (forceVisionRetry || result.retry || !hasEssentials(result.receipt)) {
+        if (
+            !method &&
+            (forceVisionRetry || result.retry || !hasEssentials(result.receipt))
+        ) {
             try {
                 const retry = await visionRetry(numbered, grounding, result);
                 if (retry) {
@@ -404,7 +428,7 @@ export async function runExtraction(
         }
 
         // A hedge result can still win if it is cleaner than the structure.
-        if (hedgePromise) {
+        if (!method && hedgePromise) {
             const leg = await hedgePromise;
             if (
                 leg &&
@@ -423,7 +447,9 @@ export async function runExtraction(
             }
         }
 
-        if (!hasEssentials(result.receipt)) {
+        // In method mode the comparison must see the raw result, even when it is
+        // incomplete, so the essentials gate only applies to production runs.
+        if (!method && !hasEssentials(result.receipt)) {
             stages.push({
                 stage: "verify",
                 ok: false,
@@ -552,10 +578,17 @@ export async function runExtraction(
         );
     }
 
-    const order: AttemptName[] =
-        provider === "gemini"
-            ? ["gemini", "deepseek-vision"]
-            : ["paddle", "deepseek-vision", "gemini"];
+    const order: AttemptName[] = method
+        ? method === "ocr-deepseek"
+            ? ["paddle"]
+            : method === "vision-deepseek"
+              ? ["deepseek-vision"]
+              : method === "ocr-gemini"
+                ? ["paddle-gemini"]
+                : ["gemini"]
+        : provider === "gemini"
+          ? ["gemini", "deepseek-vision"]
+          : ["paddle", "deepseek-vision", "gemini"];
 
     const failures: string[] = [];
     let raw: ModelOutput | null = null;
@@ -563,7 +596,8 @@ export async function runExtraction(
     for (const attempt of order) {
         const attemptStart = Date.now();
         try {
-            if (attempt === "paddle") raw = await viaPaddle();
+            if (attempt === "paddle") raw = await viaPaddle("deepseek");
+            else if (attempt === "paddle-gemini") raw = await viaPaddle("gemini");
             else if (attempt === "gemini") raw = await viaGemini(failures.join(" | ") || "primary failed");
             else raw = await viaDeepSeekVision(failures.join(" | ") || "primary failed");
             break;
@@ -572,7 +606,7 @@ export async function runExtraction(
             const note = errText(err);
             failures.push(`${attempt}: ${note}`);
             // paddle's own sub-stages already record its failure.
-            if (attempt !== "paddle") {
+            if (attempt !== "paddle" && attempt !== "paddle-gemini") {
                 stages.push({ stage: attempt, ok: false, ms: Date.now() - attemptStart, note });
             }
         }

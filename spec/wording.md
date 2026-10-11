@@ -798,6 +798,126 @@ item
 flags
 ## admin.eval.flags.id
 tanda
+## admin.eval.method.ocrDeepseek.en
+OCR + DeepSeek
+## admin.eval.method.ocrDeepseek.id
+OCR + DeepSeek
+## admin.eval.method.visionDeepseek.en
+DeepSeek vision only
+## admin.eval.method.visionDeepseek.id
+DeepSeek vision saja
+## admin.eval.method.ocrGemini.en
+OCR + Gemini
+## admin.eval.method.ocrGemini.id
+OCR + Gemini
+## admin.eval.method.visionGemini.en
+Gemini vision only
+## admin.eval.method.visionGemini.id
+Gemini vision saja
+## admin.eval.advanced.en
+Advanced
+## admin.eval.advanced.id
+Lanjutan
+## admin.eval.ocrModel.en
+OCR model
+## admin.eval.ocrModel.id
+Model OCR
+## admin.eval.deepseekModel.en
+DeepSeek model
+## admin.eval.deepseekModel.id
+Model DeepSeek
+## admin.eval.geminiModel.en
+Gemini model
+## admin.eval.geminiModel.id
+Model Gemini
+## admin.eval.exerciseHint.en
+Hedge and retry exercise the reliability paths. Leave both off for a fair comparison.
+## admin.eval.exerciseHint.id
+Hedge dan coba ulang menguji jalur keandalan. Biarkan keduanya mati untuk perbandingan yang adil.
+## admin.eval.runAll.en
+Run all
+## admin.eval.runAll.id
+Jalankan semua
+## admin.eval.run.en
+Run
+## admin.eval.run.id
+Jalankan
+## admin.eval.running.en
+Reading...
+## admin.eval.running.id
+Membaca...
+## admin.eval.testOcr.en
+Test OCR
+## admin.eval.testOcr.id
+Uji OCR
+## admin.eval.notRun.en
+Not run yet.
+## admin.eval.notRun.id
+Belum dijalankan.
+## admin.eval.expected.en
+Expected values (optional)
+## admin.eval.expected.id
+Nilai yang diharapkan (opsional)
+## admin.eval.expectedHint.en
+Leave empty to just compare the reads. Fields you fill are scored.
+## admin.eval.expectedHint.id
+Kosongkan untuk sekadar membandingkan bacaan. Kolom yang diisi akan dinilai.
+## admin.eval.merchantPlaceholder.en
+merchant
+## admin.eval.merchantPlaceholder.id
+merchant
+## admin.eval.totalPlaceholder.en
+total
+## admin.eval.totalPlaceholder.id
+total
+## admin.eval.field.merchant.en
+merchant
+## admin.eval.field.merchant.id
+merchant
+## admin.eval.field.date.en
+date
+## admin.eval.field.date.id
+tanggal
+## admin.eval.field.total.en
+total
+## admin.eval.field.total.id
+total
+## admin.eval.noFlags.en
+no flags
+## admin.eval.noFlags.id
+tanpa tanda
+## admin.eval.ocrTokens.en
+OCR tokens
+## admin.eval.ocrTokens.id
+Token OCR
+## admin.eval.ocrResult.en
+OCR result
+## admin.eval.ocrResult.id
+Hasil OCR
+## admin.eval.ocrFailed.en
+OCR failed
+## admin.eval.ocrFailed.id
+OCR gagal
+## admin.eval.pages.en
+page(s)
+## admin.eval.pages.id
+halaman
+## admin.eval.chars.en
+chars
+## admin.eval.chars.id
+karakter
+## admin.eval.runFailed.en
+Failed.
+## admin.eval.runFailed.id
+Gagal.
+## admin.eval.labelsImported.en
+Labels imported.
+## admin.eval.labelsImported.id
+Label diimpor.
+## admin.eval.labelsBad.en
+Could not read that labels file.
+## admin.eval.labelsBad.id
+Tidak bisa membaca berkas label itu.
 ## admin.lessons.link.en
 Lessons
 ## admin.lessons.link.id
