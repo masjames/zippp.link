@@ -1166,6 +1166,38 @@ alasan
 edit rate
 ## admin.insights.col.editRate.id
 rasio ubah
+## admin.contrib.link.en
+Donations
+## admin.contrib.link.id
+Donasi
+## admin.contrib.title.en
+Donated photos
+## admin.contrib.title.id
+Foto donasi
+## admin.contrib.subtitle.en
+Photos users chose to save from scans that could not be read. Image and failure reason only, no account or sheet data.
+## admin.contrib.subtitle.id
+Foto yang dipilih pengguna untuk disimpan dari pemindaian yang tidak terbaca. Hanya gambar dan alasan kegagalan, tanpa data akun atau sheet.
+## admin.contrib.empty.en
+No donations yet.
+## admin.contrib.empty.id
+Belum ada donasi.
+## admin.contrib.loading.en
+Loading...
+## admin.contrib.loading.id
+Memuat...
+## admin.contrib.photos.en
+photos
+## admin.contrib.photos.id
+foto
+## admin.contrib.noReason.en
+no reason recorded
+## admin.contrib.noReason.id
+tanpa alasan tercatat
+## admin.contrib.delete.en
+Delete
+## admin.contrib.delete.id
+Hapus
 ## admin.releases.branch.en
 branch
 ## admin.releases.branch.id

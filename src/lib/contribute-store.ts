@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { promises as fs } from "node:fs";
 import path from "node:path";
-import { put } from "@vercel/blob";
+import { del, put } from "@vercel/blob";
 import { readJsonArray, writeJsonArray } from "@/lib/json-store";
 
 /**
@@ -44,6 +44,31 @@ function localFile(id: string, ext: string): string {
 
 export function listContributions(): Promise<Contribution[]> {
     return readJsonArray<Contribution>(KEY);
+}
+
+export async function getContribution(id: string): Promise<Contribution | null> {
+    const all = await listContributions();
+    return all.find((item) => item.id === id) ?? null;
+}
+
+export async function deleteContribution(id: string): Promise<boolean> {
+    const all = await listContributions();
+    const record = all.find((item) => item.id === id);
+    if (!record) return false;
+    try {
+        if (record.pathname.startsWith("local:")) {
+            await fs.unlink(record.pathname.slice("local:".length));
+        } else if (blobConfigured()) {
+            await del(record.pathname);
+        }
+    } catch {
+        /* best effort, remove the index entry regardless */
+    }
+    await writeJsonArray(
+        KEY,
+        all.filter((item) => item.id !== id)
+    );
+    return true;
 }
 
 export async function saveContribution(
