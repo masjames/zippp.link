@@ -24,6 +24,8 @@ export type BatchItem = {
     draft?: Draft;
     debug?: ExtractDebug | null;
     error?: string;
+    /** The user chose to donate this photo to the improvement set. */
+    contributed?: boolean;
 };
 
 const DB_NAME = "zippp";

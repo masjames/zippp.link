@@ -383,6 +383,26 @@ Hanya resi atau faktur. Coba foto yang lebih jelas.
 Try again
 ## app.bad.retry.id
 Coba lagi
+## app.contribute.title.en
+Help improve reading?
+## app.contribute.title.id
+Bantu perbaiki pembacaan?
+## app.contribute.body.en
+This photo could not be read. You can save it to help improve reading. Only the photo and the failure reason are kept, not your sheet or account.
+## app.contribute.body.id
+Foto ini tidak terbaca. Anda bisa menyimpannya untuk membantu perbaikan pembacaan. Hanya foto dan alasan kegagalan yang disimpan, bukan sheet atau akun Anda.
+## app.contribute.yes.en
+Save this photo
+## app.contribute.yes.id
+Simpan foto ini
+## app.contribute.no.en
+No thanks
+## app.contribute.no.id
+Tidak, terima kasih
+## app.contribute.thanks.en
+Saved. Thank you.
+## app.contribute.thanks.id
+Tersimpan. Terima kasih.
 
 ## app.check.found.en
 {count} items found

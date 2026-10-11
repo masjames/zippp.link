@@ -60,6 +60,7 @@ export default function SnapScreen() {
         acceptItem,
         removeItem,
         retryItem,
+        contributeItem,
         sendAll,
         sending,
         balance,
@@ -373,6 +374,7 @@ export default function SnapScreen() {
                             onChange={(draft) => updateDraft(item.id, draft)}
                             onAccept={() => acceptItem(item.id)}
                             onRetry={() => retryItem(item.id)}
+                            onContribute={() => contributeItem(item.id)}
                             onRemove={() => removeItem(item.id)}
                             onCollapse={() => {
                                 const others = unaccepted.filter((i) => i.id !== item.id);
@@ -438,6 +440,7 @@ function ExpandedCard({
     onChange,
     onAccept,
     onRetry,
+    onContribute,
     onRemove,
     onCollapse,
 }: {
@@ -447,11 +450,13 @@ function ExpandedCard({
     onChange: (draft: Draft) => void;
     onAccept: () => void;
     onRetry: () => void;
+    onContribute: () => void;
     onRemove: () => void;
     onCollapse: () => void;
 }) {
     const draft = item.draft ?? (item.receipt ? toDraft(item.receipt) : null);
     const [showErrors, setShowErrors] = useState(false);
+    const [contributeDismissed, setContributeDismissed] = useState(false);
 
     if (item.status === "failed") {
         return (
@@ -469,6 +474,30 @@ function ExpandedCard({
                         {t("app.queue.remove")}
                     </button>
                 </div>
+                {item.contributed ? (
+                    <p className="mt-2 text-xs font-medium text-green-700">
+                        {t("app.contribute.thanks")}
+                    </p>
+                ) : contributeDismissed ? null : (
+                    <div className="mt-3 rounded-xl border-2 border-line p-3">
+                        <p className="text-xs font-semibold">
+                            {t("app.contribute.title")}
+                        </p>
+                        <p className="mt-1 text-xs text-muted">
+                            {t("app.contribute.body")}
+                        </p>
+                        <div className="mt-2 flex gap-2">
+                            <button type="button" onClick={onContribute}
+                                className="rounded-full bg-btn px-3 py-1 text-xs font-semibold text-btntext">
+                                {t("app.contribute.yes")}
+                            </button>
+                            <button type="button" onClick={() => setContributeDismissed(true)}
+                                className="rounded-full bg-mist px-3 py-1 text-xs font-semibold text-ink">
+                                {t("app.contribute.no")}
+                            </button>
+                        </div>
+                    </div>
+                )}
                 <DebugPanel debug={item.debug} />
             </div>
         );

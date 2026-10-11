@@ -80,6 +80,7 @@ type Value = {
     acceptItem: (id: string) => void;
     removeItem: (id: string) => void;
     retryItem: (id: string) => void;
+    contributeItem: (id: string) => void;
     sendAll: () => Promise<void>;
     sending: boolean;
     summary: Summary | null;
@@ -355,6 +356,29 @@ export default function AppProvider({
         patchItem(id, { status: "queued", error: undefined });
     }
 
+    /** Explicit opt-in: save a photo that could not be read, for the harness. */
+    function contributeItem(id: string) {
+        const item = batch.find((i) => i.id === id);
+        if (!item) return;
+        void (async () => {
+            try {
+                const form = new FormData();
+                form.append("image", item.blob, "receipt.jpg");
+                form.append("consent", "true");
+                form.append("reason", item.error ?? "");
+                form.append("lang", lang);
+                const res = await fetch("/api/contribute", {
+                    method: "POST",
+                    body: form,
+                });
+                const data = await res.json();
+                if (data.ok) patchItem(id, { contributed: true });
+            } catch {
+                /* leave the prompt available to try again */
+            }
+        })();
+    }
+
     async function refreshBalance() {
         try {
             const res = await fetch("/api/billing/balance", { cache: "no-store" });
@@ -518,6 +542,7 @@ export default function AppProvider({
         acceptItem,
         removeItem,
         retryItem,
+        contributeItem,
         sendAll,
         sending,
         summary,

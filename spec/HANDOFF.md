@@ -56,7 +56,8 @@ spec/                    all specs (this file is the index of record)
 `/api/extract`, `/api/sheets/{append,connect,workspace,map}`, `/api/auth/*`,
 `/api/billing/balance`, `/api/topup/orders*`, `/api/admin/{orders,grant}`,
 `/api/admin/{eval,feedback,lessons,releases,corrections}`, `/api/corrections`
-(accepted-card telemetry), `/api/paddle/webhook`.
+(accepted-card telemetry), `/api/contribute` (opt-in unreadable-photo donation),
+`/api/paddle/webhook`.
 `/api/detect` and `src/lib/receipt-detect.ts` were removed in Phase 1.
 
 ---
@@ -232,6 +233,9 @@ score.
   `hedge_winner`, and `ocr_ms`.
 - **Privacy**: the Baidu and DeepSeek disclosure is in the landing FAQ and the
   sign-in copy (`wording.md`).
+- **Opt-in donations**: a card that could not be read offers to save the photo
+  (the image and the failure reason only, no account or sheet data) via
+  `/api/contribute`, to grow the harness set.
 - **Docs**: `spec/discussions/zippp-overview.md` is the external-review brief.
 
 ### Remaining
