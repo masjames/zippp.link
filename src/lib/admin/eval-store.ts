@@ -78,14 +78,24 @@ const KEYS = {
     version: "admin-eval/version.json",
 };
 
-const DATA_DIR = process.env.ZIPPP_DATA_DIR || path.join(process.cwd(), ".data");
+/** Built lazily so the bundler does not trace a dynamic path from a constant. */
+function dataDir(): string {
+    return process.env.ZIPPP_DATA_DIR || path.join(process.cwd(), ".data");
+}
+
+function fileFor(key: string): string {
+    // Keep this opaque so the bundler does not treat it as a dynamic path and
+    // trace the whole project. The filesystem is only the local dev fallback.
+    const name = key.split(/[^a-zA-Z0-9_.-]+/).filter(Boolean).join("_");
+    return [dataDir(), name].join(path.sep);
+}
 
 async function readJson<T>(key: string, fallback: T): Promise<T> {
     const remote = remoteTextStore();
     try {
         const raw = remote
             ? await remote.readText(key)
-            : await fs.readFile(path.join(DATA_DIR, key), "utf8").catch(() => null);
+            : await fs.readFile(fileFor(key), "utf8").catch(() => null);
         if (!raw) return fallback;
         return JSON.parse(raw) as T;
     } catch {
@@ -100,7 +110,7 @@ async function writeJson(key: string, value: unknown): Promise<void> {
         await remote.writeText(key, raw);
         return;
     }
-    const file = path.join(DATA_DIR, key);
+    const file = fileFor(key);
     await fs.mkdir(path.dirname(file), { recursive: true });
     await fs.writeFile(file, raw, "utf8");
 }
