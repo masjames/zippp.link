@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { normalizeNumber, verifyReceipt } from "./verify-receipt.ts";
+import { hardFlagCount, normalizeNumber, verifyReceipt } from "./verify-receipt.ts";
 import type { RawReceipt } from "@/types/receipt";
 
 function raw(partial: Partial<RawReceipt>): RawReceipt {
@@ -172,6 +172,24 @@ test("a missing merchant and total are not flagged", () => {
         { tokens: ["Total 15.000"], rows: ["[0] Total 15.000"] }
     );
     assert.deepEqual(result.flags, []);
+});
+
+test("hardFlagCount counts hard flags and ignores soft ones", () => {
+    assert.equal(
+        hardFlagCount([
+            { path: "a", reason: "low_confidence" },
+            { path: "b", reason: "row_mismatch" },
+        ]),
+        0
+    );
+    assert.equal(
+        hardFlagCount([
+            { path: "a", reason: "not_in_ocr" },
+            { path: "b", reason: "arithmetic" },
+            { path: "c", reason: "low_confidence" },
+        ]),
+        2
+    );
 });
 
 test("a fully grounded receipt has no flags", () => {

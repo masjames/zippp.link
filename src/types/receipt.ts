@@ -84,6 +84,11 @@ export type ExtractDebug = {
         winner: "ocr" | "vision-hedge" | null;
         ocrMs: number | null;
     };
+    /** Whether the production vision retry ran, and why. */
+    visionRetry?: {
+        triggered: boolean;
+        reason: string | null;
+    };
     /** Verification flags produced by the anti-hallucination pass. */
     flags?: ReceiptFlag[];
     /** Raw OCR text lines (rec_texts), for step-by-step debugging. */

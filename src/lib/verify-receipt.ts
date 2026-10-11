@@ -43,6 +43,11 @@ export function isSoftFlag(reason: string | undefined): boolean {
     return reason === "low_confidence" || reason === "row_mismatch";
 }
 
+/** Count the hard flags, the ones that mean a value is missing or unsupported. */
+export function hardFlagCount(flags: ReceiptFlag[]): number {
+    return flags.filter((flag) => !isSoftFlag(flag.reason)).length;
+}
+
 /** PP-OCRv6 recognition scores are 0-1; below this the digits are uncertain. */
 const REC_SCORE_MIN = 0.8;
 /** Tolerance for matching a model number to an OCR number. */

@@ -38,6 +38,17 @@ export const PADDLEOCR_POLL_INTERVAL_MS = Number(
  */
 export const PADDLEOCR_HEDGE_MS = Number(process.env.PADDLEOCR_HEDGE_MS || 5_000);
 
+/**
+ * When the OCR-structured result carries at least this many hard flags
+ * (`not_in_ocr`, arithmetic, `ungrounded`), also take the vision read with the
+ * OCR text and keep whichever is cleaner. Both reads are grounded against the
+ * OCR text, so this adds a grounded comparison, not an unverified one. Set 0 to
+ * disable, or a lower number to retry more often.
+ */
+export const VISION_RETRY_HARD_MIN = Number(
+    process.env.VISION_RETRY_HARD_MIN || 3
+);
+
 /* --------------------------------- Models ------------------------------- */
 
 export const DEEPSEEK_BASE_URL = (
