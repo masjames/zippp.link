@@ -43,6 +43,29 @@ verifier did not flag. That last number is the one to drive to zero.
 
 Do not run paid model comparisons without asking first.
 
+## Collecting a real golden set
+
+1. Take 30 to 50 photos with your phone, including the ugly ones: handwritten
+   warung notes, carbon copy, faded thermal paper, low light, a hand in frame,
+   torn edges.
+2. Get the files onto this machine and into `eval/images/` (Google Drive,
+   AirDrop, USB, or email).
+3. Create the labels skeleton:
+   ```
+   npm run eval -- --init
+   ```
+   This writes `eval/labels.json` with one case per photo and empty fields.
+4. Fill in what you can: merchant, date, total, items. A field left out is not
+   scored. If you only have time for one field, do totals.
+5. Run the four-method comparison (paid):
+   ```
+   npm run eval -- --compare
+   ```
+   It prints, per method, accuracy and wrong and unflagged.
+
+Photos in `eval/images/` are gitignored and never committed. You can also label
+on the phone in `/admin/eval`; both paths share the same scoring.
+
 ## Admin UI
 
 `/admin/eval` (admins only, linked from `/admin`) runs four fixed methods on each

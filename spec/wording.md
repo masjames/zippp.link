@@ -149,6 +149,14 @@ Apakah bisa untuk catatan tulisan tangan?
 It works best with printed receipts. Handwriting depends on how clear it is, which is why the check step exists.
 ## landing.faq.a3.id
 Paling baik untuk resi cetak. Tulisan tangan bergantung kejelasannya, itulah sebabnya ada langkah periksa.
+## landing.faq.q4.en
+Who sees my receipt?
+## landing.faq.q4.id
+Siapa yang melihat resi saya?
+## landing.faq.a4.en
+The photo goes to Baidu AI Studio (PaddleOCR) to read the text. The text goes to DeepSeek to organize it. Google Gemini is a backup if the first two fail. The photo is not kept after the read.
+## landing.faq.a4.id
+Fotonya dikirim ke Baidu AI Studio (PaddleOCR) untuk membaca teks. Teksnya dikirim ke DeepSeek untuk disusun. Google Gemini menjadi cadangan bila dua yang pertama gagal. Fotonya tidak disimpan setelah dibaca.
 
 ## landing.foot.title.en
 Your next receipt, in your sheet in a minute.
@@ -204,6 +212,10 @@ Masuk dengan Google
 We only see the sheet zippp creates. Never the rest of your Drive.
 ## app.signin.fine.id
 Kami hanya melihat sheet yang dibuat zippp. Tidak pernah isi Drive Anda yang lain.
+## app.signin.data.en
+To read a receipt, the photo goes to Baidu AI Studio (PaddleOCR) and the text goes to DeepSeek. Gemini is a backup. Nothing is kept after the read.
+## app.signin.data.id
+Untuk membaca resi, fotonya dikirim ke Baidu AI Studio (PaddleOCR) dan teksnya ke DeepSeek. Gemini menjadi cadangan. Tidak ada yang disimpan setelah dibaca.
 ## app.signin.error.en
 Sign-in did not finish. Try again.
 ## app.signin.error.id
@@ -273,6 +285,14 @@ Ketuk nilai untuk mengubah
 Date assumed from the photo time. Check it.
 ## app.review.dateAssumed.id
 Tanggal diasumsikan dari waktu foto. Periksa.
+## app.review.softFlag.en
+shown only
+## app.review.softFlag.id
+hanya tampil
+## app.review.hardFlag.en
+must check
+## app.review.hardFlag.id
+wajib diperiksa
 ## app.review.checkThis.en
 Check this
 ## app.review.checkThis.id
@@ -1030,6 +1050,82 @@ gagal
 not configured
 ## admin.releases.deploySkipped.id
 belum diatur
+## admin.insights.link.en
+Insights
+## admin.insights.link.id
+Wawasan
+## admin.insights.title.en
+Insights from accepted cards
+## admin.insights.title.id
+Wawasan dari kartu yang diterima
+## admin.insights.subtitle.en
+What users changed before accepting, field by field. Collected automatically, with no images and no values. Wrong and unflagged is the number to drive to zero.
+## admin.insights.subtitle.id
+Apa yang diubah pengguna sebelum menerima, per kolom. Terkumpul otomatis, tanpa gambar dan tanpa nilai. Salah tanpa tanda adalah angka yang harus ditekan ke nol.
+## admin.insights.loading.en
+Loading...
+## admin.insights.loading.id
+Memuat...
+## admin.insights.empty.en
+No accepted cards recorded yet.
+## admin.insights.empty.id
+Belum ada kartu yang diterima tercatat.
+## admin.insights.boxesTitle.en
+Four boxes
+## admin.insights.boxesTitle.id
+Empat kotak
+## admin.insights.editedFlagged.en
+Edited and flagged
+## admin.insights.editedFlagged.id
+Diubah dan ditandai
+## admin.insights.editedUnflagged.en
+Edited, not flagged
+## admin.insights.editedUnflagged.id
+Diubah, tidak ditandai
+## admin.insights.leftFlagged.en
+Left, flagged
+## admin.insights.leftFlagged.id
+Dibiarkan, ditandai
+## admin.insights.leftUnflagged.en
+Left, not flagged
+## admin.insights.leftUnflagged.id
+Dibiarkan, tidak ditandai
+## admin.insights.byField.en
+By field
+## admin.insights.byField.id
+Per kolom
+## admin.insights.byReason.en
+By flag reason
+## admin.insights.byReason.id
+Per alasan tanda
+## admin.insights.col.field.en
+field
+## admin.insights.col.field.id
+kolom
+## admin.insights.col.seen.en
+seen
+## admin.insights.col.seen.id
+terlihat
+## admin.insights.col.edited.en
+edited
+## admin.insights.col.edited.id
+diubah
+## admin.insights.col.flagged.en
+flagged
+## admin.insights.col.flagged.id
+ditandai
+## admin.insights.col.wrongUnflagged.en
+wrong+unflagged
+## admin.insights.col.wrongUnflagged.id
+salah tanpa tanda
+## admin.insights.col.reason.en
+reason
+## admin.insights.col.reason.id
+alasan
+## admin.insights.col.editRate.en
+edit rate
+## admin.insights.col.editRate.id
+rasio ubah
 ## admin.releases.branch.en
 branch
 ## admin.releases.branch.id

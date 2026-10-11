@@ -9,7 +9,7 @@ Owns: how it is built. Column dictionary: `TEMPLATES.md`. Copy: `wording.md`.
 
 **The Google Sheet is the system of record.** zippp extracts, maps, appends. It
 does not keep a second ledger. Facts come from the extraction pipeline, then the
-Check screen, then Sheets — the model never writes straight to the sheet.
+review step, then Sheets. The model never writes straight to the sheet.
 
 ---
 
@@ -163,7 +163,7 @@ Only **`resto-inventory`** is implemented (`src/lib/google/templates.ts`,
 Staff phone
   → photo
   → POST /api/extract              → PP-OCRv6 → DeepSeek → receipt JSON + debug
-  → Check screen (client, editable)
+  → Review cards (client, editable)
   → POST /api/sheets/append        { receipt, staff, outlet }
        → load workspace map + refresh Google token
        → build rows (one per line item)
@@ -200,6 +200,13 @@ Admin-only, guarded like `/admin` (server `currentUser().admin`, 404 otherwise).
 - Scores and metrics come from `src/lib/eval-score.ts`, shared by the CLI harness
   (`scripts/eval.ts`) and the admin UI. The metric to drive to zero is wrong and
   unflagged.
+- `/api/corrections` records the field-level diff collected when a user accepts a
+  card: edited or not, plus flag reasons and the run id. No images and no values.
+  `/admin/insights` (`/api/admin/corrections`) shows the four boxes (edited and
+  flagged, edited and unflagged, left and flagged, left and unflagged) and per
+  flag reason edit rates.
+- The CLI harness has `--init` to write a labels skeleton from `eval/images/` and
+  `--compare` to run all four methods per photo.
 
 ---
 

@@ -55,7 +55,8 @@ spec/                    all specs (this file is the index of record)
 ### Key API routes
 `/api/extract`, `/api/sheets/{append,connect,workspace,map}`, `/api/auth/*`,
 `/api/billing/balance`, `/api/topup/orders*`, `/api/admin/{orders,grant}`,
-`/api/admin/{eval,feedback,lessons,releases}`, `/api/paddle/webhook`.
+`/api/admin/{eval,feedback,lessons,releases,corrections}`, `/api/corrections`
+(accepted-card telemetry), `/api/paddle/webhook`.
 `/api/detect` and `src/lib/receipt-detect.ts` were removed in Phase 1.
 
 ---
@@ -219,6 +220,15 @@ score.
 - **Speed (Phase 4)**: hedged OCR (`PADDLEOCR_HEDGE_MS`), per-stage timings.
 - **Improvement loop**: `/admin/eval` feedback, `/admin/lessons`,
   `/admin/releases`, GitHub change request, Telegram, optional deploy hook.
+- **Production signal**: field-level correction telemetry at Accept, sent to
+  `/api/corrections` and summarized on `/admin/insights`. No images, no values.
+- **Flag tiering**: soft flags (`low_confidence`, `row_mismatch`) are shown but do
+  not block Accept; hard flags (`not_in_ocr`, arithmetic, `ungrounded`, assumed
+  date) do.
+- **Hedge instrumentation**: `extract.run` records `hedge_fired`,
+  `hedge_winner`, and `ocr_ms`.
+- **Privacy**: the Baidu and DeepSeek disclosure is in the landing FAQ and the
+  sign-in copy (`wording.md`).
 - **Docs**: `spec/discussions/zippp-overview.md` is the external-review brief.
 
 ### Remaining
@@ -254,7 +264,7 @@ score.
 - `npm run dev` · `npm run build` · `npx tsc --noEmit`
 - `npm test` (unit tests) · `npm run eval` (accuracy harness, see `eval/README.md`)
 - Admin: `/admin/eval` (four methods, OCR test), `/admin/lessons`,
-  `/admin/releases`
+  `/admin/releases`, `/admin/insights`
 - External brief: `spec/discussions/zippp-overview.md`
 - `npm run logs` (stream `extract.run`/`detect.run` from production)
 - `npm run grant -- <email> <credits>`

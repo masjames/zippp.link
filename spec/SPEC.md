@@ -62,8 +62,10 @@ learn ours. The job is append + one map, not a second general ledger.
 - Invent units (kg/pcs) or values the receipt does not contain.
 - Deduct stock. This is nota intake, not inventory truth.
 - Build P&L, categories-as-a-product, bank feed, or "full accounting".
-- Auto-send without the Check screen.
-- Store receipt images as the product. Image in memory → extract → append → drop.
+- Auto-send without the review step.
+- Store receipt images as the product. The photo is handled on the device and
+  queued in IndexedDB for the current batch only, then dropped after the rows are
+  sent. There is no server-side image store.
 
 ### Should (later, see `LATER.md`)
 
@@ -116,8 +118,11 @@ See `REVISION-1.md`. Current:
 
 - Client receipts: the image is sent to **Baidu AI Studio (PaddleOCR/PP-OCRv6)**
   for OCR; the reconstructed text is sent to **DeepSeek** for structuring.
-  **Google Gemini** is used only as a last-resort fallback. No free tier is used
-  for client work.
+  **Google Gemini** is used only as a last-resort fallback.
+- The OCR leg runs inside Baidu AI Studio's free daily quota (20,000 pages per
+  day per model), which is a scaling cliff to watch. Structuring runs on a paid
+  DeepSeek key. This is disclosed to users in the landing FAQ and the sign-in
+  copy (`wording.md`).
 - OAuth tokens and workspace config are stored server-side (private Vercel Blob
   by default), never `NEXT_PUBLIC`.
 - The user can disconnect. Tokens are revoked; the sheet remains theirs.

@@ -22,6 +22,7 @@ import {
 } from "@/lib/batch-db";
 import { downscaleImage, makeThumb } from "@/lib/image";
 import { captureDate, fromDraft, toDraft } from "./draft";
+import { buildCorrectionRecord } from "@/lib/correction-diff";
 
 export type AuthState = {
     signedIn: boolean;
@@ -315,7 +316,25 @@ export default function AppProvider({
         patchItem(id, { draft });
     }
 
+    /** Free production signal: what the user changed before accepting. No images,
+     * no raw values, only edited-or-not plus flag reasons. */
+    function logCorrection(item: BatchItem) {
+        if (!item.receipt || !item.draft) return;
+        const record = buildCorrectionRecord({
+            receipt: item.receipt,
+            draft: item.draft,
+            runId: item.debug?.runId ?? null,
+        });
+        void fetch("/api/corrections", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ ...record, lang }),
+        }).catch(() => undefined);
+    }
+
     function acceptItem(id: string) {
+        const item = batch.find((i) => i.id === id);
+        if (item) logCorrection(item);
         patchItem(id, { status: "accepted" });
         const remaining = batch.filter(
             (i) => i.id !== id && i.status !== "accepted"

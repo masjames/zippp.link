@@ -49,6 +49,9 @@ export default function SignInScreen({
                 <p className="text-center text-xs text-muted">
                     {t("app.signin.fine")}
                 </p>
+                <p className="text-center text-xs text-muted">
+                    {t("app.signin.data")}
+                </p>
             </div>
         </PhoneShell>
     );

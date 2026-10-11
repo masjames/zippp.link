@@ -8,6 +8,7 @@ import { useApp } from "../AppProvider";
 import { useReceiptDetector } from "../useReceiptDetector";
 import { fill, type T } from "@/lib/t";
 import { toDraft, type Draft } from "../draft";
+import { isSoftFlag } from "@/lib/verify-receipt";
 import type { BatchItem } from "@/lib/batch-db";
 import type { Workspace } from "../AppProvider";
 
@@ -493,10 +494,15 @@ function ExpandedCard({
     // Verification flags. Every flagged field must be tapped before Accept.
     const flagged = d.flagged ?? [];
     const reviewed = d.reviewed ?? [];
-    const pending = flagged.filter((path) => !reviewed.includes(path));
     const flagByPath = new Map(
         (item.receipt?.flags ?? []).map((flag) => [flag.path, flag])
     );
+    const pending = flagged.filter((path) => !reviewed.includes(path));
+    // Soft flags (low confidence, a row mismatch that is grounded elsewhere) are
+    // shown but do not block Accept. Hard flags do. An assumed date has no reason
+    // on the receipt, so it counts as hard.
+    const isSoft = (path: string) => isSoftFlag(flagByPath.get(path)?.reason);
+    const pendingHard = pending.filter((path) => !isSoft(path));
 
     function patch(next: Partial<Draft>) {
         onChange({ ...d, ...next } as Draft);
@@ -558,7 +564,7 @@ function ExpandedCard({
     }
     function tryAccept() {
         setShowErrors(true);
-        if (outletMissing || noLines || noPrice || pending.length > 0) return;
+        if (outletMissing || noLines || noPrice || pendingHard.length > 0) return;
         onAccept();
     }
 
@@ -676,7 +682,9 @@ function ExpandedCard({
                                     </span>
                                     <span className="text-muted"> · {flagReason(path)}</span>
                                     <span className="ml-1 font-semibold text-amber-700">
-                                        {t("app.review.tapToConfirm")}
+                                        {isSoft(path)
+                                            ? t("app.review.softFlag")
+                                            : t("app.review.hardFlag")}
                                     </span>
                                 </button>
                             </li>
@@ -686,7 +694,7 @@ function ExpandedCard({
             ) : null}
 
             <div className="mt-3 flex gap-2">
-                <button type="button" onClick={tryAccept} disabled={pending.length > 0}
+                <button type="button" onClick={tryAccept} disabled={pendingHard.length > 0}
                     className="flex-1 rounded-full bg-maroon px-4 py-3 font-semibold text-white disabled:opacity-60">
                     {t("app.review.accept")}
                 </button>

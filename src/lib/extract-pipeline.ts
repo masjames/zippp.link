@@ -178,6 +178,9 @@ export async function runExtraction(
 
     let grounding: OcrGrounding | null = null;
     let verified: VerifyResult | null = null;
+    let hedgeFired = false;
+    let hedgeWinner: "ocr" | "vision-hedge" | null = null;
+    let ocrMs: number | null = null;
 
     // Hedged vision: if PaddleOCR is slow, the vision leg starts in parallel and
     // is verified against the OCR text once it arrives. The first result that
@@ -301,6 +304,7 @@ export async function runExtraction(
         const hedgeTimer =
             !method && hedgeMs > 0
                 ? setTimeout(() => {
+                      hedgeFired = true;
                       if (!hedgePromise) hedgePromise = runVisionHedge();
                   }, hedgeMs)
                 : undefined;
@@ -326,10 +330,11 @@ export async function runExtraction(
         ocrTokens = ocr.tokens.slice(0, 250);
         markdownPreview = numbered.slice(0, MAX_PREVIEW);
         modelMs += Date.now() - ocrStart;
+        ocrMs = Date.now() - ocrStart;
         stages.push({
             stage: "ocr",
             ok: true,
-            ms: Date.now() - ocrStart,
+            ms: ocrMs,
             note: `${ocrModel} · ${ocr.pages}p · ${rawLen}->${compact.length} chars · ${ocr.states.join(">")}`,
         });
         if (!compact.trim()) {
@@ -350,6 +355,7 @@ export async function runExtraction(
                 hasEssentials(leg.result.receipt)
             ) {
                 verified = leg.result;
+                hedgeWinner = "vision-hedge";
                 fallback = "deepseek-vision-hedge";
                 stages.push({
                     stage: "hedge",
@@ -437,6 +443,7 @@ export async function runExtraction(
             ) {
                 parsed = leg.raw;
                 result = leg.result;
+                hedgeWinner = "vision-hedge";
                 fallback = "deepseek-vision-hedge";
                 stages.push({
                     stage: "hedge",
@@ -459,6 +466,7 @@ export async function runExtraction(
             throw new Error("Incomplete receipt: missing item or price");
         }
         verified = result;
+        if (!hedgeWinner) hedgeWinner = "ocr";
         return parsed;
     }
 
@@ -549,6 +557,7 @@ export async function runExtraction(
             usage,
             stages,
             stageMs: buildStageMs(),
+            hedge: { fired: hedgeFired, winner: hedgeWinner, ocrMs },
             flags: verified?.flags,
             ocrTokens,
             markdownPreview,
@@ -570,6 +579,9 @@ export async function runExtraction(
                 finish,
                 usage,
                 stage_ms: buildStageMs(),
+                hedge_fired: hedgeFired,
+                hedge_winner: hedgeWinner,
+                ocr_ms: ocrMs,
                 flags: verified?.flags.length ?? 0,
                 total_ms: Date.now() - started,
                 stages,

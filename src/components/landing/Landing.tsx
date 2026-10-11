@@ -149,7 +149,7 @@ export default function Landing({
                             {t("landing.faq.title")}
                         </h2>
                         <div className="mt-6">
-                            {[1, 2, 3].map((i) => (
+                            {[1, 2, 3, 4].map((i) => (
                                 <details
                                     key={i}
                                     className="border-t border-line py-4"

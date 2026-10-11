@@ -78,6 +78,12 @@ export type ExtractDebug = {
     stages: ExtractStage[];
     /** Per-stage total milliseconds, keyed by stage name. */
     stageMs?: Record<string, number>;
+    /** Hedge outcome: did it fire, which leg won, and how long OCR took. */
+    hedge?: {
+        fired: boolean;
+        winner: "ocr" | "vision-hedge" | null;
+        ocrMs: number | null;
+    };
     /** Verification flags produced by the anti-hallucination pass. */
     flags?: ReceiptFlag[];
     /** Raw OCR text lines (rec_texts), for step-by-step debugging. */

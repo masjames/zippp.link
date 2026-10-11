@@ -99,6 +99,12 @@ export default function AdminClient({ wording }: { wording: Wording }) {
                     >
                         {t("admin.releases.link")}
                     </a>
+                    <a
+                        href="/admin/insights"
+                        className="rounded-full bg-surface px-4 py-2 text-sm font-semibold"
+                    >
+                        {t("admin.insights.link")}
+                    </a>
                 </div>
             </div>
             <h1 className="mt-2 font-head text-4xl font-extrabold tracking-tight">

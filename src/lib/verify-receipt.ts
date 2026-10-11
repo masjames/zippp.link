@@ -34,6 +34,15 @@ export type VerifyResult = {
     retry: boolean;
 };
 
+/**
+ * Soft flags are shown in amber but do not block Accept. Everything else is a
+ * hard flag and must be tapped first. Soft here means "worth a look", not
+ * "the value is missing or unsupported".
+ */
+export function isSoftFlag(reason: string | undefined): boolean {
+    return reason === "low_confidence" || reason === "row_mismatch";
+}
+
 /** PP-OCRv6 recognition scores are 0-1; below this the digits are uncertain. */
 const REC_SCORE_MIN = 0.8;
 /** Tolerance for matching a model number to an OCR number. */
