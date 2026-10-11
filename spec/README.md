@@ -18,6 +18,7 @@ built today; `archived/` holds superseded material kept for history.
 | [`COGS.md`](./COGS.md) | Cost of goods / unit economics |
 | [`LATER.md`](./LATER.md) | Parked ideas, explicitly out of scope for now |
 | [`wording.md`](./wording.md) | **Single source of truth for every user-visible string** (EN/ID). Parsed by the app at runtime — edit values only. |
+| [`../docs/discussion/zippp-overview.md`](../docs/discussion/zippp-overview.md) | **External review brief**: self-contained project context, the verifier, the eval harness, the improvement loop, and the framework discussion. Hand this to an outside model for a second opinion. |
 
 ## Archived (inactive)
 

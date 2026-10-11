@@ -35,9 +35,14 @@ src/app/                 routes (/, /id, /app/**, /admin, /api/**)
 src/components/landing/  Landing.tsx
 src/components/app/      AppProvider, AppShell, screens/, useReceiptDetector
 src/lib/                 extract-pipeline, paddleocr, deepseek, gemini, schema,
-                         ocr-compact, receipt-detect, image, batch-db, t, content,
-                         region, server-locale, auth, billing/*, google/*
+                         ocr-compact, verify-receipt, image, batch-db, eval-score,
+                         t, content, region, server-locale, auth, billing/*,
+                         google/*, admin/* (methods, eval-store, github)
+src/app/admin/           AdminClient + eval/, lessons/, releases/
 src/middleware.ts        region + one-time /id redirect + ?ref capture
+scripts/                 eval.ts, ts-loader.mjs (dev harness)
+eval/                    labels.json + images/ (gitignored) for the CLI harness
+docs/discussion/         external-review brief (zippp-overview.md)
 spec/                    all specs (this file is the index of record)
 ```
 
@@ -48,9 +53,10 @@ spec/                    all specs (this file is the index of record)
 `/app/check/[id]` and `/app/sent` were **removed** in Revision 1.
 
 ### Key API routes
-`/api/extract`, `/api/detect`, `/api/sheets/{append,connect,workspace,map}`,
-`/api/auth/*`, `/api/billing/balance`, `/api/topup/orders*`,
-`/api/admin/{orders,grant}`, `/api/paddle/webhook`.
+`/api/extract`, `/api/sheets/{append,connect,workspace,map}`, `/api/auth/*`,
+`/api/billing/balance`, `/api/topup/orders*`, `/api/admin/{orders,grant}`,
+`/api/admin/{eval,feedback,lessons,releases}`, `/api/paddle/webhook`.
+`/api/detect` and `src/lib/receipt-detect.ts` were removed in Phase 1.
 
 ---
 
@@ -102,6 +108,11 @@ response and shown in the app's Debug panel.
    A missing date is not fatal: the capture date is filled in and marked assumed.
 6. **Fallbacks**: DeepSeek vision (image → JSON), then Gemini. Fallback results
    are verified too (against any OCR text, else flagged `ungrounded`).
+7. **Method mode** (eval only): `runExtraction(image, { method })` runs exactly
+   one method with no fallback, hedge, or retry, and without the essentials gate,
+   so the admin comparison shows the raw read of each method. Defined in
+   `src/lib/admin/methods.ts`: OCR + DeepSeek, DeepSeek vision, OCR + Gemini,
+   Gemini vision.
 
 Observability: `console.log(JSON.stringify({event:"extract.run", ...}))` → Vercel
 runtime logs. Flags are in the `extract.run` line, the `/api/extract` response and
@@ -194,56 +205,57 @@ score.
 
 ---
 
-## 8. Refinement + action plan (proposed, for discussion)
+## 8. Reliability work: done and remaining
 
-### A. Capture reliability (highest priority — the user's complaint)
-1. **Fix the viewfinder geometry.** Either (a) make the preview match the
-   camera's native aspect and map the overlay with `object-cover` crop math, or
-   (b) use `object-contain` with letterbox and correct mapping. Add a **portrait
-   receipt guide** (e.g. a 3:4 or 9:16 inner frame) instead of relying on the
-   whole 16:9 area.
-2. **Rethink detection.** Brightness+projection is weak. Options: gradient/edge
-   document detection; a small on-device document detector (OpenCV.js / ONNX /
-   TF.js); or drop the client box entirely and gate purely on steady + the server
-   `detect`. Fix the overlay math regardless.
-3. **Auto-capture UX.** Consider capture-then-verify (add instantly, drop if not a
-   receipt) to remove the 3–8s wait; keep manual always available; expose the
-   toggle prominently; tune `MOTION_MAX`/`STEADY_FRAMES`/light thresholds.
+### Done
+- **Capture (Phase 1)**: native-aspect preview, static 9:16 guide,
+  `ImageCapture` stills, ~4 MP budget, `/api/detect` removed, capture into a
+  reading card, 2.5s refusal cooldown, blur hard block, 3 concurrent reads.
+- **Verifier (Phase 2)**: deterministic grounding, flags, row indices, OCR
+  scores, one OCR-aware vision retry, flagged review with tap to confirm.
+- **Eval (Phase 3 and the redesign)**: CLI harness and `/admin/eval` with four
+  fixed methods, big zoomable photo, OCR text, Test OCR, one-tap winner, optional
+  expected values, Advanced drawer.
+- **Speed (Phase 4)**: hedged OCR (`PADDLEOCR_HEDGE_MS`), per-stage timings.
+- **Improvement loop**: `/admin/eval` feedback, `/admin/lessons`,
+  `/admin/releases`, GitHub change request, Telegram, optional deploy hook.
+- **Docs**: `docs/discussion/zippp-overview.md` is the external-review brief.
 
-### B. Vision accuracy + hallucination (highest priority — the user's complaint)
-1. **Ground the structuring**: require each field to be quoted from the OCR text;
-   add arithmetic validation; reject/flag values not present in OCR tokens.
-2. **A/B the models** on a set of real notas (low light, hand, torn): PP-OCRv6 vs
-   **PaddleOCR-VL-1.6**; **DeepSeek Flash vs Pro vs Gemini** for structuring.
-   Pick on field accuracy, not vibes.
-3. **Field confidence + review affordance**: mark low-confidence fields in the
-   review card so the human fixes them (fits the existing Accept/Edit UI).
-4. **Real test set**: collect 10–20 real photos (the current tests use synthetic
-   images) and a small harness that scores merchant/date/total/items.
-
-### C. Product polish
-- Credits are live; end-to-end GoPay and Paddle browser tests still pending.
-- Later (see `LATER.md`): templates picker, Drive photo, batch review extras,
-  team members, per-minute guard, bigger Paddle packs, QRIS, Axiom logs.
+### Remaining
+- **Dataset page** (flywheel memory): every labeled receipt, per-method accuracy
+  and trend, export and import. The next build.
+- **Real golden set**: 10 to 20 real photos across conditions (low light, hand,
+  torn, handwritten, Indonesian formats). The harness is ready; the data is not.
+- **Paid comparison run**: the tooling exists, the run has not happened.
+- **Threshold tuning**: OCR score 0.8, merchant fuzzy 0.6, hedge 5s, all based on
+  real results once they exist.
+- **OCR cold start**: production can fall back to vision when PP-OCRv6 exceeds
+  10s. The hedge covers latency; consider raising `PADDLEOCR_TIMEOUT_MS`.
+- **Product polish**: end-to-end GoPay and Paddle browser tests still pending.
 
 ---
 
 ## 9. Open questions for the next discussion
-1. Vision model: keep deepseek-flash, or move to `deepseek-v4-pro` / Gemini for
-   structuring? Use PaddleOCR-VL-1.6 instead of PP-OCRv6?
-2. Detection: heuristic vs an on-device document-detection model? Is the server
-   `detect` round-trip acceptable, or must detection be instant/offline?
-3. Grounding strategy: source-span prompt vs a deterministic verifier vs both?
-4. Is hallucination acceptable if every field is confidence-marked and editable?
-5. Real receipts: can we get a labeled set (date/item/price ground truth) to
-   measure against?
+1. Which method should be the production default, and should it vary by region
+   or receipt type? The dataset should answer this.
+2. Arithmetic mismatch: keep the grounded value and flag it (current), or null
+   it? The current choice favors not erasing a printed total.
+3. Flag noise on real receipts: is the amber set too large for users to trust?
+4. One shared golden set, or per-customer sets?
+5. Should a routing rule be derived from the dataset, and if so, in plain code or
+   a graph?
+6. Framework stance: keep the hand-written pipeline (current recommendation), or
+   pilot LangGraph or ADK off the hot path? See
+   `docs/discussion/zippp-overview.md` section 15.
 
 ---
 
 ## 10. Commands
 - `npm run dev` · `npm run build` · `npx tsc --noEmit`
 - `npm test` (unit tests) · `npm run eval` (accuracy harness, see `eval/README.md`)
-- Admin eval UI: `/admin/eval` (compare models, exercise the vision retry and hedge)
+- Admin: `/admin/eval` (four methods, OCR test), `/admin/lessons`,
+  `/admin/releases`
+- External brief: `docs/discussion/zippp-overview.md`
 - `npm run logs` (stream `extract.run`/`detect.run` from production)
 - `npm run grant -- <email> <credits>`
 - Deploy: push to `main` (Vercel builds automatically). Verify with `curl -I`.

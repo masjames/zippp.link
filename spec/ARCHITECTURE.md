@@ -61,7 +61,9 @@ photo → PP-OCRv6 (Baidu AI Studio) → indexed rows → DeepSeek Flash → ver
   `paddle → deepseek-vision → gemini`, verification, per-stage timings
   (`debug.stageMs`), and the debug trace (`debug.flags`). If PaddleOCR has not
   answered within `PADDLEOCR_HEDGE_MS` (default 5000), the vision leg starts in
-  parallel and the first result that passes the verifier is used.
+  parallel and the first result that passes the verifier is used. A `method`
+  option runs exactly one method for the admin eval, with no fallback, hedge,
+  retry, or essentials gate.
 - Timeouts are env-tunable (`PADDLEOCR_TIMEOUT_MS`, `DEEPSEEK_TIMEOUT_MS`,
   `GEMINI_TIMEOUT_MS`).
 
@@ -168,6 +170,36 @@ Staff phone
        → spreadsheets.values.append
   → { ok, rows_written, spreadsheet_title, sheet_tab }
 ```
+
+---
+
+## Admin eval and improvement loop
+
+Admin-only, guarded like `/admin` (server `currentUser().admin`, 404 otherwise).
+
+- `/admin/eval` (`src/app/admin/eval/`): capture or upload photos, run four fixed
+  methods per photo, see the reads side by side with flags and a diff against
+  optional expected values, pick a winner or correct it, and save feedback. A
+  Test OCR action shows the raw PP-OCRv6 tokens or the exact error.
+- `/api/admin/eval`: runs the requested methods for one image. OCR is computed
+  once per (image, OCR model), reused across the OCR methods, and cached in
+  process memory for a short time. Optional `action: "ocr"` returns the raw OCR
+  result or the error.
+- The four methods are defined in `src/lib/admin/methods.ts`: OCR + DeepSeek,
+  DeepSeek vision, OCR + Gemini, Gemini vision. `structureWithGemini` in
+  `src/lib/gemini.ts` is the text-only Gemini structuring step.
+- `/api/admin/feedback` stores a feedback record. An all-wrong correction also
+  creates a lesson.
+- `/admin/lessons` (`/api/admin/lessons`) reviews lessons. Approving opens a
+  **change request**: a branch, a dossier at `eval/lessons/<id>.md`, and a pull
+  request (via `src/lib/admin/github.ts`), plus a Telegram message.
+- `/admin/releases` (`/api/admin/releases`) is the version and improvement log,
+  with a manual deploy backed by `VERCEL_DEPLOY_HOOK_URL`.
+- Feedback, lessons and releases persist through `src/lib/admin/eval-store.ts`,
+  using the session store backend (Vercel Blob or Upstash Redis, else `.data`).
+- Scores and metrics come from `src/lib/eval-score.ts`, shared by the CLI harness
+  (`scripts/eval.ts`) and the admin UI. The metric to drive to zero is wrong and
+  unflagged.
 
 ---
 
