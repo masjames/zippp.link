@@ -42,7 +42,7 @@ src/app/admin/           AdminClient + eval/, lessons/, releases/
 src/middleware.ts        region + one-time /id redirect + ?ref capture
 scripts/                 eval.ts, ts-loader.mjs (dev harness)
 eval/                    labels.json + images/ (gitignored) for the CLI harness
-docs/discussion/         external-review brief (zippp-overview.md)
+spec/discussions/        external-review brief (zippp-overview.md)
 spec/                    all specs (this file is the index of record)
 ```
 
@@ -219,7 +219,7 @@ score.
 - **Speed (Phase 4)**: hedged OCR (`PADDLEOCR_HEDGE_MS`), per-stage timings.
 - **Improvement loop**: `/admin/eval` feedback, `/admin/lessons`,
   `/admin/releases`, GitHub change request, Telegram, optional deploy hook.
-- **Docs**: `docs/discussion/zippp-overview.md` is the external-review brief.
+- **Docs**: `spec/discussions/zippp-overview.md` is the external-review brief.
 
 ### Remaining
 - **Dataset page** (flywheel memory): every labeled receipt, per-method accuracy
@@ -246,7 +246,7 @@ score.
    a graph?
 6. Framework stance: keep the hand-written pipeline (current recommendation), or
    pilot LangGraph or ADK off the hot path? See
-   `docs/discussion/zippp-overview.md` section 15.
+   `spec/discussions/zippp-overview.md` section 15.
 
 ---
 
@@ -255,7 +255,7 @@ score.
 - `npm test` (unit tests) · `npm run eval` (accuracy harness, see `eval/README.md`)
 - Admin: `/admin/eval` (four methods, OCR test), `/admin/lessons`,
   `/admin/releases`
-- External brief: `docs/discussion/zippp-overview.md`
+- External brief: `spec/discussions/zippp-overview.md`
 - `npm run logs` (stream `extract.run`/`detect.run` from production)
 - `npm run grant -- <email> <credits>`
 - Deploy: push to `main` (Vercel builds automatically). Verify with `curl -I`.
