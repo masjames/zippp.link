@@ -90,6 +90,12 @@ Workflow:
   score accuracy against the fields.
 - Save feedback. An all-wrong correction becomes a lesson.
 
+Each run is stored server-side, and the page shows a **Set summary**: per-method
+accuracy and wrong-and-unflagged across every stored run that has expected
+values. Re-running a photo updates its run instead of adding a duplicate. So the
+whole loop, capture, run, label, and compare, can be done from the page alone, on
+a phone. The CLI is only an alternative.
+
 The model names and the exercise toggles live in an **Advanced** drawer, closed
 by default. **Force the vision retry** runs the OCR-aware re-read so you can
 observe the `vision-retry` stage, and **Hedge delay** set to a small value

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { makeT, type Wording } from "@/lib/t";
+import { fill, makeT, type Wording } from "@/lib/t";
 import { downscaleImage, makeThumb } from "@/lib/image";
 import {
     sameNumber,
@@ -52,6 +52,24 @@ type OcrTest = {
     error?: string;
     tokens?: string[];
     markdownPreview?: string;
+};
+
+type EvalSummary = {
+    runs: number;
+    scored: number;
+    rows: {
+        method: ExtractMethodId;
+        cases: number;
+        failures: number;
+        accuracy: {
+            merchant: string;
+            date: string;
+            total: string;
+            itemAmount: string;
+            itemCount: string;
+        };
+        wrongUnflagged: number;
+    }[];
 };
 
 const EMPTY_LABEL: LabelDraft = {
@@ -126,6 +144,21 @@ export default function EvalClient({ wording }: { wording: Wording }) {
     const [progress, setProgress] = useState("");
     const [message, setMessage] = useState<string | null>(null);
     const [zoom, setZoom] = useState<{ src: string; name: string } | null>(null);
+    const [summary, setSummary] = useState<EvalSummary | null>(null);
+
+    async function refreshSummary() {
+        try {
+            const res = await fetch("/api/admin/eval", { cache: "no-store" });
+            const data = await res.json();
+            if (data.ok) setSummary(data.summary as EvalSummary);
+        } catch {
+            /* ignore */
+        }
+    }
+
+    useEffect(() => {
+        void refreshSummary();
+    }, []);
 
     useEffect(() => {
         let alive = true;
@@ -256,6 +289,10 @@ export default function EvalClient({ wording }: { wording: Wording }) {
             form.append("image", image.file, image.name);
             form.append("methods", JSON.stringify(EXTRACT_METHODS.map((m) => m.id)));
             form.append("exercise", JSON.stringify(exercisePayload()));
+            form.append(
+                "expected",
+                JSON.stringify(toEvalCase(image.name, image.label))
+            );
             const res = await fetch("/api/admin/eval", { method: "POST", body: form });
             const data = await res.json();
             if (!data.ok) {
@@ -263,6 +300,7 @@ export default function EvalClient({ wording }: { wording: Wording }) {
                 return;
             }
             setResults((prev) => ({ ...prev, [image.id]: data.results as MethodResult[] }));
+            void refreshSummary();
         } catch (err) {
             setMessage(err instanceof Error ? err.message : t("admin.eval.runFailed"));
         } finally {
@@ -519,6 +557,70 @@ export default function EvalClient({ wording }: { wording: Wording }) {
             <p className="mt-2 text-xs text-muted">{t("admin.eval.costHint")}</p>
             {progress ? <p className="mt-2 text-sm font-medium">{progress}</p> : null}
             {message ? <p className="mt-2 text-sm font-medium text-danger">{message}</p> : null}
+
+            {summary && summary.runs > 0 ? (
+                <section className="mt-6">
+                    <h2 className="font-head text-2xl font-extrabold">
+                        {t("admin.eval.summaryTitle")}
+                    </h2>
+                    <p className="mt-1 text-xs text-muted">
+                        {t("admin.eval.summarySubtitle")}
+                    </p>
+                    <p className="mt-1 text-xs font-semibold">
+                        {fill(t("admin.eval.summaryScored"), {
+                            scored: summary.scored,
+                            runs: summary.runs,
+                        })}
+                    </p>
+                    <div className="mt-3 overflow-x-auto rounded-2xl border-2 border-line bg-card">
+                        <table className="w-full text-sm">
+                            <thead className="bg-surface text-left">
+                                <tr>
+                                    <th className="px-3 py-2">{t("admin.eval.col.method")}</th>
+                                    <th className="px-3 py-2">{t("admin.eval.col.cases")}</th>
+                                    <th className="px-3 py-2">{t("admin.eval.col.merchant")}</th>
+                                    <th className="px-3 py-2">{t("admin.eval.col.date")}</th>
+                                    <th className="px-3 py-2">{t("admin.eval.col.total")}</th>
+                                    <th className="px-3 py-2">{t("admin.eval.col.itemAmount")}</th>
+                                    <th className="px-3 py-2">{t("admin.eval.col.itemCount")}</th>
+                                    <th className="px-3 py-2 text-danger">
+                                        {t("admin.eval.col.wrongUnflagged")}
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {summary.rows.map((row) => (
+                                    <tr key={row.method} className="border-t border-line">
+                                        <td className="px-3 py-2 font-semibold">
+                                            {t(METHOD_LABEL_KEY[row.method])}
+                                        </td>
+                                        <td className="px-3 py-2">
+                                            {row.cases}
+                                            {row.failures > 0
+                                                ? ` (${row.failures} failed)`
+                                                : ""}
+                                        </td>
+                                        <td className="px-3 py-2">
+                                            {row.accuracy.merchant}
+                                        </td>
+                                        <td className="px-3 py-2">{row.accuracy.date}</td>
+                                        <td className="px-3 py-2">{row.accuracy.total}</td>
+                                        <td className="px-3 py-2">
+                                            {row.accuracy.itemAmount}
+                                        </td>
+                                        <td className="px-3 py-2">
+                                            {row.accuracy.itemCount}
+                                        </td>
+                                        <td className="px-3 py-2 font-semibold text-danger">
+                                            {row.wrongUnflagged}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            ) : null}
 
             <div className="mt-6 grid gap-6">
                 {images.map((image) => {

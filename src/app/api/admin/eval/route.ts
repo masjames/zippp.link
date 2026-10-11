@@ -1,4 +1,4 @@
-import { createHash } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
 import { currentUser } from "@/lib/auth";
 import { runExtraction } from "@/lib/extract-pipeline";
@@ -10,6 +10,8 @@ import {
     methodNeedsOcr,
     type ExtractMethodId,
 } from "@/lib/admin/methods";
+import { evalSummary, upsertRun } from "@/lib/admin/run-store";
+import type { EvalCase } from "@/lib/eval-score";
 import type { Receipt } from "@/types/receipt";
 
 export const runtime = "nodejs";
@@ -73,6 +75,14 @@ function errorText(err: unknown): string {
     return err instanceof Error ? err.message : "failed";
 }
 
+export async function GET() {
+    const user = await currentUser();
+    if (!user.admin) {
+        return NextResponse.json({ ok: false, error: "Not found." }, { status: 404 });
+    }
+    return NextResponse.json({ ok: true, summary: await evalSummary() });
+}
+
 export async function POST(req: Request) {
     const user = await currentUser();
     if (!user.admin) {
@@ -83,6 +93,7 @@ export async function POST(req: Request) {
     let action: string;
     let requestedMethods: string[];
     let exercise: Exercise;
+    let expected: EvalCase;
     try {
         const form = await req.formData();
         const image = form.get("image");
@@ -93,6 +104,7 @@ export async function POST(req: Request) {
         action = typeof form.get("action") === "string" ? String(form.get("action")) : "extract";
         requestedMethods = parseJsonField<string[]>(form.get("methods"), []);
         exercise = parseJsonField<Exercise>(form.get("exercise"), {});
+        expected = parseJsonField<EvalCase>(form.get("expected"), { file: image.name });
     } catch {
         return NextResponse.json({ ok: false, error: "Invalid request." }, { status: 400 });
     }
@@ -192,6 +204,26 @@ export async function POST(req: Request) {
                 ocrError,
             });
         }
+    }
+
+    // Persist the run so the page accumulates a set and can show a summary.
+    // Storing must never fail the run itself.
+    try {
+        await upsertRun({
+            id: randomUUID(),
+            at: Date.now(),
+            imageHash: hash,
+            file: file.name,
+            expected,
+            methods: results.map((result) => ({
+                method: result.method,
+                ok: result.ok,
+                error: result.error,
+                receipt: result.receipt,
+            })),
+        });
+    } catch {
+        /* ignore */
     }
 
     return NextResponse.json({ ok: true, results, ocrError });

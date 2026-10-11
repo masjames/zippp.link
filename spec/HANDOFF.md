@@ -216,7 +216,8 @@ score.
   scores, one OCR-aware vision retry, flagged review with tap to confirm.
 - **Eval (Phase 3 and the redesign)**: CLI harness and `/admin/eval` with four
   fixed methods, big zoomable photo, OCR text, Test OCR, one-tap winner, optional
-  expected values, Advanced drawer.
+  expected values, Advanced drawer. Runs are stored server-side and the page
+  shows a per-method set summary, so the whole loop works from the page alone.
 - **Speed (Phase 4)**: hedged OCR (`PADDLEOCR_HEDGE_MS`), per-stage timings.
 - **Improvement loop**: `/admin/eval` feedback, `/admin/lessons`,
   `/admin/releases`, GitHub change request, Telegram, optional deploy hook.

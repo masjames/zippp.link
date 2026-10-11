@@ -786,6 +786,26 @@ jumlah baris
 wrong+unflagged
 ## admin.eval.col.wrongUnflagged.id
 salah tanpa tanda
+## admin.eval.summaryTitle.en
+Set summary
+## admin.eval.summaryTitle.id
+Ringkasan set
+## admin.eval.summarySubtitle.en
+Accuracy across every stored run that has expected values. Compare methods on this, and on wrong and unflagged.
+## admin.eval.summarySubtitle.id
+Akurasi dari setiap run tersimpan yang punya nilai diharapkan. Bandingkan metode dengan ini, dan dengan salah tanpa tanda.
+## admin.eval.summaryScored.en
+{scored} of {runs} runs labeled
+## admin.eval.summaryScored.id
+{scored} dari {runs} run berlabel
+## admin.eval.col.method.en
+method
+## admin.eval.col.method.id
+metode
+## admin.eval.col.cases.en
+cases
+## admin.eval.col.cases.id
+kasus
 ## admin.eval.trace.en
 Trace
 ## admin.eval.trace.id
