@@ -10,23 +10,11 @@ import { fill, type T } from "@/lib/t";
 import { toDraft, type Draft } from "../draft";
 import { isSoftFlag } from "@/lib/verify-receipt";
 import type { BatchItem } from "@/lib/batch-db";
-import type { Workspace } from "../AppProvider";
 
 const INPUT =
     "w-full rounded-xl border-2 border-line bg-surface px-3 py-2 text-body focus:border-brand focus:outline-none";
-const INPUT_BAD =
-    "w-full rounded-xl border-2 border-danger bg-surface px-3 py-2 text-body focus:outline-none";
 const INPUT_ASSUMED =
     "w-full rounded-xl border-2 border-amber-400 bg-surface px-3 py-2 text-body focus:border-amber-500 focus:outline-none";
-
-/** Small "check this" hint shown under a flagged field. */
-function FlagHint({ t }: { t: T }) {
-    return (
-        <span className="text-xs font-medium text-amber-600">
-            {t("app.review.checkThis")}
-        </span>
-    );
-}
 
 /** Static portrait guide. The video frame itself is not overlayed. */
 function GuideFrame() {
@@ -50,12 +38,10 @@ export default function SnapScreen() {
         t,
         workspace,
         batch,
-        openId,
         autoSnap,
         setAutoSnap,
         autoCooldownUntil,
         addFile,
-        setOpen,
         updateDraft,
         acceptItem,
         removeItem,
@@ -79,16 +65,34 @@ export default function SnapScreen() {
     const [torchSupported, setTorchSupported] = useState(false);
     const [torchOn, setTorchOn] = useState(false);
 
-    const detection = useReceiptDetector(videoRef, mode === "live");
-    const outOfCredits = balance?.configured === true && balance.credits <= 0;
+    // The review overlay opens on a new capture and can be dismissed to snap more.
+    const [dismissed, setDismissed] = useState(false);
+    const prevCount = useRef(0);
 
     const accepted = batch.filter((item) => item.status === "accepted");
     const unaccepted = batch.filter((item) => item.status !== "accepted");
-    const currentId =
-        openId && unaccepted.some((i) => i.id === openId)
-            ? openId
-            : (unaccepted[0]?.id ?? null);
+    const current = unaccepted[0] ?? null;
     const readyToSend = accepted.length > 0 && unaccepted.length === 0;
+    const overlayOpen = unaccepted.length > 0 && !dismissed;
+    const outOfCredits = balance?.configured === true && balance.credits <= 0;
+
+    const detection = useReceiptDetector(videoRef, mode === "live" && !overlayOpen);
+
+    useEffect(() => {
+        if (batch.length > prevCount.current) setDismissed(false);
+        prevCount.current = batch.length;
+    }, [batch.length]);
+
+    /** Pause and fade the camera while a confirm card is open. */
+    useEffect(() => {
+        const video = videoRef.current;
+        if (!video) return;
+        if (overlayOpen) {
+            video.pause();
+        } else if (mode === "live") {
+            void video.play().catch(() => undefined);
+        }
+    }, [overlayOpen, mode]);
 
     function stopCamera() {
         streamRef.current?.getTracks().forEach((track) => track.stop());
@@ -98,7 +102,6 @@ export default function SnapScreen() {
         flashAuto.current = true;
     }
 
-    /** Torch (camera flash) is a track capability; unsupported on many browsers. */
     async function applyTorch(on: boolean) {
         const track = streamRef.current?.getVideoTracks()[0];
         if (!track) return;
@@ -129,8 +132,6 @@ export default function SnapScreen() {
         setMode("starting");
         try {
             const stream = await navigator.mediaDevices.getUserMedia({
-                // Ask for a high still resolution; ideal means a device that
-                // cannot do it still returns a usable stream.
                 video: {
                     facingMode: { ideal: "environment" },
                     width: { ideal: 3840 },
@@ -142,7 +143,6 @@ export default function SnapScreen() {
             const track = stream.getVideoTracks()[0];
             const caps = track?.getCapabilities?.() as { torch?: boolean } | undefined;
             setTorchSupported(Boolean(caps?.torch));
-            // Full-resolution stills where the browser supports ImageCapture.
             imageCaptureRef.current = null;
             const Ctor = (
                 globalThis as unknown as {
@@ -170,7 +170,6 @@ export default function SnapScreen() {
     }
 
     async function captureFrameBlob(): Promise<Blob | null> {
-        // A full-resolution still when available, else the current video frame.
         const capture = imageCaptureRef.current;
         if (capture) {
             try {
@@ -211,13 +210,10 @@ export default function SnapScreen() {
             void openCamera();
             return;
         }
-        // Blur is a hard block: a blurry frame never enters the batch. Manual
-        // capture stays available for everything else.
         if (!detection.sharp) return;
         void manualCapture();
     }
 
-    // Low light turns the torch on; bright turns it off. A manual tap wins.
     useEffect(() => {
         if (!torchSupported || !flashAuto.current || mode !== "live") return;
         const b = detection.brightness;
@@ -231,16 +227,12 @@ export default function SnapScreen() {
         }
     }, [detection.brightness, torchSupported, mode, torchOn]);
 
-    // Re-arm when the scene moves (the next receipt).
     useEffect(() => {
         if (!detection.steady) armed.current = true;
     }, [detection.steady]);
 
-    // Auto-capture: steady and sharp captures at once. The card appears
-    // immediately as "reading" and /api/extract decides. A not_a_receipt
-    // refusal drops the card and pauses auto-capture for a moment.
     useEffect(() => {
-        if (!autoSnap || mode !== "live" || outOfCredits) return;
+        if (!autoSnap || mode !== "live" || outOfCredits || overlayOpen) return;
         const { steady, sharp } = detection;
         if (!steady || !sharp) return;
         if (!armed.current) return;
@@ -251,7 +243,7 @@ export default function SnapScreen() {
             if (blob) addFile(fileFrom(blob), "auto");
         })();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [autoSnap, mode, detection, outOfCredits, autoCooldownUntil]);
+    }, [autoSnap, mode, detection, outOfCredits, autoCooldownUntil, overlayOpen]);
 
     function pick(files: FileList | null, fallback: boolean) {
         const file = files?.[0];
@@ -281,8 +273,8 @@ export default function SnapScreen() {
                             setVideoAspect(v.videoWidth / v.videoHeight);
                         }
                     }}
-                    className={`absolute inset-0 h-full w-full object-contain transition-opacity ${
-                        mode === "live" ? "opacity-100" : "opacity-0"
+                    className={`absolute inset-0 h-full w-full object-contain transition-opacity duration-300 ${
+                        mode === "live" && !overlayOpen ? "opacity-100" : "opacity-25"
                     }`}
                 />
                 {mode === "live" ? <GuideFrame /> : null}
@@ -354,70 +346,15 @@ export default function SnapScreen() {
                 </div>
             ) : null}
 
-            {batch.length > 0 ? (
-                <p className="text-center text-xs font-semibold text-ink">
-                    {fill(t("app.review.progress"), {
-                        done: accepted.length,
-                        total: batch.length,
-                    })}
-                </p>
+            {!overlayOpen && unaccepted.length > 0 ? (
+                <button
+                    type="button"
+                    onClick={() => setDismissed(false)}
+                    className="rounded-full bg-maroon px-4 py-2 text-sm font-semibold text-white"
+                >
+                    {fill(t("app.review.toReview"), { count: unaccepted.length })}
+                </button>
             ) : null}
-
-            <div className="grid gap-2">
-                {unaccepted.map((item) =>
-                    item.id === currentId ? (
-                        <ExpandedCard
-                            key={item.id}
-                            t={t}
-                            item={item}
-                            workspace={workspace}
-                            onChange={(draft) => updateDraft(item.id, draft)}
-                            onAccept={() => acceptItem(item.id)}
-                            onRetry={() => retryItem(item.id)}
-                            onContribute={() => contributeItem(item.id)}
-                            onRemove={() => removeItem(item.id)}
-                            onCollapse={() => {
-                                const others = unaccepted.filter((i) => i.id !== item.id);
-                                setOpen(others[0]?.id ?? null);
-                            }}
-                        />
-                    ) : (
-                        <div
-                            key={item.id}
-                            className="flex items-center gap-2 rounded-2xl bg-surface p-2"
-                        >
-                            <button
-                                type="button"
-                                onClick={() => setOpen(item.id)}
-                                className="flex min-w-0 flex-1 items-center gap-3 text-left"
-                            >
-                                {item.thumb ? (
-                                    // eslint-disable-next-line @next/next/no-img-element
-                                    <img src={item.thumb} alt="" className="h-10 w-10 flex-none rounded-lg object-cover" />
-                                ) : (
-                                    <span className="h-10 w-10 flex-none rounded-lg bg-card" aria-hidden />
-                                )}
-                                <span className="min-w-0 flex-1">
-                                    <span className="block truncate text-sm font-medium">
-                                        {item.receipt?.merchant ?? t("app.queue.ready")}
-                                    </span>
-                                    <span className="block text-xs text-muted">
-                                        {t("app.review.tapToEdit")}
-                                    </span>
-                                </span>
-                            </button>
-                            <button
-                                type="button"
-                                aria-label={t("app.queue.remove")}
-                                onClick={() => removeItem(item.id)}
-                                className="flex-none px-2 text-lg leading-none text-danger"
-                            >
-                                ×
-                            </button>
-                        </div>
-                    )
-                )}
-            </div>
 
             {readyToSend ? (
                 <button
@@ -429,107 +366,209 @@ export default function SnapScreen() {
                     {fill(t("app.review.sendAll"), { count: accepted.length })}
                 </button>
             ) : null}
+
+            {overlayOpen && current ? (
+                <ReviewOverlay
+                    t={t}
+                    current={current}
+                    stack={unaccepted}
+                    accepted={accepted.length}
+                    total={batch.length}
+                    readyToSend={readyToSend}
+                    sending={sending}
+                    onChange={(draft) => updateDraft(current.id, draft)}
+                    onAccept={() => acceptItem(current.id)}
+                    onRetry={() => retryItem(current.id)}
+                    onContribute={() => contributeItem(current.id)}
+                    onRemove={() => removeItem(current.id)}
+                    onCaptureMore={() => setDismissed(true)}
+                    onSend={() => void sendAll()}
+                />
+            ) : null}
         </PhoneShell>
     );
 }
 
-function ExpandedCard({
+function ReviewOverlay({
     t,
-    item,
-    workspace,
+    current,
+    stack,
+    accepted,
+    total,
+    readyToSend,
+    sending,
     onChange,
     onAccept,
     onRetry,
     onContribute,
     onRemove,
-    onCollapse,
+    onCaptureMore,
+    onSend,
 }: {
     t: T;
-    item: BatchItem;
-    workspace: Workspace | null;
+    current: BatchItem;
+    stack: BatchItem[];
+    accepted: number;
+    total: number;
+    readyToSend: boolean;
+    sending: boolean;
     onChange: (draft: Draft) => void;
     onAccept: () => void;
     onRetry: () => void;
     onContribute: () => void;
     onRemove: () => void;
-    onCollapse: () => void;
+    onCaptureMore: () => void;
+    onSend: () => void;
+}) {
+    return (
+        <div className="fixed inset-0 z-50 flex justify-center bg-black/70">
+            <div className="flex h-full w-full max-w-[430px] flex-col">
+                <div className="flex items-center justify-between gap-2 px-4 py-3 text-white">
+                    <button
+                        type="button"
+                        onClick={onCaptureMore}
+                        className="rounded-full bg-white/15 px-4 py-2 text-sm font-semibold"
+                    >
+                        ↓ {t("app.review.captureMore")}
+                    </button>
+                    <span className="text-xs">
+                        {fill(t("app.review.progress"), { done: accepted, total })}
+                    </span>
+                    {readyToSend ? (
+                        <button
+                            type="button"
+                            disabled={sending}
+                            onClick={onSend}
+                            className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-maroon disabled:opacity-60"
+                        >
+                            {fill(t("app.review.sendAll"), { count: accepted })}
+                        </button>
+                    ) : (
+                        <span className="w-12" />
+                    )}
+                </div>
+
+                <div className="flex flex-1 items-center justify-center px-4 pb-6">
+                    <div className="relative w-full">
+                        {stack.length > 2 ? (
+                            <div className="absolute inset-x-6 -top-4 h-8 rounded-t-3xl bg-white/15" aria-hidden />
+                        ) : null}
+                        {stack.length > 1 ? (
+                            <div className="absolute inset-x-3 -top-2 h-8 rounded-t-3xl bg-white/25" aria-hidden />
+                        ) : null}
+                        <div className="relative max-h-[78vh] overflow-y-auto rounded-3xl bg-card p-4 shadow-2xl">
+                            {current.status === "failed" ? (
+                                <FailedCard
+                                    t={t}
+                                    item={current}
+                                    onRetry={onRetry}
+                                    onContribute={onContribute}
+                                    onRemove={onRemove}
+                                />
+                            ) : current.draft ? (
+                                <ConfirmCard
+                                    t={t}
+                                    item={current}
+                                    onChange={onChange}
+                                    onAccept={onAccept}
+                                    onRemove={onRemove}
+                                />
+                            ) : (
+                                <p className="py-10 text-center text-sm text-muted">
+                                    {t("app.review.reading")}
+                                </p>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+function FailedCard({
+    t,
+    item,
+    onRetry,
+    onContribute,
+    onRemove,
+}: {
+    t: T;
+    item: BatchItem;
+    onRetry: () => void;
+    onContribute: () => void;
+    onRemove: () => void;
+}) {
+    const [contributeDismissed, setContributeDismissed] = useState(false);
+    return (
+        <div>
+            <p className="text-sm font-semibold text-danger">
+                {item.error ?? t("app.queue.failed")}
+            </p>
+            <div className="mt-3 flex gap-2">
+                <button type="button" onClick={onRetry}
+                    className="rounded-full bg-maroon px-4 py-2 text-sm font-semibold text-white">
+                    {t("app.queue.retry")}
+                </button>
+                <button type="button" onClick={onRemove}
+                    className="rounded-full bg-mist px-4 py-2 text-sm font-semibold text-ink">
+                    {t("app.review.delete")}
+                </button>
+            </div>
+            {item.contributed ? (
+                <p className="mt-3 text-xs font-medium text-green-700">
+                    {t("app.contribute.thanks")}
+                </p>
+            ) : contributeDismissed ? null : (
+                <div className="mt-3 rounded-xl border-2 border-line p-3">
+                    <p className="text-xs font-semibold">{t("app.contribute.title")}</p>
+                    <p className="mt-1 text-xs text-muted">{t("app.contribute.body")}</p>
+                    <div className="mt-2 flex gap-2">
+                        <button type="button" onClick={onContribute}
+                            className="rounded-full bg-btn px-3 py-1 text-xs font-semibold text-btntext">
+                            {t("app.contribute.yes")}
+                        </button>
+                        <button type="button" onClick={() => setContributeDismissed(true)}
+                            className="rounded-full bg-mist px-3 py-1 text-xs font-semibold text-ink">
+                            {t("app.contribute.no")}
+                        </button>
+                    </div>
+                </div>
+            )}
+            <DebugPanel debug={item.debug} />
+        </div>
+    );
+}
+
+/** Minimal confirm card: store, date, items, total. Accept or Delete. */
+function ConfirmCard({
+    t,
+    item,
+    onChange,
+    onAccept,
+    onRemove,
+}: {
+    t: T;
+    item: BatchItem;
+    onChange: (draft: Draft) => void;
+    onAccept: () => void;
+    onRemove: () => void;
 }) {
     const draft = item.draft ?? (item.receipt ? toDraft(item.receipt) : null);
     const [showErrors, setShowErrors] = useState(false);
-    const [contributeDismissed, setContributeDismissed] = useState(false);
-
-    if (item.status === "failed") {
-        return (
-            <div className="rounded-2xl bg-surface p-3">
-                <p className="text-sm font-semibold text-danger">
-                    {item.error ?? t("app.queue.failed")}
-                </p>
-                <div className="mt-2 flex gap-2">
-                    <button type="button" onClick={onRetry}
-                        className="rounded-full bg-maroon px-4 py-2 text-sm font-semibold text-white">
-                        {t("app.queue.retry")}
-                    </button>
-                    <button type="button" onClick={onRemove}
-                        className="rounded-full bg-mist px-4 py-2 text-sm font-semibold text-ink">
-                        {t("app.queue.remove")}
-                    </button>
-                </div>
-                {item.contributed ? (
-                    <p className="mt-2 text-xs font-medium text-green-700">
-                        {t("app.contribute.thanks")}
-                    </p>
-                ) : contributeDismissed ? null : (
-                    <div className="mt-3 rounded-xl border-2 border-line p-3">
-                        <p className="text-xs font-semibold">
-                            {t("app.contribute.title")}
-                        </p>
-                        <p className="mt-1 text-xs text-muted">
-                            {t("app.contribute.body")}
-                        </p>
-                        <div className="mt-2 flex gap-2">
-                            <button type="button" onClick={onContribute}
-                                className="rounded-full bg-btn px-3 py-1 text-xs font-semibold text-btntext">
-                                {t("app.contribute.yes")}
-                            </button>
-                            <button type="button" onClick={() => setContributeDismissed(true)}
-                                className="rounded-full bg-mist px-3 py-1 text-xs font-semibold text-ink">
-                                {t("app.contribute.no")}
-                            </button>
-                        </div>
-                    </div>
-                )}
-                <DebugPanel debug={item.debug} />
-            </div>
-        );
-    }
-
-    if (!draft) {
-        return (
-            <div className="rounded-2xl bg-surface p-3 text-sm text-muted">
-                {t("app.queue.reading")}
-            </div>
-        );
-    }
-
+    if (!draft) return null;
     const d: Draft = draft;
-    // Staff is optional. The essentials are an item and a price. A date that
-    // was not read is assumed from the capture time and flagged for a check.
-    const requireOutlet = (workspace?.outlets?.length ?? 0) > 1;
-    const outletMissing = requireOutlet && d.outlet.trim() === "";
+
     const noLines = !d.lines.some((l) => l.description.trim() || l.amount.trim());
     const noPrice =
         !d.lines.some((l) => l.amount.trim() !== "") && d.total.trim() === "";
 
-    // Verification flags. Every flagged field must be tapped before Accept.
     const flagged = d.flagged ?? [];
     const reviewed = d.reviewed ?? [];
     const flagByPath = new Map(
         (item.receipt?.flags ?? []).map((flag) => [flag.path, flag])
     );
     const pending = flagged.filter((path) => !reviewed.includes(path));
-    // Soft flags (low confidence, a row mismatch that is grounded elsewhere) are
-    // shown but do not block Accept. Hard flags do. An assumed date has no reason
-    // on the receipt, so it counts as hard.
     const isSoft = (path: string) => isSoftFlag(flagByPath.get(path)?.reason);
     const pendingHard = pending.filter((path) => !isSoft(path));
 
@@ -572,107 +611,73 @@ function ExpandedCard({
         }
         return path;
     }
-    function flagReason(path: string): string {
-        const reason = flagByPath.get(path)?.reason;
-        switch (reason) {
-            case "not_in_ocr":
-                return t("app.review.flagNotInOcr");
-            case "row_mismatch":
-                return t("app.review.flagRowMismatch");
-            case "low_confidence":
-                return t("app.review.flagLowConfidence");
-            case "arithmetic":
-                return t("app.review.flagArithmetic");
-            case "missing":
-                return t("app.review.flagMissing");
-            case "ungrounded":
-                return t("app.review.flagUngrounded");
-            default:
-                return t("app.review.checkThis");
-        }
-    }
     function tryAccept() {
         setShowErrors(true);
-        if (outletMissing || noLines || noPrice || pendingHard.length > 0) return;
+        if (noLines || noPrice || pendingHard.length > 0) return;
         onAccept();
     }
 
     return (
-        <div className="rounded-2xl bg-card p-3">
-            <p className="mb-2 text-xs font-semibold text-muted">
-                {t("app.review.tapToEdit")}
-            </p>
+        <div>
+            <input
+                value={d.merchant}
+                onFocus={() => review("merchant")}
+                onChange={(e) => patch({ merchant: e.target.value })}
+                placeholder={t("app.check.merchantFallback")}
+                className={`${fieldClass("merchant")} font-head text-xl font-extrabold`}
+            />
 
-            <div className="mb-2 grid gap-1">
-                <input
-                    value={draft.merchant}
-                    onFocus={() => review("merchant")}
-                    onChange={(e) => patch({ merchant: e.target.value })}
-                    placeholder={t("app.check.merchantFallback")}
-                    className={`${fieldClass("merchant")} font-head text-xl font-extrabold`}
-                />
-                {isPending("merchant") ? <FlagHint t={t} /> : null}
-            </div>
-
-            <div className="grid grid-cols-2 gap-2">
-                <label className="grid gap-1">
+            <div className="mt-2 flex flex-wrap gap-2">
+                <label className="grid flex-1 gap-1">
                     <span className="text-xs font-semibold">{t("app.check.date")}</span>
                     <input
-                        value={draft.date}
+                        value={d.date}
                         onFocus={() => review("date")}
-                        onChange={(e) =>
-                            patch({ date: e.target.value, dateAssumed: false })
-                        }
+                        onChange={(e) => patch({ date: e.target.value, dateAssumed: false })}
                         placeholder="dd/mm/yyyy"
-                        className={
-                            isPending("date") || d.dateAssumed
-                                ? INPUT_ASSUMED
-                                : INPUT
-                        }
+                        className={isPending("date") || d.dateAssumed ? INPUT_ASSUMED : INPUT}
                     />
-                    {d.dateAssumed ? (
-                        <span className="text-xs font-medium text-amber-600">
-                            {t("app.review.dateAssumed")}
-                        </span>
-                    ) : null}
                 </label>
                 <label className="grid gap-1">
-                    <span className="text-xs font-semibold">
-                        {t("app.check.staff")} ({t("app.check.optional")})
-                    </span>
-                    <input value={draft.staff} onChange={(e) => patch({ staff: e.target.value })}
-                        className={INPUT} />
+                    <span className="text-xs font-semibold">{t("app.check.total")}</span>
+                    <input
+                        value={d.total}
+                        onFocus={() => review("total")}
+                        onChange={(e) => patch({ total: e.target.value })}
+                        inputMode="decimal"
+                        className={`${fieldClass("total")} w-36 text-right font-extrabold tabular-money`}
+                    />
                 </label>
             </div>
 
-            <label className="mt-2 grid gap-1">
-                <span className="text-xs font-semibold">
-                    {t("app.check.outlet")} ({t("app.check.optional")})
-                </span>
-                <input value={draft.outlet} onChange={(e) => patch({ outlet: e.target.value })}
-                    className={showErrors && outletMissing ? INPUT_BAD : INPUT} />
-            </label>
-
             <div className="mt-2 grid gap-2">
-                {draft.lines.map((line, i) => {
+                {d.lines.map((line, i) => {
                     const qtyPath = `line_items[${i}].qty`;
                     const amountPath = `line_items[${i}].amount`;
                     return (
-                        <div key={i} className="grid gap-2 rounded-xl border-2 border-line p-2">
-                            <input value={line.description} onChange={(e) => patchLine(i, { description: e.target.value })}
-                                placeholder={t("app.check.item")} className={INPUT} />
-                            <div className="flex gap-2">
-                                <input value={line.qty} onFocus={() => review(qtyPath)}
-                                    onChange={(e) => patchLine(i, { qty: e.target.value })}
-                                    placeholder={t("app.check.qty")} inputMode="decimal"
-                                    className={`${fieldClass(qtyPath)} w-20`} />
-                                <input value={line.amount} onFocus={() => review(amountPath)}
-                                    onChange={(e) => patchLine(i, { amount: e.target.value })}
-                                    placeholder={t("app.check.amt")} inputMode="decimal"
-                                    className={`${fieldClass(amountPath)} flex-1 text-right tabular-money`} />
-                            </div>
-                            {isPending(qtyPath) ? <FlagHint t={t} /> : null}
-                            {isPending(amountPath) ? <FlagHint t={t} /> : null}
+                        <div key={i} className="flex items-center gap-2 rounded-xl border-2 border-line p-2">
+                            <input
+                                value={line.description}
+                                onChange={(e) => patchLine(i, { description: e.target.value })}
+                                placeholder={t("app.check.item")}
+                                className={`${INPUT} min-w-0 flex-1`}
+                            />
+                            <input
+                                value={line.qty}
+                                onFocus={() => review(qtyPath)}
+                                onChange={(e) => patchLine(i, { qty: e.target.value })}
+                                placeholder={t("app.check.qty")}
+                                inputMode="decimal"
+                                className={`${fieldClass(qtyPath)} w-14 text-center`}
+                            />
+                            <input
+                                value={line.amount}
+                                onFocus={() => review(amountPath)}
+                                onChange={(e) => patchLine(i, { amount: e.target.value })}
+                                placeholder={t("app.check.amt")}
+                                inputMode="decimal"
+                                className={`${fieldClass(amountPath)} w-24 text-right tabular-money`}
+                            />
                         </div>
                     );
                 })}
@@ -684,32 +689,20 @@ function ExpandedCard({
                 ) : null}
             </div>
 
-            <label className="mt-2 grid gap-1">
-                <span className="text-xs font-semibold">{t("app.check.total")}</span>
-                <input value={draft.total} onFocus={() => review("total")}
-                    onChange={(e) => patch({ total: e.target.value })}
-                    inputMode="decimal"
-                    className={`${fieldClass("total")} w-32 text-right font-extrabold tabular-money`} />
-                {isPending("total") ? <FlagHint t={t} /> : null}
-            </label>
-
             {pending.length > 0 ? (
                 <div className="mt-3 rounded-xl border-2 border-amber-400 bg-amber-50 p-2">
                     <p className="text-xs font-semibold text-amber-700">
                         {t("app.review.flagsTitle")}
                     </p>
-                    <ul className="mt-1 grid gap-1">
+                    <ul className="mt-1 flex flex-wrap gap-1">
                         {pending.map((path) => (
                             <li key={path}>
                                 <button
                                     type="button"
                                     onClick={() => review(path)}
-                                    className="w-full rounded-lg bg-white px-2 py-1 text-left text-xs"
+                                    className="rounded-full bg-white px-2 py-1 text-left text-xs"
                                 >
-                                    <span className="font-semibold text-ink">
-                                        {flagLabel(path)}
-                                    </span>
-                                    <span className="text-muted"> · {flagReason(path)}</span>
+                                    <span className="font-semibold text-ink">{flagLabel(path)}</span>
                                     <span className="ml-1 font-semibold text-amber-700">
                                         {isSoft(path)
                                             ? t("app.review.softFlag")
@@ -723,22 +716,22 @@ function ExpandedCard({
             ) : null}
 
             <div className="mt-3 flex gap-2">
-                <button type="button" onClick={tryAccept} disabled={pendingHard.length > 0}
-                    className="flex-1 rounded-full bg-maroon px-4 py-3 font-semibold text-white disabled:opacity-60">
+                <button
+                    type="button"
+                    onClick={tryAccept}
+                    disabled={pendingHard.length > 0}
+                    className="flex-1 rounded-full bg-maroon px-4 py-3 font-semibold text-white disabled:opacity-60"
+                >
                     {t("app.review.accept")}
                 </button>
-                <button type="button" onClick={onCollapse}
-                    className="rounded-full bg-mist px-4 py-3 font-semibold text-ink">
-                    {t("app.review.edit")}
+                <button
+                    type="button"
+                    onClick={onRemove}
+                    className="rounded-full border-2 border-line px-4 py-3 font-semibold text-danger"
+                >
+                    {t("app.review.delete")}
                 </button>
             </div>
-            <button
-                type="button"
-                onClick={onRemove}
-                className="mt-2 w-full rounded-full border-2 border-line px-4 py-2 text-sm font-semibold text-danger"
-            >
-                {t("app.queue.remove")}
-            </button>
             <DebugPanel debug={item.debug} />
         </div>
     );

@@ -293,6 +293,22 @@ hanya tampil
 must check
 ## app.review.hardFlag.id
 wajib diperiksa
+## app.review.captureMore.en
+Capture more
+## app.review.captureMore.id
+Foto lagi
+## app.review.toReview.en
+{count} to review
+## app.review.toReview.id
+{count} untuk diperiksa
+## app.review.reading.en
+Reading...
+## app.review.reading.id
+Membaca...
+## app.review.delete.en
+Delete
+## app.review.delete.id
+Hapus
 ## app.review.checkThis.en
 Check this
 ## app.review.checkThis.id
