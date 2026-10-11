@@ -65,7 +65,7 @@ spec/                    all specs (this file is the index of record)
 
 `EXTRACT_PROVIDER`, `PADDLEOCR_AISTUDIO_TOKEN`, `PADDLEOCR_MODEL=PP-OCRv6`,
 `PADDLEOCR_BASE_URL`, `PADDLEOCR_TIMEOUT_MS`, `PADDLEOCR_HEDGE_MS`,
-`DEEPSEEK_API_KEY`,
+`VISION_RETRY_HARD_MIN`, `DEEPSEEK_API_KEY`,
 `DEEPSEEK_MODEL=deepseek-flash`, `DEEPSEEK_BASE_URL`, `DEEPSEEK_MAX_TOKENS`,
 `GEMINI_API_KEY`, `GOOGLE_CLIENT_ID/SECRET/REDIRECT_URI`, `TOKEN_ENCRYPTION_KEY`,
 `BLOB_READ_WRITE_TOKEN`, `UPSTASH_REDIS_REST_URL/TOKEN`, `ADMIN_EMAILS`,
@@ -102,8 +102,10 @@ response and shown in the app's Debug panel.
 4. **Verifier** (`src/lib/verify-receipt.ts`, deterministic): grounds every
    amount, qty, total, date and the merchant in the OCR tokens. An ungrounded
    value becomes `null` and gets a flag; row mismatches, low OCR scores and
-   arithmetic mismatches get flags. When the result fails badly, one vision
-   re-read with the OCR text is allowed, taken only if it passes cleanly.
+   arithmetic mismatches get flags. When the result fails badly, or carries
+   `VISION_RETRY_HARD_MIN` (default 3) hard flags, one vision re-read with the
+   OCR text is taken and the cleaner result wins. Both reads are grounded
+   against the OCR text, so this compares two grounded reads.
 5. **Essentials gate** (`hasEssentials` in the pipeline): a non-refusal result
    without **an item and a price** throws → falls through to DeepSeek vision.
    A missing date is not fatal: the capture date is filled in and marked assumed.

@@ -63,7 +63,9 @@ photo → PP-OCRv6 (Baidu AI Studio) → indexed rows → DeepSeek Flash → ver
   answered within `PADDLEOCR_HEDGE_MS` (default 5000), the vision leg starts in
   parallel and the first result that passes the verifier is used. A `method`
   option runs exactly one method for the admin eval, with no fallback, hedge,
-  retry, or essentials gate.
+  retry, or essentials gate. If the OCR-structured result carries several hard
+  flags (`VISION_RETRY_HARD_MIN`, default 3), one vision re-read with the OCR
+  text is taken and the cleaner result wins.
 - Timeouts are env-tunable (`PADDLEOCR_TIMEOUT_MS`, `DEEPSEEK_TIMEOUT_MS`,
   `GEMINI_TIMEOUT_MS`).
 

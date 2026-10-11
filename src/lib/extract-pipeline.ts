@@ -7,6 +7,7 @@ import {
     OCR_FORMAT,
     PADDLEOCR_HEDGE_MS,
     PADDLEOCR_MODEL,
+    VISION_RETRY_HARD_MIN,
     type ExtractProvider,
 } from "./config";
 import {
@@ -19,7 +20,12 @@ import type { ExtractMethodId } from "./admin/methods";
 import { stripJsonFences } from "./json";
 import { compactOcrMarkdown } from "./ocr-compact";
 import { PaddleOcrError, runPaddleOcr, type PaddleOcrResult } from "./paddleocr";
-import { verifyReceipt, type OcrGrounding, type VerifyResult } from "./verify-receipt";
+import {
+    hardFlagCount,
+    verifyReceipt,
+    type OcrGrounding,
+    type VerifyResult,
+} from "./verify-receipt";
 import type {
     ExtractDebug,
     ExtractStage,
@@ -55,6 +61,8 @@ export type ExtractOptions = {
     hedgeMs?: number;
     precomputedOcr?: PaddleOcrResult;
     forceVisionRetry?: boolean;
+    /** Hard-flag count at which the production vision retry fires. 0 disables. */
+    visionRetryHardMin?: number;
     /** Run exactly one method: no fallback, no hedge, no vision retry. */
     method?: ExtractMethodId;
 };
@@ -159,6 +167,8 @@ export async function runExtraction(
     const geminiModel = options.geminiModel ?? GEMINI_MODEL;
     const method = options.method;
     const hedgeMs = method ? 0 : (options.hedgeMs ?? PADDLEOCR_HEDGE_MS);
+    const visionRetryHardMin =
+        options.visionRetryHardMin ?? VISION_RETRY_HARD_MIN;
     const precomputedOcr = options.precomputedOcr;
     const forceVisionRetry = method ? false : options.forceVisionRetry === true;
 
@@ -181,6 +191,7 @@ export async function runExtraction(
     let hedgeFired = false;
     let hedgeWinner: "ocr" | "vision-hedge" | null = null;
     let ocrMs: number | null = null;
+    let visionRetryReason: string | null = null;
 
     // Hedged vision: if PaddleOCR is slow, the vision leg starts in parallel and
     // is verified against the OCR text once it arrives. The first result that
@@ -412,11 +423,24 @@ export async function runExtraction(
         let result = verifyReceipt(parsed, grounding);
         pushVerifyStage(result, stageName);
 
-        // Fails badly: allow one vision re-read that can see the OCR text too.
-        if (
-            !method &&
-            (forceVisionRetry || result.retry || !hasEssentials(result.receipt))
-        ) {
+        // Fails badly, or carries several hard flags: allow one vision re-read
+        // that can see the OCR text too, and keep whichever result is cleaner.
+        // Both reads are grounded against the OCR text, so this compares two
+        // grounded results rather than trusting an unverified one.
+        const hardCount = hardFlagCount(result.flags);
+        const needsEssentials = !hasEssentials(result.receipt);
+        const shouldRetryVision =
+            result.retry ||
+            needsEssentials ||
+            (visionRetryHardMin > 0 && hardCount >= visionRetryHardMin);
+        if (!method && (forceVisionRetry || shouldRetryVision)) {
+            visionRetryReason = forceVisionRetry
+                ? "forced"
+                : result.retry
+                  ? "core_fields"
+                  : needsEssentials
+                    ? "essentials"
+                    : `hard_flags:${hardCount}`;
             try {
                 const retry = await visionRetry(numbered, grounding, result);
                 if (retry) {
@@ -558,6 +582,10 @@ export async function runExtraction(
             stages,
             stageMs: buildStageMs(),
             hedge: { fired: hedgeFired, winner: hedgeWinner, ocrMs },
+            visionRetry: {
+                triggered: visionRetryReason !== null,
+                reason: visionRetryReason,
+            },
             flags: verified?.flags,
             ocrTokens,
             markdownPreview,
@@ -582,6 +610,7 @@ export async function runExtraction(
                 hedge_fired: hedgeFired,
                 hedge_winner: hedgeWinner,
                 ocr_ms: ocrMs,
+                vision_retry_reason: visionRetryReason,
                 flags: verified?.flags.length ?? 0,
                 total_ms: Date.now() - started,
                 stages,
