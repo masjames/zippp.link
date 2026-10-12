@@ -425,9 +425,9 @@ Could not send. Check your connection and try again.
 ## app.check.sendErr.id
 Gagal mengirim. Periksa koneksi dan coba lagi.
 ## app.check.merchantFallback.en
-Receipt
+Store name
 ## app.check.merchantFallback.id
-Resi
+Nama toko
 
 ## app.sheets.checking.en
 Looking for your sheet…
