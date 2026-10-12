@@ -135,9 +135,10 @@ the Debug panel.
   `sharp`; **frame-to-frame luma diff** for `steady` (`MOTION_MAX=8`,
   `STEADY_FRAMES=6`); mean luma for `brightness`.
 - Shutter: the viewfinder itself (tap the preview; no separate button). A
-  capture is grabbed from the preview into a ~4 MP canvas (JPEG 0.85) and encoded
-  once; `prepareImage` produces the stored blob and thumb from one decode. The
-  camera opens with soft constraints (1920 ideal) so older phones start fast.
+  capture is drawn from the preview into a ~3 MP canvas (JPEG 0.72); the thumb
+  comes from the same canvas, so there is no second decode. The viewfinder is a
+  small box until the camera is live. The camera opens with soft constraints
+  (1920 ideal) so older phones start fast.
 - Auto-capture: `autoSnap && steady && sharp` captures at once, adds the card as
   `reading`, and **`/api/extract`** decides. A `not_a_receipt` refusal drops the
   card silently and pauses auto-capture for 2.5s. Re-arms when the scene moves.
@@ -213,7 +214,7 @@ score.
 
 ### Done
 - **Capture (Phase 1)**: native-aspect preview, static 9:16 guide,
-  viewfinder-tap shutter, preview grabs at a ~4 MP budget, `/api/detect`
+  viewfinder-tap shutter, preview grabs at a ~3 MP budget, `/api/detect`
   removed, capture into a reading card, 2.5s refusal cooldown, blur hard block,
   3 concurrent reads.
 - **Verifier (Phase 2)**: deterministic grounding, flags, row indices, OCR

@@ -33,9 +33,9 @@ const INPUT = `${INPUT_BASE} w-full border-line focus:border-brand`;
 const INPUT_ASSUMED = `${INPUT_BASE} w-full border-amber-400 focus:border-amber-500`;
 const INPUT_INLINE = `${INPUT_BASE} border-line focus:border-brand`;
 
-/** Stored captures stay within this budget, matching REVISION-1 (~4 MP). */
-const CAPTURE_MAX_PIXELS = 4_000_000;
-const CAPTURE_QUALITY = 0.85;
+/** Stored captures stay within this budget. Smaller means a faster encode. */
+const CAPTURE_MAX_PIXELS = 3_000_000;
+const CAPTURE_QUALITY = 0.72;
 
 /** Static portrait guide. The video frame itself is not overlayed. */
 function GuideFrame() {
@@ -63,6 +63,7 @@ export default function SnapScreen() {
         setAutoSnap,
         autoCooldownUntil,
         addFile,
+        addBlob,
         updateDraft,
         acceptItem,
         removeItem,
@@ -192,7 +193,7 @@ export default function SnapScreen() {
         }
     }
 
-    async function captureFrameBlob(): Promise<Blob | null> {
+    async function captureFrame(): Promise<{ blob: Blob; thumb: string } | null> {
         const video = videoRef.current;
         if (!video || !video.videoWidth || !video.videoHeight) return null;
         const vw = video.videoWidth;
@@ -208,15 +209,32 @@ export default function SnapScreen() {
         // One draw, one encode. ImageCapture.takePhoto() was the slow path: it
         // grabbed a full-sensor frame that then had to be decoded and resized.
         ctx.drawImage(video, 0, 0, width, height);
-        return new Promise((resolve) =>
+
+        // Thumbnail from the same canvas, so there is no second decode.
+        const thumbSize = 96;
+        const tcanvas = document.createElement("canvas");
+        tcanvas.width = thumbSize;
+        tcanvas.height = thumbSize;
+        const tctx = tcanvas.getContext("2d");
+        let thumb = "";
+        if (tctx) {
+            const s = Math.max(thumbSize / width, thumbSize / height);
+            const tw = width * s;
+            const th = height * s;
+            tctx.drawImage(
+                canvas,
+                (thumbSize - tw) / 2,
+                (thumbSize - th) / 2,
+                tw,
+                th
+            );
+            thumb = tcanvas.toDataURL("image/jpeg", 0.6);
+        }
+
+        const blob = await new Promise<Blob | null>((resolve) =>
             canvas.toBlob((b) => resolve(b), "image/jpeg", CAPTURE_QUALITY)
         );
-    }
-
-    function fileFrom(blob: Blob): File {
-        const type = blob.type || "image/jpeg";
-        const ext = type.includes("png") ? "png" : "jpg";
-        return new File([blob], `receipt-${Date.now()}.${ext}`, { type });
+        return blob ? { blob, thumb } : null;
     }
 
     async function manualCapture() {
@@ -228,8 +246,8 @@ export default function SnapScreen() {
             setFlash(false);
             flashTimer.current = null;
         }, 160);
-        const blob = await captureFrameBlob();
-        if (blob) addFile(fileFrom(blob), "manual");
+        const shot = await captureFrame();
+        if (shot) addBlob(shot.blob, shot.thumb, "manual");
     }
 
     function shutter() {
@@ -267,8 +285,8 @@ export default function SnapScreen() {
         if (Date.now() < autoCooldownUntil) return;
         armed.current = false;
         void (async () => {
-            const blob = await captureFrameBlob();
-            if (blob) addFile(fileFrom(blob), "auto");
+            const shot = await captureFrame();
+            if (shot) addBlob(shot.blob, shot.thumb, "auto");
         })();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [autoSnap, mode, detection, outOfCredits, autoCooldownUntil, overlayOpen]);
@@ -282,8 +300,10 @@ export default function SnapScreen() {
     return (
         <PhoneShell tone="brand" pill={workspace?.spreadsheet_title}>
             <div
-                className="relative w-full flex-none overflow-hidden rounded-panel bg-[#2a1410] text-center text-peach"
-                style={{ aspectRatio: String(videoAspect) }}
+                className={`relative w-full flex-none overflow-hidden rounded-panel bg-[#2a1410] text-center text-peach ${
+                    mode === "live" ? "" : "h-24"
+                }`}
+                style={mode === "live" ? { aspectRatio: String(videoAspect) } : undefined}
             >
                 <video
                     ref={videoRef}

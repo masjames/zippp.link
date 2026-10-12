@@ -44,10 +44,13 @@ camera (auto-snap on) → item queued → extract → review card → Accept
   shows "Blurry. Hold steady." The captured frame is re-checked before it is
   stored; a blurry frame never enters the batch. No override.
 - **Fast path.** The camera opens with soft constraints (1920 ideal, not 4K). A
-  capture is grabbed straight from the preview into a ~4 MP canvas and encoded
-  once (JPEG 0.85); the stored blob and the thumbnail come from one decode
-  (`prepareImage`). The detector reuses its buffers and only pushes state when
+  capture is drawn straight from the preview into a ~3 MP canvas and encoded once
+  (JPEG 0.72); the thumbnail comes from that same canvas, so the camera path has
+  no second decode. The card is added optimistically and persisted in the
+  background. The detector reuses its buffers and only pushes state when
   sharp/steady/brightness change, so the screen does not re-render ~12x/second.
+- **Small until live.** The viewfinder is a small box until the camera is live,
+  then it takes the full frame.
 
 ## 3. Review (one page, accordion)
 

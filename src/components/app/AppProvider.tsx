@@ -91,6 +91,8 @@ type Value = {
     /** Epoch ms until which auto-capture pauses after a not_a_receipt refusal. */
     autoCooldownUntil: number;
     addFile: (file: File, source?: CaptureSource) => void;
+    /** Add an already-prepared capture: no decode, card shows at once. */
+    addBlob: (blob: Blob, thumb: string, source?: CaptureSource) => void;
     setOpen: (id: string | null) => void;
     updateDraft: (id: string, draft: BatchItem["draft"]) => void;
     acceptItem: (id: string) => void;
@@ -310,21 +312,31 @@ export default function AppProvider({
         }
     }
 
-    function addFile(file: File, source: CaptureSource = "manual") {
+    /** Add a capture whose image and thumb are already built (camera path). */
+    function addBlob(
+        blob: Blob,
+        thumb: string,
+        source: CaptureSource = "manual"
+    ) {
         const id = crypto.randomUUID();
         const createdAt = Date.now();
+        const item: BatchItem = {
+            id,
+            createdAt,
+            blob,
+            thumb,
+            status: "queued",
+            source,
+        };
+        // Show the card first; persist in the background.
+        setBatch((items) => [item, ...items]);
+        void putItem(item);
+    }
+
+    function addFile(file: File, source: CaptureSource = "manual") {
         void (async () => {
             const { blob, thumb } = await prepareImage(file);
-            const item: BatchItem = {
-                id,
-                createdAt,
-                blob,
-                thumb,
-                status: "queued",
-                source,
-            };
-            await putItem(item);
-            setBatch((items) => [item, ...items]);
+            addBlob(blob, thumb, source);
         })();
     }
 
@@ -672,6 +684,7 @@ export default function AppProvider({
         setAutoSnap,
         autoCooldownUntil,
         addFile,
+        addBlob,
         setOpen,
         updateDraft,
         acceptItem,
