@@ -39,8 +39,9 @@ learn ours. The job is append + one map, not a second general ledger.
 ### Must
 
 1. Google OAuth only. Scopes: `spreadsheets` + `drive.file`. No Gmail.
-2. Connect one spreadsheet + one tab per workspace. Find or create a `[zippp]`
-   spreadsheet; never paste a URL. (`resto-inventory` only, for now.)
+2. Connect one spreadsheet + one tab per workspace. Find a `[zippp]`
+   spreadsheet, or create one from a template. Never create silently, never
+   paste a URL.
 3. Read row 1 as headers; map mill/op fields; save constants (e.g. Category).
 4. **Extract**: PP-OCRv6 (vision) reconstructs text rows; DeepSeek Flash
    structures them into JSON (EN+ID, null not invented). DeepSeek vision is the

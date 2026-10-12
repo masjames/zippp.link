@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import {
-  createRestoInventorySpreadsheet,
   createTemplateSpreadsheet,
   findZippSpreadsheets,
   getHeaderRow,
@@ -24,8 +23,11 @@ export const runtime = "nodejs";
 type ConnectBody = {
   /** When set, connect this spreadsheet (user picked from candidates). */
   spreadsheetId?: string;
-  /** "create" force-creates a new sheet; "list" returns the choices. */
-  mode?: "create" | "list";
+  /**
+   * "find" (default) only finds; "create" makes a new sheet; "list" returns
+   * the choices. Find never creates.
+   */
+  mode?: "find" | "create" | "list";
   /** Template for a newly created sheet (mode "create"). */
   templateId?: TemplateId;
 };
@@ -154,7 +156,8 @@ export async function POST(req: Request) {
       });
     }
 
-    // Find-or-create: search Drive for name containing [zippp].
+    // Find an existing `[zippp]` sheet. This branch never creates one; the
+    // client asks the user to create a new sheet or connect an existing one.
     const hits = await findZippSpreadsheets();
     const pick = pickBestZippSheet(hits);
 
@@ -180,23 +183,8 @@ export async function POST(req: Request) {
       });
     }
 
-    // None found → create `[zippp] Resto inventory` with resto headers.
-    const { meta, sheetTab, headers } =
-      await createRestoInventorySpreadsheet();
-    const result = await persistConnection({
-      googleUserId,
-      spreadsheetId: meta.spreadsheetId,
-      title: meta.title,
-      sheetTab,
-      headers,
-      created: true,
-    });
-
-    return NextResponse.json({
-      ok: true,
-      created: true,
-      workspace: result.workspace,
-    });
+    // Nothing found. The client shows the setup choice.
+    return NextResponse.json({ ok: true, none: true, candidates: [] });
   } catch (err) {
     if (err instanceof SheetsAuthError) {
       return NextResponse.json(

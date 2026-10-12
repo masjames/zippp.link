@@ -470,10 +470,10 @@ Scan another receipt
 ## app.sent.again.id
 Scan resi lain
 
-## app.sheets.connecting.en
-Preparing your sheet…
-## app.sheets.connecting.id
-Menyiapkan sheet Anda…
+## app.sheets.checking.en
+Looking for your sheet…
+## app.sheets.checking.id
+Mencari sheet Anda…
 ## app.sheets.title.en
 Choose a [zippp] sheet
 ## app.sheets.title.id
@@ -1222,10 +1222,42 @@ Pilih sheet
 Create a new sheet
 ## app.sheets.create.id
 Buat sheet baru
-## app.sheets.none.en
-No [zippp] sheets found. Create one.
-## app.sheets.none.id
-Tidak ada sheet [zippp]. Buat satu.
+## app.sheets.chooseTitle.en
+Set up your sheet
+## app.sheets.chooseTitle.id
+Siapkan sheet Anda
+## app.sheets.chooseBody.en
+Create a new sheet, or connect one you already have.
+## app.sheets.chooseBody.id
+Buat sheet baru, atau hubungkan yang sudah ada.
+## app.sheets.useExisting.en
+Use an existing sheet
+## app.sheets.useExisting.id
+Pakai sheet yang ada
+## app.sheets.emptyTitle.en
+No [zippp] sheets yet
+## app.sheets.emptyTitle.id
+Belum ada sheet [zippp]
+## app.sheets.emptyBody.en
+Create one to get started.
+## app.sheets.emptyBody.id
+Buat satu untuk memulai.
+## app.sheets.creating.en
+Creating {template}…
+## app.sheets.creating.id
+Membuat {template}…
+## app.sheets.created.en
+Sheet ready
+## app.sheets.created.id
+Sheet siap
+## app.sheets.cancel.en
+Cancel
+## app.sheets.cancel.id
+Batal
+## app.sheets.template.en
+Template
+## app.sheets.template.id
+Template
 ## app.sheets.open.en
 Open in Google Sheets
 ## app.sheets.open.id

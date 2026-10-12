@@ -50,17 +50,17 @@ The sheet stays the system of record. zippp is the intake mill.
 region cookie is set at entry and drives the app language and top-up channel.
 An Indonesian IP hitting `/` with no cookie is redirected to `/id` once.
 
-A back-to-Snap control shows on every app screen except Snap and Start.
-
 ### Guard (server decides; stop at first failure)
 
 1. `!authChecked` → loading spinner. Never show Sign in first.
 2. No session → `/app/start`.
-3. No usable sheet → `/app/settings/sheet` (auto-attempts find/create).
-   Settings is reachable from the app header; from there the sheet page can
-   create a new `[zippp]` sheet from one of three templates (Purchasing and
-   inventory, Expense tracker, Custom), open the sheet in Google Sheets, or
-   choose among the existing `[zippp]` sheets.
+3. No usable sheet → `/app/settings/sheet`. The sheet page runs one phase at a
+   time: **check** (find only, never create), **choose source** (create a new
+   sheet or use an existing one), **picker**, **template wizard**, **creating**,
+   **connected**, **error**. Creating uses one of three templates (Purchasing
+   and inventory, Expense tracker, Custom). The connected view can open the
+   sheet in Google Sheets, create another, choose another, or re-check the
+   current one. Settings is reachable from the app header.
 4. No credits → `/app/topup` (Settings stays reachable).
 5. Ready: `/app` → `/app/snap`. A signed-in user on `/app/start` → `/app/snap`.
 

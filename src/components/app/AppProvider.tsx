@@ -48,6 +48,16 @@ export type SheetTemplateId =
     | "personal-expense"
     | "custom";
 
+/** One screen at a time for the sheet connect flow. */
+export type SheetPhase =
+    | "checking"
+    | "choose-source"
+    | "picking"
+    | "wizard"
+    | "creating"
+    | "connected"
+    | "error";
+
 export type BalanceState = {
     configured: boolean;
     credits: number;
@@ -68,9 +78,12 @@ type Value = {
     authChecked: boolean;
     authError: string | null;
     workspace: Workspace | null;
-    candidates: SheetCandidate[];
-    sheetError: boolean;
-    busy: boolean;
+    sheetPhase: SheetPhase;
+    sheetBusy: boolean;
+    sheetError: string | null;
+    sheetCandidates: SheetCandidate[];
+    sheetCreated: boolean;
+    pendingTemplate: SheetTemplateId | null;
     balance: BalanceState | null;
     refreshBalance: () => Promise<void>;
     batch: BatchItem[];
@@ -92,12 +105,18 @@ type Value = {
     clearSummary: () => void;
     login: () => void;
     signOut: () => Promise<void>;
-    ensureSheet: () => Promise<void>;
+    /** Find an existing `[zippp]` sheet. Never creates one. */
+    checkSheet: () => Promise<void>;
+    showWizard: () => void;
+    /** List the `[zippp]` sheets to choose from. */
+    showPicker: () => Promise<void>;
+    /** Leave the wizard or the picker. */
+    cancelSheetChoice: () => void;
     pickSheet: (id: string) => Promise<void>;
-    /** Force-create a new `[zippp]` sheet for a template and connect it. */
+    /** Re-check the current sheet by reconnecting to it. */
+    recheckSheet: () => Promise<void>;
+    /** Create a new sheet for a template and connect it. */
     createSheet: (templateId: SheetTemplateId) => Promise<void>;
-    /** List the `[zippp]` sheets to choose from. Returns how many there are. */
-    listSheets: () => Promise<number>;
 };
 
 const Ctx = createContext<Value | null>(null);
@@ -133,9 +152,13 @@ export default function AppProvider({
     const [authError, setAuthError] = useState<string | null>(null);
 
     const [workspace, setWorkspace] = useState<Workspace | null>(null);
-    const [candidates, setCandidates] = useState<SheetCandidate[]>([]);
-    const [sheetError, setSheetError] = useState(false);
-    const [busy, setBusy] = useState(false);
+    const [sheetPhase, setSheetPhase] = useState<SheetPhase>("checking");
+    const [sheetBusy, setSheetBusy] = useState(false);
+    const [sheetError, setSheetError] = useState<string | null>(null);
+    const [sheetCandidates, setSheetCandidates] = useState<SheetCandidate[]>([]);
+    const [sheetCreated, setSheetCreated] = useState(false);
+    const [pendingTemplate, setPendingTemplate] =
+        useState<SheetTemplateId | null>(null);
 
     const [balance, setBalance] = useState<BalanceState | null>(null);
 
@@ -199,7 +222,14 @@ export default function AppProvider({
                 const wsData = await wsRes.json();
                 const balData = await balRes.json();
                 if (!alive) return;
-                if (wsData.ok && wsData.workspace) setWorkspace(wsData.workspace);
+                if (wsData.ok && wsData.workspace) {
+                    setWorkspace(wsData.workspace);
+                    setSheetPhase("connected");
+                } else {
+                    // No saved sheet. Look for an existing `[zippp]` one. This
+                    // never creates a sheet; the sheet page asks the user.
+                    void checkSheet();
+                }
                 if (balData.ok) setBalance(balData as BalanceState);
             } catch {
                 /* logged-out view */
@@ -458,82 +488,62 @@ export default function AppProvider({
         setSummary(null);
     }
 
-    async function ensureSheet() {
-        setSheetError(false);
-        setCandidates([]);
-        setBusy(true);
-        try {
-            const res = await fetch("/api/sheets/connect", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: "{}",
-            });
-            if (res.status === 401) {
-                setAuthError(t("app.signin.error"));
-                setAuth({ signedIn: false, oauthConfigured: true, googleUserId: null });
-                return;
-            }
-            const data = await res.json();
-            if (data.ok && data.workspace) setWorkspace(data.workspace);
-            else if (data.needsPick && Array.isArray(data.candidates))
-                setCandidates(data.candidates as SheetCandidate[]);
-            else setSheetError(true);
-        } catch {
-            setSheetError(true);
-        } finally {
-            setBusy(false);
-        }
+    function markAuthLost() {
+        setAuthError(t("app.signin.error"));
+        setAuth({ signedIn: false, oauthConfigured: true, googleUserId: null });
     }
 
-    async function pickSheet(id: string) {
-        setBusy(true);
+    /** Look for an existing `[zippp]` sheet. Never creates one. */
+    async function checkSheet() {
+        setSheetPhase("checking");
+        setSheetBusy(true);
+        setSheetError(null);
+        setSheetCandidates([]);
+        setSheetCreated(false);
         try {
             const res = await fetch("/api/sheets/connect", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ spreadsheetId: id }),
+                body: JSON.stringify({ mode: "find" }),
             });
+            if (res.status === 401) {
+                markAuthLost();
+                return;
+            }
             const data = await res.json();
             if (data.ok && data.workspace) {
                 setWorkspace(data.workspace);
-                setCandidates([]);
-            } else setSheetError(true);
-        } catch {
-            setSheetError(true);
-        } finally {
-            setBusy(false);
-        }
-    }
-
-    async function createSheet(templateId: SheetTemplateId) {
-        setSheetError(false);
-        setCandidates([]);
-        setBusy(true);
-        try {
-            const res = await fetch("/api/sheets/connect", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ mode: "create", templateId }),
-            });
-            if (res.status === 401) {
-                setAuthError(t("app.signin.error"));
-                setAuth({ signedIn: false, oauthConfigured: true, googleUserId: null });
-                return;
+                setSheetPhase("connected");
+            } else if (
+                data.needsPick &&
+                Array.isArray(data.candidates) &&
+                data.candidates.length > 0
+            ) {
+                setSheetCandidates(data.candidates as SheetCandidate[]);
+                setSheetPhase("picking");
+            } else {
+                setSheetPhase("choose-source");
             }
-            const data = await res.json();
-            if (data.ok && data.workspace) setWorkspace(data.workspace);
-            else setSheetError(true);
         } catch {
-            setSheetError(true);
+            setSheetError(null);
+            setSheetPhase("error");
         } finally {
-            setBusy(false);
+            setSheetBusy(false);
         }
     }
 
-    async function listSheets(): Promise<number> {
-        setSheetError(false);
-        setCandidates([]);
-        setBusy(true);
+    function showWizard() {
+        setSheetError(null);
+        setSheetCandidates([]);
+        setSheetPhase("wizard");
+    }
+
+    /** List the `[zippp]` sheets so the user can choose one. */
+    async function showPicker() {
+        setSheetPhase("picking");
+        setSheetBusy(true);
+        setSheetError(null);
+        setSheetCandidates([]);
         try {
             const res = await fetch("/api/sheets/connect", {
                 method: "POST",
@@ -541,21 +551,100 @@ export default function AppProvider({
                 body: JSON.stringify({ mode: "list" }),
             });
             if (res.status === 401) {
-                setAuthError(t("app.signin.error"));
-                setAuth({ signedIn: false, oauthConfigured: true, googleUserId: null });
-                return 0;
+                markAuthLost();
+                return;
             }
             const data = await res.json();
-            const list = Array.isArray(data.candidates)
-                ? (data.candidates as SheetCandidate[])
-                : [];
-            setCandidates(list);
-            return list.length;
+            setSheetCandidates(
+                Array.isArray(data.candidates)
+                    ? (data.candidates as SheetCandidate[])
+                    : []
+            );
         } catch {
-            setSheetError(true);
-            return 0;
+            setSheetError(null);
+            setSheetPhase("error");
         } finally {
-            setBusy(false);
+            setSheetBusy(false);
+        }
+    }
+
+    function cancelSheetChoice() {
+        setSheetError(null);
+        setSheetCandidates([]);
+        setSheetPhase(workspace ? "connected" : "choose-source");
+    }
+
+    async function pickSheet(id: string) {
+        setSheetBusy(true);
+        setSheetError(null);
+        try {
+            const res = await fetch("/api/sheets/connect", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ spreadsheetId: id }),
+            });
+            if (res.status === 401) {
+                markAuthLost();
+                return;
+            }
+            const data = await res.json();
+            if (data.ok && data.workspace) {
+                setWorkspace(data.workspace);
+                setSheetCandidates([]);
+                setSheetCreated(false);
+                setSheetPhase("connected");
+            } else {
+                setSheetError(data.error ?? null);
+            }
+        } catch {
+            setSheetError(null);
+        } finally {
+            setSheetBusy(false);
+        }
+    }
+
+    /** Re-check the current sheet by reconnecting to the same id. */
+    async function recheckSheet() {
+        if (!workspace) {
+            await checkSheet();
+            return;
+        }
+        await pickSheet(workspace.spreadsheet_id);
+    }
+
+    async function createSheet(templateId: SheetTemplateId) {
+        setPendingTemplate(templateId);
+        setSheetBusy(true);
+        setSheetError(null);
+        setSheetCandidates([]);
+        setSheetCreated(false);
+        setSheetPhase("creating");
+        try {
+            const res = await fetch("/api/sheets/connect", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ mode: "create", templateId }),
+            });
+            if (res.status === 401) {
+                markAuthLost();
+                setSheetPhase("wizard");
+                return;
+            }
+            const data = await res.json();
+            if (data.ok && data.workspace) {
+                setWorkspace(data.workspace);
+                setSheetCreated(true);
+                setSheetPhase("connected");
+            } else {
+                setSheetError(data.error ?? null);
+                setSheetPhase("error");
+            }
+        } catch {
+            setSheetError(null);
+            setSheetPhase("error");
+        } finally {
+            setSheetBusy(false);
+            setPendingTemplate(null);
         }
     }
 
@@ -573,7 +662,9 @@ export default function AppProvider({
         setAuth({ signedIn: false, oauthConfigured: true, googleUserId: null });
         setAuthError(null);
         setWorkspace(null);
-        setCandidates([]);
+        setSheetCandidates([]);
+        setSheetCreated(false);
+        setSheetPhase("checking");
     }
 
     const value: Value = {
@@ -585,9 +676,12 @@ export default function AppProvider({
         authChecked,
         authError,
         workspace,
-        candidates,
+        sheetPhase,
+        sheetBusy,
         sheetError,
-        busy,
+        sheetCandidates,
+        sheetCreated,
+        pendingTemplate,
         balance,
         refreshBalance,
         batch,
@@ -608,10 +702,13 @@ export default function AppProvider({
         clearSummary,
         login,
         signOut,
-        ensureSheet,
+        checkSheet,
+        showWizard,
+        showPicker,
+        cancelSheetChoice,
         pickSheet,
+        recheckSheet,
         createSheet,
-        listSheets,
     };
 
     return <Ctx.Provider value={value}>{children}</Ctx.Provider>;

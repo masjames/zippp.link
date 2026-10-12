@@ -2,7 +2,6 @@ import type { OAuth2Client } from "google-auth-library";
 import { createOAuthClient } from "./oauth";
 import { loadTokens, saveTokens } from "./token-store";
 import {
-  RESTO_INVENTORY_HEADERS,
   TEMPLATE_HEADERS,
   TEMPLATE_SHEET_TITLE,
   ZIPPP_NAME_MARKER,
@@ -285,19 +284,6 @@ export async function createSpreadsheet(
     title: data.properties?.title ?? title,
     sheetTabs,
   };
-}
-
-/** Create resto sheet, write spec/TEMPLATES.md headers as row 1. */
-export async function createRestoInventorySpreadsheet(): Promise<{
-  meta: SpreadsheetMeta;
-  sheetTab: string;
-  headers: string[];
-}> {
-  const meta = await createSpreadsheet(ZIPPP_RESTO_SHEET_TITLE);
-  const sheetTab = meta.sheetTabs[0] || "Sheet1";
-  const headers = [...RESTO_INVENTORY_HEADERS];
-  await writeHeaderRow(meta.spreadsheetId, sheetTab, headers);
-  return { meta, sheetTab, headers };
 }
 
 /** Create a new sheet for any template, writing its headers as row 1. */

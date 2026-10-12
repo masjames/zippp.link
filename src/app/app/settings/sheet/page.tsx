@@ -1,10 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import PhoneShell from "@/components/app/PhoneShell";
-import SheetsScreen from "@/components/app/screens/SheetsScreen";
 import { useApp, type SheetTemplateId } from "@/components/app/AppProvider";
+import { fill } from "@/lib/t";
 
 const TEMPLATES: { id: SheetTemplateId; name: string; body: string }[] = [
     { id: "resto-inventory", name: "app.sheets.tpl.resto", body: "app.sheets.tpl.restoBody" },
@@ -12,35 +11,119 @@ const TEMPLATES: { id: SheetTemplateId; name: string; body: string }[] = [
     { id: "custom", name: "app.sheets.tpl.custom", body: "app.sheets.tpl.customBody" },
 ];
 
-/** Sheet status, create wizard, choose, reconnect, and picker. */
+function Centered({ children }: { children: React.ReactNode }) {
+    return (
+        <PhoneShell>
+            <div className="flex flex-1 flex-col items-center justify-center text-center">
+                {children}
+            </div>
+        </PhoneShell>
+    );
+}
+
+function Spinner() {
+    return (
+        <span
+            className="h-9 w-9 animate-spin rounded-full border-4 border-line border-t-brand"
+            aria-hidden
+        />
+    );
+}
+
+/** One screen at a time: check, choose, pick, wizard, create, connected. */
 export default function SheetPage() {
     const {
         t,
         workspace,
-        candidates,
+        sheetPhase,
+        sheetBusy,
         sheetError,
-        busy,
-        ensureSheet,
+        sheetCandidates,
+        sheetCreated,
+        pendingTemplate,
+        checkSheet,
+        showWizard,
+        showPicker,
+        cancelSheetChoice,
         pickSheet,
+        recheckSheet,
         createSheet,
-        listSheets,
     } = useApp();
     const router = useRouter();
-    const [notice, setNotice] = useState<string | null>(null);
-    const [wizard, setWizard] = useState(false);
 
-    useEffect(() => {
-        if (!workspace) void ensureSheet();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    const templateLabel = (id: string | null) => {
+        const found = TEMPLATES.find((x) => x.id === id);
+        return found ? t(found.name) : "";
+    };
 
-    async function chooseTemplate(id: SheetTemplateId) {
-        setNotice(null);
-        await createSheet(id);
-        setWizard(false);
+    if (sheetPhase === "checking") {
+        return (
+            <Centered>
+                <Spinner />
+                <p className="mt-6 text-lg text-muted">{t("app.sheets.checking")}</p>
+            </Centered>
+        );
     }
 
-    if (wizard) {
+    if (sheetPhase === "creating") {
+        return (
+            <Centered>
+                <Spinner />
+                <p className="mt-6 text-lg text-muted">
+                    {fill(t("app.sheets.creating"), {
+                        template: templateLabel(pendingTemplate),
+                    })}
+                </p>
+            </Centered>
+        );
+    }
+
+    if (sheetPhase === "error") {
+        return (
+            <Centered>
+                <p className="text-2xl font-semibold">{t("app.sheets.error")}</p>
+                {sheetError ? (
+                    <p className="mt-2 text-sm text-muted">{sheetError}</p>
+                ) : null}
+                <button
+                    type="button"
+                    onClick={() => void checkSheet()}
+                    className="mt-8 w-full rounded-full bg-btn px-6 py-4 font-semibold text-btntext"
+                >
+                    {t("app.sheets.retry")}
+                </button>
+            </Centered>
+        );
+    }
+
+    if (sheetPhase === "choose-source") {
+        return (
+            <PhoneShell>
+                <h2 className="mt-2 font-head text-3xl font-extrabold leading-none">
+                    {t("app.sheets.chooseTitle")}
+                </h2>
+                <p className="text-muted">{t("app.sheets.chooseBody")}</p>
+                <div className="mt-auto grid gap-3">
+                    <button
+                        type="button"
+                        onClick={showWizard}
+                        className="rounded-full bg-btn px-6 py-4 font-semibold text-btntext"
+                    >
+                        {t("app.sheets.create")}
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => void showPicker()}
+                        className="rounded-full bg-mist px-6 py-4 font-semibold text-ink"
+                    >
+                        {t("app.sheets.useExisting")}
+                    </button>
+                </div>
+            </PhoneShell>
+        );
+    }
+
+    if (sheetPhase === "wizard") {
         return (
             <PhoneShell>
                 <h2 className="mt-2 font-head text-3xl font-extrabold leading-none">
@@ -52,8 +135,8 @@ export default function SheetPage() {
                         <button
                             key={tpl.id}
                             type="button"
-                            disabled={busy}
-                            onClick={() => void chooseTemplate(tpl.id)}
+                            disabled={sheetBusy}
+                            onClick={() => void createSheet(tpl.id)}
                             className="rounded-2xl border-2 border-line bg-card px-4 py-3 text-left disabled:opacity-60"
                         >
                             <span className="block font-semibold">{t(tpl.name)}</span>
@@ -61,94 +144,120 @@ export default function SheetPage() {
                         </button>
                     ))}
                 </div>
-                {busy ? (
-                    <span
-                        className="mx-auto mt-4 h-8 w-8 animate-spin rounded-full border-4 border-line border-t-brand"
-                        aria-hidden
-                    />
-                ) : (
-                    <button
-                        type="button"
-                        onClick={() => setWizard(false)}
-                        className="mt-auto rounded-full bg-mist px-6 py-4 font-semibold text-ink"
-                    >
-                        {t("app.nav.back")}
-                    </button>
-                )}
+                <button
+                    type="button"
+                    onClick={cancelSheetChoice}
+                    className="mt-auto rounded-full bg-mist px-6 py-4 font-semibold text-ink"
+                >
+                    {t("app.sheets.cancel")}
+                </button>
             </PhoneShell>
         );
     }
 
-    // A pick shows whenever candidates were loaded, from the guard or Choose.
-    if (candidates.length > 0) {
+    if (sheetPhase === "picking") {
+        const hasCandidates = sheetCandidates.length > 0;
         return (
-            <SheetsScreen
-                t={t}
-                busy={busy}
-                error={sheetError}
-                candidates={candidates}
-                onPick={(id) => {
-                    setNotice(null);
-                    void pickSheet(id);
-                }}
-                onRetry={() => void ensureSheet()}
-            />
+            <PhoneShell>
+                <h2 className="mt-2 font-head text-3xl font-extrabold leading-none">
+                    {hasCandidates ? t("app.sheets.title") : t("app.sheets.emptyTitle")}
+                </h2>
+                <p className="text-muted">
+                    {hasCandidates ? t("app.sheets.body") : t("app.sheets.emptyBody")}
+                </p>
+                {sheetError ? (
+                    <p className="text-sm font-medium text-danger">{sheetError}</p>
+                ) : null}
+                <div className="mt-2 grid gap-2">
+                    {sheetCandidates.map((c) => (
+                        <button
+                            key={c.id}
+                            type="button"
+                            disabled={sheetBusy}
+                            onClick={() => void pickSheet(c.id)}
+                            className="rounded-2xl border-2 border-line bg-card px-4 py-3 text-left disabled:opacity-60"
+                        >
+                            <span className="block font-semibold">{c.name}</span>
+                            <span className="block text-xs text-muted">
+                                {new Date(c.modifiedTime).toLocaleDateString()}
+                            </span>
+                        </button>
+                    ))}
+                </div>
+                {sheetBusy && !hasCandidates ? (
+                    <div className="mt-4 flex justify-center">
+                        <Spinner />
+                    </div>
+                ) : null}
+                <div className="mt-auto grid gap-3">
+                    {!hasCandidates ? (
+                        <button
+                            type="button"
+                            onClick={showWizard}
+                            className="rounded-full bg-btn px-6 py-4 font-semibold text-btntext"
+                        >
+                            {t("app.sheets.create")}
+                        </button>
+                    ) : null}
+                    <button
+                        type="button"
+                        onClick={cancelSheetChoice}
+                        className="rounded-full bg-mist px-6 py-4 font-semibold text-ink"
+                    >
+                        {t("app.sheets.cancel")}
+                    </button>
+                </div>
+            </PhoneShell>
         );
     }
 
     if (workspace) {
         return (
             <PhoneShell>
+                {sheetCreated ? (
+                    <p className="rounded-2xl bg-brand px-4 py-3 text-sm font-semibold text-ink">
+                        {t("app.sheets.created")}
+                    </p>
+                ) : null}
                 <h2 className="mt-2 font-head text-3xl font-extrabold leading-none">
                     {t("app.sheets.connected")}
                 </h2>
                 <p className="text-muted">
                     {workspace.spreadsheet_title} · {workspace.sheet_tab}
                 </p>
-                {notice ? (
-                    <p className="text-sm font-medium text-danger">{notice}</p>
+                <p className="text-xs text-muted">
+                    {t("app.sheets.template")}: {templateLabel(workspace.template_id)}
+                </p>
+                {sheetError ? (
+                    <p className="text-sm font-medium text-danger">{sheetError}</p>
                 ) : null}
                 <div className="mt-auto grid gap-3">
-                    <button
-                        type="button"
-                        onClick={() =>
-                            window.open(
-                                `https://docs.google.com/spreadsheets/d/${workspace.spreadsheet_id}/edit`,
-                                "_blank",
-                                "noopener,noreferrer"
-                            )
-                        }
-                        className="rounded-full bg-brand px-6 py-4 font-semibold text-ink"
+                    <a
+                        href={`https://docs.google.com/spreadsheets/d/${workspace.spreadsheet_id}/edit`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="rounded-full bg-brand px-6 py-4 text-center font-semibold text-ink"
                     >
                         {t("app.sheets.open")}
-                    </button>
+                    </a>
                     <button
                         type="button"
-                        disabled={busy}
-                        onClick={() => {
-                            setNotice(null);
-                            setWizard(true);
-                        }}
-                        className="rounded-full bg-mist px-6 py-4 font-semibold text-ink disabled:opacity-60"
+                        onClick={showWizard}
+                        className="rounded-full bg-mist px-6 py-4 font-semibold text-ink"
                     >
                         {t("app.sheets.create")}
                     </button>
                     <button
                         type="button"
-                        disabled={busy}
-                        onClick={async () => {
-                            setNotice(null);
-                            const count = await listSheets();
-                            if (count === 0) setNotice(t("app.sheets.none"));
-                        }}
-                        className="rounded-full bg-mist px-6 py-4 font-semibold text-ink disabled:opacity-60"
+                        onClick={() => void showPicker()}
+                        className="rounded-full bg-mist px-6 py-4 font-semibold text-ink"
                     >
                         {t("app.sheets.choose")}
                     </button>
                     <button
                         type="button"
-                        disabled={busy}
-                        onClick={() => void ensureSheet()}
+                        disabled={sheetBusy}
+                        onClick={() => void recheckSheet()}
                         className="rounded-full bg-mist px-6 py-4 font-semibold text-ink disabled:opacity-60"
                     >
                         {t("app.sheets.reconnect")}
@@ -165,14 +274,11 @@ export default function SheetPage() {
         );
     }
 
+    // No workspace and no phase matched: treat as checking.
     return (
-        <SheetsScreen
-            t={t}
-            busy={busy}
-            error={sheetError}
-            candidates={candidates}
-            onPick={(id) => void pickSheet(id)}
-            onRetry={() => void ensureSheet()}
-        />
+        <Centered>
+            <Spinner />
+            <p className="mt-6 text-lg text-muted">{t("app.sheets.checking")}</p>
+        </Centered>
     );
 }
