@@ -73,6 +73,9 @@ export default function SnapScreen() {
     // Review done and about to send: the camera is intentionally off. "Capture
     // more" turns it back on without losing the accepted batch.
     const [resume, setResume] = useState(false);
+    // White flash shown on a tap, right before the camera stops.
+    const [flash, setFlash] = useState(false);
+    const flashTimer = useRef<number | null>(null);
     const prevCount = useRef(0);
 
     const accepted = batch.filter((item) => item.status === "accepted");
@@ -90,16 +93,13 @@ export default function SnapScreen() {
         prevCount.current = batch.length;
     }, [batch.length]);
 
-    /** Pause and fade the camera while a confirm card is open. */
+    /** A review card is open: stop the viewfinder until the user captures more. */
     useEffect(() => {
-        const video = videoRef.current;
-        if (!video) return;
-        if (overlayOpen) {
-            video.pause();
-        } else if (mode === "live") {
-            void video.play().catch(() => undefined);
-        }
-    }, [overlayOpen, mode]);
+        if (!overlayOpen) return;
+        stopCamera();
+        setMode("idle");
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [overlayOpen]);
 
     /** Review done: turn the viewfinder off and shrink it to a status strip. */
     useEffect(() => {
@@ -139,7 +139,13 @@ export default function SnapScreen() {
         void applyTorch(next);
     }
 
-    useEffect(() => () => stopCamera(), []);
+    useEffect(
+        () => () => {
+            if (flashTimer.current) window.clearTimeout(flashTimer.current);
+            stopCamera();
+        },
+        []
+    );
 
     async function openCamera() {
         if (typeof navigator === "undefined" || !navigator.mediaDevices?.getUserMedia) {
@@ -201,6 +207,14 @@ export default function SnapScreen() {
     }
 
     async function manualCapture() {
+        // Flash the viewfinder as feedback, then grab the frame. The camera is
+        // stopped when the review card opens (see the overlayOpen effect).
+        setFlash(true);
+        if (flashTimer.current) window.clearTimeout(flashTimer.current);
+        flashTimer.current = window.setTimeout(() => {
+            setFlash(false);
+            flashTimer.current = null;
+        }, 160);
         const blob = await captureFrameBlob();
         if (blob) addFile(fileFrom(blob), "manual");
     }
@@ -254,11 +268,6 @@ export default function SnapScreen() {
 
     return (
         <PhoneShell tone="brand" pill={workspace?.spreadsheet_title}>
-            <h2 className="mt-2 font-head text-3xl font-extrabold leading-none">
-                {t("app.capture.title")}
-            </h2>
-            <p className="max-w-[30ch]">{t("app.capture.body")}</p>
-
             <div
                 className={`relative w-full flex-none overflow-hidden rounded-panel bg-[#2a1410] text-center text-peach ${
                     compact ? "h-16" : ""
@@ -289,12 +298,13 @@ export default function SnapScreen() {
                     </span>
                 ) : null}
                 {compact ? (
-                    <span className="absolute inset-0 z-10 flex items-center justify-center gap-2 text-sm font-semibold">
-                        <span aria-hidden>✓</span>
-                        {fill(t("app.review.progress"), {
-                            done: accepted.length,
-                            total: batch.length,
-                        })}
+                    <span className="absolute inset-0 z-10 flex items-center justify-center p-2">
+                        <span className="w-full rounded-2xl border-2 border-line bg-card px-4 py-2 text-center text-sm font-semibold text-body">
+                            {fill(t("app.review.progress"), {
+                                done: accepted.length,
+                                total: batch.length,
+                            })}
+                        </span>
                     </span>
                 ) : mode !== "live" ? (
                     <span className="absolute inset-0 z-10 flex items-center justify-center text-sm">
@@ -321,6 +331,12 @@ export default function SnapScreen() {
                         onClick={shutter}
                         disabled={outOfCredits || mode === "starting"}
                         className="absolute inset-0 z-20 cursor-pointer disabled:cursor-not-allowed"
+                    />
+                ) : null}
+                {flash ? (
+                    <span
+                        className="pointer-events-none absolute inset-0 z-30 bg-white"
+                        aria-hidden
                     />
                 ) : null}
             </div>
@@ -416,7 +432,11 @@ export default function SnapScreen() {
                     onRetry={() => retryItem(current.id)}
                     onContribute={() => contributeItem(current.id)}
                     onRemove={() => removeItem(current.id)}
-                    onCaptureMore={() => setDismissed(true)}
+                    onCaptureMore={() => {
+                        setDismissed(true);
+                        // The camera stopped after the tap; bring it back.
+                        if (mode !== "live") void openCamera();
+                    }}
                     onSend={() => void sendAll()}
                 />
             ) : null}

@@ -221,14 +221,6 @@ Sign-in did not finish. Try again.
 ## app.signin.error.id
 Masuk tidak selesai. Coba lagi.
 
-## app.capture.title.en
-Snap the receipt.
-## app.capture.title.id
-Foto resinya.
-## app.capture.body.en
-Hold it flat, in good light. We read it in a few seconds.
-## app.capture.body.id
-Letakkan rata, dengan cahaya cukup. Kami membacanya dalam beberapa detik.
 ## app.capture.frame.en
 Fit the whole receipt inside the corners
 ## app.capture.frame.id
@@ -318,9 +310,9 @@ Unit price
 ## app.check.unitPrice.id
 Harga satuan
 ## app.review.sendAll.en
-Send all accepted ({count})
+Save to Google Sheet
 ## app.review.sendAll.id
-Kirim semua yang diterima ({count})
+Simpan ke Google Sheet
 ## app.review.summary.en
 {sent} of {total} sent
 ## app.review.summary.id
