@@ -66,8 +66,10 @@ A back-to-Snap control shows on every app screen except Snap and Start.
 - **Snap** (single screen) — live camera with auto-snap (on by default), blur
   blocks capture, manual shutter + upload. Captured receipts join the batch
   **below the camera**: one card expanded (the current one), the rest collapsed,
-  accepted cards hidden. Each expanded card is an editable form with
-  **Accept** / **Edit**; after the last accept, **Send all accepted**.
+  accepted cards hidden. Each expanded card is an editable form (merchant, date,
+  subtotal, tax, total, and line items: description, qty, unit price, amount);
+  **Accept** / **Delete** sit in a fixed footer; after the last accept,
+  **Send all accepted**.
 - **Success** — after a batch send: "{sent} of {total} sent", **Open the sheet**
   and **Scan more**. Failed items reappear in the batch to retry.
 - A collapsible **Debug** panel shows the extraction trace in the expanded card.
@@ -103,8 +105,9 @@ See `REVISION-1.md`. In short:
 
 1. Staff open zippp on a phone. They photograph each nota; it queues.
 2. zippp extracts each one (PP-OCRv6 → DeepSeek Flash).
-3. Staff open a ready item on **Check**: date, staff, outlet, line items, total.
-   Anything wrong is corrected on this screen.
+3. Staff open a ready item on **Check**: merchant, date, subtotal, tax, total,
+   and line items (description, qty, unit price, amount). Staff and outlet are
+   still to be added to the card. Anything wrong is corrected on this screen.
 4. **Send to sheet** appends the rows using the saved map. Header facts repeat on
    each line.
 5. "Sent" confirms the row count. Next ready item opens automatically.

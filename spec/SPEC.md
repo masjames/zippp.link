@@ -45,7 +45,9 @@ learn ours. The job is append + one map, not a second general ledger.
 4. **Extract**: PP-OCRv6 (vision) reconstructs text rows; DeepSeek Flash
    structures them into JSON (EN+ID, null not invented). DeepSeek vision is the
    fallback, Gemini the last resort.
-5. **Check screen before send**: edit date, staff, outlet, line items, total.
+5. **Check screen before send**: edit merchant, date, subtotal, tax, total, and
+   line items (description, qty, unit price, amount). Staff and outlet are
+   required in the card (not yet wired).
 6. Append one row per line item. Header facts + `staff` / `outlet` repeat.
 7. Show success with the number of rows appended. Fail = no write.
 8. **Google Sheets is the only destination.** CSV/JSON export was removed.

@@ -50,11 +50,15 @@ camera (auto-snap on) → item queued → extract → review list → Accept/Edi
 - **Only one card is expanded** (the current one); the others are collapsed to a
   thumbnail + one-line summary. **Accepted cards are hidden.**
 - The expanded card shows the extracted data as an **editable form**
-  (merchant, date, staff, outlet, line items, total) with two actions:
+  (merchant, date, subtotal, tax, total, line items: description, qty,
+  unit price, amount) with two actions:
   - **Accept** — confirms as-is (or after an edit), hides the card, opens the next
     unaccepted receipt.
   - **Edit** — reveals the fields inline; editing does not accept; the user taps
     Accept when done.
+- The **Accept / Delete** row is a fixed footer inside the card, so a long flag
+  list never pushes it off screen. Every flagged field has a matching input;
+  tapping the field (or the flag chip) clears the flag.
 - Progress is shown ("3 of 5 accepted").
 - When the last receipt is accepted, a single **Send all accepted** button appears.
 

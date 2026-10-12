@@ -11,10 +11,12 @@ import { toDraft, type Draft } from "../draft";
 import { isSoftFlag } from "@/lib/verify-receipt";
 import type { BatchItem } from "@/lib/batch-db";
 
-const INPUT =
-    "w-full rounded-xl border-2 border-line bg-surface px-3 py-2 text-body focus:border-brand focus:outline-none";
-const INPUT_ASSUMED =
-    "w-full rounded-xl border-2 border-amber-400 bg-surface px-3 py-2 text-body focus:border-amber-500 focus:outline-none";
+const INPUT_BASE =
+    "rounded-xl border-2 bg-surface px-3 py-2 text-body focus:outline-none";
+const INPUT = `${INPUT_BASE} w-full border-line focus:border-brand`;
+const INPUT_ASSUMED = `${INPUT_BASE} w-full border-amber-400 focus:border-amber-500`;
+const INPUT_INLINE = `${INPUT_BASE} border-line focus:border-brand`;
+const INPUT_INLINE_ASSUMED = `${INPUT_BASE} border-amber-400 focus:border-amber-500`;
 
 /** Static portrait guide. The video frame itself is not overlayed. */
 function GuideFrame() {
@@ -456,15 +458,17 @@ function ReviewOverlay({
                         {stack.length > 1 ? (
                             <div className="absolute inset-x-3 -top-2 h-8 rounded-t-3xl bg-white/25" aria-hidden />
                         ) : null}
-                        <div className="relative max-h-[78vh] overflow-y-auto rounded-3xl bg-card p-4 shadow-2xl">
+                        <div className="relative flex max-h-[78vh] w-full flex-col overflow-hidden rounded-3xl bg-card shadow-2xl">
                             {current.status === "failed" ? (
-                                <FailedCard
-                                    t={t}
-                                    item={current}
-                                    onRetry={onRetry}
-                                    onContribute={onContribute}
-                                    onRemove={onRemove}
-                                />
+                                <div className="min-h-0 flex-1 overflow-y-auto p-4">
+                                    <FailedCard
+                                        t={t}
+                                        item={current}
+                                        onRetry={onRetry}
+                                        onContribute={onContribute}
+                                        onRemove={onRemove}
+                                    />
+                                </div>
                             ) : current.draft ? (
                                 <ConfirmCard
                                     t={t}
@@ -559,7 +563,13 @@ function ConfirmCard({
     if (!draft) return null;
     const d: Draft = draft;
 
-    const noLines = !d.lines.some((l) => l.description.trim() || l.amount.trim());
+    const noLines = !d.lines.some(
+        (l) =>
+            l.description.trim() ||
+            l.qty.trim() ||
+            l.unitPrice.trim() ||
+            l.amount.trim()
+    );
     const noPrice =
         !d.lines.some((l) => l.amount.trim() !== "") && d.total.trim() === "";
 
@@ -568,7 +578,10 @@ function ConfirmCard({
     const flagByPath = new Map(
         (item.receipt?.flags ?? []).map((flag) => [flag.path, flag])
     );
-    const pending = flagged.filter((path) => !reviewed.includes(path));
+    // One chip per field: the same path can be flagged more than once.
+    const pending = Array.from(
+        new Set(flagged.filter((path) => !reviewed.includes(path)))
+    );
     const isSoft = (path: string) => isSoftFlag(flagByPath.get(path)?.reason);
     const pendingHard = pending.filter((path) => !isSoft(path));
 
@@ -592,6 +605,9 @@ function ConfirmCard({
     }
     function fieldClass(path: string): string {
         return isPending(path) ? INPUT_ASSUMED : INPUT;
+    }
+    function inlineClass(path: string): string {
+        return isPending(path) ? INPUT_INLINE_ASSUMED : INPUT_INLINE;
     }
     function flagLabel(path: string): string {
         if (path === "merchant") return t("app.check.merchantFallback");
@@ -618,121 +634,165 @@ function ConfirmCard({
     }
 
     return (
-        <div>
-            <input
-                value={d.merchant}
-                onFocus={() => review("merchant")}
-                onChange={(e) => patch({ merchant: e.target.value })}
-                placeholder={t("app.check.merchantFallback")}
-                className={`${fieldClass("merchant")} font-head text-xl font-extrabold`}
-            />
+        <div className="flex min-h-0 flex-1 flex-col">
+            <div className="min-h-0 flex-1 overflow-y-auto p-4">
+                <input
+                    value={d.merchant}
+                    onFocus={() => review("merchant")}
+                    onChange={(e) => patch({ merchant: e.target.value })}
+                    placeholder={t("app.check.merchantFallback")}
+                    className={`${fieldClass("merchant")} font-head text-xl font-extrabold`}
+                />
 
-            <div className="mt-2 flex flex-wrap gap-2">
-                <label className="grid flex-1 gap-1">
-                    <span className="text-xs font-semibold">{t("app.check.date")}</span>
-                    <input
-                        value={d.date}
-                        onFocus={() => review("date")}
-                        onChange={(e) => patch({ date: e.target.value, dateAssumed: false })}
-                        placeholder="dd/mm/yyyy"
-                        className={isPending("date") || d.dateAssumed ? INPUT_ASSUMED : INPUT}
-                    />
-                </label>
-                <label className="grid gap-1">
-                    <span className="text-xs font-semibold">{t("app.check.total")}</span>
-                    <input
-                        value={d.total}
-                        onFocus={() => review("total")}
-                        onChange={(e) => patch({ total: e.target.value })}
-                        inputMode="decimal"
-                        className={`${fieldClass("total")} w-36 text-right font-extrabold tabular-money`}
-                    />
-                </label>
-            </div>
-
-            <div className="mt-2 grid gap-2">
-                {d.lines.map((line, i) => {
-                    const qtyPath = `line_items[${i}].qty`;
-                    const amountPath = `line_items[${i}].amount`;
-                    return (
-                        <div key={i} className="flex items-center gap-2 rounded-xl border-2 border-line p-2">
-                            <input
-                                value={line.description}
-                                onChange={(e) => patchLine(i, { description: e.target.value })}
-                                placeholder={t("app.check.item")}
-                                className={`${INPUT} min-w-0 flex-1`}
-                            />
-                            <input
-                                value={line.qty}
-                                onFocus={() => review(qtyPath)}
-                                onChange={(e) => patchLine(i, { qty: e.target.value })}
-                                placeholder={t("app.check.qty")}
-                                inputMode="decimal"
-                                className={`${fieldClass(qtyPath)} w-14 text-center`}
-                            />
-                            <input
-                                value={line.amount}
-                                onFocus={() => review(amountPath)}
-                                onChange={(e) => patchLine(i, { amount: e.target.value })}
-                                placeholder={t("app.check.amt")}
-                                inputMode="decimal"
-                                className={`${fieldClass(amountPath)} w-24 text-right tabular-money`}
-                            />
-                        </div>
-                    );
-                })}
-                {showErrors && noLines ? (
-                    <span className="text-xs font-medium text-danger">{t("app.check.itemsErr")}</span>
-                ) : null}
-                {showErrors && noPrice ? (
-                    <span className="text-xs font-medium text-danger">{t("app.check.priceErr")}</span>
-                ) : null}
-            </div>
-
-            {pending.length > 0 ? (
-                <div className="mt-3 rounded-xl border-2 border-amber-400 bg-amber-50 p-2">
-                    <p className="text-xs font-semibold text-amber-700">
-                        {t("app.review.flagsTitle")}
-                    </p>
-                    <ul className="mt-1 flex flex-wrap gap-1">
-                        {pending.map((path) => (
-                            <li key={path}>
-                                <button
-                                    type="button"
-                                    onClick={() => review(path)}
-                                    className="rounded-full bg-white px-2 py-1 text-left text-xs"
-                                >
-                                    <span className="font-semibold text-ink">{flagLabel(path)}</span>
-                                    <span className="ml-1 font-semibold text-amber-700">
-                                        {isSoft(path)
-                                            ? t("app.review.softFlag")
-                                            : t("app.review.hardFlag")}
-                                    </span>
-                                </button>
-                            </li>
-                        ))}
-                    </ul>
+                <div className="mt-2 flex gap-2">
+                    <label className="grid flex-1 gap-1">
+                        <span className="text-xs font-semibold">{t("app.check.date")}</span>
+                        <input
+                            value={d.date}
+                            onFocus={() => review("date")}
+                            onChange={(e) => patch({ date: e.target.value, dateAssumed: false })}
+                            placeholder="dd/mm/yyyy"
+                            className={isPending("date") || d.dateAssumed ? INPUT_ASSUMED : INPUT}
+                        />
+                    </label>
+                    <label className="grid w-32 gap-1">
+                        <span className="text-xs font-semibold">{t("app.check.total")}</span>
+                        <input
+                            value={d.total}
+                            onFocus={() => review("total")}
+                            onChange={(e) => patch({ total: e.target.value })}
+                            inputMode="decimal"
+                            className={`${fieldClass("total")} text-right font-extrabold tabular-money`}
+                        />
+                    </label>
                 </div>
-            ) : null}
 
-            <div className="mt-3 flex gap-2">
-                <button
-                    type="button"
-                    onClick={tryAccept}
-                    disabled={pendingHard.length > 0}
-                    className="flex-1 rounded-full bg-maroon px-4 py-3 font-semibold text-white disabled:opacity-60"
-                >
-                    {t("app.review.accept")}
-                </button>
-                <button
-                    type="button"
-                    onClick={onRemove}
-                    className="rounded-full border-2 border-line px-4 py-3 font-semibold text-danger"
-                >
-                    {t("app.review.delete")}
-                </button>
+                <div className="mt-2 flex gap-2">
+                    <label className="grid flex-1 gap-1">
+                        <span className="text-xs font-semibold">{t("app.check.subtotal")}</span>
+                        <input
+                            value={d.subtotal}
+                            onFocus={() => review("subtotal")}
+                            onChange={(e) => patch({ subtotal: e.target.value })}
+                            inputMode="decimal"
+                            className={`${fieldClass("subtotal")} text-right tabular-money`}
+                        />
+                    </label>
+                    <label className="grid flex-1 gap-1">
+                        <span className="text-xs font-semibold">{t("app.check.tax")}</span>
+                        <input
+                            value={d.tax}
+                            onFocus={() => review("tax")}
+                            onChange={(e) => patch({ tax: e.target.value })}
+                            inputMode="decimal"
+                            className={`${fieldClass("tax")} text-right tabular-money`}
+                        />
+                    </label>
+                </div>
+
+                <div className="mt-2 grid gap-2">
+                    {d.lines.map((line, i) => {
+                        const qtyPath = `line_items[${i}].qty`;
+                        const unitPath = `line_items[${i}].unit_price`;
+                        const amountPath = `line_items[${i}].amount`;
+                        return (
+                            <div key={i} className="rounded-xl border-2 border-line p-2">
+                                <input
+                                    value={line.description}
+                                    onChange={(e) => patchLine(i, { description: e.target.value })}
+                                    placeholder={t("app.check.item")}
+                                    className={INPUT}
+                                />
+                                <div className="mt-2 flex items-center gap-2">
+                                    <input
+                                        value={line.qty}
+                                        onFocus={() => review(qtyPath)}
+                                        onChange={(e) => patchLine(i, { qty: e.target.value })}
+                                        placeholder={t("app.check.qty")}
+                                        inputMode="decimal"
+                                        className={`${inlineClass(qtyPath)} w-14 text-center`}
+                                    />
+                                    <input
+                                        value={line.unitPrice}
+                                        onFocus={() => review(unitPath)}
+                                        onChange={(e) => patchLine(i, { unitPrice: e.target.value })}
+                                        placeholder={t("app.check.unitPrice")}
+                                        inputMode="decimal"
+                                        className={`${inlineClass(unitPath)} min-w-0 flex-1 text-right tabular-money`}
+                                    />
+                                    <input
+                                        value={line.amount}
+                                        onFocus={() => review(amountPath)}
+                                        onChange={(e) => patchLine(i, { amount: e.target.value })}
+                                        placeholder={t("app.check.amt")}
+                                        inputMode="decimal"
+                                        className={`${inlineClass(amountPath)} w-24 text-right tabular-money`}
+                                    />
+                                </div>
+                            </div>
+                        );
+                    })}
+                    {showErrors && noLines ? (
+                        <span className="text-xs font-medium text-danger">{t("app.check.itemsErr")}</span>
+                    ) : null}
+                    {showErrors && noPrice ? (
+                        <span className="text-xs font-medium text-danger">{t("app.check.priceErr")}</span>
+                    ) : null}
+                </div>
+
+                {pending.length > 0 ? (
+                    <div className="mt-3 rounded-xl border-2 border-amber-400 bg-amber-50 p-2">
+                        <p className="text-xs font-semibold text-amber-700">
+                            {t("app.review.flagsTitle")}
+                        </p>
+                        <p className="mt-0.5 text-xs text-amber-700">
+                            {t("app.review.tapToConfirm")}
+                        </p>
+                        <ul className="mt-1 flex flex-wrap gap-1">
+                            {pending.map((path) => (
+                                <li key={path}>
+                                    <button
+                                        type="button"
+                                        onClick={() => review(path)}
+                                        className="rounded-full bg-white px-2 py-1 text-left text-xs"
+                                    >
+                                        <span className="font-semibold text-ink">{flagLabel(path)}</span>
+                                        <span className="ml-1 font-semibold text-amber-700">
+                                            {isSoft(path)
+                                                ? t("app.review.softFlag")
+                                                : t("app.review.hardFlag")}
+                                        </span>
+                                    </button>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                ) : null}
+
+                <div className="mt-3">
+                    <DebugPanel debug={item.debug} />
+                </div>
             </div>
-            <DebugPanel debug={item.debug} />
+
+            <div className="flex-none border-t-2 border-line bg-card p-3">
+                <div className="flex gap-2">
+                    <button
+                        type="button"
+                        onClick={tryAccept}
+                        disabled={pendingHard.length > 0}
+                        className="flex-1 rounded-full bg-btn px-4 py-3 font-semibold text-btntext disabled:opacity-60"
+                    >
+                        {t("app.review.accept")}
+                    </button>
+                    <button
+                        type="button"
+                        onClick={onRemove}
+                        className="rounded-full border-2 border-line px-4 py-3 font-semibold text-danger"
+                    >
+                        {t("app.review.delete")}
+                    </button>
+                </div>
+            </div>
         </div>
     );
 }

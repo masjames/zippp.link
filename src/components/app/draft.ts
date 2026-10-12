@@ -4,6 +4,7 @@ import type { LineItem, Receipt } from "@/types/receipt";
 export type DraftLine = {
     description: string;
     qty: string;
+    unitPrice: string;
     amount: string;
 };
 
@@ -13,6 +14,7 @@ export type Draft = {
     currency: string;
     staff: string;
     outlet: string;
+    subtotal: string;
     tax: string;
     total: string;
     lines: DraftLine[];
@@ -39,11 +41,13 @@ export function toDraft(receipt: Receipt): Draft {
         currency: receipt.currency ?? "",
         staff: "",
         outlet: "",
+        subtotal: receipt.subtotal == null ? "" : String(receipt.subtotal),
         tax: receipt.tax == null ? "" : String(receipt.tax),
         total: receipt.total == null ? "" : String(receipt.total),
         lines: receipt.line_items.map((item) => ({
             description: item.description ?? "",
             qty: item.qty == null ? "" : String(item.qty),
+            unitPrice: item.unit_price == null ? "" : String(item.unit_price),
             amount: item.amount == null ? "" : String(item.amount),
         })),
         flagged: (receipt.flags ?? [])
@@ -73,12 +77,25 @@ export function parseMoney(input: string): number | null {
 /** Turn the edited draft back into the Receipt the Sheets API expects. */
 export function fromDraft(draft: Draft): Receipt {
     const line_items: LineItem[] = draft.lines
-        .filter((l) => l.description.trim() || l.qty.trim() || l.amount.trim())
+        .filter(
+            (l) =>
+                l.description.trim() ||
+                l.qty.trim() ||
+                l.unitPrice.trim() ||
+                l.amount.trim()
+        )
         .map((l) => {
             const qty = parseMoney(l.qty);
             const amount = parseMoney(l.amount);
+            const typedUnit = parseMoney(l.unitPrice);
+            // The typed unit price wins. When it is blank, derive it from the
+            // line so an untouched receipt still writes a value.
             const unit_price =
-                qty !== null && qty !== 0 && amount !== null ? amount / qty : null;
+                typedUnit !== null
+                    ? typedUnit
+                    : qty !== null && qty !== 0 && amount !== null
+                      ? amount / qty
+                      : null;
             return {
                 description: l.description.trim() || null,
                 qty,
@@ -92,7 +109,7 @@ export function fromDraft(draft: Draft): Receipt {
         date: draft.date.trim() || null,
         currency: draft.currency.trim() || null,
         line_items,
-        subtotal: null,
+        subtotal: parseMoney(draft.subtotal),
         tax: parseMoney(draft.tax),
         total: parseMoney(draft.total),
     };
