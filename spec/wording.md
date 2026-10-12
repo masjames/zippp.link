@@ -265,6 +265,10 @@ Buram. Tahan stabil.
 Accept
 ## app.review.accept.id
 Terima
+## app.review.saved.en
+Saved
+## app.review.saved.id
+Tersimpan
 ## app.review.edit.en
 Edit
 ## app.review.edit.id

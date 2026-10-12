@@ -84,6 +84,8 @@ type Value = {
     pendingTemplate: SheetTemplateId | null;
     balance: BalanceState | null;
     refreshBalance: () => Promise<void>;
+    /** Increments on each successful append. */
+    savedTick: number;
     batch: BatchItem[];
     openId: string | null;
     autoSnap: boolean;
@@ -111,6 +113,8 @@ type Value = {
     pickSheet: (id: string) => Promise<void>;
     /** Re-check the current sheet by reconnecting to it. */
     recheckSheet: () => Promise<void>;
+    /** List the `[zippp]` sheets for the quick selector. No phase change. */
+    listSheetChoices: () => Promise<SheetCandidate[]>;
     /** Create a new sheet for a template and connect it. */
     createSheet: (templateId: SheetTemplateId) => Promise<void>;
 };
@@ -162,6 +166,8 @@ export default function AppProvider({
     const [openId, setOpenIdState] = useState<string | null>(null);
     const [autoSnap, setAutoSnapState] = useState(true);
     const [autoCooldownUntil, setAutoCooldownUntil] = useState(0);
+    /** Bumped on every successful append, so the UI can show "saved". */
+    const [savedTick, setSavedTick] = useState(0);
 
     const inflight = useRef<Set<string>>(new Set());
     /** Sends run one at a time so the rows keep their order. */
@@ -472,6 +478,7 @@ export default function AppProvider({
             if (data.ok) {
                 await dbDeleteItem(item.id);
                 setBatch((items) => items.filter((i) => i.id !== item.id));
+                setSavedTick((n) => n + 1);
             } else {
                 patchItem(item.id, { status: "ready", error: data.error });
             }
@@ -606,6 +613,27 @@ export default function AppProvider({
         await pickSheet(workspace.spreadsheet_id);
     }
 
+    /** List the `[zippp]` sheets for the quick selector. No phase change. */
+    async function listSheetChoices(): Promise<SheetCandidate[]> {
+        try {
+            const res = await fetch("/api/sheets/connect", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ mode: "list" }),
+            });
+            if (res.status === 401) {
+                markAuthLost();
+                return [];
+            }
+            const data = await res.json();
+            return Array.isArray(data.candidates)
+                ? (data.candidates as SheetCandidate[])
+                : [];
+        } catch {
+            return [];
+        }
+    }
+
     async function createSheet(templateId: SheetTemplateId) {
         setPendingTemplate(templateId);
         setSheetBusy(true);
@@ -678,6 +706,7 @@ export default function AppProvider({
         pendingTemplate,
         balance,
         refreshBalance,
+        savedTick,
         batch,
         openId,
         autoSnap,
@@ -699,6 +728,7 @@ export default function AppProvider({
         cancelSheetChoice,
         pickSheet,
         recheckSheet,
+        listSheetChoices,
         createSheet,
     };
 

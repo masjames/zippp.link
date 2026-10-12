@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import PhoneShell from "../PhoneShell";
 import DebugPanel from "../DebugPanel";
-import { useApp } from "../AppProvider";
+import { useApp, type SheetCandidate } from "../AppProvider";
 import { useReceiptDetector } from "../useReceiptDetector";
 import { fill, type T } from "@/lib/t";
 import { toDraft, type Draft } from "../draft";
@@ -64,12 +64,15 @@ export default function SnapScreen() {
         autoCooldownUntil,
         addFile,
         addBlob,
+        pickSheet,
+        listSheetChoices,
         updateDraft,
         acceptItem,
         removeItem,
         retryItem,
         contributeItem,
         balance,
+        savedTick,
     } = useApp();
     const router = useRouter();
 
@@ -89,13 +92,22 @@ export default function SnapScreen() {
     // White flash shown on a tap, right before the camera stops.
     const [flash, setFlash] = useState(false);
     const flashTimer = useRef<number | null>(null);
+    // Quick sheet selector, opened from the sheet-name pill.
+    const [sheetPicker, setSheetPicker] = useState(false);
+    const [sheetChoices, setSheetChoices] = useState<SheetCandidate[]>([]);
+    const [sheetPickerBusy, setSheetPickerBusy] = useState(false);
+    // Soft "saved" toast after a successful append.
+    const [toast, setToast] = useState(false);
+    const toastTimer = useRef<number | null>(null);
     const prevCount = useRef(0);
-    const cameraStarted = useRef(false);
-    const prevBatchLen = useRef(batch.length);
 
-    const unaccepted = batch.filter((item) => item.status !== "accepted");
+    // Accepted and in-flight items are hidden from the review queue.
+    const unaccepted = batch.filter(
+        (item) => item.status !== "accepted" && item.status !== "sending"
+    );
     const current = unaccepted[0] ?? null;
     const overlayOpen = unaccepted.length > 0 && !dismissed;
+    const framing = mode === "live" || flash;
     const outOfCredits = balance?.configured === true && balance.credits <= 0;
 
     const detection = useReceiptDetector(videoRef, mode === "live" && !overlayOpen);
@@ -113,18 +125,16 @@ export default function SnapScreen() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [overlayOpen]);
 
-    /**
-     * After the last queued check is written and the batch empties, bring the
-     * camera back so the next receipt can be captured without an extra tap.
-     */
+    /** Soft "saved" toast whenever an append succeeds. */
     useEffect(() => {
-        const hadItems = prevBatchLen.current > 0;
-        prevBatchLen.current = batch.length;
-        if (batch.length === 0 && hadItems && cameraStarted.current) {
-            void openCamera();
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [batch.length]);
+        if (savedTick === 0) return;
+        setToast(true);
+        if (toastTimer.current) window.clearTimeout(toastTimer.current);
+        toastTimer.current = window.setTimeout(() => {
+            setToast(false);
+            toastTimer.current = null;
+        }, 1800);
+    }, [savedTick]);
 
     function stopCamera() {
         streamRef.current?.getTracks().forEach((track) => track.stop());
@@ -155,6 +165,7 @@ export default function SnapScreen() {
     useEffect(
         () => () => {
             if (flashTimer.current) window.clearTimeout(flashTimer.current);
+            if (toastTimer.current) window.clearTimeout(toastTimer.current);
             stopCamera();
         },
         []
@@ -166,7 +177,6 @@ export default function SnapScreen() {
             cameraInputRef.current?.click();
             return;
         }
-        cameraStarted.current = true;
         setMode("starting");
         try {
             // Soft constraints only. Asking for 4K made some older phones take
@@ -210,6 +220,10 @@ export default function SnapScreen() {
         // grabbed a full-sensor frame that then had to be decoded and resized.
         ctx.drawImage(video, 0, 0, width, height);
 
+        // The frame is grabbed. Drop the live view right away.
+        stopCamera();
+        setMode("idle");
+
         // Thumbnail from the same canvas, so there is no second decode.
         const thumbSize = 96;
         const tcanvas = document.createElement("canvas");
@@ -248,6 +262,14 @@ export default function SnapScreen() {
         }, 160);
         const shot = await captureFrame();
         if (shot) addBlob(shot.blob, shot.thumb, "manual");
+    }
+
+    async function openSheetPicker() {
+        setSheetPicker(true);
+        setSheetPickerBusy(true);
+        const list = await listSheetChoices();
+        setSheetChoices(list);
+        setSheetPickerBusy(false);
     }
 
     function shutter() {
@@ -298,12 +320,16 @@ export default function SnapScreen() {
     }
 
     return (
-        <PhoneShell tone="brand" pill={workspace?.spreadsheet_title}>
+        <PhoneShell
+            tone="brand"
+            pill={workspace?.spreadsheet_title}
+            pillAction={workspace ? () => void openSheetPicker() : undefined}
+        >
             <div
                 className={`relative w-full flex-none overflow-hidden rounded-panel bg-[#2a1410] text-center text-peach ${
-                    mode === "live" ? "" : "h-24"
+                    framing ? "" : "h-24"
                 }`}
-                style={mode === "live" ? { aspectRatio: String(videoAspect) } : undefined}
+                style={framing ? { aspectRatio: String(videoAspect) } : undefined}
             >
                 <video
                     ref={videoRef}
@@ -441,6 +467,68 @@ export default function SnapScreen() {
                         if (mode !== "live") void openCamera();
                     }}
                 />
+            ) : null}
+
+            {sheetPicker ? (
+                <div
+                    className="fixed inset-0 z-40 flex items-end justify-center bg-black/60"
+                    onClick={() => setSheetPicker(false)}
+                >
+                    <div
+                        className="w-full max-w-[430px] rounded-t-3xl bg-card p-4"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <p className="font-head text-lg font-extrabold">
+                            {t("app.sheets.title")}
+                        </p>
+                        <p className="mt-1 text-xs text-muted">{t("app.sheets.body")}</p>
+                        {sheetPickerBusy ? (
+                            <span
+                                className="mx-auto my-6 block h-7 w-7 animate-spin rounded-full border-4 border-line border-t-brand"
+                                aria-hidden
+                            />
+                        ) : sheetChoices.length > 0 ? (
+                            <div className="mt-3 grid gap-2">
+                                {sheetChoices.map((c) => (
+                                    <button
+                                        key={c.id}
+                                        type="button"
+                                        onClick={() => {
+                                            void pickSheet(c.id);
+                                            setSheetPicker(false);
+                                        }}
+                                        className={`rounded-2xl border-2 px-4 py-3 text-left ${
+                                            c.id === workspace?.spreadsheet_id
+                                                ? "border-brand"
+                                                : "border-line"
+                                        }`}
+                                    >
+                                        <span className="block font-semibold">{c.name}</span>
+                                    </button>
+                                ))}
+                            </div>
+                        ) : (
+                            <p className="mt-3 text-sm text-muted">
+                                {t("app.sheets.emptyTitle")}
+                            </p>
+                        )}
+                        <button
+                            type="button"
+                            onClick={() => setSheetPicker(false)}
+                            className="mt-3 w-full rounded-full bg-mist px-6 py-3 font-semibold text-ink"
+                        >
+                            {t("app.sheets.cancel")}
+                        </button>
+                    </div>
+                </div>
+            ) : null}
+
+            {toast ? (
+                <div className="pointer-events-none fixed inset-x-0 bottom-28 z-[60] flex justify-center px-4">
+                    <span className="rounded-full bg-ink px-4 py-2 text-sm font-semibold text-white shadow-lg">
+                        {t("app.review.saved")}
+                    </span>
+                </div>
             ) : null}
         </PhoneShell>
     );

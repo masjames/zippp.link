@@ -5,18 +5,24 @@ import type { ReactNode } from "react";
  *
  * Args:
  *     pill: Optional status pill shown next to the logo.
+ *     pillAction: When set, the pill is a button (a quick sheet selector).
  *     tone: "brand" paints the orange screen (Intro, Capture).
  */
 export default function PhoneShell({
     pill,
+    pillAction,
     tone = "default",
     children,
 }: {
     pill?: ReactNode;
+    pillAction?: () => void;
     tone?: "default" | "brand";
     children: ReactNode;
 }) {
     const brand = tone === "brand";
+    const pillClass = `rounded-full px-3 py-1 text-xs font-semibold ${
+        brand ? "bg-peach text-ink" : "bg-surface text-body"
+    }`;
 
     return (
         <div
@@ -33,13 +39,13 @@ export default function PhoneShell({
                     zippp
                 </span>
                 {pill ? (
-                    <span
-                        className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                            brand ? "bg-peach text-ink" : "bg-surface text-body"
-                        }`}
-                    >
-                        {pill}
-                    </span>
+                    pillAction ? (
+                        <button type="button" onClick={pillAction} className={pillClass}>
+                            {pill}
+                        </button>
+                    ) : (
+                        <span className={pillClass}>{pill}</span>
+                    )
                 ) : (
                     <span />
                 )}

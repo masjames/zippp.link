@@ -81,9 +81,11 @@ camera (auto-snap on) → item queued → extract → review card → Accept
   success (the server refunds on failure). Sends run one at a time so the rows
   keep their order.
 - Per-item status: `sending` then removed on success, or `ready` (kept for retry
-  with the error shown). A failure never blocks the others.
-- When the batch empties, the camera comes back so the next receipt can be
-  captured without an extra tap.
+  with the error shown). A failure never blocks the others. A sending item stays
+  hidden from the review queue, so the card does not flash back.
+- On success a soft **Saved** toast shows and the viewfinder stays small, so the
+  **Open Google Sheets** link stays on screen. Tapping the viewfinder starts the
+  camera for the next receipt.
 
 ## 5. Survives a refresh
 
