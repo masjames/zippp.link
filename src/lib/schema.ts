@@ -1,12 +1,25 @@
 import { Type } from "@google/genai";
 
+/** Categories the model may pick from. The only inferred field. */
+export const RECEIPT_CATEGORIES = [
+  "Bahan baku",
+  "Minuman",
+  "Kemasan",
+  "Peralatan",
+  "Kebersihan",
+  "Lainnya",
+] as const;
+
 export const EXTRACT_PROMPT = `Extract data from this photo of a receipt or invoice.
 Language may be English or Indonesian.
 Return JSON only, matching the schema.
 If a field is missing or unreadable, use null. Do not invent values, merchants, dates, or amounts.
 If this is not a receipt or invoice, set refusal to "not_a_receipt" and all other fields to null.
 If the photo cannot be read, set refusal to "unreadable" and all other fields to null.
-Otherwise set refusal to null.`;
+Otherwise set refusal to null.
+Set "category" to the closest of: ${RECEIPT_CATEGORIES.join(
+  ", "
+)}. Category is inferred from the merchant and items; if unsure, use null.`;
 
 /** Instructions shared by the text and vision structuring prompts. */
 export const SOURCE_INSTRUCTIONS = `The OCR text, when provided, is a list of rows prefixed with their zero-based index in square brackets, for example:
@@ -26,6 +39,7 @@ export const RECEIPT_SCHEMA_HINT = `Return a single JSON object of exactly this 
   "date": "YYYY-MM-DD" | null,
   "date_source": number | null,
   "currency": string | null,
+  "category": string | null,
   "line_items": [
     {
       "description": string | null,
@@ -58,6 +72,7 @@ export const RECEIPT_JSON_SCHEMA = {
     date: { type: Type.STRING, nullable: true },
     date_source: { type: Type.NUMBER, nullable: true },
     currency: { type: Type.STRING, nullable: true },
+    category: { type: Type.STRING, nullable: true },
     line_items: {
       type: Type.ARRAY,
       items: {
@@ -86,6 +101,7 @@ export const RECEIPT_JSON_SCHEMA = {
     "date",
     "date_source",
     "currency",
+    "category",
     "line_items",
     "subtotal",
     "subtotal_source",

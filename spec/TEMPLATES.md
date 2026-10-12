@@ -29,7 +29,7 @@ For a manager whose staff shop for kitchen/inventory. Matches “I used to type 
 | Currency | mill `currency` | default IDR if null and Charlie says so |
 | Staff | **prompt-at-submit** | from Charlie’s list |
 | Outlet | **default or prompt** | |
-| Category | **constant or blank** | not read from photo; left empty unless the operator sets one |
+| Category | model `category` | inferred from merchant and items, editable in review; blank if unsure |
 | Notes | empty | |
 | Captured at | zippp timestamp | ISO |
 
@@ -49,7 +49,7 @@ Intake for one human. **Not** books, VAT, or net worth.
 | Tax | mill `tax` (header; last line only if needed) |
 | Total | mill `total` (repeat) |
 | Currency | mill `currency` |
-| Category | constant or empty (user fills in sheet) |
+| Category | model `category` (inferred, editable in review; blank if unsure) |
 | Payment | empty unless printed and mapped |
 | Notes | empty |
 

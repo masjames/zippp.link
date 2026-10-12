@@ -728,6 +728,16 @@ function ConfirmCard({
                     className={`${INPUT} font-head text-xl font-extrabold`}
                 />
 
+                <label className="mt-2 grid gap-1">
+                    <span className="text-xs font-semibold">{t("app.check.category")}</span>
+                    <input
+                        value={d.category}
+                        onChange={(e) => patch({ category: e.target.value })}
+                        placeholder={t("app.check.category")}
+                        className={INPUT}
+                    />
+                </label>
+
                 <div className="mt-2 flex gap-2">
                     <label className="grid flex-1 gap-1">
                         <span className="text-xs font-semibold">{t("app.check.date")}</span>

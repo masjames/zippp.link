@@ -396,6 +396,10 @@ Jumlah
 Total with tax
 ## app.check.total.id
 Total termasuk pajak
+## app.check.category.en
+Category
+## app.check.category.id
+Kategori
 ## app.check.send.en
 Send to sheet
 ## app.check.send.id

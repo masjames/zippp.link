@@ -58,7 +58,7 @@ camera (auto-snap on) → item queued → extract → review card → Accept
 - **Only one card is expanded** (the current one); the others are collapsed to a
   thumbnail + one-line summary. **Accepted cards are hidden.**
 - The expanded card shows the extracted data as an **editable form**
-  (merchant, date, subtotal, tax, total, line items: description, qty,
+  (merchant, category, date, subtotal, tax, total, line items: description, qty,
   unit price, amount) with two actions:
   - **Accept** — confirms as-is (or after an edit), hides the card, opens the next
     unaccepted receipt.

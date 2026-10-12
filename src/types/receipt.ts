@@ -20,6 +20,8 @@ export type Receipt = {
     merchant: string | null;
     date: string | null;
     currency: string | null;
+    /** Inferred category (the only field not read from the photo). */
+    category: string | null;
     line_items: LineItem[];
     subtotal: number | null;
     tax: number | null;
@@ -39,6 +41,7 @@ export type RawReceipt = {
     date: string | null;
     date_source?: number | null;
     currency: string | null;
+    category: string | null;
     line_items: RawLineItem[];
     subtotal: number | null;
     subtotal_source?: number | null;

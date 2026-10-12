@@ -12,6 +12,7 @@ export type Draft = {
     merchant: string;
     date: string;
     currency: string;
+    category: string;
     staff: string;
     outlet: string;
     subtotal: string;
@@ -35,6 +36,7 @@ export function toDraft(receipt: Receipt): Draft {
         merchant: receipt.merchant ?? "",
         date: receipt.date ?? "",
         currency: receipt.currency ?? "",
+        category: receipt.category ?? "",
         staff: "",
         outlet: "",
         subtotal: receipt.subtotal == null ? "" : String(receipt.subtotal),
@@ -100,6 +102,7 @@ export function fromDraft(draft: Draft): Receipt {
         merchant: draft.merchant.trim() || null,
         date: draft.date.trim() || null,
         currency: draft.currency.trim() || null,
+        category: draft.category.trim() || null,
         line_items,
         subtotal: parseMoney(draft.subtotal),
         tax: parseMoney(draft.tax),

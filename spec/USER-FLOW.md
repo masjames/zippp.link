@@ -69,8 +69,9 @@ An Indonesian IP hitting `/` with no cookie is redirected to `/id` once.
 - **Intro / Sign in** — what zippp does, then Google (the only login).
 - **Snap** (single screen) — live camera with auto-snap (on by default); the
   **viewfinder is the shutter** (tap to capture); blur blocks capture; upload is
-  below. A captured check opens an editable card (merchant, date, subtotal, tax,
-  total, and line items: description, qty, unit price, amount) with **Accept** /
+  below. A captured check opens an editable card (merchant, category, date,
+  subtotal, tax, total, and line items: description, qty, unit price, amount)
+  with **Accept** /
   **Delete** in a fixed footer. **Accept writes the row to Google Sheets right
   away** (1 credit) and opens the next card. A bottom **Open Google Sheets**
   link opens the connected sheet at any time.

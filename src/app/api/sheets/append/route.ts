@@ -65,6 +65,7 @@ function parseReceipt(raw: unknown): Receipt | null {
     merchant: parseNullableString(o.merchant),
     date: parseNullableString(o.date),
     currency: parseNullableString(o.currency),
+    category: parseNullableString(o.category),
     line_items,
     subtotal: parseNullableNumber(o.subtotal),
     tax: parseNullableNumber(o.tax),

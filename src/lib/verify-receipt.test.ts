@@ -9,6 +9,7 @@ function raw(partial: Partial<RawReceipt>): RawReceipt {
         merchant: null,
         date: null,
         currency: null,
+        category: null,
         line_items: [],
         subtotal: null,
         tax: null,

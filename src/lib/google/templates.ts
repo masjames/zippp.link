@@ -91,6 +91,7 @@ export const RESTO_INVENTORY_FIELDS = [
   { id: "tax", label: "Tax", aliases: ["tax"] },
   { id: "total", label: "Receipt total", aliases: ["receipt total", "total"] },
   { id: "currency", label: "Currency", aliases: ["currency"] },
+  { id: "category", label: "Category", aliases: ["category"] },
   { id: "staff", label: "Staff (op)", aliases: ["staff"] },
   { id: "outlet", label: "Outlet (op)", aliases: ["outlet"] },
   { id: "captured_at", label: "Captured at (op)", aliases: ["captured at", "captured_at"] },
@@ -102,8 +103,6 @@ const RESTO_CONSTANT_ALIASES: {
   defaultValue: string;
 }[] = [
   { aliases: ["unit", "units", "uom"], defaultValue: "" },
-  // Category is never invented; leave it empty unless the operator sets one.
-  { aliases: ["category"], defaultValue: "" },
   { aliases: ["notes", "note"], defaultValue: "" },
 ];
 
@@ -131,6 +130,7 @@ const PERSONAL_EXPENSE_FIELDS: FieldDef[] = [
   { id: "tax", aliases: ["tax"] },
   { id: "total", aliases: ["total", "receipt total"] },
   { id: "currency", aliases: ["currency"] },
+  { id: "category", aliases: ["category"] },
   { id: "captured_at", aliases: ["captured at", "captured_at"] },
 ];
 
@@ -154,7 +154,6 @@ const PERSONAL_EXPENSE_CONSTANTS: {
   aliases: string[];
   defaultValue: string;
 }[] = [
-  { aliases: ["category"], defaultValue: "" },
   { aliases: ["payment"], defaultValue: "" },
   { aliases: ["notes", "note"], defaultValue: "" },
 ];
@@ -257,6 +256,8 @@ function valueForField(
       return emptyIfNull(receipt.subtotal);
     case "currency":
       return emptyIfNull(receipt.currency);
+    case "category":
+      return emptyIfNull(receipt.category);
     case "staff":
       return staff;
     case "outlet":

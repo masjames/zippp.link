@@ -451,11 +451,16 @@ export function verifyReceipt(raw: RawReceipt, ocr: OcrGrounding): VerifyResult 
         });
     }
 
+    // Category is inferred from the merchant and items, not read from the photo,
+    // so it is passed through without grounding.
+    const category = asString(raw.category);
+
     const unique = dedupeFlags(flags);
     const receipt: Receipt = {
         merchant,
         date,
         currency: asString(raw.currency),
+        category,
         line_items,
         subtotal,
         tax,

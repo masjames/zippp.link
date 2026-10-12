@@ -8,6 +8,7 @@ function receipt(partial: Partial<Receipt>): Receipt {
         merchant: null,
         date: null,
         currency: null,
+        category: null,
         line_items: [],
         subtotal: null,
         tax: null,
