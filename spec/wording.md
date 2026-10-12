@@ -242,9 +242,9 @@ Take photo
 ## app.capture.shutter.id
 Ambil foto
 ## app.capture.tapToShoot.en
-Tap the frame to take a photo
+Tap this screen to capture
 ## app.capture.tapToShoot.id
-Ketuk layar untuk memotret
+Ketuk layar ini untuk meng-capture
 ## app.capture.starting.en
 Starting camera…
 ## app.capture.starting.id

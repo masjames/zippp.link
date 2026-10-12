@@ -281,6 +281,13 @@ export default function SnapScreen() {
                     }`}
                 />
                 {!compact && mode === "live" ? <GuideFrame /> : null}
+                {!compact && mode === "live" ? (
+                    <span className="pointer-events-none absolute inset-x-0 top-3 z-10 flex justify-center">
+                        <span className="rounded-full bg-black/55 px-3 py-1 text-xs font-semibold text-white">
+                            {t("app.capture.tapToShoot")}
+                        </span>
+                    </span>
+                ) : null}
                 {compact ? (
                     <span className="absolute inset-0 z-10 flex items-center justify-center gap-2 text-sm font-semibold">
                         <span aria-hidden>✓</span>
@@ -323,11 +330,6 @@ export default function SnapScreen() {
             <input ref={uploadInputRef} type="file" accept="image/*" className="hidden"
                 onChange={(e) => { pick(e.target.files, false); e.target.value = ""; }} />
 
-            {mode === "live" ? (
-                <p className="mt-1 text-center text-xs opacity-80">
-                    {t("app.capture.tapToShoot")}
-                </p>
-            ) : null}
             <div className="flex items-center justify-between text-xs">
                 <button type="button" onClick={() => uploadInputRef.current?.click()}
                     className="font-medium text-ink underline underline-offset-4">
