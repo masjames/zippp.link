@@ -479,9 +479,9 @@ Choose a [zippp] sheet
 ## app.sheets.title.id
 Pilih sheet [zippp]
 ## app.sheets.body.en
-We found more than one. Pick the one that should receive these rows.
+Pick the one that should receive these rows.
 ## app.sheets.body.id
-Kami menemukan lebih dari satu. Pilih yang akan menerima baris ini.
+Pilih yang akan menerima baris ini.
 ## app.sheets.retry.en
 Try again
 ## app.sheets.retry.id
@@ -1214,6 +1214,18 @@ Hubungkan ulang
 Continue
 ## app.sheets.continue.id
 Lanjut
+## app.sheets.choose.en
+Choose a sheet
+## app.sheets.choose.id
+Pilih sheet
+## app.sheets.create.en
+Create a new sheet
+## app.sheets.create.id
+Buat sheet baru
+## app.sheets.none.en
+No [zippp] sheets found. Create one.
+## app.sheets.none.id
+Tidak ada sheet [zippp]. Buat satu.
 ## app.debug.title.en
 Debug trace
 ## app.debug.title.id

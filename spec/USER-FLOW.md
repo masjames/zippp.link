@@ -43,7 +43,7 @@ The sheet stays the system of record. zippp is the intake mill.
 | `/app/topup` | Top up: GoPay (id) or Paddle (intl) | signed in |
 | `/app/topup/order/[id]` | GoPay order: amount, countdown, "I have paid" | signed in |
 | `/app/settings` | balance, invite link, sheet, sign out | signed in |
-| `/app/settings/sheet` | sheet status, reconnect, picker | signed in |
+| `/app/settings/sheet` | sheet status, create/choose sheet, reconnect | signed in |
 | `/admin` | GoPay orders: approve/reject/manual grant | admin emails only |
 
 `/` is English with USD; `/id` is Indonesian with IDR (no language toggle). The
@@ -57,6 +57,8 @@ A back-to-Snap control shows on every app screen except Snap and Start.
 1. `!authChecked` → loading spinner. Never show Sign in first.
 2. No session → `/app/start`.
 3. No usable sheet → `/app/settings/sheet` (auto-attempts find/create).
+   Settings is reachable from the app header; from there the sheet page can also
+   force-create a new `[zippp]` sheet or choose among the existing ones.
 4. No credits → `/app/topup` (Settings stays reachable).
 5. Ready: `/app` → `/app/snap`. A signed-in user on `/app/start` → `/app/snap`.
 

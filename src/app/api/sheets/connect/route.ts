@@ -22,6 +22,8 @@ export const runtime = "nodejs";
 type ConnectBody = {
   /** When set, connect this spreadsheet (user picked from candidates). */
   spreadsheetId?: string;
+  /** "create" force-creates a new sheet; "list" returns the choices. */
+  mode?: "create" | "list";
 };
 
 async function persistConnection(input: {
@@ -108,6 +110,39 @@ export async function POST(req: Request) {
         ok: true,
         created: result.created,
         workspace: result.workspace,
+      });
+    }
+
+    // Force-create a new `[zippp] Resto inventory` sheet.
+    if (body.mode === "create") {
+      const { meta, sheetTab, headers } =
+        await createRestoInventorySpreadsheet();
+      const result = await persistConnection({
+        googleUserId,
+        spreadsheetId: meta.spreadsheetId,
+        title: meta.title,
+        sheetTab,
+        headers,
+        created: true,
+      });
+      return NextResponse.json({
+        ok: true,
+        created: true,
+        workspace: result.workspace,
+      });
+    }
+
+    // List the `[zippp]` sheets so the user can choose one.
+    if (body.mode === "list") {
+      const list = await findZippSpreadsheets();
+      return NextResponse.json({
+        ok: true,
+        needsPick: true,
+        candidates: list.map((h: DriveSpreadsheetHit) => ({
+          id: h.id,
+          name: h.name,
+          modifiedTime: h.modifiedTime,
+        })),
       });
     }
 

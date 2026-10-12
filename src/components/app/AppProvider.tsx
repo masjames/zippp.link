@@ -89,6 +89,10 @@ type Value = {
     signOut: () => Promise<void>;
     ensureSheet: () => Promise<void>;
     pickSheet: (id: string) => Promise<void>;
+    /** Force-create a new `[zippp]` sheet and connect it. */
+    createSheet: () => Promise<void>;
+    /** List the `[zippp]` sheets to choose from. Returns how many there are. */
+    listSheets: () => Promise<number>;
 };
 
 const Ctx = createContext<Value | null>(null);
@@ -496,6 +500,60 @@ export default function AppProvider({
         }
     }
 
+    async function createSheet() {
+        setSheetError(false);
+        setCandidates([]);
+        setBusy(true);
+        try {
+            const res = await fetch("/api/sheets/connect", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ mode: "create" }),
+            });
+            if (res.status === 401) {
+                setAuthError(t("app.signin.error"));
+                setAuth({ signedIn: false, oauthConfigured: true, googleUserId: null });
+                return;
+            }
+            const data = await res.json();
+            if (data.ok && data.workspace) setWorkspace(data.workspace);
+            else setSheetError(true);
+        } catch {
+            setSheetError(true);
+        } finally {
+            setBusy(false);
+        }
+    }
+
+    async function listSheets(): Promise<number> {
+        setSheetError(false);
+        setCandidates([]);
+        setBusy(true);
+        try {
+            const res = await fetch("/api/sheets/connect", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ mode: "list" }),
+            });
+            if (res.status === 401) {
+                setAuthError(t("app.signin.error"));
+                setAuth({ signedIn: false, oauthConfigured: true, googleUserId: null });
+                return 0;
+            }
+            const data = await res.json();
+            const list = Array.isArray(data.candidates)
+                ? (data.candidates as SheetCandidate[])
+                : [];
+            setCandidates(list);
+            return list.length;
+        } catch {
+            setSheetError(true);
+            return 0;
+        } finally {
+            setBusy(false);
+        }
+    }
+
     function login() {
         setAuthError(null);
         window.location.href = "/api/auth/login";
@@ -547,6 +605,8 @@ export default function AppProvider({
         signOut,
         ensureSheet,
         pickSheet,
+        createSheet,
+        listSheets,
     };
 
     return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
