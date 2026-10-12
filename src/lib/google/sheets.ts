@@ -3,9 +3,12 @@ import { createOAuthClient } from "./oauth";
 import { loadTokens, saveTokens } from "./token-store";
 import {
   RESTO_INVENTORY_HEADERS,
+  TEMPLATE_HEADERS,
+  TEMPLATE_SHEET_TITLE,
   ZIPPP_NAME_MARKER,
   ZIPPP_RESTO_SHEET_TITLE,
 } from "./templates";
+import type { TemplateId } from "./workspace-store";
 
 export class SheetsAuthError extends Error {
   constructor(message: string) {
@@ -293,6 +296,19 @@ export async function createRestoInventorySpreadsheet(): Promise<{
   const meta = await createSpreadsheet(ZIPPP_RESTO_SHEET_TITLE);
   const sheetTab = meta.sheetTabs[0] || "Sheet1";
   const headers = [...RESTO_INVENTORY_HEADERS];
+  await writeHeaderRow(meta.spreadsheetId, sheetTab, headers);
+  return { meta, sheetTab, headers };
+}
+
+/** Create a new sheet for any template, writing its headers as row 1. */
+export async function createTemplateSpreadsheet(templateId: TemplateId): Promise<{
+  meta: SpreadsheetMeta;
+  sheetTab: string;
+  headers: string[];
+}> {
+  const meta = await createSpreadsheet(TEMPLATE_SHEET_TITLE[templateId]);
+  const sheetTab = meta.sheetTabs[0] || "Sheet1";
+  const headers = [...TEMPLATE_HEADERS[templateId]];
   await writeHeaderRow(meta.spreadsheetId, sheetTab, headers);
   return { meta, sheetTab, headers };
 }

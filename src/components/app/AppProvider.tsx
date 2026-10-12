@@ -43,6 +43,11 @@ export type Workspace = {
 
 export type SheetCandidate = { id: string; name: string; modifiedTime: string };
 
+export type SheetTemplateId =
+    | "resto-inventory"
+    | "personal-expense"
+    | "custom";
+
 export type BalanceState = {
     configured: boolean;
     credits: number;
@@ -89,8 +94,8 @@ type Value = {
     signOut: () => Promise<void>;
     ensureSheet: () => Promise<void>;
     pickSheet: (id: string) => Promise<void>;
-    /** Force-create a new `[zippp]` sheet and connect it. */
-    createSheet: () => Promise<void>;
+    /** Force-create a new `[zippp]` sheet for a template and connect it. */
+    createSheet: (templateId: SheetTemplateId) => Promise<void>;
     /** List the `[zippp]` sheets to choose from. Returns how many there are. */
     listSheets: () => Promise<number>;
 };
@@ -500,7 +505,7 @@ export default function AppProvider({
         }
     }
 
-    async function createSheet() {
+    async function createSheet(templateId: SheetTemplateId) {
         setSheetError(false);
         setCandidates([]);
         setBusy(true);
@@ -508,7 +513,7 @@ export default function AppProvider({
             const res = await fetch("/api/sheets/connect", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ mode: "create" }),
+                body: JSON.stringify({ mode: "create", templateId }),
             });
             if (res.status === 401) {
                 setAuthError(t("app.signin.error"));

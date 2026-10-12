@@ -19,11 +19,11 @@ uses.
 
 1. **Primary:** operators who already run a sheet and whose team produces paper
    notas (restaurants, warung, cafes, shops). Their time is spent typing.
-2. **Secondary (spec-only):** one person using the `personal-expense` template.
+2. **Secondary:** one person using the `personal-expense` template.
 3. **Not:** replacing Accurate/Jurnal/Xero, and not a hobby ledger with 40 reports.
 
-> **Implemented today:** only the `resto-inventory` template. `personal-expense`
-> and `custom` are specified but not built (see `LATER.md`, `TEMPLATES.md`).
+> **Implemented today:** all three templates. The sheet wizard creates a new
+> sheet for `resto-inventory`, `personal-expense`, or `custom` (`TEMPLATES.md`).
 
 ---
 

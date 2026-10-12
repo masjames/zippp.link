@@ -57,8 +57,10 @@ A back-to-Snap control shows on every app screen except Snap and Start.
 1. `!authChecked` → loading spinner. Never show Sign in first.
 2. No session → `/app/start`.
 3. No usable sheet → `/app/settings/sheet` (auto-attempts find/create).
-   Settings is reachable from the app header; from there the sheet page can also
-   force-create a new `[zippp]` sheet or choose among the existing ones.
+   Settings is reachable from the app header; from there the sheet page can
+   create a new `[zippp]` sheet from one of three templates (Purchasing and
+   inventory, Expense tracker, Custom), open the sheet in Google Sheets, or
+   choose among the existing `[zippp]` sheets.
 4. No credits → `/app/topup` (Settings stays reachable).
 5. Ready: `/app` → `/app/snap`. A signed-in user on `/app/start` → `/app/snap`.
 
@@ -77,6 +79,10 @@ A back-to-Snap control shows on every app screen except Snap and Start.
 - **Success** — after a batch send: "{sent} of {total} sent", **Open the sheet**
   and **Scan more**. Failed items reappear in the batch to retry.
 - A collapsible **Debug** panel shows the extraction trace in the expanded card.
+
+Navigation: on mobile there is no in-app back button; the device back button or
+gesture is used. `/app/snap` is home. The app header shows a **Settings** button
+(gear + label), plus **Admin** for admins; **Sign out** lives on `/app/settings`.
 
 ---
 

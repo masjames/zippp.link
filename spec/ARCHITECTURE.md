@@ -156,8 +156,9 @@ Every user-visible string lives in **`spec/wording.md`** (`## key.lang` entries)
 
 ## Templates
 
-Only **`resto-inventory`** is implemented (`src/lib/google/templates.ts`,
-`connect` route). `personal-expense` and `custom` are spec-only (`LATER.md`).
+All three templates are implemented (`src/lib/google/templates.ts`, `connect`
+route). The sheet wizard creates a new sheet for `resto-inventory`,
+`personal-expense`, or `custom`, each with its own header row and default map.
 
 ## Data flow
 

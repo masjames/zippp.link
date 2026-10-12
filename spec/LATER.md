@@ -33,17 +33,12 @@ Stock on hand, recipes, COGS per plate, waste. Phase 1 only **records the nota**
 
 Part of the v4 ship plan, deferred:
 
-- **Template picker**: after login, pick **Expense tracker** or **Purchasing and
-  inventory**. Existing workspaces keep their sheet.
 - **Receipt photo to Drive**: on Send, upload a compressed copy to the
   `[zippp] receipts` folder as `{ref}.jpg`, append `Ref` and `Scan ID`, then
   spend a credit.
 - **Batch review**, **team members by Google account**, **per-minute guard**,
   **bigger Paddle packs**, **QRIS gateway** (replaces manual GoPay),
   **Axiom logs**.
-
-- **`personal-expense` and `custom` templates** — only `resto-inventory` ships
-  (`TEMPLATES.md`).
 - **Server-side job queue** — the app uses a per-device client queue today.
   A Blob-backed async job (`POST` returns a jobId, client polls) is the upgrade
   if a queue must survive closing the app.

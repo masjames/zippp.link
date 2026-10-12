@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import {
   createRestoInventorySpreadsheet,
+  createTemplateSpreadsheet,
   findZippSpreadsheets,
   getHeaderRow,
   getSpreadsheetMeta,
@@ -14,6 +15,7 @@ import { buildDefaultMap } from "@/lib/google/templates";
 import {
   saveWorkspace,
   workspacePublic,
+  type TemplateId,
   type WorkspaceConfig,
 } from "@/lib/google/workspace-store";
 
@@ -24,6 +26,8 @@ type ConnectBody = {
   spreadsheetId?: string;
   /** "create" force-creates a new sheet; "list" returns the choices. */
   mode?: "create" | "list";
+  /** Template for a newly created sheet (mode "create"). */
+  templateId?: TemplateId;
 };
 
 async function persistConnection(input: {
@@ -33,21 +37,20 @@ async function persistConnection(input: {
   sheetTab: string;
   headers: string[];
   created: boolean;
+  templateId?: TemplateId;
 }): Promise<{
   workspace: ReturnType<typeof workspacePublic>;
   created: boolean;
 }> {
-  const { column_map, constants } = buildDefaultMap(
-    "resto-inventory",
-    input.headers
-  );
+  const templateId = input.templateId ?? "resto-inventory";
+  const { column_map, constants } = buildDefaultMap(templateId, input.headers);
 
   const ws = await saveWorkspace({
     google_user_id: input.googleUserId,
     spreadsheet_id: input.spreadsheetId,
     spreadsheet_title: input.title,
     sheet_tab: input.sheetTab,
-    template_id: "resto-inventory",
+    template_id: templateId,
     column_map,
     constants,
     staff_names: [],
@@ -113,10 +116,14 @@ export async function POST(req: Request) {
       });
     }
 
-    // Force-create a new `[zippp] Resto inventory` sheet.
+    // Force-create a new sheet for the chosen template.
     if (body.mode === "create") {
+      const templateId: TemplateId =
+        body.templateId === "personal-expense" || body.templateId === "custom"
+          ? body.templateId
+          : "resto-inventory";
       const { meta, sheetTab, headers } =
-        await createRestoInventorySpreadsheet();
+        await createTemplateSpreadsheet(templateId);
       const result = await persistConnection({
         googleUserId,
         spreadsheetId: meta.spreadsheetId,
@@ -124,6 +131,7 @@ export async function POST(req: Request) {
         sheetTab,
         headers,
         created: true,
+        templateId,
       });
       return NextResponse.json({
         ok: true,

@@ -1226,6 +1226,42 @@ Buat sheet baru
 No [zippp] sheets found. Create one.
 ## app.sheets.none.id
 Tidak ada sheet [zippp]. Buat satu.
+## app.sheets.open.en
+Open in Google Sheets
+## app.sheets.open.id
+Buka di Google Sheets
+## app.sheets.wizard.title.en
+New sheet
+## app.sheets.wizard.title.id
+Sheet baru
+## app.sheets.wizard.body.en
+Choose a layout. You can change the columns later.
+## app.sheets.wizard.body.id
+Pilih susunan kolom. Kolom bisa diubah nanti.
+## app.sheets.tpl.resto.en
+Purchasing and inventory
+## app.sheets.tpl.resto.id
+Pembelian dan stok
+## app.sheets.tpl.restoBody.en
+Supplier, item, qty, unit price, line amount, tax, total.
+## app.sheets.tpl.restoBody.id
+Pemasok, item, jumlah, harga satuan, jumlah baris, pajak, total.
+## app.sheets.tpl.expense.en
+Expense tracker
+## app.sheets.tpl.expense.id
+Catatan pengeluaran
+## app.sheets.tpl.expenseBody.en
+Merchant, description, qty, amount, tax, total.
+## app.sheets.tpl.expenseBody.id
+Toko, keterangan, jumlah, nominal, pajak, total.
+## app.sheets.tpl.custom.en
+Custom
+## app.sheets.tpl.custom.id
+Kustom
+## app.sheets.tpl.customBody.en
+Every field: supplier, item, qty, unit price, subtotal, tax, total.
+## app.sheets.tpl.customBody.id
+Semua kolom: pemasok, item, jumlah, harga satuan, subtotal, pajak, total.
 ## app.debug.title.en
 Debug trace
 ## app.debug.title.id

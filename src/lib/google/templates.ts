@@ -26,6 +26,60 @@ export const RESTO_INVENTORY_HEADERS = [
   "Captured at",
 ] as const;
 
+/** Row-1 headers for a new personal-expense sheet (spec/TEMPLATES.md T2). */
+export const PERSONAL_EXPENSE_HEADERS = [
+  "Date",
+  "Merchant",
+  "Description",
+  "Qty",
+  "Amount",
+  "Tax",
+  "Total",
+  "Currency",
+  "Category",
+  "Payment",
+  "Notes",
+  "Captured at",
+] as const;
+
+/** Row-1 headers for a new custom sheet: the mill fields (spec/TEMPLATES.md T3). */
+export const CUSTOM_HEADERS = [
+  "Date",
+  "Merchant",
+  "Description",
+  "Qty",
+  "Unit price",
+  "Amount",
+  "Subtotal",
+  "Tax",
+  "Total",
+  "Currency",
+  "Staff",
+  "Outlet",
+  "Notes",
+  "Captured at",
+] as const;
+
+/** Default title for a newly created personal-expense sheet. */
+export const ZIPPP_PERSONAL_SHEET_TITLE = "[zippp] Expenses";
+
+/** Default title for a newly created custom sheet. */
+export const ZIPPP_CUSTOM_SHEET_TITLE = "[zippp] Custom";
+
+/** Sheet title per template. */
+export const TEMPLATE_SHEET_TITLE: Record<TemplateId, string> = {
+  "resto-inventory": ZIPPP_RESTO_SHEET_TITLE,
+  "personal-expense": ZIPPP_PERSONAL_SHEET_TITLE,
+  custom: ZIPPP_CUSTOM_SHEET_TITLE,
+};
+
+/** Row-1 headers per template. */
+export const TEMPLATE_HEADERS: Record<TemplateId, readonly string[]> = {
+  "resto-inventory": RESTO_INVENTORY_HEADERS,
+  "personal-expense": PERSONAL_EXPENSE_HEADERS,
+  custom: CUSTOM_HEADERS,
+};
+
 /** Stable mill/op field ids used as column_map keys. */
 export const RESTO_INVENTORY_FIELDS = [
   { id: "date", label: "Date", aliases: ["date"] },
@@ -65,6 +119,65 @@ function findHeader(headers: string[], aliases: string[]): string | null {
   return null;
 }
 
+type FieldDef = { id: string; aliases: readonly string[] };
+
+const PERSONAL_EXPENSE_FIELDS: FieldDef[] = [
+  { id: "date", aliases: ["date"] },
+  { id: "merchant", aliases: ["merchant", "supplier"] },
+  { id: "description", aliases: ["description", "item"] },
+  { id: "qty", aliases: ["qty", "quantity"] },
+  { id: "amount", aliases: ["amount", "line amount"] },
+  { id: "tax", aliases: ["tax"] },
+  { id: "total", aliases: ["total", "receipt total"] },
+  { id: "currency", aliases: ["currency"] },
+  { id: "captured_at", aliases: ["captured at", "captured_at"] },
+];
+
+const CUSTOM_FIELDS: FieldDef[] = [
+  { id: "date", aliases: ["date"] },
+  { id: "merchant", aliases: ["merchant", "supplier"] },
+  { id: "description", aliases: ["description", "item"] },
+  { id: "qty", aliases: ["qty", "quantity"] },
+  { id: "unit_price", aliases: ["unit price", "unit_price", "price"] },
+  { id: "amount", aliases: ["amount", "line amount"] },
+  { id: "subtotal", aliases: ["subtotal"] },
+  { id: "tax", aliases: ["tax"] },
+  { id: "total", aliases: ["total", "receipt total"] },
+  { id: "currency", aliases: ["currency"] },
+  { id: "staff", aliases: ["staff"] },
+  { id: "outlet", aliases: ["outlet"] },
+  { id: "captured_at", aliases: ["captured at", "captured_at"] },
+];
+
+const PERSONAL_EXPENSE_CONSTANTS: {
+  aliases: string[];
+  defaultValue: string;
+}[] = [
+  { aliases: ["category"], defaultValue: "" },
+  { aliases: ["payment"], defaultValue: "" },
+  { aliases: ["notes", "note"], defaultValue: "" },
+];
+
+const CUSTOM_CONSTANTS: { aliases: string[]; defaultValue: string }[] = [
+  { aliases: ["notes", "note"], defaultValue: "" },
+  { aliases: ["category"], defaultValue: "" },
+];
+
+const TEMPLATE_FIELDS: Record<TemplateId, FieldDef[]> = {
+  "resto-inventory": RESTO_INVENTORY_FIELDS as unknown as FieldDef[],
+  "personal-expense": PERSONAL_EXPENSE_FIELDS,
+  custom: CUSTOM_FIELDS,
+};
+
+const TEMPLATE_CONSTANTS: Record<
+  TemplateId,
+  { aliases: string[]; defaultValue: string }[]
+> = {
+  "resto-inventory": RESTO_CONSTANT_ALIASES,
+  "personal-expense": PERSONAL_EXPENSE_CONSTANTS,
+  custom: CUSTOM_CONSTANTS,
+};
+
 /**
  * Build default column_map + constants for a template by matching
  * header names case-insensitively. Unmatched fields stay out of the map
@@ -74,18 +187,14 @@ export function buildDefaultMap(
   templateId: TemplateId,
   headers: string[]
 ): { column_map: ColumnMap; constants: ConstantsMap } {
-  if (templateId !== "resto-inventory") {
-    return { column_map: {}, constants: {} };
-  }
-
   const column_map: ColumnMap = {};
-  for (const field of RESTO_INVENTORY_FIELDS) {
+  for (const field of TEMPLATE_FIELDS[templateId] ?? []) {
     const header = findHeader(headers, [...field.aliases]);
     if (header) column_map[field.id] = header;
   }
 
   const constants: ConstantsMap = {};
-  for (const c of RESTO_CONSTANT_ALIASES) {
+  for (const c of TEMPLATE_CONSTANTS[templateId] ?? []) {
     const header = findHeader(headers, c.aliases);
     if (header) constants[header] = c.defaultValue;
   }
