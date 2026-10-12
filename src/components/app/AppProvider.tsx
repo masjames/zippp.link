@@ -20,7 +20,7 @@ import {
     type BatchItem,
     type CaptureSource,
 } from "@/lib/batch-db";
-import { downscaleImage, makeThumb } from "@/lib/image";
+import { prepareImage } from "@/lib/image";
 import { captureDate, fromDraft, toDraft } from "./draft";
 import { buildCorrectionRecord } from "@/lib/correction-diff";
 
@@ -284,8 +284,7 @@ export default function AppProvider({
         const id = crypto.randomUUID();
         const createdAt = Date.now();
         void (async () => {
-            const blob = await downscaleImage(file);
-            const thumb = await makeThumb(blob);
+            const { blob, thumb } = await prepareImage(file);
             const item: BatchItem = {
                 id,
                 createdAt,

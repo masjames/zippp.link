@@ -39,6 +39,8 @@ export async function downscaleImage(
         const h0 = src.height;
         if (!w0 || !h0) return file;
         const scale = Math.min(1, Math.sqrt(maxPixels / (w0 * h0)));
+        // Already within budget and already JPEG: keep the bytes as they are.
+        if (scale === 1 && file.type === "image/jpeg") return file;
         const canvas = document.createElement("canvas");
         canvas.width = Math.max(1, Math.round(w0 * scale));
         canvas.height = Math.max(1, Math.round(h0 * scale));
@@ -50,6 +52,71 @@ export async function downscaleImage(
         );
     } catch {
         return file;
+    }
+}
+
+export type PreparedImage = { blob: Blob; thumb: string };
+
+function canvasToJpeg(
+    canvas: HTMLCanvasElement,
+    quality: number
+): Promise<Blob | null> {
+    return new Promise((resolve) =>
+        canvas.toBlob((b) => resolve(b), "image/jpeg", quality)
+    );
+}
+
+/**
+ * Downscale and thumbnail in one pass. The image is decoded once and both
+ * outputs come from the same bitmap, which keeps manual capture fast on older
+ * phones (one decode, one encode, one tiny thumb encode).
+ */
+export async function prepareImage(
+    file: Blob,
+    maxPixels = 4_000_000,
+    quality = 0.85,
+    thumbSize = 96
+): Promise<PreparedImage> {
+    try {
+        const src = await loadBitmap(file);
+        const w0 = src.width;
+        const h0 = src.height;
+        if (!w0 || !h0) return { blob: file, thumb: "" };
+
+        const scale = Math.min(1, Math.sqrt(maxPixels / (w0 * h0)));
+        const width = Math.max(1, Math.round(w0 * scale));
+        const height = Math.max(1, Math.round(h0 * scale));
+
+        let blob: Blob = file;
+        if (scale < 1 || file.type !== "image/jpeg") {
+            const canvas = document.createElement("canvas");
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext("2d");
+            if (ctx) {
+                ctx.drawImage(src as CanvasImageSource, 0, 0, width, height);
+                blob = (await canvasToJpeg(canvas, quality)) ?? file;
+            }
+        }
+
+        const tcanvas = document.createElement("canvas");
+        tcanvas.width = thumbSize;
+        tcanvas.height = thumbSize;
+        const tctx = tcanvas.getContext("2d");
+        if (!tctx) return { blob, thumb: "" };
+        const s = Math.max(thumbSize / w0, thumbSize / h0);
+        const tw = w0 * s;
+        const th = h0 * s;
+        tctx.drawImage(
+            src as CanvasImageSource,
+            (thumbSize - tw) / 2,
+            (thumbSize - th) / 2,
+            tw,
+            th
+        );
+        return { blob, thumb: tcanvas.toDataURL("image/jpeg", 0.6) };
+    } catch {
+        return { blob: file, thumb: "" };
     }
 }
 

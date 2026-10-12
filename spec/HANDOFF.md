@@ -134,14 +134,14 @@ the Debug panel.
 - Detector (`useReceiptDetector`): 160px grayscale; **variance of Laplacian** for
   `sharp`; **frame-to-frame luma diff** for `steady` (`MOTION_MAX=8`,
   `STEADY_FRAMES=6`); mean luma for `brightness`.
-- Still: `ImageCapture.takePhoto()` gives a full-resolution still where the
-  browser supports it, else the video frame. A high `ideal` camera resolution is
-  requested, and photos are stored at a ~4 MP pixel budget (JPEG 0.85) so tall
-  receipts keep enough width.
+- Shutter: the viewfinder itself (tap the preview; no separate button). A
+  capture is grabbed from the preview into a ~4 MP canvas (JPEG 0.85) and encoded
+  once; `prepareImage` produces the stored blob and thumb from one decode. The
+  camera opens with soft constraints (1920 ideal) so older phones start fast.
 - Auto-capture: `autoSnap && steady && sharp` captures at once, adds the card as
   `reading`, and **`/api/extract`** decides. A `not_a_receipt` refusal drops the
   card silently and pauses auto-capture for 2.5s. Re-arms when the scene moves.
-  Manual shutter is always available, but a blurry frame is a hard block.
+  A tap is always available, but a blurry frame is a hard block.
 - Extractions run 2-3 at a time; the Send queue stays sequential.
 - A missing date is filled from the capture time and marked assumed in the
   review card.
@@ -213,8 +213,9 @@ score.
 
 ### Done
 - **Capture (Phase 1)**: native-aspect preview, static 9:16 guide,
-  `ImageCapture` stills, ~4 MP budget, `/api/detect` removed, capture into a
-  reading card, 2.5s refusal cooldown, blur hard block, 3 concurrent reads.
+  viewfinder-tap shutter, preview grabs at a ~4 MP budget, `/api/detect`
+  removed, capture into a reading card, 2.5s refusal cooldown, blur hard block,
+  3 concurrent reads.
 - **Verifier (Phase 2)**: deterministic grounding, flags, row indices, OCR
   scores, one OCR-aware vision retry, flagged review with tap to confirm.
 - **Eval (Phase 3 and the redesign)**: CLI harness and `/admin/eval` with four

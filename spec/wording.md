@@ -241,14 +241,18 @@ Unggah foto saja
 Take photo
 ## app.capture.shutter.id
 Ambil foto
+## app.capture.tapToShoot.en
+Tap the frame to take a photo
+## app.capture.tapToShoot.id
+Ketuk layar untuk memotret
 ## app.capture.starting.en
 Starting camera…
 ## app.capture.starting.id
 Menyalakan kamera…
 ## app.capture.tapStart.en
-Tap the shutter to start the camera
+Tap to start the camera
 ## app.capture.tapStart.id
-Ketuk tombol untuk menyalakan kamera
+Ketuk untuk menyalakan kamera
 ## app.capture.cameraError.en
 Camera unavailable or blocked. Use upload below.
 ## app.capture.cameraError.id

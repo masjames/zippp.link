@@ -33,16 +33,22 @@ camera (auto-snap on) → item queued → extract → review list → Accept/Edi
 
 ## 2. Capture
 
+- **The viewfinder is the shutter.** There is no separate capture button; a tap
+  on the preview takes a photo (and starts the camera on the first tap). A short
+  hint under the frame says so.
 - **Auto-snap ON by default.** When the detector sees a receipt in frame, sharp,
   and steady, the shutter fires; one shot per receipt, then re-arms (cooldown +
-  the receipt must leave the frame). Manual shutter always works. A preference
-  to turn auto-snap off is saved.
+  the receipt must leave the frame). A tap always works too. A preference to turn
+  auto-snap off is saved.
 - **Blur hard-blocks capture.** Blur = variance of Laplacian over the detected
-  box. While blurry: auto-snap does not fire, the manual shutter refuses, and the
-  viewfinder shows "Blurry. Hold steady." The captured frame is re-checked before
-  it is stored; a blurry frame never enters the batch. No override.
-- Each captured photo is downscaled to a ~4 MP pixel budget (JPEG 0.85) before
-  storing, so a tall receipt keeps enough width; IndexedDB stays small enough.
+  box. While blurry: auto-snap does not fire, a tap refuses, and the viewfinder
+  shows "Blurry. Hold steady." The captured frame is re-checked before it is
+  stored; a blurry frame never enters the batch. No override.
+- **Fast path.** The camera opens with soft constraints (1920 ideal, not 4K). A
+  capture is grabbed straight from the preview into a ~4 MP canvas and encoded
+  once (JPEG 0.85); the stored blob and the thumbnail come from one decode
+  (`prepareImage`). The detector reuses its buffers and only pushes state when
+  sharp/steady/brightness change, so the screen does not re-render ~12x/second.
 
 ## 3. Review (one page, accordion, batch)
 

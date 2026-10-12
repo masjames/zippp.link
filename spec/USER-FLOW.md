@@ -63,8 +63,9 @@ A back-to-Snap control shows on every app screen except Snap and Start.
 ### Screens
 
 - **Intro / Sign in** — what zippp does, then Google (the only login).
-- **Snap** (single screen) — live camera with auto-snap (on by default), blur
-  blocks capture, manual shutter + upload. Captured receipts join the batch
+- **Snap** (single screen) — live camera with auto-snap (on by default); the
+  **viewfinder is the shutter** (tap to capture); blur blocks capture; upload is
+  below. Captured receipts join the batch
   **below the camera**: one card expanded (the current one), the rest collapsed,
   accepted cards hidden. Each expanded card is an editable form (merchant, date,
   subtotal, tax, total, and line items: description, qty, unit price, amount);

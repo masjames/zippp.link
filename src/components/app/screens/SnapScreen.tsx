@@ -18,6 +18,10 @@ const INPUT_ASSUMED = `${INPUT_BASE} w-full border-amber-400 focus:border-amber-
 const INPUT_INLINE = `${INPUT_BASE} border-line focus:border-brand`;
 const INPUT_INLINE_ASSUMED = `${INPUT_BASE} border-amber-400 focus:border-amber-500`;
 
+/** Stored captures stay within this budget, matching REVISION-1 (~4 MP). */
+const CAPTURE_MAX_PIXELS = 4_000_000;
+const CAPTURE_QUALITY = 0.85;
+
 /** Static portrait guide. The video frame itself is not overlayed. */
 function GuideFrame() {
     const base = "pointer-events-none absolute h-7 w-7 border-4 border-white/90";
@@ -62,7 +66,6 @@ export default function SnapScreen() {
     const uploadInputRef = useRef<HTMLInputElement>(null);
     const armed = useRef(true);
     const flashAuto = useRef(true);
-    const imageCaptureRef = useRef<{ takePhoto: () => Promise<Blob> } | null>(null);
     const [videoAspect, setVideoAspect] = useState(3 / 4);
     const [torchSupported, setTorchSupported] = useState(false);
     const [torchOn, setTorchOn] = useState(false);
@@ -99,7 +102,6 @@ export default function SnapScreen() {
     function stopCamera() {
         streamRef.current?.getTracks().forEach((track) => track.stop());
         streamRef.current = null;
-        imageCaptureRef.current = null;
         setTorchOn(false);
         flashAuto.current = true;
     }
@@ -133,11 +135,12 @@ export default function SnapScreen() {
         }
         setMode("starting");
         try {
+            // Soft constraints only. Asking for 4K made some older phones take
+            // seconds to open the camera and produced a heavy preview.
             const stream = await navigator.mediaDevices.getUserMedia({
                 video: {
                     facingMode: { ideal: "environment" },
-                    width: { ideal: 3840 },
-                    height: { ideal: 2160 },
+                    width: { ideal: 1920 },
                 },
                 audio: false,
             });
@@ -145,21 +148,6 @@ export default function SnapScreen() {
             const track = stream.getVideoTracks()[0];
             const caps = track?.getCapabilities?.() as { torch?: boolean } | undefined;
             setTorchSupported(Boolean(caps?.torch));
-            imageCaptureRef.current = null;
-            const Ctor = (
-                globalThis as unknown as {
-                    ImageCapture?: new (t: MediaStreamTrack) => {
-                        takePhoto: () => Promise<Blob>;
-                    };
-                }
-            ).ImageCapture;
-            if (track && Ctor) {
-                try {
-                    imageCaptureRef.current = new Ctor(track);
-                } catch {
-                    imageCaptureRef.current = null;
-                }
-            }
             setMode("live");
             if (videoRef.current) {
                 videoRef.current.srcObject = stream;
@@ -172,26 +160,23 @@ export default function SnapScreen() {
     }
 
     async function captureFrameBlob(): Promise<Blob | null> {
-        const capture = imageCaptureRef.current;
-        if (capture) {
-            try {
-                return await capture.takePhoto();
-            } catch {
-                /* fall through to the video frame */
-            }
-        }
         const video = videoRef.current;
-        if (!video) return null;
-        const width = video.videoWidth || 1080;
-        const height = video.videoHeight || 1440;
+        if (!video || !video.videoWidth || !video.videoHeight) return null;
+        const vw = video.videoWidth;
+        const vh = video.videoHeight;
+        const scale = Math.min(1, Math.sqrt(CAPTURE_MAX_PIXELS / (vw * vh)));
+        const width = Math.max(1, Math.round(vw * scale));
+        const height = Math.max(1, Math.round(vh * scale));
         const canvas = document.createElement("canvas");
         canvas.width = width;
         canvas.height = height;
         const ctx = canvas.getContext("2d");
         if (!ctx) return null;
+        // One draw, one encode. ImageCapture.takePhoto() was the slow path: it
+        // grabbed a full-sensor frame that then had to be decoded and resized.
         ctx.drawImage(video, 0, 0, width, height);
         return new Promise((resolve) =>
-            canvas.toBlob((b) => resolve(b), "image/jpeg", 0.92)
+            canvas.toBlob((b) => resolve(b), "image/jpeg", CAPTURE_QUALITY)
         );
     }
 
@@ -207,7 +192,7 @@ export default function SnapScreen() {
     }
 
     function shutter() {
-        if (outOfCredits) return;
+        if (outOfCredits || mode === "starting") return;
         if (mode !== "live") {
             void openCamera();
             return;
@@ -297,6 +282,14 @@ export default function SnapScreen() {
                         {t("app.capture.frame")}
                     </span>
                 )}
+                {/* The viewfinder is the shutter. */}
+                <button
+                    type="button"
+                    aria-label={t("app.capture.shutter")}
+                    onClick={shutter}
+                    disabled={outOfCredits || mode === "starting"}
+                    className="absolute inset-0 z-20 cursor-pointer disabled:cursor-not-allowed"
+                />
             </div>
 
             <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" className="hidden"
@@ -304,13 +297,11 @@ export default function SnapScreen() {
             <input ref={uploadInputRef} type="file" accept="image/*" className="hidden"
                 onChange={(e) => { pick(e.target.files, false); e.target.value = ""; }} />
 
-            <button
-                type="button"
-                aria-label={t("app.capture.shutter")}
-                onClick={shutter}
-                disabled={outOfCredits}
-                className="mx-auto mt-1 block h-[72px] w-[72px] rounded-full border-[6px] border-maroon bg-white active:scale-95 disabled:opacity-40"
-            />
+            {mode === "live" ? (
+                <p className="mt-1 text-center text-xs opacity-80">
+                    {t("app.capture.tapToShoot")}
+                </p>
+            ) : null}
             <div className="flex items-center justify-between text-xs">
                 <button type="button" onClick={() => uploadInputRef.current?.click()}
                     className="font-medium text-ink underline underline-offset-4">

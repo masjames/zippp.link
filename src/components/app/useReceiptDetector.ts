@@ -25,30 +25,31 @@ const EMPTY: Detection = {
 
 /**
  * One frame: grayscale, mean luma for the torch, and the variance of the
- * Laplacian for sharpness. Framing is a static portrait guide in the viewfinder,
- * so no bright-rectangle detection happens here.
+ * Laplacian for sharpness. Writes gray into the caller's buffer so the loop
+ * allocates nothing per frame. Framing is a static portrait guide in the
+ * viewfinder, so no bright-rectangle detection happens here.
  */
 function analyze(
     data: Uint8ClampedArray,
     w: number,
-    h: number
-): { sharp: boolean; gray: Uint8Array; brightness: number } {
-    const gray = new Uint8Array(w * h);
+    h: number,
+    gray: Uint8Array
+): { sharp: boolean; brightness: number } {
+    const n = w * h;
     let lum = 0;
-    for (let i = 0; i < w * h; i++) {
-        const r = data[i * 4];
-        const g = data[i * 4 + 1];
-        const b = data[i * 4 + 2];
-        const y = (r * 299 + g * 587 + b * 114) / 1000;
+    for (let i = 0; i < n; i++) {
+        const y =
+            (data[i * 4] * 299 + data[i * 4 + 1] * 587 + data[i * 4 + 2] * 114) /
+            1000;
         gray[i] = y;
         lum += y;
     }
-    const brightness = lum / (w * h);
+    const brightness = lum / n;
 
-    // Sharpen: variance of Laplacian over the whole frame.
-    let mean = 0;
-    let n = 0;
-    const lap: number[] = [];
+    // Variance of the Laplacian, computed online (no per-frame array).
+    let sum = 0;
+    let sumSq = 0;
+    let count = 0;
     for (let y = 1; y < h - 1; y++) {
         for (let x = 1; x < w - 1; x++) {
             const i = y * w + x;
@@ -58,19 +59,15 @@ function analyze(
                 gray[i - 1] +
                 gray[i + 1] -
                 4 * gray[i];
-            lap.push(v);
-            mean += v;
-            n++;
+            sum += v;
+            sumSq += v * v;
+            count++;
         }
     }
-    let variance = 0;
-    if (n > 0) {
-        mean /= n;
-        for (const v of lap) variance += (v - mean) * (v - mean);
-        variance /= n;
-    }
+    const mean = count > 0 ? sum / count : 0;
+    const variance = count > 0 ? sumSq / count - mean * mean : 0;
 
-    return { sharp: variance > SHARP_MIN, gray, brightness };
+    return { sharp: variance > SHARP_MIN, brightness };
 }
 
 /**
@@ -83,19 +80,23 @@ export function useReceiptDetector(
     active: boolean
 ): Detection {
     const [detection, setDetection] = useState<Detection>(EMPTY);
-    const prevGray = useRef<Uint8Array | null>(null);
-    const steadyCount = useRef(0);
+    const last = useRef<Detection>(EMPTY);
 
     useEffect(() => {
         if (!active) {
             setDetection(EMPTY);
-            prevGray.current = null;
-            steadyCount.current = 0;
+            last.current = EMPTY;
             return;
         }
         let stopped = false;
         let raf = 0;
-        let last = 0;
+        let lastTime = 0;
+        let steadyCount = 0;
+        // Two grayscale buffers, swapped each frame so motion is measured
+        // against the previous frame without copying.
+        let gray = new Uint8Array(0);
+        let prev = new Uint8Array(0);
+
         const canvas = document.createElement("canvas");
         const ctx = canvas.getContext("2d", { willReadFrequently: true });
         if (!ctx) return;
@@ -103,8 +104,8 @@ export function useReceiptDetector(
         const loop = (time: number) => {
             if (stopped) return;
             raf = requestAnimationFrame(loop);
-            if (time - last < FRAME_INTERVAL_MS) return;
-            last = time;
+            if (time - lastTime < FRAME_INTERVAL_MS) return;
+            lastTime = time;
 
             const video = videoRef.current;
             if (!video || video.readyState < 2 || !video.videoWidth) return;
@@ -119,30 +120,48 @@ export function useReceiptDetector(
             }
             ctx.drawImage(video, 0, 0, w, h);
             const frame = ctx.getImageData(0, 0, w, h);
-            const { sharp, gray, brightness } = analyze(frame.data, w, h);
+
+            if (gray.length !== w * h) {
+                gray = new Uint8Array(w * h);
+                prev = new Uint8Array(0);
+            }
+            const { sharp, brightness } = analyze(frame.data, w, h, gray);
 
             let motion = 255;
-            const prev = prevGray.current;
-            if (prev && prev.length === gray.length) {
+            if (prev.length === gray.length) {
                 let sum = 0;
-                for (let i = 0; i < gray.length; i++) sum += Math.abs(gray[i] - prev[i]);
+                for (let i = 0; i < gray.length; i++) {
+                    sum += Math.abs(gray[i] - prev[i]);
+                }
                 motion = sum / gray.length;
             }
-            prevGray.current = gray;
+            // Swap: the current frame becomes the next "previous".
+            const swap = prev;
+            prev = gray;
+            gray = swap;
 
-            if (motion < MOTION_MAX) steadyCount.current++;
-            else steadyCount.current = 0;
-            const steady = steadyCount.current >= STEADY_FRAMES;
+            if (motion < MOTION_MAX) steadyCount++;
+            else steadyCount = 0;
+            const steady = steadyCount >= STEADY_FRAMES;
 
-            setDetection({ sharp, steady, brightness });
+            // Only push state when something actually changed. Re-rendering the
+            // whole screen ~12x a second was the main cost on older devices.
+            const previous = last.current;
+            if (
+                previous.sharp !== sharp ||
+                previous.steady !== steady ||
+                Math.abs(previous.brightness - brightness) >= 1
+            ) {
+                const next = { sharp, steady, brightness };
+                last.current = next;
+                setDetection(next);
+            }
         };
 
         raf = requestAnimationFrame(loop);
         return () => {
             stopped = true;
             cancelAnimationFrame(raf);
-            prevGray.current = null;
-            steadyCount.current = 0;
         };
     }, [active, videoRef]);
 
