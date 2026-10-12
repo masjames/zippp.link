@@ -130,6 +130,11 @@ export default function SheetPage() {
                     {t("app.sheets.wizard.title")}
                 </h2>
                 <p className="text-muted">{t("app.sheets.wizard.body")}</p>
+                {workspace ? (
+                    <p className="text-xs text-muted">
+                        {t("app.sheets.wizard.warn")}
+                    </p>
+                ) : null}
                 <div className="mt-2 grid gap-2">
                     {TEMPLATES.map((tpl) => (
                         <button

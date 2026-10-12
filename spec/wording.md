@@ -1270,6 +1270,10 @@ Sheet baru
 Choose a layout. You can change the columns later.
 ## app.sheets.wizard.body.id
 Pilih susunan kolom. Kolom bisa diubah nanti.
+## app.sheets.wizard.warn.en
+This creates another sheet and switches zippp to it.
+## app.sheets.wizard.warn.id
+Ini membuat sheet baru dan mengalihkan zippp ke sana.
 ## app.sheets.tpl.resto.en
 Purchasing and inventory
 ## app.sheets.tpl.resto.id
