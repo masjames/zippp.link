@@ -102,7 +102,8 @@ const RESTO_CONSTANT_ALIASES: {
   defaultValue: string;
 }[] = [
   { aliases: ["unit", "units", "uom"], defaultValue: "" },
-  { aliases: ["category"], defaultValue: "Bahan baku" },
+  // Category is never invented; leave it empty unless the operator sets one.
+  { aliases: ["category"], defaultValue: "" },
   { aliases: ["notes", "note"], defaultValue: "" },
 ];
 

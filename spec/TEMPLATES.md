@@ -29,7 +29,7 @@ For a manager whose staff shop for kitchen/inventory. Matches “I used to type 
 | Currency | mill `currency` | default IDR if null and Charlie says so |
 | Staff | **prompt-at-submit** | from Charlie’s list |
 | Outlet | **default or prompt** | |
-| Category | **constant** default e.g. Bahan baku | not read from photo unless mapped later |
+| Category | **constant or blank** | not read from photo; left empty unless the operator sets one |
 | Notes | empty | |
 | Captured at | zippp timestamp | ISO |
 

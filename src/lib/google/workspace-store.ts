@@ -8,7 +8,7 @@ export type TemplateId = "resto-inventory" | "personal-expense" | "custom";
 /** mill_field | op_field → actual sheet header string */
 export type ColumnMap = Record<string, string>;
 
-/** sheet header → constant value (e.g. Category → Bahan baku) */
+/** sheet header → constant value (e.g. Category → a value the operator sets) */
 export type ConstantsMap = Record<string, string>;
 
 export type WorkspaceConfig = {
