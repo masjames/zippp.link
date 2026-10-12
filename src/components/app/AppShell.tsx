@@ -82,7 +82,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
     return (
         <div className="flex min-h-screen flex-col bg-page sm:py-8">
             {signedIn ? (
-                <div className="mx-auto flex w-full max-w-[430px] items-center justify-end gap-3 px-4 pb-2 pt-8">
+                <div className="mx-auto flex w-full max-w-[430px] items-center justify-end gap-3 px-4 pb-1 pt-3">
                     {!pathname.startsWith("/app/settings") ? (
                         <button
                             type="button"

@@ -444,7 +444,7 @@ export default function SnapScreen() {
                     href={`https://docs.google.com/spreadsheets/d/${workspace.spreadsheet_id}/edit`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="mt-auto flex items-center justify-center gap-2 rounded-full bg-mist px-6 py-4 font-semibold text-ink"
+                    className="flex items-center justify-center gap-2 rounded-full bg-mist px-6 py-4 font-semibold text-ink"
                 >
                     <SheetsIcon />
                     {t("app.sheets.open")}
