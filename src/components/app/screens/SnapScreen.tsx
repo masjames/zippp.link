@@ -487,7 +487,7 @@ export default function SnapScreen() {
                         className="mx-auto mt-16 w-full max-w-[430px] px-4"
                         onClick={(e) => e.stopPropagation()}
                     >
-                        <div className="ml-auto w-full max-w-[320px] overflow-hidden rounded-2xl border-2 border-line bg-card shadow-xl">
+                        <div className="ml-auto w-full max-w-[320px] overflow-hidden rounded-2xl border-2 border-line bg-card text-body shadow-xl">
                             {sheetPickerBusy ? (
                                 <span
                                     className="mx-auto my-5 block h-6 w-6 animate-spin rounded-full border-4 border-line border-t-brand"
