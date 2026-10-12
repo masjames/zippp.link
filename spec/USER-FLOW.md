@@ -69,8 +69,9 @@ A back-to-Snap control shows on every app screen except Snap and Start.
   **below the camera**: one card expanded (the current one), the rest collapsed,
   accepted cards hidden. Each expanded card is an editable form (merchant, date,
   subtotal, tax, total, and line items: description, qty, unit price, amount);
-  **Accept** / **Delete** sit in a fixed footer; after the last accept,
-  **Send all accepted**.
+  **Accept** / **Delete** sit in a fixed footer; after the last accept the camera
+  stops and the viewfinder shrinks, then **Send all accepted** appears
+  (**Capture more** restarts the camera).
 - **Success** — after a batch send: "{sent} of {total} sent", **Open the sheet**
   and **Scan more**. Failed items reappear in the batch to retry.
 - A collapsible **Debug** panel shows the extraction trace in the expanded card.

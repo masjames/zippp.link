@@ -242,14 +242,11 @@ export default function AppProvider({
             const data = (await res.json()) as ExtractResponse;
             if (data.ok) {
                 const draft = toDraft(data.receipt);
-                // A missing date is assumed from the capture time and flagged in
+                // A missing date is assumed from the capture time and marked in
                 // the review card, never treated as a failed read.
                 if (!draft.date) {
                     draft.date = captureDate(item.createdAt);
                     draft.dateAssumed = true;
-                    draft.flagged = Array.from(
-                        new Set([...(draft.flagged ?? []), "date"])
-                    );
                 }
                 patchItem(item.id, {
                     status: "ready",

@@ -62,9 +62,12 @@ camera (auto-snap on) → item queued → extract → review list → Accept/Edi
     unaccepted receipt.
   - **Edit** — reveals the fields inline; editing does not accept; the user taps
     Accept when done.
-- The **Accept / Delete** row is a fixed footer inside the card, so a long flag
-  list never pushes it off screen. Every flagged field has a matching input;
-  tapping the field (or the flag chip) clears the flag.
+- The **Accept / Delete** row is a fixed footer inside the card. Accept is never
+  blocked by verification flags: every field is editable, and the verifier's
+  flags stay server-side for telemetry only.
+- When the last receipt is accepted the batch is ready: the camera stops, the
+  viewfinder shrinks to a status strip ("{done} of {total} accepted"), and
+  **Send all accepted** appears. **Capture more** restarts the camera.
 - Progress is shown ("3 of 5 accepted").
 - When the last receipt is accepted, a single **Send all accepted** button appears.
 

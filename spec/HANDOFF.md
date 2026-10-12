@@ -217,7 +217,8 @@ score.
   removed, capture into a reading card, 2.5s refusal cooldown, blur hard block,
   3 concurrent reads.
 - **Verifier (Phase 2)**: deterministic grounding, flags, row indices, OCR
-  scores, one OCR-aware vision retry, flagged review with tap to confirm.
+  scores and one OCR-aware vision retry. Flags are server-side telemetry only;
+  the review card no longer blocks on them.
 - **Eval (Phase 3 and the redesign)**: CLI harness and `/admin/eval` with four
   fixed methods, big zoomable photo, OCR text, Test OCR, one-tap winner, optional
   expected values, Advanced drawer. Runs are stored server-side and the page

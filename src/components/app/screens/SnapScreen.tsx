@@ -8,7 +8,6 @@ import { useApp } from "../AppProvider";
 import { useReceiptDetector } from "../useReceiptDetector";
 import { fill, type T } from "@/lib/t";
 import { toDraft, type Draft } from "../draft";
-import { isSoftFlag } from "@/lib/verify-receipt";
 import type { BatchItem } from "@/lib/batch-db";
 
 const INPUT_BASE =
@@ -16,7 +15,6 @@ const INPUT_BASE =
 const INPUT = `${INPUT_BASE} w-full border-line focus:border-brand`;
 const INPUT_ASSUMED = `${INPUT_BASE} w-full border-amber-400 focus:border-amber-500`;
 const INPUT_INLINE = `${INPUT_BASE} border-line focus:border-brand`;
-const INPUT_INLINE_ASSUMED = `${INPUT_BASE} border-amber-400 focus:border-amber-500`;
 
 /** Stored captures stay within this budget, matching REVISION-1 (~4 MP). */
 const CAPTURE_MAX_PIXELS = 4_000_000;
@@ -72,6 +70,9 @@ export default function SnapScreen() {
 
     // The review overlay opens on a new capture and can be dismissed to snap more.
     const [dismissed, setDismissed] = useState(false);
+    // Review done and about to send: the camera is intentionally off. "Capture
+    // more" turns it back on without losing the accepted batch.
+    const [resume, setResume] = useState(false);
     const prevCount = useRef(0);
 
     const accepted = batch.filter((item) => item.status === "accepted");
@@ -79,6 +80,7 @@ export default function SnapScreen() {
     const current = unaccepted[0] ?? null;
     const readyToSend = accepted.length > 0 && unaccepted.length === 0;
     const overlayOpen = unaccepted.length > 0 && !dismissed;
+    const compact = readyToSend && !resume;
     const outOfCredits = balance?.configured === true && balance.credits <= 0;
 
     const detection = useReceiptDetector(videoRef, mode === "live" && !overlayOpen);
@@ -98,6 +100,18 @@ export default function SnapScreen() {
             void video.play().catch(() => undefined);
         }
     }, [overlayOpen, mode]);
+
+    /** Review done: turn the viewfinder off and shrink it to a status strip. */
+    useEffect(() => {
+        if (!readyToSend) {
+            setResume(false);
+            return;
+        }
+        if (resume) return;
+        stopCamera();
+        setMode("idle");
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [readyToSend, resume]);
 
     function stopCamera() {
         streamRef.current?.getTracks().forEach((track) => track.stop());
@@ -246,8 +260,10 @@ export default function SnapScreen() {
             <p className="max-w-[30ch]">{t("app.capture.body")}</p>
 
             <div
-                className="relative w-full flex-none overflow-hidden rounded-panel bg-[#2a1410] text-center text-peach"
-                style={{ aspectRatio: String(videoAspect) }}
+                className={`relative w-full flex-none overflow-hidden rounded-panel bg-[#2a1410] text-center text-peach ${
+                    compact ? "h-16" : ""
+                }`}
+                style={compact ? undefined : { aspectRatio: String(videoAspect) }}
             >
                 <video
                     ref={videoRef}
@@ -264,8 +280,16 @@ export default function SnapScreen() {
                         mode === "live" && !overlayOpen ? "opacity-100" : "opacity-25"
                     }`}
                 />
-                {mode === "live" ? <GuideFrame /> : null}
-                {mode !== "live" ? (
+                {!compact && mode === "live" ? <GuideFrame /> : null}
+                {compact ? (
+                    <span className="absolute inset-0 z-10 flex items-center justify-center gap-2 text-sm font-semibold">
+                        <span aria-hidden>✓</span>
+                        {fill(t("app.review.progress"), {
+                            done: accepted.length,
+                            total: batch.length,
+                        })}
+                    </span>
+                ) : mode !== "live" ? (
                     <span className="absolute inset-0 z-10 flex items-center justify-center text-sm">
                         {mode === "starting"
                             ? t("app.capture.starting")
@@ -282,14 +306,16 @@ export default function SnapScreen() {
                         {t("app.capture.frame")}
                     </span>
                 )}
-                {/* The viewfinder is the shutter. */}
-                <button
-                    type="button"
-                    aria-label={t("app.capture.shutter")}
-                    onClick={shutter}
-                    disabled={outOfCredits || mode === "starting"}
-                    className="absolute inset-0 z-20 cursor-pointer disabled:cursor-not-allowed"
-                />
+                {/* The viewfinder is the shutter. Hidden once the batch is ready. */}
+                {!compact ? (
+                    <button
+                        type="button"
+                        aria-label={t("app.capture.shutter")}
+                        onClick={shutter}
+                        disabled={outOfCredits || mode === "starting"}
+                        className="absolute inset-0 z-20 cursor-pointer disabled:cursor-not-allowed"
+                    />
+                ) : null}
             </div>
 
             <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" className="hidden"
@@ -308,7 +334,7 @@ export default function SnapScreen() {
                     {t("app.capture.upload")}
                 </button>
                 <div className="flex items-center gap-2">
-                    {torchSupported ? (
+                    {!compact && torchSupported ? (
                         <button
                             type="button"
                             aria-pressed={torchOn}
@@ -321,11 +347,25 @@ export default function SnapScreen() {
                             {torchOn ? " · ON" : ""}
                         </button>
                     ) : null}
-                    <button type="button" aria-pressed={autoSnap} onClick={() => setAutoSnap(!autoSnap)}
-                        className={`rounded-full px-3 py-1 font-semibold ${autoSnap ? "bg-maroon text-white" : "bg-peach text-ink"}`}>
-                        {t("app.capture.autoSnap")}
-                        {autoSnap ? " · ON" : ""}
-                    </button>
+                    {!compact ? (
+                        <button type="button" aria-pressed={autoSnap} onClick={() => setAutoSnap(!autoSnap)}
+                            className={`rounded-full px-3 py-1 font-semibold ${autoSnap ? "bg-maroon text-white" : "bg-peach text-ink"}`}>
+                            {t("app.capture.autoSnap")}
+                            {autoSnap ? " · ON" : ""}
+                        </button>
+                    ) : null}
+                    {compact ? (
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setResume(true);
+                                void openCamera();
+                            }}
+                            className="rounded-full bg-peach px-3 py-1 font-semibold text-ink"
+                        >
+                            {t("app.review.captureMore")}
+                        </button>
+                    ) : null}
                 </div>
             </div>
 
@@ -564,18 +604,6 @@ function ConfirmCard({
     const noPrice =
         !d.lines.some((l) => l.amount.trim() !== "") && d.total.trim() === "";
 
-    const flagged = d.flagged ?? [];
-    const reviewed = d.reviewed ?? [];
-    const flagByPath = new Map(
-        (item.receipt?.flags ?? []).map((flag) => [flag.path, flag])
-    );
-    // One chip per field: the same path can be flagged more than once.
-    const pending = Array.from(
-        new Set(flagged.filter((path) => !reviewed.includes(path)))
-    );
-    const isSoft = (path: string) => isSoftFlag(flagByPath.get(path)?.reason);
-    const pendingHard = pending.filter((path) => !isSoft(path));
-
     function patch(next: Partial<Draft>) {
         onChange({ ...d, ...next } as Draft);
     }
@@ -587,40 +615,9 @@ function ConfirmCard({
             ),
         } as Draft);
     }
-    function review(path: string) {
-        if (!flagged.includes(path) || reviewed.includes(path)) return;
-        patch({ reviewed: [...reviewed, path] });
-    }
-    function isPending(path: string): boolean {
-        return pending.includes(path);
-    }
-    function fieldClass(path: string): string {
-        return isPending(path) ? INPUT_ASSUMED : INPUT;
-    }
-    function inlineClass(path: string): string {
-        return isPending(path) ? INPUT_INLINE_ASSUMED : INPUT_INLINE;
-    }
-    function flagLabel(path: string): string {
-        if (path === "merchant") return t("app.check.merchantFallback");
-        if (path === "date") return t("app.check.date");
-        if (path === "total") return t("app.check.total");
-        if (path === "subtotal") return t("app.check.subtotal");
-        if (path === "tax") return t("app.check.tax");
-        const line = path.match(/^line_items\[(\d+)\]\.(qty|unit_price|amount)$/);
-        if (line) {
-            const field =
-                line[2] === "qty"
-                    ? t("app.check.qty")
-                    : line[2] === "unit_price"
-                      ? t("app.check.unitPrice")
-                      : t("app.check.amt");
-            return fill(t("app.review.lineFlag"), { n: Number(line[1]) + 1, field });
-        }
-        return path;
-    }
     function tryAccept() {
         setShowErrors(true);
-        if (noLines || noPrice || pendingHard.length > 0) return;
+        if (noLines || noPrice) return;
         onAccept();
     }
 
@@ -629,10 +626,9 @@ function ConfirmCard({
             <div className="min-h-0 flex-1 overflow-y-auto p-4">
                 <input
                     value={d.merchant}
-                    onFocus={() => review("merchant")}
                     onChange={(e) => patch({ merchant: e.target.value })}
                     placeholder={t("app.check.merchantFallback")}
-                    className={`${fieldClass("merchant")} font-head text-xl font-extrabold`}
+                    className={`${INPUT} font-head text-xl font-extrabold`}
                 />
 
                 <div className="mt-2 flex gap-2">
@@ -640,20 +636,18 @@ function ConfirmCard({
                         <span className="text-xs font-semibold">{t("app.check.date")}</span>
                         <input
                             value={d.date}
-                            onFocus={() => review("date")}
                             onChange={(e) => patch({ date: e.target.value, dateAssumed: false })}
                             placeholder="dd/mm/yyyy"
-                            className={isPending("date") || d.dateAssumed ? INPUT_ASSUMED : INPUT}
+                            className={d.dateAssumed ? INPUT_ASSUMED : INPUT}
                         />
                     </label>
                     <label className="grid w-32 gap-1">
                         <span className="text-xs font-semibold">{t("app.check.total")}</span>
                         <input
                             value={d.total}
-                            onFocus={() => review("total")}
                             onChange={(e) => patch({ total: e.target.value })}
                             inputMode="decimal"
-                            className={`${fieldClass("total")} text-right font-extrabold tabular-money`}
+                            className={`${INPUT} text-right font-extrabold tabular-money`}
                         />
                     </label>
                 </div>
@@ -663,29 +657,24 @@ function ConfirmCard({
                         <span className="text-xs font-semibold">{t("app.check.subtotal")}</span>
                         <input
                             value={d.subtotal}
-                            onFocus={() => review("subtotal")}
                             onChange={(e) => patch({ subtotal: e.target.value })}
                             inputMode="decimal"
-                            className={`${fieldClass("subtotal")} text-right tabular-money`}
+                            className={`${INPUT} text-right tabular-money`}
                         />
                     </label>
                     <label className="grid flex-1 gap-1">
                         <span className="text-xs font-semibold">{t("app.check.tax")}</span>
                         <input
                             value={d.tax}
-                            onFocus={() => review("tax")}
                             onChange={(e) => patch({ tax: e.target.value })}
                             inputMode="decimal"
-                            className={`${fieldClass("tax")} text-right tabular-money`}
+                            className={`${INPUT} text-right tabular-money`}
                         />
                     </label>
                 </div>
 
                 <div className="mt-2 grid gap-2">
                     {d.lines.map((line, i) => {
-                        const qtyPath = `line_items[${i}].qty`;
-                        const unitPath = `line_items[${i}].unit_price`;
-                        const amountPath = `line_items[${i}].amount`;
                         return (
                             <div key={i} className="rounded-xl border-2 border-line p-2">
                                 <input
@@ -697,27 +686,24 @@ function ConfirmCard({
                                 <div className="mt-2 flex items-center gap-2">
                                     <input
                                         value={line.qty}
-                                        onFocus={() => review(qtyPath)}
                                         onChange={(e) => patchLine(i, { qty: e.target.value })}
                                         placeholder={t("app.check.qty")}
                                         inputMode="decimal"
-                                        className={`${inlineClass(qtyPath)} w-14 text-center`}
+                                        className={`${INPUT_INLINE} w-14 text-center`}
                                     />
                                     <input
                                         value={line.unitPrice}
-                                        onFocus={() => review(unitPath)}
                                         onChange={(e) => patchLine(i, { unitPrice: e.target.value })}
                                         placeholder={t("app.check.unitPrice")}
                                         inputMode="decimal"
-                                        className={`${inlineClass(unitPath)} min-w-0 flex-1 text-right tabular-money`}
+                                        className={`${INPUT_INLINE} min-w-0 flex-1 text-right tabular-money`}
                                     />
                                     <input
                                         value={line.amount}
-                                        onFocus={() => review(amountPath)}
                                         onChange={(e) => patchLine(i, { amount: e.target.value })}
                                         placeholder={t("app.check.amt")}
                                         inputMode="decimal"
-                                        className={`${inlineClass(amountPath)} w-24 text-right tabular-money`}
+                                        className={`${INPUT_INLINE} w-24 text-right tabular-money`}
                                     />
                                 </div>
                             </div>
@@ -731,35 +717,6 @@ function ConfirmCard({
                     ) : null}
                 </div>
 
-                {pending.length > 0 ? (
-                    <div className="mt-3 rounded-xl border-2 border-amber-400 bg-amber-50 p-2">
-                        <p className="text-xs font-semibold text-amber-700">
-                            {t("app.review.flagsTitle")}
-                        </p>
-                        <p className="mt-0.5 text-xs text-amber-700">
-                            {t("app.review.tapToConfirm")}
-                        </p>
-                        <ul className="mt-1 flex flex-wrap gap-1">
-                            {pending.map((path) => (
-                                <li key={path}>
-                                    <button
-                                        type="button"
-                                        onClick={() => review(path)}
-                                        className="rounded-full bg-white px-2 py-1 text-left text-xs"
-                                    >
-                                        <span className="font-semibold text-ink">{flagLabel(path)}</span>
-                                        <span className="ml-1 font-semibold text-amber-700">
-                                            {isSoft(path)
-                                                ? t("app.review.softFlag")
-                                                : t("app.review.hardFlag")}
-                                        </span>
-                                    </button>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-                ) : null}
-
                 <div className="mt-3">
                     <DebugPanel debug={item.debug} />
                 </div>
@@ -770,8 +727,7 @@ function ConfirmCard({
                     <button
                         type="button"
                         onClick={tryAccept}
-                        disabled={pendingHard.length > 0}
-                        className="flex-1 rounded-full bg-btn px-4 py-3 font-semibold text-btntext disabled:opacity-60"
+                        className="flex-1 rounded-full bg-btn px-4 py-3 font-semibold text-btntext"
                     >
                         {t("app.review.accept")}
                     </button>

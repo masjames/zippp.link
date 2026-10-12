@@ -20,10 +20,6 @@ export type Draft = {
     lines: DraftLine[];
     /** Set when the date could not be read and was filled from the capture time. */
     dateAssumed?: boolean;
-    /** Field paths the verifier flagged; each needs a tap before Accept. */
-    flagged?: string[];
-    /** Field paths the user has tapped to confirm. */
-    reviewed?: string[];
 };
 
 /** Local calendar date (YYYY-MM-DD) for a capture timestamp. */
@@ -50,10 +46,6 @@ export function toDraft(receipt: Receipt): Draft {
             unitPrice: item.unit_price == null ? "" : String(item.unit_price),
             amount: item.amount == null ? "" : String(item.amount),
         })),
-        flagged: (receipt.flags ?? [])
-            .map((flag) => flag.path)
-            .filter((path) => path !== "*"),
-        reviewed: [],
     };
 }
 
