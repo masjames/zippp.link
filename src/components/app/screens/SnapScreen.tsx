@@ -268,7 +268,19 @@ export default function SnapScreen() {
         setSheetPicker(true);
         setSheetPickerBusy(true);
         const list = await listSheetChoices();
-        setSheetChoices(list);
+        // Always offer the connected sheet, even if the Drive search misses it.
+        const withCurrent =
+            workspace && !list.some((c) => c.id === workspace.spreadsheet_id)
+                ? [
+                      {
+                          id: workspace.spreadsheet_id,
+                          name: workspace.spreadsheet_title,
+                          modifiedTime: "",
+                      },
+                      ...list,
+                  ]
+                : list;
+        setSheetChoices(withCurrent);
         setSheetPickerBusy(false);
     }
 
@@ -470,55 +482,50 @@ export default function SnapScreen() {
             ) : null}
 
             {sheetPicker ? (
-                <div
-                    className="fixed inset-0 z-40 flex items-end justify-center bg-black/60"
-                    onClick={() => setSheetPicker(false)}
-                >
+                <div className="fixed inset-0 z-40" onClick={() => setSheetPicker(false)}>
                     <div
-                        className="w-full max-w-[430px] rounded-t-3xl bg-card p-4"
+                        className="mx-auto mt-16 w-full max-w-[430px] px-4"
                         onClick={(e) => e.stopPropagation()}
                     >
-                        <p className="font-head text-lg font-extrabold">
-                            {t("app.sheets.title")}
-                        </p>
-                        <p className="mt-1 text-xs text-muted">{t("app.sheets.body")}</p>
-                        {sheetPickerBusy ? (
-                            <span
-                                className="mx-auto my-6 block h-7 w-7 animate-spin rounded-full border-4 border-line border-t-brand"
-                                aria-hidden
-                            />
-                        ) : sheetChoices.length > 0 ? (
-                            <div className="mt-3 grid gap-2">
-                                {sheetChoices.map((c) => (
-                                    <button
-                                        key={c.id}
-                                        type="button"
-                                        onClick={() => {
-                                            void pickSheet(c.id);
-                                            setSheetPicker(false);
-                                        }}
-                                        className={`rounded-2xl border-2 px-4 py-3 text-left ${
-                                            c.id === workspace?.spreadsheet_id
-                                                ? "border-brand"
-                                                : "border-line"
-                                        }`}
-                                    >
-                                        <span className="block font-semibold">{c.name}</span>
-                                    </button>
-                                ))}
-                            </div>
-                        ) : (
-                            <p className="mt-3 text-sm text-muted">
-                                {t("app.sheets.emptyTitle")}
-                            </p>
-                        )}
-                        <button
-                            type="button"
-                            onClick={() => setSheetPicker(false)}
-                            className="mt-3 w-full rounded-full bg-mist px-6 py-3 font-semibold text-ink"
-                        >
-                            {t("app.sheets.cancel")}
-                        </button>
+                        <div className="ml-auto w-full max-w-[320px] overflow-hidden rounded-2xl border-2 border-line bg-card shadow-xl">
+                            {sheetPickerBusy ? (
+                                <span
+                                    className="mx-auto my-5 block h-6 w-6 animate-spin rounded-full border-4 border-line border-t-brand"
+                                    aria-hidden
+                                />
+                            ) : sheetChoices.length > 0 ? (
+                                <ul className="max-h-72 overflow-y-auto">
+                                    {sheetChoices.map((c) => (
+                                        <li
+                                            key={c.id}
+                                            className="border-b border-line last:border-b-0"
+                                        >
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    void pickSheet(c.id);
+                                                    setSheetPicker(false);
+                                                }}
+                                                className="flex w-full items-center justify-between gap-2 px-4 py-3 text-left text-sm hover:bg-surface"
+                                            >
+                                                <span className="truncate font-semibold">
+                                                    {c.name}
+                                                </span>
+                                                {c.id === workspace?.spreadsheet_id ? (
+                                                    <span className="flex-none text-brand">
+                                                        ✓
+                                                    </span>
+                                                ) : null}
+                                            </button>
+                                        </li>
+                                    ))}
+                                </ul>
+                            ) : (
+                                <p className="px-4 py-3 text-sm text-muted">
+                                    {t("app.sheets.emptyTitle")}
+                                </p>
+                            )}
+                        </div>
                     </div>
                 </div>
             ) : null}

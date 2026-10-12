@@ -20,9 +20,11 @@ export default function PhoneShell({
     children: ReactNode;
 }) {
     const brand = tone === "brand";
-    const pillClass = `rounded-full px-3 py-1 text-xs font-semibold ${
-        brand ? "bg-peach text-ink" : "bg-surface text-body"
-    }`;
+    const pillClass = pillAction
+        ? "flex max-w-[190px] items-center gap-1 rounded-lg border-2 border-line bg-card px-2.5 py-1 text-xs font-semibold text-body"
+        : `rounded-full px-3 py-1 text-xs font-semibold ${
+              brand ? "bg-peach text-ink" : "bg-surface text-body"
+          }`;
 
     return (
         <div
@@ -41,7 +43,19 @@ export default function PhoneShell({
                 {pill ? (
                     pillAction ? (
                         <button type="button" onClick={pillAction} className={pillClass}>
-                            {pill}
+                            <span className="truncate">{pill}</span>
+                            <svg
+                                viewBox="0 0 24 24"
+                                className="h-3.5 w-3.5 flex-none"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2.5"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                aria-hidden
+                            >
+                                <path d="M6 9l6 6 6-6" />
+                            </svg>
                         </button>
                     ) : (
                         <span className={pillClass}>{pill}</span>
