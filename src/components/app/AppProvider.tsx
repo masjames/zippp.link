@@ -67,8 +67,6 @@ export type BalanceState = {
     admin?: boolean;
 };
 
-type Summary = { sent: number; total: number };
-
 type Value = {
     t: T;
     lang: Lang;
@@ -99,10 +97,6 @@ type Value = {
     removeItem: (id: string) => void;
     retryItem: (id: string) => void;
     contributeItem: (id: string) => void;
-    sendAll: () => Promise<void>;
-    sending: boolean;
-    summary: Summary | null;
-    clearSummary: () => void;
     login: () => void;
     signOut: () => Promise<void>;
     /** Find an existing `[zippp]` sheet. Never creates one. */
@@ -166,10 +160,10 @@ export default function AppProvider({
     const [openId, setOpenIdState] = useState<string | null>(null);
     const [autoSnap, setAutoSnapState] = useState(true);
     const [autoCooldownUntil, setAutoCooldownUntil] = useState(0);
-    const [sending, setSending] = useState(false);
-    const [summary, setSummary] = useState<Summary | null>(null);
 
     const inflight = useRef<Set<string>>(new Set());
+    /** Sends run one at a time so the rows keep their order. */
+    const sendQueue = useRef<Promise<void>>(Promise.resolve());
 
     // Restore the persisted batch and preferences.
     useEffect(() => {
@@ -370,12 +364,17 @@ export default function AppProvider({
 
     function acceptItem(id: string) {
         const item = batch.find((i) => i.id === id);
-        if (item) logCorrection(item);
+        if (!item) return;
+        logCorrection(item);
         patchItem(id, { status: "accepted" });
         const remaining = batch.filter(
             (i) => i.id !== id && i.status !== "accepted"
         );
         setOpen(remaining[0]?.id ?? null);
+        // Accept writes the row straight away: one check, one sheet row.
+        sendQueue.current = sendQueue.current
+            .then(() => sendOne(item))
+            .catch(() => undefined);
     }
 
     function removeItem(id: string) {
@@ -424,68 +423,51 @@ export default function AppProvider({
         }
     }
 
-    async function sendAll() {
-        const accepted = batch.filter((item) => item.status === "accepted");
-        if (accepted.length === 0) return;
-        setSending(true);
-        let sent = 0;
-        let stop = false;
-
-        for (const item of accepted) {
-            if (stop) break;
-            patchItem(item.id, { status: "sending" });
-            try {
-                const edited = item.draft ? fromDraft(item.draft) : item.receipt;
-                if (!edited) {
-                    patchItem(item.id, { status: "failed", error: "No data." });
-                    continue;
-                }
-                const res = await fetch("/api/sheets/append", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        receipt: edited,
-                        staff: (item.draft?.staff ?? "").trim(),
-                        outlet: (item.draft?.outlet ?? "").trim() || null,
-                        scanId: item.id,
-                    }),
-                });
-                if (res.status === 401) {
-                    setAuth({
-                        signedIn: false,
-                        oauthConfigured: true,
-                        googleUserId: null,
-                    });
-                    setAuthError(t("app.signin.error"));
-                    patchItem(item.id, { status: "accepted" });
-                    stop = true;
-                    continue;
-                }
-                if (res.status === 402) {
-                    patchItem(item.id, { status: "ready", error: "No credits." });
-                    stop = true;
-                    continue;
-                }
-                const data = await res.json();
-                if (data.ok) {
-                    sent++;
-                    await dbDeleteItem(item.id);
-                    setBatch((items) => items.filter((i) => i.id !== item.id));
-                } else {
-                    patchItem(item.id, { status: "ready", error: data.error });
-                }
-            } catch {
-                patchItem(item.id, { status: "ready", error: "network error" });
+    /** Append one accepted check to the sheet, then drop it on success. */
+    async function sendOne(item: BatchItem) {
+        patchItem(item.id, { status: "sending" });
+        try {
+            const edited = item.draft ? fromDraft(item.draft) : item.receipt;
+            if (!edited) {
+                patchItem(item.id, { status: "ready", error: "No data." });
+                return;
             }
+            const res = await fetch("/api/sheets/append", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    receipt: edited,
+                    staff: (item.draft?.staff ?? "").trim(),
+                    outlet: (item.draft?.outlet ?? "").trim() || null,
+                    scanId: item.id,
+                }),
+            });
+            if (res.status === 401) {
+                setAuth({
+                    signedIn: false,
+                    oauthConfigured: true,
+                    googleUserId: null,
+                });
+                setAuthError(t("app.signin.error"));
+                patchItem(item.id, { status: "ready" });
+                return;
+            }
+            if (res.status === 402) {
+                patchItem(item.id, { status: "ready", error: "No credits." });
+                return;
+            }
+            const data = await res.json();
+            if (data.ok) {
+                await dbDeleteItem(item.id);
+                setBatch((items) => items.filter((i) => i.id !== item.id));
+            } else {
+                patchItem(item.id, { status: "ready", error: data.error });
+            }
+        } catch {
+            patchItem(item.id, { status: "ready", error: "network error" });
+        } finally {
+            void refreshBalance();
         }
-
-        setSending(false);
-        setSummary({ sent, total: accepted.length });
-        void refreshBalance();
-    }
-
-    function clearSummary() {
-        setSummary(null);
     }
 
     function markAuthLost() {
@@ -696,10 +678,6 @@ export default function AppProvider({
         removeItem,
         retryItem,
         contributeItem,
-        sendAll,
-        sending,
-        summary,
-        clearSummary,
         login,
         signOut,
         checkSheet,

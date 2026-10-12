@@ -69,15 +69,11 @@ An Indonesian IP hitting `/` with no cookie is redirected to `/id` once.
 - **Intro / Sign in** — what zippp does, then Google (the only login).
 - **Snap** (single screen) — live camera with auto-snap (on by default); the
   **viewfinder is the shutter** (tap to capture); blur blocks capture; upload is
-  below. Captured receipts join the batch
-  **below the camera**: one card expanded (the current one), the rest collapsed,
-  accepted cards hidden. Each expanded card is an editable form (merchant, date,
-  subtotal, tax, total, and line items: description, qty, unit price, amount);
-  **Accept** / **Delete** sit in a fixed footer; after the last accept the camera
-  stops and the viewfinder shrinks, then **Send all accepted** appears
-  (**Capture more** restarts the camera).
-- **Success** — after a batch send: "{sent} of {total} sent", **Open the sheet**
-  and **Scan more**. Failed items reappear in the batch to retry.
+  below. A captured check opens an editable card (merchant, date, subtotal, tax,
+  total, and line items: description, qty, unit price, amount) with **Accept** /
+  **Delete** in a fixed footer. **Accept writes the row to Google Sheets right
+  away** (1 credit) and opens the next card. A bottom **Open Google Sheets**
+  link opens the connected sheet at any time.
 - A collapsible **Debug** panel shows the extraction trace in the expanded card.
 
 Navigation: on mobile there is no in-app back button; the device back button or
@@ -118,9 +114,9 @@ See `REVISION-1.md`. In short:
 3. Staff open a ready item on **Check**: merchant, date, subtotal, tax, total,
    and line items (description, qty, unit price, amount). Staff and outlet are
    still to be added to the card. Anything wrong is corrected on this screen.
-4. **Send to sheet** appends the rows using the saved map. Header facts repeat on
-   each line.
-5. "Sent" confirms the row count. Next ready item opens automatically.
+4. **Accept** appends the rows using the saved map and spends 1 credit. Header
+   facts repeat on each line.
+5. The next ready item opens automatically.
 
 **Fail paths**
 - Unreadable / not a receipt → the item is marked failed with Retry; nothing is

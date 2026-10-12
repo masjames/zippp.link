@@ -261,10 +261,6 @@ Resi terdeteksi. Tahan stabil.
 Blurry. Hold steady.
 ## app.capture.holdSteady.id
 Buram. Tahan stabil.
-## app.review.progress.en
-{done} of {total} accepted
-## app.review.progress.id
-{done} dari {total} diterima
 ## app.review.accept.en
 Accept
 ## app.review.accept.id
@@ -309,14 +305,6 @@ Pajak
 Unit price
 ## app.check.unitPrice.id
 Harga satuan
-## app.review.sendAll.en
-Save to Google Sheet
-## app.review.sendAll.id
-Simpan ke Google Sheet
-## app.review.summary.en
-{sent} of {total} sent
-## app.review.summary.id
-{sent} dari {total} terkirim
 ## app.capture.noReceipt.en
 No receipt in view.
 ## app.capture.noReceipt.id
@@ -436,31 +424,6 @@ Gagal mengirim. Periksa koneksi dan coba lagi.
 Receipt
 ## app.check.merchantFallback.id
 Resi
-
-## app.sent.title.en
-{count} rows added.
-## app.sent.title.id
-{count} baris ditambahkan.
-## app.sent.title2.en
-Nothing lost.
-## app.sent.title2.id
-Tidak ada yang hilang.
-## app.sent.body.en
-Your sheet is up to date with {merchant}, {total}.
-## app.sent.body.id
-Sheet Anda sudah diperbarui dengan {merchant}, {total}.
-## app.sent.note.en
-Spotted a mistake? Fix it in the sheet. It is the single source of truth.
-## app.sent.note.id
-Ada kesalahan? Perbaiki di sheet. Itulah sumber kebenarannya.
-## app.sent.open.en
-Open the sheet
-## app.sent.open.id
-Buka sheet
-## app.sent.again.en
-Scan another receipt
-## app.sent.again.id
-Scan resi lain
 
 ## app.sheets.checking.en
 Looking for your sheet…
@@ -1251,9 +1214,9 @@ Template
 ## app.sheets.template.id
 Template
 ## app.sheets.open.en
-Open in Google Sheets
+Open Google Sheets
 ## app.sheets.open.id
-Buka di Google Sheets
+Buka Google Sheets
 ## app.sheets.wizard.title.en
 New sheet
 ## app.sheets.wizard.title.id

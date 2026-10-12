@@ -22,9 +22,8 @@ Source: real user feedback.
 One screen, `/app/snap`, holds both capture and review.
 
 ```
-camera (auto-snap on) → item queued → extract → review list → Accept/Edit each
-   → when all accepted → Send all accepted → rows in Google Sheets
-   → success screen (Open the sheet / Scan more)
+camera (auto-snap on) → item queued → extract → review card → Accept
+   → that row is appended to Google Sheets right away → next card, or camera
 ```
 
 - Admin, Settings, Top-up, Sheet stay separate routes.
@@ -50,7 +49,7 @@ camera (auto-snap on) → item queued → extract → review list → Accept/Edi
   (`prepareImage`). The detector reuses its buffers and only pushes state when
   sharp/steady/brightness change, so the screen does not re-render ~12x/second.
 
-## 3. Review (one page, accordion, batch)
+## 3. Review (one page, accordion)
 
 - Every captured receipt is a card in a vertical list on the same screen.
 - **Only one card is expanded** (the current one); the others are collapsed to a
@@ -65,23 +64,23 @@ camera (auto-snap on) → item queued → extract → review list → Accept/Edi
 - The **Accept / Delete** row is a fixed footer inside the card. Accept is never
   blocked by verification flags: every field is editable, and the verifier's
   flags stay server-side for telemetry only.
-- When the last receipt is accepted the batch is ready: the camera stops, the
-  viewfinder shrinks to a status strip ("{done} of {total} accepted"), and
-  **Send all accepted** appears. **Capture more** restarts the camera.
-- Progress is shown ("3 of 5 accepted").
-- When the last receipt is accepted, a single **Send all accepted** button appears.
+- **Accept writes the row.** Accepting a card appends that check to the sheet at
+  once (1 credit per successful append) and hides the card. The next unaccepted
+  card opens. There is no separate send step and no success screen.
+- The card header shows how many checks are still to review. **Capture more**
+  restarts the camera.
+- A bottom **Open Google Sheets** link (green Sheets mark) opens the connected
+  sheet at any time.
 
-## 4. Batch send
+## 4. Send on accept
 
-- **Send all accepted** appends each accepted receipt to the sheet **sequentially**
-  (one request at a time), spending **1 credit per successful append** (charge on
-  success; the server already refunds on failure).
-- Per-item status: `sending` → `sent` or `ready` (failed, kept for retry with the
-  error shown). A failure never blocks the others.
-- When the batch finishes, the app shows a **success screen** with two buttons:
-  **Open the sheet** and **Scan more** (do more snaps, back to the camera on the
-  same screen). If some items failed, the summary ("4 of 5 sent, 1 to retry")
-  appears on that screen with a retry action.
+- Accepting a check appends it to the sheet immediately, spending 1 credit on
+  success (the server refunds on failure). Sends run one at a time so the rows
+  keep their order.
+- Per-item status: `sending` then removed on success, or `ready` (kept for retry
+  with the error shown). A failure never blocks the others.
+- When the batch empties, the camera comes back so the next receipt can be
+  captured without an extra tap.
 
 ## 5. Survives a refresh
 

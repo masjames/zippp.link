@@ -10,6 +10,23 @@ import { fill, type T } from "@/lib/t";
 import { toDraft, type Draft } from "../draft";
 import type { BatchItem } from "@/lib/batch-db";
 
+/** Green Google Sheets mark, for the open-sheet action. */
+function SheetsIcon() {
+    return (
+        <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden>
+            <path
+                fill="#188038"
+                d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z"
+            />
+            <path fill="#34a853" d="M14 2l6 6h-6z" />
+            <path
+                fill="#fff"
+                d="M8 12h8v7H8v-7zm1.5 1.5v1.5H11v-1.5H9.5zm3 0v1.5h3v-1.5h-3zm-3 3v1h1.5v-1H9.5zm3 0v1h3v-1h-3z"
+            />
+        </svg>
+    );
+}
+
 const INPUT_BASE =
     "rounded-xl border-2 bg-surface px-3 py-2 text-body focus:outline-none";
 const INPUT = `${INPUT_BASE} w-full border-line focus:border-brand`;
@@ -51,8 +68,6 @@ export default function SnapScreen() {
         removeItem,
         retryItem,
         contributeItem,
-        sendAll,
-        sending,
         balance,
     } = useApp();
     const router = useRouter();
@@ -70,20 +85,16 @@ export default function SnapScreen() {
 
     // The review overlay opens on a new capture and can be dismissed to snap more.
     const [dismissed, setDismissed] = useState(false);
-    // Review done and about to send: the camera is intentionally off. "Capture
-    // more" turns it back on without losing the accepted batch.
-    const [resume, setResume] = useState(false);
     // White flash shown on a tap, right before the camera stops.
     const [flash, setFlash] = useState(false);
     const flashTimer = useRef<number | null>(null);
     const prevCount = useRef(0);
+    const cameraStarted = useRef(false);
+    const prevBatchLen = useRef(batch.length);
 
-    const accepted = batch.filter((item) => item.status === "accepted");
     const unaccepted = batch.filter((item) => item.status !== "accepted");
     const current = unaccepted[0] ?? null;
-    const readyToSend = accepted.length > 0 && unaccepted.length === 0;
     const overlayOpen = unaccepted.length > 0 && !dismissed;
-    const compact = readyToSend && !resume;
     const outOfCredits = balance?.configured === true && balance.credits <= 0;
 
     const detection = useReceiptDetector(videoRef, mode === "live" && !overlayOpen);
@@ -101,17 +112,18 @@ export default function SnapScreen() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [overlayOpen]);
 
-    /** Review done: turn the viewfinder off and shrink it to a status strip. */
+    /**
+     * After the last queued check is written and the batch empties, bring the
+     * camera back so the next receipt can be captured without an extra tap.
+     */
     useEffect(() => {
-        if (!readyToSend) {
-            setResume(false);
-            return;
+        const hadItems = prevBatchLen.current > 0;
+        prevBatchLen.current = batch.length;
+        if (batch.length === 0 && hadItems && cameraStarted.current) {
+            void openCamera();
         }
-        if (resume) return;
-        stopCamera();
-        setMode("idle");
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [readyToSend, resume]);
+    }, [batch.length]);
 
     function stopCamera() {
         streamRef.current?.getTracks().forEach((track) => track.stop());
@@ -153,6 +165,7 @@ export default function SnapScreen() {
             cameraInputRef.current?.click();
             return;
         }
+        cameraStarted.current = true;
         setMode("starting");
         try {
             // Soft constraints only. Asking for 4K made some older phones take
@@ -269,10 +282,8 @@ export default function SnapScreen() {
     return (
         <PhoneShell tone="brand" pill={workspace?.spreadsheet_title}>
             <div
-                className={`relative w-full flex-none overflow-hidden rounded-panel bg-[#2a1410] text-center text-peach ${
-                    compact ? "h-16" : ""
-                }`}
-                style={compact ? undefined : { aspectRatio: String(videoAspect) }}
+                className="relative w-full flex-none overflow-hidden rounded-panel bg-[#2a1410] text-center text-peach"
+                style={{ aspectRatio: String(videoAspect) }}
             >
                 <video
                     ref={videoRef}
@@ -289,24 +300,15 @@ export default function SnapScreen() {
                         mode === "live" && !overlayOpen ? "opacity-100" : "opacity-25"
                     }`}
                 />
-                {!compact && mode === "live" ? <GuideFrame /> : null}
-                {!compact && mode === "live" ? (
+                {mode === "live" ? <GuideFrame /> : null}
+                {mode === "live" ? (
                     <span className="pointer-events-none absolute inset-x-0 top-3 z-10 flex justify-center">
                         <span className="rounded-full bg-black/55 px-3 py-1 text-xs font-semibold text-white">
                             {t("app.capture.tapToShoot")}
                         </span>
                     </span>
                 ) : null}
-                {compact ? (
-                    <span className="absolute inset-0 z-10 flex items-center justify-center p-2">
-                        <span className="w-full rounded-2xl border-2 border-line bg-card px-4 py-2 text-center text-sm font-semibold text-body">
-                            {fill(t("app.review.progress"), {
-                                done: accepted.length,
-                                total: batch.length,
-                            })}
-                        </span>
-                    </span>
-                ) : mode !== "live" ? (
+                {mode !== "live" ? (
                     <span className="absolute inset-0 z-10 flex items-center justify-center text-sm">
                         {mode === "starting"
                             ? t("app.capture.starting")
@@ -323,16 +325,14 @@ export default function SnapScreen() {
                         {t("app.capture.frame")}
                     </span>
                 )}
-                {/* The viewfinder is the shutter. Hidden once the batch is ready. */}
-                {!compact ? (
-                    <button
-                        type="button"
-                        aria-label={t("app.capture.shutter")}
-                        onClick={shutter}
-                        disabled={outOfCredits || mode === "starting"}
-                        className="absolute inset-0 z-20 cursor-pointer disabled:cursor-not-allowed"
-                    />
-                ) : null}
+                {/* The viewfinder is the shutter. */}
+                <button
+                    type="button"
+                    aria-label={t("app.capture.shutter")}
+                    onClick={shutter}
+                    disabled={outOfCredits || mode === "starting"}
+                    className="absolute inset-0 z-20 cursor-pointer disabled:cursor-not-allowed"
+                />
                 {flash ? (
                     <span
                         className="pointer-events-none absolute inset-0 z-30 bg-white"
@@ -352,7 +352,7 @@ export default function SnapScreen() {
                     {t("app.capture.upload")}
                 </button>
                 <div className="flex items-center gap-2">
-                    {!compact && torchSupported ? (
+                    {torchSupported ? (
                         <button
                             type="button"
                             aria-pressed={torchOn}
@@ -365,25 +365,11 @@ export default function SnapScreen() {
                             {torchOn ? " · ON" : ""}
                         </button>
                     ) : null}
-                    {!compact ? (
-                        <button type="button" aria-pressed={autoSnap} onClick={() => setAutoSnap(!autoSnap)}
-                            className={`rounded-full px-3 py-1 font-semibold ${autoSnap ? "bg-maroon text-white" : "bg-peach text-ink"}`}>
-                            {t("app.capture.autoSnap")}
-                            {autoSnap ? " · ON" : ""}
-                        </button>
-                    ) : null}
-                    {compact ? (
-                        <button
-                            type="button"
-                            onClick={() => {
-                                setResume(true);
-                                void openCamera();
-                            }}
-                            className="rounded-full bg-peach px-3 py-1 font-semibold text-ink"
-                        >
-                            {t("app.review.captureMore")}
-                        </button>
-                    ) : null}
+                    <button type="button" aria-pressed={autoSnap} onClick={() => setAutoSnap(!autoSnap)}
+                        className={`rounded-full px-3 py-1 font-semibold ${autoSnap ? "bg-maroon text-white" : "bg-peach text-ink"}`}>
+                        {t("app.capture.autoSnap")}
+                        {autoSnap ? " · ON" : ""}
+                    </button>
                 </div>
             </div>
 
@@ -407,15 +393,16 @@ export default function SnapScreen() {
                 </button>
             ) : null}
 
-            {readyToSend ? (
-                <button
-                    type="button"
-                    disabled={sending}
-                    onClick={() => void sendAll()}
-                    className="rounded-full bg-maroon px-6 py-4 font-semibold text-white disabled:opacity-60"
+            {workspace ? (
+                <a
+                    href={`https://docs.google.com/spreadsheets/d/${workspace.spreadsheet_id}/edit`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-auto flex items-center justify-center gap-2 rounded-full bg-mist px-6 py-4 font-semibold text-ink"
                 >
-                    {fill(t("app.review.sendAll"), { count: accepted.length })}
-                </button>
+                    <SheetsIcon />
+                    {t("app.sheets.open")}
+                </a>
             ) : null}
 
             {overlayOpen && current ? (
@@ -423,10 +410,6 @@ export default function SnapScreen() {
                     t={t}
                     current={current}
                     stack={unaccepted}
-                    accepted={accepted.length}
-                    total={batch.length}
-                    readyToSend={readyToSend}
-                    sending={sending}
                     onChange={(draft) => updateDraft(current.id, draft)}
                     onAccept={() => acceptItem(current.id)}
                     onRetry={() => retryItem(current.id)}
@@ -437,7 +420,6 @@ export default function SnapScreen() {
                         // The camera stopped after the tap; bring it back.
                         if (mode !== "live") void openCamera();
                     }}
-                    onSend={() => void sendAll()}
                 />
             ) : null}
         </PhoneShell>
@@ -448,32 +430,22 @@ function ReviewOverlay({
     t,
     current,
     stack,
-    accepted,
-    total,
-    readyToSend,
-    sending,
     onChange,
     onAccept,
     onRetry,
     onContribute,
     onRemove,
     onCaptureMore,
-    onSend,
 }: {
     t: T;
     current: BatchItem;
     stack: BatchItem[];
-    accepted: number;
-    total: number;
-    readyToSend: boolean;
-    sending: boolean;
     onChange: (draft: Draft) => void;
     onAccept: () => void;
     onRetry: () => void;
     onContribute: () => void;
     onRemove: () => void;
     onCaptureMore: () => void;
-    onSend: () => void;
 }) {
     return (
         <div className="fixed inset-0 z-50 flex justify-center bg-black/70">
@@ -487,20 +459,8 @@ function ReviewOverlay({
                         ↓ {t("app.review.captureMore")}
                     </button>
                     <span className="text-xs">
-                        {fill(t("app.review.progress"), { done: accepted, total })}
+                        {fill(t("app.review.toReview"), { count: stack.length })}
                     </span>
-                    {readyToSend ? (
-                        <button
-                            type="button"
-                            disabled={sending}
-                            onClick={onSend}
-                            className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-maroon disabled:opacity-60"
-                        >
-                            {fill(t("app.review.sendAll"), { count: accepted })}
-                        </button>
-                    ) : (
-                        <span className="w-12" />
-                    )}
                 </div>
 
                 <div className="flex flex-1 items-center justify-center px-4 pb-6">
