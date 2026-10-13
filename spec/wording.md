@@ -37,6 +37,11 @@ Sign in with Google
 ## nav.signin.id
 Masuk dengan Google
 
+## lang.label.en
+Language
+## lang.label.id
+Bahasa
+
 ## landing.hero.title1.en
 Receipts in.
 ## landing.hero.title1.id

@@ -1,14 +1,15 @@
 "use client";
 
 import SiteFooter from "./SiteFooter";
+import LangToggle from "../LangToggle";
 import type { BusinessInfo } from "@/lib/business";
 import { legalHref } from "@/lib/legal";
 import { makeT, type Wording } from "@/lib/t";
 import type { Lang, Region } from "@/lib/region";
 
 /**
- * Landing page. Language and currency follow the entry route: `/` is English
- * with USD, `/id` is Indonesian with IDR. There is no toggle.
+ * Landing page. Region follows the entry route (`/` is USD, `/id` is IDR);
+ * language follows the region unless the visitor picked EN or ID.
  */
 export default function Landing({
     wording,
@@ -22,7 +23,6 @@ export default function Landing({
     business: BusinessInfo;
 }) {
     const t = makeT(wording, lang);
-    const otherHref = lang === "id" ? "/" : "/id";
 
     return (
         <div className="min-h-screen bg-page">
@@ -47,12 +47,7 @@ export default function Landing({
                             </a>
                         </div>
                         <div className="flex items-center gap-4">
-                            <a
-                                href={otherHref}
-                                className="text-xs font-semibold text-muted hover:text-body"
-                            >
-                                {t("landing.switch")}
-                            </a>
+                            <LangToggle lang={lang} label={t("lang.label")} />
                             <a
                                 href="/api/auth/login"
                                 className="inline-flex items-center rounded-full bg-btn px-5 py-2.5 text-sm font-semibold text-btntext"

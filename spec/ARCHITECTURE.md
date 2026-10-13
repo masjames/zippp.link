@@ -146,8 +146,9 @@ leftovers from the retired GoPay flow and can be deleted.)
   every approved/completed top-up (`src/lib/billing/referral.ts`).
 
 Regions: `/` (English, USD) and `/id` (Indonesian, IDR). Middleware sets the
-region at entry and captures `?ref=CODE`. There is **no in-app language
-toggle**; `/` and `/id` are separate entry routes.
+region at entry and captures `?ref=CODE`. An **EN/ID language selector** in the
+landing nav, the footer, and the app header overrides copy only; `/` and `/id`
+remain the regional entry routes.
 
 ## Region & language
 
@@ -156,9 +157,10 @@ toggle**; `/` and `/id` are separate entry routes.
 the request so the first render is correct. `?region=id|intl` overrides for
 preview.
 
-- Region drives **pricing currency and copy language**. Indonesia → Indonesian +
-  IDR; else English (US) + intl. The landing `landing.switch` link is removed
-  in Revision 2 (reach the other locale by URL only).
+- Region drives **pricing currency**. Indonesia → IDR; else English (US) + intl.
+- Language follows the region by default (`id` → Indonesian, else English). The
+  EN/ID selector writes `zippp_lang`; `getLocale()` prefers it, so a visitor can
+  read the copy in either language without changing the price currency.
 
 ## Wording
 

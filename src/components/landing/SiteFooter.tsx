@@ -2,6 +2,7 @@ import { LEGAL_PAGES, legalHref } from "@/lib/legal";
 import type { Lang } from "@/lib/region";
 import type { T } from "@/lib/t";
 import type { BusinessInfo } from "@/lib/business";
+import LangToggle from "../LangToggle";
 
 /**
  * Links to the public information pages plus the operator's contact line.
@@ -17,7 +18,6 @@ export default function SiteFooter({
     lang: Lang;
     business: BusinessInfo;
 }) {
-    const otherHref = lang === "id" ? "/" : "/id";
     const contact = legalHref("contact", lang);
     return (
         <div className="mx-auto max-w-[980px] px-6 py-8 text-sm text-muted">
@@ -31,9 +31,7 @@ export default function SiteFooter({
                         {t(`legal.${id}.nav`)}
                     </a>
                 ))}
-                <a href={otherHref} className="font-semibold hover:text-body">
-                    {t("landing.switch")}
-                </a>
+                <LangToggle lang={lang} label={t("lang.label")} />
             </nav>
             <p className="mt-4">
                 {business.operator}

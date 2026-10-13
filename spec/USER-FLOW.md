@@ -23,7 +23,8 @@ The sheet stays the system of record. zippp is the intake mill.
 
 ## Landing page `/`
 
-- English `/` (USD) and Indonesian `/id` (IDR). No language toggle in the app.
+- English `/` (USD) and Indonesian `/id` (IDR). An EN/ID selector in the nav,
+  the footer, and the app header switches copy only; pricing follows the region.
   Region cookie is set at entry; `/` and `/id` are reached by region or URL.
 - Sections: hero (sheet visual), How it works, **four persona cards**, credit
   pricing + referral, FAQ, CTAs that sign in with Google.
