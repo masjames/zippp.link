@@ -123,7 +123,10 @@ leftovers from the retired GoPay flow and can be deleted.)
   /api/topup/doku` signs a `/checkout/v1/payment` request (HMAC-SHA256 over
   Client-Id, Request-Id, Request-Timestamp, Request-Target, Digest), stores
   `bill:doku:{invoice}` and redirects to DOKU's URL. Invoice numbers are
-  alphanumeric, under 30 chars. DOKU POSTs to `/api/doku/notify`; the route
+  alphanumeric, under 30 chars. The request sends
+  `payment.payment_method_types` from `DOKU_PAYMENT_METHODS` in
+  `src/lib/billing/config.ts`, so the checkout only offers channels whose
+  Notification URL is configured in the DOKU Back Office. DOKU POSTs to `/api/doku/notify`; the route
   verifies the signature against its own path, checks the amount, and grants
   once (idempotent on `doku:{invoice}`). The customer returns to
   `/app/topup?doku={invoice}`, which polls `GET /api/topup/doku/[invoice]`.

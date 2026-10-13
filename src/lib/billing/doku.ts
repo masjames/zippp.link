@@ -1,5 +1,5 @@
 import { createHash, createHmac, randomUUID, timingSafeEqual } from "node:crypto";
-import { creditsForIdr, DOKU_ORDER_TTL_MIN, MIN_TOPUP_IDR } from "./config";
+import { creditsForIdr, DOKU_ORDER_TTL_MIN, DOKU_PAYMENT_METHODS, MIN_TOPUP_IDR } from "./config";
 import { grant } from "./ledger";
 import { billingConfigured, command } from "./redis";
 import { onTopupApproved } from "./referral";
@@ -188,7 +188,10 @@ export async function createDokuCheckout(input: {
                 },
             ],
         },
-        payment: { payment_due_date: DOKU_ORDER_TTL_MIN },
+        payment: {
+            payment_due_date: DOKU_ORDER_TTL_MIN,
+            payment_method_types: [...DOKU_PAYMENT_METHODS],
+        },
         customer: {
             id: input.userId.slice(0, 50),
             name: (input.name || "zippp user").replace(/[^A-Za-z ]/g, "").trim() || "zippp user",

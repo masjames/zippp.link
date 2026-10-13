@@ -12,6 +12,15 @@ export const INTL_PACK_USD = 9;
 /** Suggested IDR top-up amounts shown on the public pricing page and in the app. */
 export const IDR_TOPUP_PRESETS = [50_000, 100_000, 200_000, 300_000];
 
+/**
+ * DOKU Checkout channels shown to the customer. Each one must have its
+ * Notification URL set in the DOKU Back Office, otherwise payments on it
+ * never reach /api/doku/notify. Values come from DOKU's supported payment
+ * methods list. Add a channel here only after configuring it in the Back
+ * Office.
+ */
+export const DOKU_PAYMENT_METHODS = ["QRIS", "CREDIT_CARD"] as const;
+
 export const UPSTASH_URL = process.env.UPSTASH_REDIS_REST_URL || "";
 export const UPSTASH_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN || "";
 
