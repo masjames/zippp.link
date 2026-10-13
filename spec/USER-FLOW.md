@@ -33,7 +33,7 @@ The sheet stays the system of record. zippp is the intake mill.
 ## Public information pages
 
 Required by payment gateway review (DOKU, Paddle) and Google OAuth
-verification. Static, bilingual, copy in `wording.md` under `legal.*`.
+verification. Static, bilingual, copy in `wording.txt` under `legal.*`.
 
 | Page | `/` (en) | `/id` |
 |---|---|---|

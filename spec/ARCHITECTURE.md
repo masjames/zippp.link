@@ -1,7 +1,7 @@
 # zippp architecture
 
 Depends on: `SPEC.md`, `USER-FLOW.md`
-Owns: how it is built. Column dictionary: `TEMPLATES.md`. Copy: `wording.md`.
+Owns: how it is built. Column dictionary: `TEMPLATES.md`. Copy: `wording.txt`.
 
 ---
 
@@ -164,7 +164,7 @@ preview.
 
 ## Wording
 
-Every user-visible string lives in **`spec/wording.md`** (`## key.lang` entries).
+Every user-visible string lives in **`spec/wording.txt`** (`## key.lang` entries).
 `src/lib/content.ts` parses it once on the server; `src/lib/t.ts` resolves keys.
 `next.config.ts` traces the file into the serverless bundle. Edit values only.
 

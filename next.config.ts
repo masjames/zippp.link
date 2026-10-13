@@ -6,10 +6,10 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: path.join(__dirname),
   },
-  // spec/wording.md is read with fs at runtime — make sure Vercel traces it
+  // spec/wording.txt is read with fs at runtime — make sure Vercel traces it
   // into the serverless bundle.
   outputFileTracingIncludes: {
-    "/**": ["./spec/wording.md"],
+    "/**": ["./spec/wording.txt"],
   },
 };
 

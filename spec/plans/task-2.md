@@ -104,7 +104,7 @@ After a successful send, `/app/check/[id]` pushes to `/app/sent`. From `Sent`,
 ## Back to Snap
 
 A small `BackToSnap` link (header, top-left) on every app screen except
-`/app/snap` and `/app/start`. Text from `wording.md` (add `app.nav.back` =
+`/app/snap` and `/app/start`. Text from `wording.txt` (add `app.nav.back` =
 "Back" / "Kembali" if missing).
 
 ## Out of scope (other tasks)

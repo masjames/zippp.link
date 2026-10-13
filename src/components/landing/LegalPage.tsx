@@ -19,7 +19,7 @@ import { fill, makeT } from "@/lib/t";
 /**
  * One public information page (pricing, terms, privacy, refund, contact).
  *
- * Body copy comes from `legal.<id>.body.<lang>` in wording.md. Paragraphs are
+ * Body copy comes from `legal.<id>.body.<lang>` in wording.txt. Paragraphs are
  * separated by a blank line; a paragraph starting with `# ` renders as a
  * subheading; one starting with `- ` renders as a list. `{placeholders}` are
  * filled from the business info and billing constants.

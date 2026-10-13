@@ -146,7 +146,7 @@ src/
 - API keys management in production
 
 ## Bilingual Content
-See `spec/wording.md` for complete bilingual text specifications.
+See `spec/wording.txt` for complete bilingual text specifications.
 EOF
 
 # Install dependencies

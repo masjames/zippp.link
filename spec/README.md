@@ -17,7 +17,7 @@ built; `archived/` holds superseded material. Revision 2 brief:
 | [`OFFER.md`](./OFFER.md) | Selling brief |
 | [`COGS.md`](./COGS.md) | Cost of goods / unit economics |
 | [`LATER.md`](./LATER.md) | Parked ideas, out of scope for Revision 2 |
-| [`wording.md`](./wording.md) | **Every user-visible string** (EN/ID). Parsed at runtime — edit values only. |
+| [`wording.txt`](./wording.txt) | **Every user-visible string** (EN/ID). Parsed at runtime — edit values only. |
 | [`zippp-ship-plan.md`](./zippp-ship-plan.md) | Older Phase 1 task log; Revision 2 tasks live in the audit §10 |
 | [`./discussions/zippp-overview.md`](./discussions/zippp-overview.md) | External review brief (extraction / eval) |
 
@@ -35,7 +35,7 @@ built; `archived/` holds superseded material. Revision 2 brief:
 ## Notes
 
 - Root [`README.md`](../README.md) stays at the repo root.
-- `spec/wording.md` is loaded by `src/lib/content.ts` and traced in
+- `spec/wording.txt` is loaded by `src/lib/content.ts` and traced in
   `next.config.ts`. Moving it requires updating both.
 - Personas live in `SPEC.md` / `USER-FLOW.md` / `TEMPLATES.md` — no separate
   `PERSONAS.md`.

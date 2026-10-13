@@ -143,7 +143,7 @@ Applied at month-tab creation. User can edit the lists in the sheet.
 The model's category is written as-is even if not in the list.
 
 Sheet-side strings (headers, "Summary", "Day", "Receipts", "Total", "Month",
-dropdown values) live in `wording.md` under `sheet.*` so `/id` users get
+dropdown values) live in `wording.txt` under `sheet.*` so `/id` users get
 Indonesian headers. For zippp-created sheets, `column_map` keys by **field id**,
 not header text.
 

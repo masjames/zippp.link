@@ -3,7 +3,7 @@
 Status: **ACTIVE** — Phase 1 shipped; Revision 2 (`AUDIT-2026-10.md`) decided,
 not fully implemented. Implementer follows the audit task list.
 Depends on: `USER-FLOW.md`, `ARCHITECTURE.md`, `TEMPLATES.md`, `PRICING.md`,
-`wording.md`
+`wording.txt`
 
 Domain: zippp.link
 

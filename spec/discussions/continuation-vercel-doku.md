@@ -161,6 +161,6 @@ Also needed by the rest of the app (see `.env.example`): `GOOGLE_CLIENT_ID`,
 ## Rules (AGENTS.md)
 
 Specs are the source of truth; update the owning spec in the same change. Every
-user-visible string lives in `spec/wording.md`. No em dashes. No secrets in git,
+user-visible string lives in `spec/wording.txt`. No em dashes. No secrets in git,
 no `NEXT_PUBLIC` for secrets. Constants live in `src/lib/billing/config.ts`. Run
 `npm run build` and `npx tsc --noEmit` before done. One task at a time.

@@ -23,7 +23,7 @@ v4 replaces v3. What changed:
 - Find or create the `[zippp]` sheet, column map, append rows
 - Extraction: PP-OCRv6 then DeepSeek Flash, with fallbacks
 - Five screens in one `/app` page, snap queue, Check before send
-- Region detection in middleware (`zippp_region`), bilingual copy in `spec/wording.md`
+- Region detection in middleware (`zippp_region`), bilingual copy in `spec/wording.txt`
 - Google Cloud and Upstash are set up
 
 ### Missing (this plan)
@@ -94,7 +94,7 @@ Free credit exists only through this referral bonus. No trial, no free tier.
 | `LATER.md` | Remove paywall and credit wallet from parked. Add Paddle, GoPay, Telegram, admin. Add Later items from section 12. |
 | `ARCHITECTURE.md` | Upstash keys, ledger, Paddle, Telegram, admin, new env vars |
 | `USER-FLOW.md` | Routes, top-up flows, admin flow |
-| `wording.md` | Section 10 |
+| `wording.txt` | Section 10 |
 | `COGS.md` | One line: at Rp 150 per scan, DeepSeek cost is about Rp 6. OCR cost still to confirm. |
 
 Each task updates its own spec file in the same change.
@@ -253,7 +253,7 @@ Never `NEXT_PUBLIC_` for secrets.
 
 ## 10. Landing and wording
 
-All strings live in `spec/wording.md`. Edit values only. Never start a value line with `##`.
+All strings live in `spec/wording.txt`. Edit values only. Never start a value line with `##`.
 
 ### Changes
 
@@ -438,7 +438,7 @@ Done when: a sandbox purchase grants 100 credits once, even if the webhook is de
 ### Task 9: Landing and wording
 
 Do: section 10. English `/`, Indonesian `/id`, credit pricing and referral blocks, em dash fixes, remove plan cards and `xx` placeholders.
-Done when: no em dashes remain in `wording.md`, and both landings show the right pricing.
+Done when: no em dashes remain in `wording.txt`, and both landings show the right pricing.
 
 **Ship point E.**
 

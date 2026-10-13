@@ -2,7 +2,7 @@ import type { Lang } from "./region";
 
 /**
  * Public information pages. The slug is the URL segment under `/` (English)
- * or `/id` (Indonesian). Copy lives in `spec/wording.md` under `legal.<id>.*`.
+ * or `/id` (Indonesian). Copy lives in `spec/wording.txt` under `legal.<id>.*`.
  */
 export type LegalPageId = "pricing" | "terms" | "privacy" | "refund" | "contact";
 
