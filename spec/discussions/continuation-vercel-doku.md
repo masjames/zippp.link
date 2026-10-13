@@ -4,29 +4,54 @@ Repo: `github.com/masjames/zippp.link` · Live: `www.zippp.link`
 Vercel project: `masjames-projects/zippp-link` (auto-deploys from GitHub)
 Local path on the first machine: `/Users/mm/Dev/adit/zippp`
 
-This doc is a handoff. The first machine cannot reach the Vercel scope, so run
-the steps below on the machine/account that has `masjames-projects` access.
+This doc is a handoff. The first machine cannot reach the Vercel scope, so the
+steps below were run on the machine/account that has `masjames-projects`
+access.
+
+## Status: resolved (2026-10-13)
+
+- `DOKU_ENV=sandbox`, `DOKU_CLIENT_ID`, and `DOKU_SECRET_KEY` are set on
+  `masjames-projects/zippp-link` (Production) with the sandbox dashboard
+  Client/Brand ID and its matching secret. Values are in Vercel only.
+- Production was deployed with `vercel --prod`. Live `/app/topup` (region id)
+  now renders `"doku":true`, so the Bayar button is enabled.
+- The sandbox credentials were proven against
+  `https://api-sandbox.doku.com/checkout/v1/payment`: HTTP 200 with a payment
+  URL.
+- A signed SUCCESS notification for an unknown invoice returns HTTP 404
+  `Unknown invoice` on live `/api/doku/notify`, so the deployed secret and the
+  HMAC scheme line up. An unsigned post still returns 401.
+- An isolated run (scratch Upstash Redis + the real sandbox checkout API)
+  covered: checkout creation, amount-mismatch rejection, first grant (333
+  credits on Rp 50.000), and a replay that did not double-grant.
+- Still to do by hand in the DOKU sandbox back office: set the Notification
+  URL to `https://www.zippp.link/api/doku/notify`. Each checkout also sends
+  `override_notification_url` to the same URL, so notifications are targeted
+  even if the back-office default is stale.
 
 ## State
 
 Code on `main` already includes: DOKU Checkout for `/id` top-up, GoPay removed,
 bilingual legal pages, contact email reveal behind a signed challenge. Latest
-commit: `ce7b879`.
+commit: `75cc6bb`.
 
-Signed-in `/id` shows "Isi saldo belum tersedia" because `dokuConfigured()` is
-false on the live project.
+Signed-in `/id` showed "Isi saldo belum tersedia" because `dokuConfigured()` was
+false on the live project. It is now true.
 
 `dokuConfigured()` = `DOKU_CLIENT_ID` + `DOKU_SECRET_KEY` + `billingConfigured()`
 (`UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN`). All must exist on
 `zippp-link`.
 
-## Two blockers, both verified
+## Two blockers, both fixed
 
 1. Vercel access. On the first machine the CLI is logged in as `b0bthcdrz` and
    only sees `pradityas-projects-3c9afc8e`. `--scope masjames-projects` returns
    "The specified scope does not exist". `~/.vercel/auth.json` holds a single
    token. The GitHub CLI there is authenticated as `masjames`, but that does not
    grant Vercel env access.
+
+   Fixed: the Vercel steps were run on the account that has `masjames-projects`.
+   `vercel project ls` and `vercel env ls` resolve `masjames-projects/zippp-link`.
 
 2. The DOKU sandbox Client-Id is invalid. A real signed request to
    `https://api-sandbox.doku.com/checkout/v1/payment` (same HMAC scheme the app
@@ -41,9 +66,12 @@ false on the live project.
    Client-Id. Use the sandbox dashboard's Client/Brand ID (`BRN-...` / `MCH-...`)
    and its matching secret key.
 
-## Task (in order)
+   Fixed: the sandbox dashboard Client/Brand ID and its matching secret were
+   used. The same signed request now returns HTTP 200 with a payment URL.
 
-1. Link and set env on `masjames-projects/zippp-link`:
+## Task (done)
+
+1. Done: env set on `masjames-projects/zippp-link`:
 
    ```
    git clone https://github.com/masjames/zippp.link.git   # if needed
@@ -55,16 +83,16 @@ false on the live project.
    vercel env ls                             # confirm DOKU_* and UPSTASH_*
    ```
 
-2. Redeploy: `vercel --prod`, or push any commit (the project auto-deploys).
+2. Done: `vercel --prod` deployed and aliased `https://www.zippp.link`.
 
-3. In the DOKU sandbox back office set the Notification URL to
-   `https://www.zippp.link/api/doku/notify`.
+3. Outstanding: in the DOKU sandbox back office set the Notification URL to
+   `https://www.zippp.link/api/doku/notify`. Each checkout also sends
+   `override_notification_url`, so this is a fallback, not a blocker.
 
-4. Verify end to end: signed in on `/id`, open `/app/topup`, pick a preset,
-   press Bayar, pay on the DOKU sandbox simulator, return to
-   `/app/topup?doku=ZP...`, status flips to paid, credits appear. The grant is
-   once per invoice (idempotency key `doku:<invoice>`); confirm a replayed
-   notification does not double-grant.
+4. Verified with the live site plus an isolated run (see Status at the top):
+   checkout creation, amount-mismatch rejection, one-time grant, and replay
+   protection. The browser step (pay on the sandbox simulator) is the only part
+   left to a human hand.
 
 ## Env to confirm on zippp-link (Production)
 
@@ -72,10 +100,10 @@ Required for this task:
 
 ```
 DOKU_ENV=sandbox
-DOKU_CLIENT_ID=<dashboard Client/Brand ID>
-DOKU_SECRET_KEY=<matching secret>
-UPSTASH_REDIS_REST_URL=<present?>
-UPSTASH_REDIS_REST_TOKEN=<present?>
+DOKU_CLIENT_ID=<sandbox Client/Brand ID, set on Vercel>
+DOKU_SECRET_KEY=<matching secret, set on Vercel>
+UPSTASH_REDIS_REST_URL=<present>
+UPSTASH_REDIS_REST_TOKEN=<present>
 ```
 
 Also needed by the rest of the app (see `.env.example`): `GOOGLE_CLIENT_ID`,
