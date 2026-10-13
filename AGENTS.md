@@ -4,7 +4,7 @@ Receipt photo to Google Sheet intake. Site: zippp.link. Prepaid credits.
 
 ## Truth
 - spec/ is the source of truth. Update the owning spec file in the same change.
-- Every user-visible string lives in spec/wording.md. Never hardcode copy.
+- Every user-visible string lives in spec/wording.txt. Never hardcode copy.
 - The Google Sheet is the system of record for receipts. zippp keeps no receipt ledger.
 - Optional photo proof lands in the **user's** Google Drive only.
 - The credit ledger (Upstash) is the only record of money and credits.

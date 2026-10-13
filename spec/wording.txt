@@ -51,9 +51,9 @@ Rows out.
 ## landing.hero.title2.id
 Baris keluar.
 ## landing.hero.body.en
-Take a photo of a receipt or invoice. zippp reads it and adds the lines to your Google Sheet, so your stock and spending are always up to date.
+Snap a receipt or invoice. zippp reads it and adds lines to your Google Sheet so your stock and spending stay current.
 ## landing.hero.body.id
-Foto resi atau faktur. zippp membacanya lalu menambahkan barisnya ke Google Sheet Anda, jadi stok dan pengeluaran selalu terbarui.
+Foto resi atau faktur. zippp membaca foto tersebut dan menambahkan barisnya ke dalam Google Sheet Anda. Stok dan pengeluaran selalu diperbarui.
 ## landing.hero.cta.en
 Get started
 ## landing.hero.cta.id
@@ -151,7 +151,7 @@ Does it work with handwritten notes?
 ## landing.faq.q3.id
 Apakah bisa untuk catatan tulisan tangan?
 ## landing.faq.a3.en
-It works best with printed receipts. Handwriting depends on how clear it is, which is why the check step exists.
+It works best with printed receipts. Handwritten ones are fine if they are clear because that is what the check step is for.
 ## landing.faq.a3.id
 Paling baik untuk resi cetak. Tulisan tangan bergantung kejelasannya, itulah sebabnya ada langkah periksa.
 ## landing.faq.q4.en
@@ -159,7 +159,7 @@ Who sees my receipt?
 ## landing.faq.q4.id
 Siapa yang melihat resi saya?
 ## landing.faq.a4.en
-The photo goes to Baidu AI Studio (PaddleOCR) to read the text. The text goes to DeepSeek to organize it. Google Gemini is a backup if the first two fail. The photo is not kept after the read.
+The photo is sent to Baidu AI Studio (PaddleOCR) to read text; text is processed by DeepSeek for organization. Google Gemini serves as a backup should the first two fail. The photo is deleted after reading.
 ## landing.faq.a4.id
 Fotonya dikirim ke Baidu AI Studio (PaddleOCR) untuk membaca teks. Teksnya dikirim ke DeepSeek untuk disusun. Google Gemini menjadi cadangan bila dua yang pertama gagal. Fotonya tidak disimpan setelah dibaca.
 
@@ -218,7 +218,7 @@ We only see the sheet zippp creates. Never the rest of your Drive.
 ## app.signin.fine.id
 Kami hanya melihat sheet yang dibuat zippp. Tidak pernah isi Drive Anda yang lain.
 ## app.signin.data.en
-To read a receipt, the photo goes to Baidu AI Studio (PaddleOCR) and the text goes to DeepSeek. Gemini is a backup. Nothing is kept after the read.
+To read a receipt, the photo goes to Baidu AI Studio (PaddleOCR) and text to DeepSeek. Gemini serves as a backup; nothing remains after reading.
 ## app.signin.data.id
 Untuk membaca resi, fotonya dikirim ke Baidu AI Studio (PaddleOCR) dan teksnya ke DeepSeek. Gemini menjadi cadangan. Tidak ada yang disimpan setelah dibaca.
 ## app.signin.error.en
@@ -1784,8 +1784,6 @@ AKTIF
 dd/mm/yyyy
 ## app.check.datePlaceholder.id
 dd/mm/yyyy
-
-# --- Revision 2 (AUDIT-2026-10). Wire in app as tasks ship. ---
 
 ## app.credits.pill.en
 {count}

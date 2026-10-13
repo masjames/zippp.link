@@ -44,7 +44,7 @@ function normalize(s) {
         .replace(/\bGoogle [Ss]preadsheet\b/g, "Google Sheet")
         .replace(/\bGoogle [Ss]heets\b/g, "Google Sheets")
         .replace(/\bGoogle [Ss]heet\b/g, "Google Sheet")
-        .replace(/\bZippp\b/g, "zippp")
+        .replace(/\bzippp\b/gi, "zippp")
         .trim();
 }
 
