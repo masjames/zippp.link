@@ -131,8 +131,9 @@ leftovers from the retired GoPay flow and can be deleted.)
   once (idempotent on `doku:{invoice}`). The customer returns to
   `/app/topup?doku={invoice}`, which polls `GET /api/topup/doku/[invoice]`.
   States: `pending -> paid | failed | expired`. Sandbox and production are
-  selected by `DOKU_ENV`. The manual GoPay flow was retired; old ledger
-  entries keep `topup_gopay` as their source.
+  selected by `DOKU_ENV`. Presets: Rp 15.000 / 30.000 / 50.000 / 100.000
+  (`IDR_TOPUP_PRESETS`, Rp 150/credit → 100 / 200 / 333 / 666 scans). Manual
+  GoPay was retired; old ledger entries keep `topup_gopay` as their source.
 - **International**: Paddle.js checkout (`PADDLE_CLIENT_TOKEN`,
   `PADDLE_PACK_PRICE_ID`); `POST /api/paddle/webhook` verifies the signature and
   grants on `transaction.completed` (idempotent on the transaction id).
@@ -145,7 +146,8 @@ leftovers from the retired GoPay flow and can be deleted.)
   every approved/completed top-up (`src/lib/billing/referral.ts`).
 
 Regions: `/` (English, USD) and `/id` (Indonesian, IDR). Middleware sets the
-region at entry and captures `?ref=CODE`. The language toggle is removed.
+region at entry and captures `?ref=CODE`. There is **no in-app language
+toggle**; `/` and `/id` are separate entry routes.
 
 ## Region & language
 
@@ -154,8 +156,9 @@ region at entry and captures `?ref=CODE`. The language toggle is removed.
 the request so the first render is correct. `?region=id|intl` overrides for
 preview.
 
-- Region drives **pricing currency**; language (`zippp_lang`, user-toggleable)
-  drives **copy**. Indonesia → Indonesian + IDR; else English (US) + intl.
+- Region drives **pricing currency and copy language**. Indonesia → Indonesian +
+  IDR; else English (US) + intl. The landing `landing.switch` link is removed
+  in Revision 2 (reach the other locale by URL only).
 
 ## Wording
 
@@ -165,11 +168,22 @@ Every user-visible string lives in **`spec/wording.md`** (`## key.lang` entries)
 
 ---
 
-## Templates
+## Templates and sheet layout
 
-All three templates are implemented (`src/lib/google/templates.ts`, `connect`
-route). The sheet wizard creates a new sheet for `resto-inventory`,
-`personal-expense`, or `custom`, each with its own header row and default map.
+Five templates (`src/lib/google/templates.ts`): `resto-inventory`,
+`personal-expense`, `sales-recap`, `reimbursement`, `custom`. Column contract:
+`TEMPLATES.md`. Revision 2 layout modules (to build):
+
+- `src/lib/google/sheet-style.ts` — widths, formats, colours (no magic numbers
+  in `sheets.ts`).
+- `src/lib/google/sheet-layout.ts` — `ensureMonthTab`, `hideOldTabs` (keep 12),
+  `summaryUpsert`. Composes `batchUpdate`.
+- `src/lib/google/drive.ts` — `ensureFolder`, `uploadJpeg`, `trashFile` for
+  photo proof under `[zippp] Receipts/YYYY-MM/`.
+
+Zippp-owned sheets: `Summary` + one tab per `YYYY-MM` from **receipt date**.
+Daily formula block on each month tab. Tabs older than 12 months hidden.
+`custom` stays single-tab, no block, no photo.
 
 ## Data flow
 
@@ -177,12 +191,16 @@ route). The sheet wizard creates a new sheet for `resto-inventory`,
 Staff phone
   → photo
   → POST /api/extract              → PP-OCRv6 → DeepSeek → receipt JSON + debug
-  → Review cards (client, editable)
-  → POST /api/sheets/append        { receipt, staff, outlet }
-       → load workspace map + refresh Google token
+  → Review cards (client, editable) + template ops
+  → POST /api/sheets/append        { receipt, scanId, ops, image? }
+       → spend 1 credit (idempotent on scanId)
+       → ensureMonthTab(receipt date)   // zippp-owned templates
+       → optional Drive upload → Photo hyperlink
        → build rows (one per line item)
        → spreadsheets.values.append
-  → { ok, rows_written, spreadsheet_title, sheet_tab }
+       → hideOldTabs(keep=12)
+  → { ok, rows_written, sheet_tab, photo? }
+  On any throw after spend: refund (+ trash uploaded file if any)
 ```
 
 ---

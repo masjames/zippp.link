@@ -1,10 +1,8 @@
 # zippp user flows
 
-Depends on: `SPEC.md`, `ARCHITECTURE.md`
+Depends on: `SPEC.md`, `ARCHITECTURE.md`, `TEMPLATES.md`
 Owns: who does what, in order. Not stack. Not prices.
-
-Primary design partner: **Charlie**, F&B manager. His staff shop for resto
-inventory and type every nota into Google Sheets today. zippp ends that typing.
+Revision 2 decisions: `AUDIT-2026-10.md`.
 
 ---
 
@@ -12,8 +10,11 @@ inventory and type every nota into Google Sheets today. zippp ends that typing.
 
 | Actor | Job |
 |---|---|
-| **Staff** | Buys inventory, holds the paper nota, photographs it. Does not own the sheet. |
-| **Charlie** | Owns the Google Sheet. Reviews rows. Sets outlet, staff list, column map once. |
+| **Sonny** | Purchasing staff. Photographs supplier notas. Picks staff name / outlet. Does not own the sheet. |
+| **Bibian** | One person tracking personal spend. Uses `personal-expense`. |
+| **Fais** | Seller. Photographs his own sales notas. Needs the **daily recap** on the month tab. |
+| **Bagas** | Staff claiming reimbursement. Needs month tab + **photo proof** in Drive. |
+| **Operator** | Owns the Google account / sheet (often Sonny's manager, or the same person as Bibian/Fais/Bagas). Sets template once, staff list, outlets. |
 | **zippp** | Reads the photo, maps to columns, appends rows. Does not become the books. |
 
 The sheet stays the system of record. zippp is the intake mill.
@@ -22,143 +23,151 @@ The sheet stays the system of record. zippp is the intake mill.
 
 ## Landing page `/`
 
-- English `/` (USD) and Indonesian `/id` (IDR), no language toggle.
-- Sections: hero ("Receipts in. Rows out."), How it works, audience, credit
-  pricing + referral, FAQ, and CTAs that sign in with Google directly.
-- Footer links to the public information pages and shows the operator's
-  contact line (`BUSINESS_*` / `CONTACT_*` env).
+- English `/` (USD) and Indonesian `/id` (IDR). No language toggle in the app.
+  Region cookie is set at entry; `/` and `/id` are reached by region or URL.
+- Sections: hero (sheet visual), How it works, **four persona cards**, credit
+  pricing + referral, FAQ, CTAs that sign in with Google.
+- Footer links to public information pages and the operator contact line.
 
 ## Public information pages
 
-Required by payment gateway review (DOKU, Paddle) and by Google OAuth
-verification. Static, bilingual, copy in `wording.md` under `legal.*`,
-rendered by `LegalPage`. Slugs are translated:
+Required by payment gateway review (DOKU, Paddle) and Google OAuth
+verification. Static, bilingual, copy in `wording.md` under `legal.*`.
 
 | Page | `/` (en) | `/id` |
 |---|---|---|
 | Pricing | `/pricing` | `/id/harga` |
-| Terms of service | `/terms` | `/id/syarat` |
-| Privacy policy | `/privacy` | `/id/privasi` |
-| Refund policy | `/refund` | `/id/refund` |
+| Terms | `/terms` | `/id/syarat` |
+| Privacy | `/privacy` | `/id/privasi` |
+| Refund | `/refund` | `/id/refund` |
 | Contact | `/contact` | `/id/kontak` |
 
-Contact email is not in the HTML. `/api/contact/reveal` issues a signed
-`a + b` challenge; the address is returned only after a correct answer.
-
-The pricing page doubles as the public payment page for gateway review: it
-lists the top-up presets (`IDR_TOPUP_PRESETS`) with the credits each gives,
-the accepted methods, and a sign-in CTA. Actual payment stays behind sign-in
-at `/app/topup`.
+Pricing page lists top-up presets (`IDR_TOPUP_PRESETS`). Actual payment stays
+behind sign-in at `/app/topup`.
 
 ---
 
 ## App routes
 
-`/app/snap` is home. State lives in a client provider mounted in
-`/app/layout.tsx`, so the snap queue survives route changes.
+`/app/snap` is home. State lives in a client provider in `/app/layout.tsx`.
 
 | Route | Screen | Who |
 |---|---|---|
-| `/` | English landing (international) | everyone |
-| `/id` | Indonesian landing (IDR) | everyone |
-| `/app` | redirects via the guard to `/app/snap` | everyone |
+| `/` | English landing | everyone |
+| `/id` | Indonesian landing | everyone |
+| `/app` | guard → `/app/snap` | everyone |
 | `/app/start` | Intro, then Sign in | logged out |
-| `/app/snap` | Single screen: camera + batch review (home) | signed in, sheet OK, credits |
-| `/app/topup` | Top up: DOKU hosted checkout (id) or Paddle (intl); `?doku=INVOICE` shows the return status | signed in |
-| `/app/settings` | balance, invite link, sheet, sign out | signed in |
-| `/app/settings/sheet` | sheet status, create/choose sheet, reconnect | signed in |
+| `/app/snap` | Camera + batch review (home) | signed in, sheet OK, credits |
+| `/app/topup` | DOKU (id) or Paddle (intl); `?doku=INVOICE` return status | signed in |
+| `/app/settings` | balance, invite, sheet, staff/outlets, photo toggle, sign out | signed in |
+| `/app/settings/sheet` | sheet status, create/choose, template wizard | signed in |
 | `/admin` | Recent DOKU payments, manual grant | admin emails only |
-
-`/` is English with USD; `/id` is Indonesian with IDR (no language toggle). The
-region cookie is set at entry and drives the app language and top-up channel.
-An Indonesian IP hitting `/` with no cookie is redirected to `/id` once.
 
 ### Guard (server decides; stop at first failure)
 
 1. `!authChecked` → loading spinner. Never show Sign in first.
 2. No session → `/app/start`.
-3. No usable sheet → `/app/settings/sheet`. The sheet page runs one phase at a
-   time: **check** (find only, never create), **choose source** (create a new
-   sheet or use an existing one), **picker**, **template wizard**, **creating**,
-   **connected**, **error**. Creating uses one of three templates (Purchasing
-   and inventory, Expense tracker, Custom). The connected view can open the
-   sheet in Google Sheets, create another, choose another, or re-check the
-   current one. Settings is reachable from the app header.
+3. No usable sheet → `/app/settings/sheet`. Phases: **check** (find only, never
+   create) → **choose source** → **picker** → **template wizard** →
+   **creating** → **connected** / **error**. Templates: five (see
+   `TEMPLATES.md`). Settings reachable from the header.
 4. No credits → `/app/topup` (Settings stays reachable).
-5. Ready: `/app` → `/app/snap`. A signed-in user on `/app/start` → `/app/snap`.
+5. Ready: `/app` → `/app/snap`.
 
-### Screens
+### Chrome
 
-- **Intro / Sign in** — what zippp does, then Google (the only login).
-- **Snap** (single screen) — live camera with auto-snap (on by default); the
-  **viewfinder is the shutter** (tap to capture); blur blocks capture; upload is
-  below. A captured check opens an editable card (merchant, category, date,
-  subtotal, tax, total, and line items: description, qty, unit price, amount)
-  with **Accept** /
-  **Delete** in a fixed footer. **Accept writes the row to Google Sheets right
-  away** (1 credit) and opens the next card. A bottom **Open Google Sheets**
-  link opens the connected sheet at any time.
-- A collapsible **Debug** panel shows the extraction trace in the expanded card.
-
-Navigation: on mobile there is no in-app back button; the device back button or
-gesture is used. `/app/snap` is home. The app header shows a **Settings** button
-(gear + label), plus **Admin** for admins; **Sign out** lives on `/app/settings`.
+- Header: **credit pill** (tap → top-up; amber under 10; red at 0) + **Settings**
+  + **Admin** for admins. Sign out on Settings.
+- Mobile: device back / gesture. No in-app back button. `/app/snap` is home.
 
 ---
 
-## Capture + batch review (Revision 1, implemented)
+## Capture + review (shipped Revision 1)
 
-See `REVISION-1.md`. In short:
+One screen `/app/snap`:
 
-- Auto-snap is **on by default**; a **blurry frame cannot be captured**
-  (hard block, "Blurry. Hold steady.").
-- One screen holds camera + review. Cards: **one expanded**, rest collapsed,
-  accepted hidden; **Accept**/ **Edit** per card; progress "{done} of {total}".
-- **Send all accepted** appends sequentially, **1 credit per successful append**
-  (charge on success); failures return to the batch to retry.
-- The batch **survives a refresh** (IndexedDB): image, extraction, draft, status
-  and the open card are restored; interrupted reads/sends become retryable.
+```
+camera (auto-snap on) → queued → extract → review card → Accept
+  → append to month tab (1 credit) → next card or camera
+```
 
----
-
-## Flow A — First-time setup (Charlie, once)
-
-1. Charlie signs in with Google (Sheets + Drive-file scope only).
-2. zippp finds a `[zippp]` sheet or creates `[zippp] Resto inventory`.
-3. zippp reads row 1 as headers and builds the field map; unmatched columns get a
-   constant or prompt-at-submit (Staff, Outlet).
-4. He adds staff names (plain list) and outlets. Done — no chart of accounts.
+- Viewfinder is the shutter. Blurry frame hard-blocks. Auto-snap on by default.
+- Accordion: one card open, accepted hidden. Accept writes immediately.
+  Accept label: **Accept · 1 credit**.
+- Batch persists in IndexedDB (image, draft, status, open card).
+- Ops on the card depend on template (below). Never from the model.
+- Soft **Saved to {tab}** toast + **Open this month**. No separate success
+  route.
 
 ---
 
-## Flow B — Shopping day (the time save)
+## Flow A — First-time setup (once)
 
-1. Staff open zippp on a phone. They photograph each nota; it queues.
-2. zippp extracts each one (PP-OCRv6 → DeepSeek Flash).
-3. Staff open a ready item on **Check**: merchant, date, subtotal, tax, total,
-   and line items (description, qty, unit price, amount). Staff and outlet are
-   still to be added to the card. Anything wrong is corrected on this screen.
-4. **Accept** appends the rows using the saved map and spends 1 credit. Header
-   facts repeat on each line.
-5. The next ready item opens automatically.
-
-**Fail paths**
-- Unreadable / not a receipt → the item is marked failed with Retry; nothing is
-  appended.
-- Sheets 401 (session lost) → the app returns to Sign in with a message.
-- Append error → the error is shown; the item stays ready to retry.
+1. Sign in with Google (Sheets + Drive-file scope only).
+2. Choose create new sheet or use existing `[zippp]` sheet.
+3. Wizard: pick template by **persona wording** (kitchen, spending, sales,
+   reimbursement, own sheet).
+4. zippp creates spreadsheet: `Summary` + current month tab, headers,
+   formatting, dropdowns, daily block (`TEMPLATES.md`).
+5. T1 only: Settings → staff names, outlets, default outlet.
+6. T1 / T4: Settings → Save photo to Drive (T4 default on).
+7. Top up if zero credits. Done.
 
 ---
 
-## Flow C — Personal expense template (not implemented)
+## Flow B — Shopping / capture day
 
-Same screens, one person, template `personal-expense`. No staff list, no
-inventory units. Not an accounting system. **Spec-only for now** — the app only
-creates the `resto-inventory` template (`LATER.md`).
+1. Open zippp on a phone. Photograph each nota (or upload).
+2. zippp extracts (PP-OCRv6 → DeepSeek Flash).
+3. Review card: merchant, date, items, totals, category + **template ops**.
+4. **Accept** → spend 1 credit → ensure month tab from **receipt date** →
+   optional Drive photo → append rows → hide tabs older than 12 months.
+5. Next ready card opens. Failures stay for retry; nothing appended on fail.
+
+### Ops per template (review card)
+
+| Template | Extra fields |
+|---|---|
+| resto-inventory | Staff (dropdown, device-remembered), Outlet (default / dropdown) |
+| personal-expense | Payment (optional) |
+| sales-recap | Payment (Cash / QRIS / Transfer), Customer (optional) |
+| reimbursement | Purpose (session-remembered) |
+| custom | none beyond mapped fields |
+
+### Fail paths
+
+- Unreadable / not a receipt → failed with Retry; nothing appended.
+- Sheets 401 → Sign in with a message.
+- Append error → error shown; item ready to retry; credit refunded.
+- Photo upload fail → row saved without link; soft notice.
+
+---
+
+## Flow C — Per template (same screens)
+
+| Template | Who | Extra |
+|---|---|---|
+| resto-inventory | Sonny | staff/outlet required when lists exist |
+| personal-expense | Bibian | category + optional payment |
+| sales-recap | Fais | lands on Summary; daily block is the win |
+| reimbursement | Bagas | photo on; month tab = claim; share via Google |
+| custom | anyone | their headers, single tab |
+
+---
+
+## Top-up flow
+
+1. Credits pill or guard → `/app/topup`.
+2. Indonesia: presets Rp 15.000 / 30.000 / 50.000 / 100.000 (100 / 200 / 333 /
+   666 scans) or custom ≥ Rp 15.000. Preview: now → after → expires.
+3. Pay on DOKU hosted page. Return `?doku=INVOICE` → poll until paid.
+4. **Back to camera** → `/app/snap`.
+5. International: Paddle pack 100 credits / $9.
 
 ---
 
 ## Out of flow (do not draw)
 
 Accountant close, P&L, journals, bank rec, tax, payroll, multi-entity, per-staff
-logins beyond "pick my name", zippp-hosted history, replacing Google Sheets.
+Google logins, zippp-hosted history, replacing Google Sheets, reimbursement
+approval status, PDF share-from-app (later).

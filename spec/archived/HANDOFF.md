@@ -1,3 +1,5 @@
+> Archived 2026-10-13. Superseded by active specs + `AUDIT-2026-10.md`. Do not treat as source of truth.
+
 # zippp — handoff, current state, and refinement plan
 
 Updated: 2026-10-06. Written because the working session is out of context.

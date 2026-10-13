@@ -1,5 +1,9 @@
 # zippp ship plan (v4: credits)
 
+> **Historical.** Phase 1 log. Do **not** implement from this file.
+> Next build = `AUDIT-2026-10.md` §10. Indonesia top-up is **DOKU**, not GoPay.
+> Drive photo + templates are Revision 2 (active specs), not Later.
+
 Goal: ship today, in stages. Each stage ends at a ship point. If the day runs out, you keep a working product at the last point reached.
 
 v4 replaces v3. What changed:

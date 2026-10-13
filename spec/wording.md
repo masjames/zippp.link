@@ -88,13 +88,13 @@ The rows land in your own sheet. You keep the data, always.
 Barisnya masuk ke sheet Anda sendiri. Datanya tetap milik Anda, selalu.
 
 ## landing.audience.title.en
-Made for small kitchens and shops
+Made for people who type receipts
 ## landing.audience.title.id
-Untuk dapur dan toko kecil
+Untuk yang masih mengetik nota
 ## landing.audience.body.en
-Restaurant owners, warung, cafes and home businesses who buy supplies every day and track them in a spreadsheet. If that is you, this saves the evening you spend typing.
+Kitchen purchasing, personal spending, daily sales recaps, and reimbursement claims. Photograph the paper; the rows land in your Google Sheet.
 ## landing.audience.body.id
-Pemilik restoran, warung, kafe, dan usaha rumahan yang belanja bahan setiap hari dan mencatatnya di spreadsheet. Jika itu Anda, ini menghemat malam yang biasa habis untuk mengetik.
+Pembelian dapur, pengeluaran pribadi, rekap penjualan harian, dan klaim penggantian. Foto notanya; baris masuk ke Google Sheet Anda.
 
 ## landing.pricing.title.en
 Pay for what you scan.
@@ -1189,29 +1189,45 @@ This creates another sheet and switches zippp to it.
 ## app.sheets.wizard.warn.id
 Ini membuat sheet baru dan mengalihkan zippp ke sana.
 ## app.sheets.tpl.resto.en
-Purchasing and inventory
+I buy supplies for a kitchen or shop
 ## app.sheets.tpl.resto.id
-Pembelian dan stok
+Saya belanja bahan untuk dapur atau toko
 ## app.sheets.tpl.restoBody.en
-Supplier, item, qty, unit price, line amount, tax, total.
+Supplier, item, staff, outlet
 ## app.sheets.tpl.restoBody.id
-Pemasok, item, jumlah, harga satuan, jumlah baris, pajak, total.
+Pemasok, item, staf, outlet
 ## app.sheets.tpl.expense.en
-Expense tracker
+I track my own spending
 ## app.sheets.tpl.expense.id
-Catatan pengeluaran
+Saya catat pengeluaran sendiri
 ## app.sheets.tpl.expenseBody.en
-Merchant, description, qty, amount, tax, total.
+Merchant, amount, category
 ## app.sheets.tpl.expenseBody.id
-Toko, keterangan, jumlah, nominal, pajak, total.
+Toko, nominal, kategori
+## app.sheets.tpl.sales.en
+I recap my daily sales
+## app.sheets.tpl.sales.id
+Saya rekap penjualan harian
+## app.sheets.tpl.salesBody.en
+Item, qty, nota total, daily total
+## app.sheets.tpl.salesBody.id
+Item, jumlah, total nota, total harian
+## app.sheets.tpl.reimburse.en
+I claim money back from my company
+## app.sheets.tpl.reimburse.id
+Saya klaim penggantian dari kantor
+## app.sheets.tpl.reimburseBody.en
+Merchant, total, purpose, photo
+## app.sheets.tpl.reimburseBody.id
+Toko, total, keperluan, foto
 ## app.sheets.tpl.custom.en
-Custom
+My own sheet
 ## app.sheets.tpl.custom.id
-Kustom
+Sheet saya sendiri
 ## app.sheets.tpl.customBody.en
-Every field: supplier, item, qty, unit price, subtotal, tax, total.
+Row 1 of your tab is the schema
 ## app.sheets.tpl.customBody.id
-Semua kolom: pemasok, item, jumlah, harga satuan, subtotal, pajak, total.
+Baris 1 tab Anda adalah skemanya
 ## app.debug.title.en
 Debug trace
 ## app.debug.title.id
@@ -1734,3 +1750,174 @@ Email kontak
 (see contact page)
 ## contact.reveal.placeholder.id
 (lihat halaman kontak)
+
+# --- Revision 2 (AUDIT-2026-10). Wire in app as tasks ship. ---
+
+## app.credits.pill.en
+{count}
+## app.credits.pill.id
+{count}
+## app.credits.pillAria.en
+{count} credits
+## app.credits.pillAria.id
+{count} kredit
+## app.credits.low.en
+Running low
+## app.credits.low.id
+Kredit hampir habis
+## app.review.acceptCost.en
+Accept · 1 credit
+## app.review.acceptCost.id
+Terima · 1 kredit
+## app.review.savedTo.en
+Saved to {tab}
+## app.review.savedTo.id
+Tersimpan di {tab}
+## app.review.openMonth.en
+Open this month
+## app.review.openMonth.id
+Buka bulan ini
+## app.review.photoFailed.en
+Row saved. The photo could not be stored.
+## app.review.photoFailed.id
+Baris tersimpan. Fotonya gagal disimpan.
+## app.topup.preview.en
+Now {current} · after top-up {after} · expires {date}
+## app.topup.preview.id
+Sekarang {current} · setelah isi {after} · habis {date}
+## app.topup.scans.en
+{count} scans
+## app.topup.scans.id
+{count} scan
+## app.topup.backToCamera.en
+Back to camera
+## app.topup.backToCamera.id
+Kembali ke kamera
+## app.sheets.openSummary.en
+Open Summary
+## app.sheets.openSummary.id
+Buka Ringkasan
+## app.settings.staff.en
+Staff names
+## app.settings.staff.id
+Nama staf
+## app.settings.outlets.en
+Outlets
+## app.settings.outlets.id
+Outlet
+## app.settings.defaultOutlet.en
+Default outlet
+## app.settings.defaultOutlet.id
+Outlet default
+## app.settings.photoProof.en
+Save photo to Google Drive
+## app.settings.photoProof.id
+Simpan foto ke Google Drive
+## app.settings.photoProofBody.en
+Each accepted nota is saved in [zippp] Receipts in your Drive and linked from the row.
+## app.settings.photoProofBody.id
+Setiap nota yang diterima disimpan di [zippp] Receipts di Drive Anda dan ditautkan dari baris.
+## app.check.staff.en
+Staff
+## app.check.staff.id
+Staf
+## app.check.outlet.en
+Outlet
+## app.check.outlet.id
+Outlet
+## app.check.payment.en
+Payment
+## app.check.payment.id
+Pembayaran
+## app.check.customer.en
+Customer
+## app.check.customer.id
+Pelanggan
+## app.check.purpose.en
+Purpose
+## app.check.purpose.id
+Keperluan
+## landing.who.title.en
+Made for people who type receipts
+## landing.who.title.id
+Untuk yang masih mengetik nota
+## landing.who.resto.title.en
+Kitchen and shop purchasing
+## landing.who.resto.title.id
+Pembelian dapur dan toko
+## landing.who.resto.body.en
+Staff photograph supplier notas. Your inventory sheet fills without retyping.
+## landing.who.resto.body.id
+Staf foto nota pemasok. Sheet stok terisi tanpa mengetik ulang.
+## landing.who.resto.template.en
+Purchasing template
+## landing.who.resto.template.id
+Template pembelian
+## landing.who.personal.title.en
+Personal spending
+## landing.who.personal.title.id
+Pengeluaran pribadi
+## landing.who.personal.body.en
+Snap every receipt. Day and month totals stay in your sheet.
+## landing.who.personal.body.id
+Foto setiap struk. Total harian dan bulanan ada di sheet Anda.
+## landing.who.personal.template.en
+Expense template
+## landing.who.personal.template.id
+Template pengeluaran
+## landing.who.sales.title.en
+Daily sales recap
+## landing.who.sales.title.id
+Rekap penjualan harian
+## landing.who.sales.body.en
+Photograph your sales notas. The month tab shows the daily recap.
+## landing.who.sales.body.id
+Foto nota penjualan. Tab bulan menampilkan rekap harian.
+## landing.who.sales.template.en
+Sales template
+## landing.who.sales.template.id
+Template penjualan
+## landing.who.reimburse.title.en
+Reimbursement claims
+## landing.who.reimburse.title.id
+Klaim penggantian
+## landing.who.reimburse.body.en
+One month tab plus Drive photos. Share the sheet with your company.
+## landing.who.reimburse.body.id
+Satu tab per bulan plus foto di Drive. Bagikan sheet ke kantor.
+## landing.who.reimburse.template.en
+Reimbursement template
+## landing.who.reimburse.template.id
+Template penggantian
+## landing.faq.q5.en
+Where is my photo kept?
+## landing.faq.q5.id
+Foto saya disimpan di mana?
+## landing.faq.a5.en
+If photo proof is on, the photo is saved to your Google Drive under [zippp] Receipts and linked from the row. Otherwise the photo is not kept after the read.
+## landing.faq.a5.id
+Jika bukti foto aktif, fotonya disimpan ke Google Drive Anda di [zippp] Receipts dan ditautkan dari baris. Jika tidak, foto tidak disimpan setelah dibaca.
+## sheet.summary.en
+Summary
+## sheet.summary.id
+Ringkasan
+## sheet.day.en
+Day
+## sheet.day.id
+Hari
+## sheet.receipts.en
+Receipts
+## sheet.receipts.id
+Nota
+## sheet.total.en
+Total
+## sheet.total.id
+Total
+## sheet.month.en
+Month
+## sheet.month.id
+Bulan
+## sheet.photoLink.en
+photo
+## sheet.photoLink.id
+foto

@@ -1,7 +1,9 @@
 # zippp spec
 
-Status: **ACTIVE** — Phase 1 (Sheets intake) plus the shipped v2 UI.
-Depends on: `USER-FLOW.md`, `ARCHITECTURE.md`, `TEMPLATES.md`, `PRICING.md`, `wording.md`
+Status: **ACTIVE** — Phase 1 shipped; Revision 2 (`AUDIT-2026-10.md`) decided,
+not fully implemented. Implementer follows the audit task list.
+Depends on: `USER-FLOW.md`, `ARCHITECTURE.md`, `TEMPLATES.md`, `PRICING.md`,
+`wording.md`
 
 Domain: zippp.link
 
@@ -9,135 +11,126 @@ Domain: zippp.link
 
 ## One sentence
 
-Staff photograph a nota (or invoice); zippp reads it, the user checks it, and
-zippp appends clean line-item rows into the Google Sheet the operator already
-uses.
+Photograph a receipt or invoice; zippp reads it, the user checks it, and zippp
+appends clean line-item rows into a Google Sheet the user already owns — one
+month tab, with daily totals and (when on) photo proof in Drive.
 
 ---
 
 ## Who it is for
 
-1. **Primary:** operators who already run a sheet and whose team produces paper
-   notas (restaurants, warung, cafes, shops). Their time is spent typing.
-2. **Secondary:** one person using the `personal-expense` template.
-3. **Not:** replacing Accurate/Jurnal/Xero, and not a hobby ledger with 40 reports.
+| Persona | Template | Job |
+|---|---|---|
+| **Sonny** | `resto-inventory` | Purchasing staff at a resto / warung / cafe |
+| **Bibian** | `personal-expense` | Student or individual tracking spend |
+| **Fais** | `sales-recap` | Seller who recaps daily sales from paper notas |
+| **Bagas** | `reimbursement` | Staff claiming reimbursement with photo proof |
 
-> **Implemented today:** all three templates. The sheet wizard creates a new
-> sheet for `resto-inventory`, `personal-expense`, or `custom` (`TEMPLATES.md`).
+Not: replacing Accurate / Jurnal / Xero. Not a hobby ledger with 40 reports.
+`custom` exists for people who already have their own headers.
 
 ---
 
 ## Why Sheets, not zippp-as-DB
 
-The operator already has the sheet. Land in **their** columns; do not make them
-learn ours. The job is append + one map, not a second general ledger.
+The operator already has the sheet. Land in **their** Drive; do not make them
+learn ours. The job is append + map + month layout, not a second general ledger.
 
 ---
 
-## Phase 1 requirements (shipped)
+## Requirements
 
-### Must
+### Must (shipped)
 
 1. Google OAuth only. Scopes: `spreadsheets` + `drive.file`. No Gmail.
-2. Connect one spreadsheet + one tab per workspace. Find a `[zippp]`
-   spreadsheet, or create one from a template. Never create silently, never
-   paste a URL.
-3. Read row 1 as headers; map mill/op fields; save constants (e.g. Category).
-4. **Extract**: PP-OCRv6 (vision) reconstructs text rows; DeepSeek Flash
-   structures them into JSON (EN+ID, null not invented). DeepSeek vision is the
-   fallback, Gemini the last resort.
-5. **Check screen before send**: edit merchant, date, subtotal, tax, total, and
-   line items (description, qty, unit price, amount). Staff and outlet are
-   required in the card (not yet wired).
-6. Append one row per line item. Header facts + `staff` / `outlet` repeat.
-7. Show success with the number of rows appended. Fail = no write.
-8. **Google Sheets is the only destination.** CSV/JSON export was removed.
-9. **Credits**: 1 credit = 1 scan, spent on Send. Top-ups (DOKU / Paddle)
-   create 30-day lots. Block Send and Snap at zero credits. The **only free
-   credit** is the referral bonus; no trial, no free tier.
-10. **Region-aware**: `/id` is Indonesian + IDR, `/` is English (US) + intl. The
-    region is set at entry; there is no language toggle.
-11. **Always-on debug trace** for the extraction pipeline (stages, OCR tokens,
-    rows sent to the model, raw model output).
+2. Connect one spreadsheet per workspace. Find a `[zippp]` spreadsheet, or
+   create one from a template. Never create silently, never paste a URL.
+3. Extract: PP-OCRv6 → DeepSeek Flash (EN+ID, null not invented). DeepSeek
+   vision fallback, Gemini last resort. Verifier grounds values in OCR.
+4. Check before send: edit merchant, date, money, line items. No auto-send.
+5. Append one row per line item. Fail = no write. Charge 1 credit on success.
+6. Google Sheets is the only destination.
+7. Credits: 1 credit = 1 scan. Top-ups create 30-day lots. Block Snap/Send at
+   zero. Only free credit = referral bonus.
+8. Region-aware: `/id` Indonesian + IDR, `/` English + intl. No language toggle
+   in the app.
+9. Always-on debug trace for the extraction pipeline.
+10. Capture: auto-snap on by default, blur hard-blocks, batch on one screen,
+    IndexedDB persistence, Accept writes immediately.
+
+### Must (Revision 2 — decided, build next)
+
+See `AUDIT-2026-10.md` §10 for task order.
+
+1. Five templates with persona wizard copy (`TEMPLATES.md`).
+2. Zippp-owned sheets: **one tab per month** (receipt date), `Summary` tab,
+   daily formula block, hide tabs older than 12 months, formatting + dropdowns.
+3. Staff / outlet (and other ops) **wired in the review card** and Settings.
+4. Photo proof to the user's Drive when toggled (default on for reimbursement).
+5. Credit pill in the header; Accept shows cost; top-up presets start at
+   **Rp 15.000 = 100 scans**; post-pay back to camera.
+6. Landing: four persona cards, sheet visual, pricing copy for Rp 15.000 entry.
 
 ### Must not
 
-- Invent units (kg/pcs) or values the receipt does not contain.
-- Deduct stock. This is nota intake, not inventory truth.
-- Build P&L, categories-as-a-product, bank feed, or "full accounting".
-- Auto-send without the review step.
-- Store receipt images as the product. The photo is handled on the device and
-  queued in IndexedDB for the current batch only, then dropped after the rows are
-  sent. There is no server-side image store.
-
-### Should (later, see `LATER.md`)
-
-- Copy-from-template convenience, per-market price tuning, server-side job queue.
+- Invent units or values the receipt does not contain.
+- Deduct stock. Nota intake, not inventory truth.
+- Build P&L, bank feed, or full accounting.
+- Auto-send without review.
+- Keep receipt images on zippp servers. Device IndexedDB for the batch only;
+  optional copy goes to **the user's Drive**.
 
 ---
 
 ## Data contract
 
-- Extract schema: `src/types/receipt.ts` (`Receipt`, `LineItem`, `RawReceipt`,
-  `ReceiptFlag`) plus a `refusal` signal (`not_a_receipt` / `unreadable`). The
-  verifier attaches `Receipt.flags`; the raw model output carries `*_source` OCR
-  row indices.
+- Extract schema: `src/types/receipt.ts` plus refusal (`not_a_receipt` /
+  `unreadable`). Verifier attaches `flags`.
 - Sheet write: array of rows, order = header map. Empty string for null.
 - Workspace config (persisted):
 
 ```
 google_user_id
 spreadsheet_id, spreadsheet_title, sheet_tab
-template_id: resto-inventory | personal-expense | custom
-column_map: { mill_field | op_field → header }
+template_id: resto-inventory | personal-expense | sales-recap | reimbursement | custom
+column_map: { field_id → header }
 constants: { header → value }
 staff_names: string[]
 outlets: string[]
 default_outlet: string | null
+photo_proof: boolean
 headers: string[]
 ```
 
-Op fields (`staff`, `outlet`, `captured_at`) never come from the model.
+Op fields (`staff`, `outlet`, `payment`, `customer`, `purpose`, `captured_at`)
+never come from the model. Month tab for append is derived from receipt date,
+not from `sheet_tab` (except `custom`).
 
 ---
 
 ## UX contract
 
-See `REVISION-1.md`. Current:
-
-- Routes: **Intro/Sign in, Snap (single screen), Success, Top up, Settings,
-  Sheet, Admin**. There is no separate Check or Sent route.
-- **Snap** = live camera + batch review on one screen. **Auto-snap on by
-  default**; a **blurry frame is blocked**; the camera stays live.
-- Review is an accordion: **one card open**, accepted hidden, **Accept/Edit**
-  per card, then **Send all accepted**.
-- **1 credit per successful append** (charge on success).
-- The batch **persists in IndexedDB** and survives a refresh (image, extraction,
-  draft, status, open card).
+See `USER-FLOW.md`. Routes: Intro/Sign in, Snap, Top up, Settings, Sheet, Admin.
+No separate Check or Sent route. Credit pill always visible when signed in.
 
 ---
 
 ## Privacy and ops
 
-- Client receipts: the image is sent to **Baidu AI Studio (PaddleOCR/PP-OCRv6)**
-  for OCR; the reconstructed text is sent to **DeepSeek** for structuring.
-  **Google Gemini** is used only as a last-resort fallback.
-- The OCR leg runs inside Baidu AI Studio's free daily quota (20,000 pages per
-  day per model), which is a scaling cliff to watch. Structuring runs on a paid
-  DeepSeek key. This is disclosed to users in the landing FAQ and the sign-in
-  copy (`wording.md`).
-- OAuth tokens and workspace config are stored server-side (private Vercel Blob
-  by default), never `NEXT_PUBLIC`.
-- The user can disconnect. Tokens are revoked; the sheet remains theirs.
+- Photo → Baidu AI Studio (PP-OCRv6) for OCR → DeepSeek for structuring → Gemini
+  only as last-resort fallback. Disclosed in FAQ and sign-in copy.
+- When photo proof is on, the JPEG is uploaded to the user's Google Drive under
+  `[zippp] Receipts/`. zippp does not keep a copy.
+- OAuth tokens and workspace config are server-side only. Never `NEXT_PUBLIC`
+  for secrets. Disconnect revokes tokens; the sheet remains theirs.
 
 ---
 
-## Definition of done (Phase 1)
+## Definition of done
 
-A real shopping nota, photographed by someone playing **staff**, lands as
-**correct line-item rows** in the operator's **real Google Sheet**, with **staff
-name** on each line, **without retyping**. The columns match how they already
-work, or the map is adjusted until they do.
+A real nota photographed by each persona lands as correct line-item rows in the
+right **month tab**, with daily totals that match a hand sum, ops filled where
+required, and (for Bagas) a Drive photo linked from the row — without retyping.
 
 Not a general ledger. Not a marketplace. Not every resto in Indonesia.
 

@@ -1,36 +1,41 @@
 # zippp specs
 
 Index of the documentation. Active specs describe what zippp is and how it is
-built today; `archived/` holds superseded material kept for history.
+built; `archived/` holds superseded material. Revision 2 brief:
+[`AUDIT-2026-10.md`](./AUDIT-2026-10.md) — **start here for the next build**.
 
 ## Active
 
 | File | Owns |
 |---|---|
-| [`HANDOFF.md`](./HANDOFF.md) | **Start here** — consolidated state, known issues, and the refinement/action plan |
-| [`REVISION-1.md`](./REVISION-1.md) | **Proposed** capture + batch-review revision (from user feedback): auto-snap, blur blocks, one screen, Accept/Edit, IndexedDB persistence |
-| [`SPEC.md`](./SPEC.md) | What Phase 1 is: scope, requirements, data contract, privacy, definition of done |
-| [`USER-FLOW.md`](./USER-FLOW.md) | Who does what, in order (screens, snap queue, fail paths) |
-| [`ARCHITECTURE.md`](./ARCHITECTURE.md) | How it is built: stack, extraction pipeline, stores, env |
-| [`TEMPLATES.md`](./TEMPLATES.md) | Sheet column dictionary (resto-inventory, personal-expense, custom) |
-| [`PRICING.md`](./PRICING.md) | Pricing and the privacy line |
+| [`AUDIT-2026-10.md`](./AUDIT-2026-10.md) | **Start here (Revision 2)** — findings, decisions, task order for implementer |
+| [`SPEC.md`](./SPEC.md) | What zippp is: personas, requirements, data contract, privacy, definition of done |
+| [`USER-FLOW.md`](./USER-FLOW.md) | Who does what, in order (landing, guard, snap, top-up, ops per template) |
+| [`ARCHITECTURE.md`](./ARCHITECTURE.md) | How it is built: stack, pipeline, stores, billing, sheet-layout modules |
+| [`TEMPLATES.md`](./TEMPLATES.md) | Five templates, columns, month tabs, daily block, photo proof |
+| [`PRICING.md`](./PRICING.md) | Credits, IDR presets (Rp 15.000 = 100), referral, privacy line |
 | [`OFFER.md`](./OFFER.md) | Selling brief |
 | [`COGS.md`](./COGS.md) | Cost of goods / unit economics |
-| [`LATER.md`](./LATER.md) | Parked ideas, explicitly out of scope for now |
-| [`wording.md`](./wording.md) | **Single source of truth for every user-visible string** (EN/ID). Parsed by the app at runtime — edit values only. |
-| [`./discussions/zippp-overview.md`](./discussions/zippp-overview.md) | **External review brief**: self-contained project context, the verifier, the eval harness, the improvement loop, and the framework discussion. Hand this to an outside model for a second opinion. |
+| [`LATER.md`](./LATER.md) | Parked ideas, out of scope for Revision 2 |
+| [`wording.md`](./wording.md) | **Every user-visible string** (EN/ID). Parsed at runtime — edit values only. |
+| [`zippp-ship-plan.md`](./zippp-ship-plan.md) | Older Phase 1 task log; Revision 2 tasks live in the audit §10 |
+| [`./discussions/zippp-overview.md`](./discussions/zippp-overview.md) | External review brief (extraction / eval) |
 
 ## Archived (inactive)
 
 | File | Why archived |
 |---|---|
-| [`archived/IMPLEMENTATION_SUMMARY.md`](./archived/IMPLEMENTATION_SUMMARY.md) | Delegation-experiment artifact; described the app before the Sheets pivot |
-| [`archived/user-flow.html`](./archived/user-flow.html) | Old flow prototype, superseded by the shipped 5-screen UI (`USER-FLOW.md`) |
-| [`archived/CLAUDE.md`](./archived/CLAUDE.md) | Claude Code / delegation context, no longer used |
-| [`archived/delegation.md`](./archived/delegation.md) | Delegation workflow, no longer used |
+| [`archived/HANDOFF.md`](./archived/HANDOFF.md) | Session handoff; superseded by active specs + audit |
+| [`archived/REVISION-1.md`](./archived/REVISION-1.md) | Capture revision; shipped behaviour is in `USER-FLOW.md` |
+| [`archived/IMPLEMENTATION_SUMMARY.md`](./archived/IMPLEMENTATION_SUMMARY.md) | Pre-Sheets pivot |
+| [`archived/user-flow.html`](./archived/user-flow.html) | Old flow prototype |
+| [`archived/CLAUDE.md`](./archived/CLAUDE.md) | Delegation context, unused |
+| [`archived/delegation.md`](./archived/delegation.md) | Delegation workflow, unused |
 
 ## Notes
 
-- The root [`README.md`](../README.md) is the entry point and stays at the repo root.
-- `spec/wording.md` is consumed at runtime (`src/lib/content.ts`) and traced into
-  the serverless bundle (`next.config.ts`). Moving it requires updating both.
+- Root [`README.md`](../README.md) stays at the repo root.
+- `spec/wording.md` is loaded by `src/lib/content.ts` and traced in
+  `next.config.ts`. Moving it requires updating both.
+- Personas live in `SPEC.md` / `USER-FLOW.md` / `TEMPLATES.md` — no separate
+  `PERSONAS.md`.

@@ -1,3 +1,5 @@
+> Archived 2026-10-13. Shipped Revision 1 is described by `USER-FLOW.md`. Do not treat as source of truth.
+
 # zippp revision 1 — capture + batch review (from user feedback)
 
 Status: **IMPLEMENTED** (shipped).
