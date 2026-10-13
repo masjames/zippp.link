@@ -1,15 +1,21 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { T } from "@/lib/t";
 
 type Challenge = { a: number; b: number; token: string };
+
+type Labels = {
+    show: string;
+    prompt: string;
+    submit: string;
+    wrong: string;
+};
 
 /**
  * Contact email is not in the HTML. User clicks, solves a short sum, then
  * gets a mailto link. Stops dumb scrapers; humans (and reviewers) still reach us.
  */
-export default function ProtectedEmail({ t }: { t: T }) {
+export default function ProtectedEmail({ labels }: { labels: Labels }) {
     const [challenge, setChallenge] = useState<Challenge | null>(null);
     const [open, setOpen] = useState(false);
     const [sum, setSum] = useState("");
@@ -49,7 +55,7 @@ export default function ProtectedEmail({ t }: { t: T }) {
             if (data.ok && data.email) {
                 setEmail(data.email as string);
             } else {
-                setError(t("contact.reveal.wrong"));
+                setError(labels.wrong);
                 const next = await fetch("/api/contact/reveal", { cache: "no-store" }).then(
                     (r) => r.json()
                 );
@@ -59,7 +65,7 @@ export default function ProtectedEmail({ t }: { t: T }) {
                 }
             }
         } catch {
-            setError(t("contact.reveal.wrong"));
+            setError(labels.wrong);
         } finally {
             setBusy(false);
         }
@@ -84,27 +90,27 @@ export default function ProtectedEmail({ t }: { t: T }) {
                 onClick={() => setOpen(true)}
                 className="inline-flex items-center rounded-full bg-maroon px-6 py-3 font-semibold text-white disabled:opacity-60"
             >
-                {t("contact.reveal.show")}
+                {labels.show}
             </button>
         );
     }
 
+    const prompt = challenge
+        ? labels.prompt
+              .replace("{a}", String(challenge.a))
+              .replace("{b}", String(challenge.b))
+        : labels.show;
+
     return (
         <div className="flex flex-wrap items-center gap-2">
-            <label className="text-sm font-semibold text-body">
-                {challenge
-                    ? t("contact.reveal.prompt")
-                          .replace("{a}", String(challenge.a))
-                          .replace("{b}", String(challenge.b))
-                    : t("contact.reveal.show")}
-            </label>
+            <label className="text-sm font-semibold text-body">{prompt}</label>
             <input
                 type="number"
                 inputMode="numeric"
                 value={sum}
                 onChange={(e) => setSum(e.target.value)}
                 className="w-20 rounded-xl border-2 border-line bg-card px-3 py-2 text-body"
-                aria-label={t("contact.reveal.prompt")}
+                aria-label={prompt}
             />
             <button
                 type="button"
@@ -112,7 +118,7 @@ export default function ProtectedEmail({ t }: { t: T }) {
                 onClick={reveal}
                 className="rounded-full bg-maroon px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-60"
             >
-                {t("contact.reveal.submit")}
+                {labels.submit}
             </button>
             {error ? <span className="text-sm text-danger">{error}</span> : null}
         </div>

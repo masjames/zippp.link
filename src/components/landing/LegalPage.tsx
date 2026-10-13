@@ -92,7 +92,14 @@ export default function LegalPage({
 
                         {id === "contact" ? (
                             <div className="mt-8 flex flex-wrap items-center gap-3">
-                                <ProtectedEmail t={t} />
+                                <ProtectedEmail
+                                    labels={{
+                                        show: t("contact.reveal.show"),
+                                        prompt: t("contact.reveal.prompt"),
+                                        submit: t("contact.reveal.submit"),
+                                        wrong: t("contact.reveal.wrong"),
+                                    }}
+                                />
                                 {wa ? (
                                     <a
                                         href={wa}
