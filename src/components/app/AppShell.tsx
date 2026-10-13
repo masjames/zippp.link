@@ -2,6 +2,8 @@
 
 import { useEffect, type ReactNode } from "react";
 import { usePathname, useRouter } from "next/navigation";
+import { LOW_CREDITS_WARN } from "@/lib/billing/config";
+import { fill } from "@/lib/t";
 import { useApp } from "./AppProvider";
 
 /** Small gear for the Settings entry point. */
@@ -19,6 +21,20 @@ function GearIcon() {
         >
             <circle cx="12" cy="12" r="3" />
             <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+        </svg>
+    );
+}
+
+/** Small lightning bolt for the credit pill. */
+function BoltIcon() {
+    return (
+        <svg
+            viewBox="0 0 24 24"
+            className="h-3.5 w-3.5"
+            fill="currentColor"
+            aria-hidden
+        >
+            <path d="M13 2 4.5 13.5H11l-1 8.5L18.5 10H12z" />
         </svg>
     );
 }
@@ -83,6 +99,30 @@ export default function AppShell({ children }: { children: ReactNode }) {
         <div className="flex min-h-screen flex-col bg-page sm:py-8">
             {signedIn ? (
                 <div className="mx-auto flex w-full max-w-[430px] items-center justify-end gap-3 px-4 pb-1 pt-3">
+                    {balance?.configured ? (
+                        <button
+                            type="button"
+                            onClick={() => router.push("/app/topup")}
+                            aria-label={fill(t("app.credits.pillAria"), {
+                                count: balance.credits,
+                            })}
+                            title={
+                                balance.credits < LOW_CREDITS_WARN
+                                    ? t("app.credits.low")
+                                    : undefined
+                            }
+                            className={`flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold ${
+                                balance.credits <= 0
+                                    ? "bg-card text-danger"
+                                    : balance.credits < LOW_CREDITS_WARN
+                                      ? "bg-amber-100 text-amber-900"
+                                      : "bg-mist text-ink"
+                            }`}
+                        >
+                            <BoltIcon />
+                            {fill(t("app.credits.pill"), { count: balance.credits })}
+                        </button>
+                    ) : null}
                     {!pathname.startsWith("/app/settings") ? (
                         <button
                             type="button"

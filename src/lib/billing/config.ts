@@ -5,12 +5,14 @@ export const MIN_TOPUP_IDR = 15_000;
 export const CREDIT_TTL_DAYS = 30;
 export const REFERRER_PCT = 20;
 export const REFERRED_BONUS_CREDITS = 20;
+/** Header credit pill turns amber below this count and red at zero. */
+export const LOW_CREDITS_WARN = 10;
 /** DOKU hosted checkout page validity (payment_due_date, minutes). */
 export const DOKU_ORDER_TTL_MIN = 60;
 export const INTL_PACK_CREDITS = 100;
 export const INTL_PACK_USD = 9;
 /** Suggested IDR top-up amounts shown on the public pricing page and in the app. */
-export const IDR_TOPUP_PRESETS = [50_000, 100_000, 200_000, 300_000];
+export const IDR_TOPUP_PRESETS = [15_000, 30_000, 50_000, 100_000];
 
 /**
  * DOKU Checkout channels shown to the customer. Each one must have its

@@ -6,7 +6,7 @@ import PhoneShell from "../PhoneShell";
 import { useApp } from "../AppProvider";
 import { fill } from "@/lib/t";
 import type { PaddleConfig } from "@/lib/billing/paddle";
-import { IDR_TOPUP_PRESETS as PRESETS } from "@/lib/billing/config";
+import { CREDIT_TTL_DAYS, IDR_TOPUP_PRESETS as PRESETS } from "@/lib/billing/config";
 
 type Props = {
     region: "id" | "intl";
@@ -26,7 +26,7 @@ export default function TopUpClient({
     minIdr,
     idrPerCredit,
 }: Props) {
-    const { t, auth, refreshBalance } = useApp();
+    const { t, auth, balance, lang, refreshBalance } = useApp();
     const router = useRouter();
     const params = useSearchParams();
     const returnedInvoice = params.get("doku");
@@ -127,7 +127,18 @@ export default function TopUpClient({
                 </div>
             ) : null}
 
+            {region === "id" && dokuState === "paid" ? (
+                <button
+                    type="button"
+                    onClick={() => router.push("/app/snap")}
+                    className="rounded-full bg-btn px-6 py-4 font-semibold text-btntext"
+                >
+                    {t("app.topup.backToCamera")}
+                </button>
+            ) : null}
+
             {region === "id" ? (
+                dokuState === "paid" ? null : (
                 <>
                     <p className="text-muted">{t("app.topup.choose")}</p>
                     <div className="grid grid-cols-2 gap-2">
@@ -136,16 +147,39 @@ export default function TopUpClient({
                                 key={p}
                                 type="button"
                                 onClick={() => setAmount(p)}
-                                className={`rounded-2xl px-4 py-3 font-semibold ${
+                                className={`rounded-2xl px-4 py-3 text-left font-semibold ${
                                     amount === p
                                         ? "bg-maroon text-white"
                                         : "bg-peach text-ink"
                                 }`}
                             >
-                                Rp {p.toLocaleString("id-ID")}
+                                <span className="block">
+                                    Rp {p.toLocaleString("id-ID")}
+                                </span>
+                                <span className="block text-xs font-medium opacity-80">
+                                    {fill(t("app.topup.scans"), {
+                                        count: Math.floor(p / idrPerCredit),
+                                    })}
+                                </span>
                             </button>
                         ))}
                     </div>
+                    {balance?.configured ? (
+                        <p className="text-sm text-muted">
+                            {fill(t("app.topup.preview"), {
+                                current: balance.credits,
+                                after:
+                                    balance.credits +
+                                    Math.floor(amount / idrPerCredit),
+                                date: new Date(
+                                    Date.now() +
+                                        CREDIT_TTL_DAYS * 24 * 60 * 60 * 1000
+                                ).toLocaleDateString(
+                                    lang === "id" ? "id-ID" : "en-US"
+                                ),
+                            })}
+                        </p>
+                    ) : null}
                     <label className="grid gap-1.5">
                         <span className="text-sm font-semibold">
                             {t("app.topup.custom")}
@@ -179,6 +213,7 @@ export default function TopUpClient({
                         {t(doku ? "app.topup.doku.methods" : "app.topup.unavailable")}
                     </p>
                 </>
+                )
             ) : (
                 <>
                     <p className="text-muted">

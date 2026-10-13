@@ -836,7 +836,7 @@ function ConfirmCard({
                         onClick={tryAccept}
                         className="flex-1 rounded-full bg-btn px-4 py-3 font-semibold text-btntext"
                     >
-                        {t("app.review.accept")}
+                        {t("app.review.acceptCost")}
                     </button>
                     <button
                         type="button"
