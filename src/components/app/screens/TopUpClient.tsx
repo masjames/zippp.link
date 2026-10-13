@@ -34,6 +34,9 @@ export default function TopUpClient({
     const [error, setError] = useState<string | null>(null);
     const [busy, setBusy] = useState(false);
     const [dokuState, setDokuState] = useState<DokuState | null>(null);
+    const [dokuAmount, setDokuAmount] = useState<number | null>(null);
+    const paidCredits =
+        dokuAmount != null ? Math.floor(dokuAmount / idrPerCredit) : null;
 
     // Back from DOKU's page: poll until the notification has landed.
     useEffect(() => {
@@ -45,6 +48,9 @@ export default function TopUpClient({
             const data = await res.json();
             if (stop) return;
             const state: DokuState | null = data.ok ? data.order.state : null;
+            if (data.ok && typeof data.order.amount === "number") {
+                setDokuAmount(data.order.amount);
+            }
             setDokuState(state ?? "pending");
             if (state === "paid") {
                 void refreshBalance();
@@ -123,7 +129,30 @@ export default function TopUpClient({
                               : "bg-card text-muted"
                     }`}
                 >
-                    {t(`app.topup.doku.${dokuState ?? "pending"}`)}
+                    <p>{t(`app.topup.doku.${dokuState ?? "pending"}`)}</p>
+                    {dokuState === "paid" && paidCredits != null ? (
+                        <>
+                            <p className="mt-1 font-head text-2xl font-extrabold">
+                                {fill(t("app.credits.balance"), {
+                                    count: paidCredits,
+                                })}
+                            </p>
+                            <p className="text-xs">
+                                {fill(t("app.credits.expires"), {
+                                    date: new Date(
+                                        Date.now() +
+                                            CREDIT_TTL_DAYS *
+                                                24 *
+                                                60 *
+                                                60 *
+                                                1000
+                                    ).toLocaleDateString(
+                                        lang === "id" ? "id-ID" : "en-US"
+                                    ),
+                                })}
+                            </p>
+                        </>
+                    ) : null}
                 </div>
             ) : null}
 

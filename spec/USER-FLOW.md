@@ -160,7 +160,8 @@ camera (auto-snap on) → queued → extract → review card → Accept
 1. Credits pill or guard → `/app/topup`.
 2. Indonesia: presets Rp 15.000 / 30.000 / 50.000 / 100.000 (100 / 200 / 333 /
    666 scans) or custom ≥ Rp 15.000. Preview: now → after → expires.
-3. Pay on DOKU hosted page. Return `?doku=INVOICE` → poll until paid.
+3. Pay on DOKU hosted page. Return `?doku=INVOICE` → poll until paid. The
+   paid state shows the credits from this top-up and their expiry.
 4. **Back to camera** → `/app/snap`.
 5. International: Paddle pack 100 credits / $9.
 
