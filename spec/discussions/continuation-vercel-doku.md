@@ -85,9 +85,23 @@ false on the live project. It is now true.
 
 2. Done: `vercel --prod` deployed and aliased `https://www.zippp.link`.
 
-3. Outstanding: in the DOKU sandbox back office set the Notification URL to
-   `https://www.zippp.link/api/doku/notify`. Each checkout also sends
-   `override_notification_url`, so this is a fallback, not a blocker.
+3. Outstanding (manual, DOKU sandbox Back Office): set the Notification URL
+   to `https://www.zippp.link/api/doku/notify` on each enabled payment channel.
+   DOKU docs (Setup Notification URL): sign in at
+   `https://sandbox.doku.com/bo/login`, then **Settings > Payment Settings** and
+   click **Configure** on each channel:
+   - Virtual Account (use the Non-SNAP list to match our HMAC scheme)
+   - Cards > tab Payment Configuration (paste in the notification URL box)
+   - Convenience Store, per channel
+   - e-Wallet, per channel
+   - Paylater, per channel
+   - QRIS, if it appears as its own entry
+
+   The override only works when a Notification URL is already configured, and
+   the override path must equal the configured path. Our override is
+   `https://www.zippp.link/api/doku/notify`, so configure exactly that path
+   (same path on any host is fine). Requirements from the docs: public HTTPS,
+   no ngrok, no auth/VPN/localhost.
 
 4. Verified with the live site plus an isolated run (see Status at the top):
    checkout creation, amount-mismatch rejection, one-time grant, and replay
@@ -116,7 +130,7 @@ Also needed by the rest of the app (see `.env.example`): `GOOGLE_CLIENT_ID`,
 
 - Do not deploy zippp to `antep-mvp`. That project is the wrong one; the DOKU
   env was mistakenly set there (aliases `ante-framemalang-mvp.vercel.app`).
-  Optionally remove `DOKU_*` from `antep-mvp` to avoid confusion.
+  Resolved: the stale `DOKU_*` env was removed from `antep-mvp`.
 - Do not commit `.env`. No `NEXT_PUBLIC` for secrets.
 
 ## Verified good (first machine)
