@@ -94,9 +94,9 @@ export default function TopUpClient({
                 window.location.assign(data.order.url);
                 return;
             }
-            setError(data.error || "Failed.");
+            setError(data.error || t("app.error.failed"));
         } catch {
-            setError("Network error.");
+            setError(t("app.error.network"));
         }
         setBusy(false);
     }
@@ -104,7 +104,7 @@ export default function TopUpClient({
     function buyPaddle() {
         const P = (window as unknown as { Paddle?: any }).Paddle;
         if (!P) {
-            setError("Checkout is still loading. Try again.");
+            setError(t("app.topup.checkoutLoading"));
             return;
         }
         P.Checkout.open({

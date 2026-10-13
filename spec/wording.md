@@ -1756,6 +1756,35 @@ Email kontak
 ## contact.reveal.placeholder.id
 (lihat halaman kontak)
 
+## app.error.noData.en
+No data.
+## app.error.noData.id
+Tidak ada data.
+## app.error.noCredits.en
+No credits.
+## app.error.noCredits.id
+Kredit habis.
+## app.error.network.en
+network error
+## app.error.network.id
+kesalahan jaringan
+## app.error.failed.en
+Failed.
+## app.error.failed.id
+Gagal.
+## app.topup.checkoutLoading.en
+Checkout is still loading. Try again.
+## app.topup.checkoutLoading.id
+Pembayaran masih dimuat. Coba lagi.
+## app.capture.on.en
+ON
+## app.capture.on.id
+AKTIF
+## app.check.datePlaceholder.en
+dd/mm/yyyy
+## app.check.datePlaceholder.id
+dd/mm/yyyy
+
 # --- Revision 2 (AUDIT-2026-10). Wire in app as tasks ship. ---
 
 ## app.credits.pill.en

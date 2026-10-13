@@ -5,39 +5,40 @@ import { getLocale } from "@/lib/server-locale";
 import { makeT } from "@/lib/t";
 import "./globals.css";
 
-export const metadata: Metadata = {
-    metadataBase: new URL("https://www.zippp.link"),
-    title: "zippp — receipts in, rows out",
-    description:
-        "Photograph a receipt or invoice, check what zippp read, and send the rows to your Google Sheet.",
-    openGraph: {
-        title: "zippp — receipts in, rows out",
-        description:
-            "Photograph a receipt or invoice, check what zippp read, and send the rows to your Google Sheet.",
-        url: "https://www.zippp.link",
-        type: "website",
-        images: [
-            {
-                url: "/og.png",
-                width: 1200,
-                height: 630,
-                alt: "zippp — receipts in, rows out",
-            },
-        ],
-    },
-    twitter: {
-        card: "summary_large_image",
-        title: "zippp — receipts in, rows out",
-        description:
-            "Photograph a receipt or invoice, check what zippp read, and send the rows to your Google Sheet.",
-        images: ["/og.png"],
-    },
-};
+export async function generateMetadata(): Promise<Metadata> {
+    const { lang } = await getLocale();
+    const t = makeT(loadWording(), lang);
+    const title = t("meta.title");
+    const description = t("meta.description");
+    return {
+        metadataBase: new URL("https://www.zippp.link"),
+        title,
+        description,
+        openGraph: {
+            title,
+            description,
+            url: "https://www.zippp.link",
+            type: "website",
+            images: [
+                {
+                    url: "/og.png",
+                    width: 1200,
+                    height: 630,
+                    alt: title,
+                },
+            ],
+        },
+        twitter: {
+            card: "summary_large_image",
+            title,
+            description,
+            images: ["/og.png"],
+        },
+    };
+}
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
     const { lang } = await getLocale();
-    const wording = loadWording();
-    const t = makeT(wording, lang);
 
     return (
         <html lang={lang === "id" ? "id" : "en"}>
@@ -53,12 +54,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
                     rel="stylesheet"
                 />
             </head>
-            <body className="font-body">
-                {/* Title comes from here so the wording file also drives <title>. */}
-                <title>{t("meta.title")}</title>
-                <meta name="description" content={t("meta.description")} />
-                {children}
-            </body>
+            <body className="font-body">{children}</body>
         </html>
     );
 }

@@ -447,7 +447,7 @@ export default function AppProvider({
         try {
             const edited = item.draft ? fromDraft(item.draft) : item.receipt;
             if (!edited) {
-                patchItem(item.id, { status: "ready", error: "No data." });
+                patchItem(item.id, { status: "ready", error: t("app.error.noData") });
                 return;
             }
             const res = await fetch("/api/sheets/append", {
@@ -471,7 +471,7 @@ export default function AppProvider({
                 return;
             }
             if (res.status === 402) {
-                patchItem(item.id, { status: "ready", error: "No credits." });
+                patchItem(item.id, { status: "ready", error: t("app.error.noCredits") });
                 return;
             }
             const data = await res.json();
@@ -483,7 +483,7 @@ export default function AppProvider({
                 patchItem(item.id, { status: "ready", error: data.error });
             }
         } catch {
-            patchItem(item.id, { status: "ready", error: "network error" });
+            patchItem(item.id, { status: "ready", error: t("app.error.network") });
         } finally {
             void refreshBalance();
         }

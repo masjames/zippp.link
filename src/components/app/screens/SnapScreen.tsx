@@ -420,13 +420,13 @@ export default function SnapScreen() {
                             }`}
                         >
                             {t("app.capture.flash")}
-                            {torchOn ? " · ON" : ""}
+                            {torchOn ? ` · ${t("app.capture.on")}` : ""}
                         </button>
                     ) : null}
                     <button type="button" aria-pressed={autoSnap} onClick={() => setAutoSnap(!autoSnap)}
                         className={`rounded-full px-3 py-1 font-semibold ${autoSnap ? "bg-maroon text-white" : "bg-peach text-ink"}`}>
                         {t("app.capture.autoSnap")}
-                        {autoSnap ? " · ON" : ""}
+                        {autoSnap ? ` · ${t("app.capture.on")}` : ""}
                     </button>
                 </div>
             </div>
@@ -744,7 +744,7 @@ function ConfirmCard({
                         <input
                             value={d.date}
                             onChange={(e) => patch({ date: e.target.value, dateAssumed: false })}
-                            placeholder="dd/mm/yyyy"
+                            placeholder={t("app.check.datePlaceholder")}
                             className={d.dateAssumed ? INPUT_ASSUMED : INPUT}
                         />
                     </label>
