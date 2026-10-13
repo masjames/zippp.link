@@ -38,3 +38,5 @@ Thumbs.db
 # eval photos (not committed)
 eval/images/*
 !eval/images/.gitkeep
+.env*
+!.env.example
