@@ -527,10 +527,6 @@ Pilih jumlah
 Or enter an amount
 ## app.topup.custom.id
 Atau isi jumlah
-## app.topup.create.en
-Create order
-## app.topup.create.id
-Buat pesanan
 ## app.topup.buy.en
 Buy {credits} credits
 ## app.topup.buy.id
@@ -544,55 +540,10 @@ Top up is not available yet.
 ## app.topup.unavailable.id
 Isi saldo belum tersedia.
 
-## app.order.payTo.en
-Pay to this GoPay number
-## app.order.payTo.id
-Bayar ke nomor GoPay ini
-## app.order.amount.en
-Exact amount
-## app.order.amount.id
-Jumlah tepat
-## app.order.expiresIn.en
-Expires in {time}
-## app.order.expiresIn.id
-Kedaluwarsa dalam {time}
-## app.order.paid.en
-I have paid
-## app.order.paid.id
-Saya sudah bayar
-## app.order.waiting.en
-Waiting for your payment.
-## app.order.waiting.id
-Menunggu pembayaran Anda.
-## app.order.claimed.en
-We are checking your payment.
-## app.order.claimed.id
-Kami sedang memeriksa pembayaran Anda.
-## app.order.approved.en
-Credits added.
-## app.order.approved.id
-Kredit ditambahkan.
-## app.order.rejected.en
-Order rejected.
-## app.order.rejected.id
-Pesanan ditolak.
-## app.order.expired.en
-This order expired.
-## app.order.expired.id
-Pesanan ini kedaluwarsa.
-
 ## admin.title.en
 Orders
 ## admin.title.id
 Pesanan
-## admin.approve.en
-Approve
-## admin.approve.id
-Setujui
-## admin.reject.en
-Reject
-## admin.reject.id
-Tolak
 ## admin.grant.en
 Manual grant
 ## admin.grant.id
@@ -1313,3 +1264,448 @@ Periksa berikutnya ({count})
 Keep snapping. They queue up on their own.
 ## app.queue.keepSnapping.id
 Terus foto. Otomatis masuk antrean.
+
+## landing.pricing.details.en
+See full pricing
+## landing.pricing.details.id
+Lihat rincian harga
+
+## legal.updated.en
+13 October 2026
+## legal.updated.id
+13 Oktober 2026
+## legal.updatedLine.en
+Last updated {updated}. Operated by {operator}.
+## legal.updatedLine.id
+Diperbarui {updated}. Dikelola oleh {operator}.
+
+## legal.pricing.nav.en
+Pricing
+## legal.pricing.nav.id
+Harga
+## legal.pricing.title.en
+Pricing
+## legal.pricing.title.id
+Harga
+## legal.pricing.body.en
+zippp is prepaid. You buy credits, and one credit is one receipt sent to your Google Sheet. Reading a photo is free. A credit is only spent when the rows land in your sheet.
+
+# Credits
+
+- 1 credit = 1 receipt sent to your sheet.
+- A failed read costs nothing.
+- Credits last {ttlDays} days from the day you buy them.
+- Credits are spent oldest first.
+
+# International
+
+- One pack: {intlCredits} credits for ${intlUsd} (USD), one time. Not a subscription.
+- Paid by card through Paddle, our payment partner. Paddle handles card data and issues the receipt.
+- Local taxes may be added at checkout where required.
+
+# Indonesia
+
+Prices in rupiah are on the Indonesian page: [Lihat harga dalam rupiah](/id/harga).
+
+# Referral
+
+When someone you invite tops up, you receive 20% of their top-up as credit. They receive 20 credits after their first approved top-up. This bonus is the only free credit; there is no trial.
+
+# Refunds
+
+See the [refund policy]({refundHref}).
+## legal.pricing.body.id
+zippp dibayar di muka. Anda membeli kredit, dan satu kredit berarti satu resi yang dikirim ke Google Sheet Anda. Membaca foto gratis. Kredit hanya terpakai saat barisnya masuk ke sheet.
+
+# Kredit
+
+- 1 kredit = 1 resi masuk ke sheet.
+- Pembacaan yang gagal tidak dikenai biaya.
+- Kredit berlaku {ttlDays} hari sejak dibeli.
+- Kredit yang paling lama dipakai lebih dulu.
+
+# Harga
+
+- Rp {idrPerCredit} per kredit.
+- Isi saldo minimal Rp {minTopupIdr}, yaitu {minTopupCredits} kredit.
+- Isi saldo berapa pun di atas minimum, kelipatan Rp 1.000. Kredit dihitung dari jumlah yang dibayar dibagi Rp {idrPerCredit}.
+- Bukan langganan. Tidak ada potongan otomatis.
+
+# Cara bayar
+
+- QRIS, virtual account (BCA, Mandiri, BRI, BNI, dan lainnya), e-wallet (OVO, DANA, ShopeePay), atau kartu, lewat halaman pembayaran DOKU.
+- Kredit masuk otomatis begitu DOKU mengonfirmasi pembayaran, biasanya kurang dari satu menit.
+
+# Ajak teman
+
+Saat teman yang Anda undang isi saldo, Anda dapat 20% dari isi saldonya dalam kredit. Teman Anda dapat 20 kredit setelah isi saldo pertamanya disetujui. Bonus ini satu-satunya kredit gratis; tidak ada masa percobaan.
+
+# Pengembalian dana
+
+Lihat [kebijakan refund]({refundHref}).
+
+## legal.terms.nav.en
+Terms
+## legal.terms.nav.id
+Syarat
+## legal.terms.title.en
+Terms of service
+## legal.terms.title.id
+Syarat layanan
+## legal.terms.body.en
+These terms apply when you use zippp at zippp.link. By signing in you agree to them. If you do not agree, do not use the service.
+
+# What zippp does
+
+zippp reads a photo of a receipt or invoice, shows you what it read, and appends the rows to a Google Sheet you choose. The sheet stays yours. zippp does not keep a copy of your receipts or your rows.
+
+# Your account
+
+You sign in with a Google account. You are responsible for that account and for everyone who uses zippp through it. One Google account is one zippp account.
+
+# Credits and payment
+
+Credits are prepaid. One credit is one receipt sent to your sheet. Credits expire {ttlDays} days after purchase, cannot be transferred to another account, and cannot be exchanged for cash except as described in the [refund policy]({refundHref}). Prices are on the [pricing page]({pricingHref}) and can change; a change never affects credits you already hold.
+
+# Accuracy
+
+Reading is automatic and can be wrong. You check every receipt before it is sent. Once a row is in your sheet, correcting it is your responsibility. zippp is not an accounting system and does not give tax or financial advice.
+
+# Fair use
+
+Do not upload documents you have no right to process. Do not try to read anything other than receipts and invoices, break the service, or resell access. We may suspend an account that does this.
+
+# Data
+
+How we handle your data is in the [privacy policy]({privacyHref}). It is part of these terms.
+
+# Availability
+
+zippp relies on Google, our OCR and model providers, and our hosting. It can be slow or unavailable. We do our best, but we do not promise uptime. A failed read never spends a credit; a failed send refunds the credit automatically.
+
+# Liability
+
+zippp is provided as is. To the extent allowed by law, our liability to you is limited to the amount you paid for credits in the 30 days before the claim.
+
+# Ending the service
+
+You can stop at any time: disconnect Google in Settings and your tokens are deleted. We can end or change the service with notice on this page. Unused credits in a lot that is still valid will be refunded if we shut down.
+
+# Law
+
+These terms follow the laws of the Republic of Indonesia.
+
+# Contact
+
+{operator}, {email}. See [contact]({contactHref}).
+## legal.terms.body.id
+Syarat ini berlaku saat Anda memakai zippp di zippp.link. Dengan masuk ke layanan, Anda menyetujuinya. Jika tidak setuju, jangan gunakan layanan ini.
+
+# Apa yang dilakukan zippp
+
+zippp membaca foto resi atau faktur, menampilkan hasil bacaannya, lalu menambahkan barisnya ke Google Sheet yang Anda pilih. Sheet tetap milik Anda. zippp tidak menyimpan salinan resi atau baris Anda.
+
+# Akun Anda
+
+Anda masuk dengan akun Google. Anda bertanggung jawab atas akun itu dan semua orang yang memakai zippp lewat akun tersebut. Satu akun Google adalah satu akun zippp.
+
+# Kredit dan pembayaran
+
+Kredit dibayar di muka. Satu kredit adalah satu resi yang dikirim ke sheet. Kredit kedaluwarsa {ttlDays} hari setelah dibeli, tidak bisa dipindahkan ke akun lain, dan tidak bisa ditukar uang kecuali seperti dijelaskan di [kebijakan refund]({refundHref}). Harga ada di [halaman harga]({pricingHref}) dan bisa berubah; perubahan tidak memengaruhi kredit yang sudah Anda miliki.
+
+# Akurasi
+
+Pembacaan bersifat otomatis dan bisa salah. Anda memeriksa setiap resi sebelum dikirim. Setelah baris masuk ke sheet, perbaikannya menjadi tanggung jawab Anda. zippp bukan sistem akuntansi dan tidak memberi nasihat pajak atau keuangan.
+
+# Penggunaan wajar
+
+Jangan unggah dokumen yang tidak berhak Anda proses. Jangan mencoba membaca selain resi dan faktur, merusak layanan, atau menjual ulang akses. Akun yang melakukannya bisa kami tangguhkan.
+
+# Data
+
+Cara kami menangani data Anda ada di [kebijakan privasi]({privacyHref}). Kebijakan itu bagian dari syarat ini.
+
+# Ketersediaan
+
+zippp bergantung pada Google, penyedia OCR dan model, serta hosting kami. Layanan bisa lambat atau tidak tersedia. Kami berusaha sebaik mungkin, tetapi tidak menjanjikan uptime. Pembacaan yang gagal tidak memakai kredit; pengiriman yang gagal mengembalikan kredit secara otomatis.
+
+# Tanggung jawab
+
+zippp disediakan apa adanya. Sejauh diizinkan hukum, tanggung jawab kami kepada Anda dibatasi sebesar jumlah yang Anda bayar untuk kredit dalam 30 hari sebelum klaim.
+
+# Mengakhiri layanan
+
+Anda bisa berhenti kapan saja: putuskan Google di Pengaturan dan token Anda dihapus. Kami bisa mengakhiri atau mengubah layanan dengan pemberitahuan di halaman ini. Kredit yang belum terpakai dan masih berlaku akan dikembalikan jika kami tutup.
+
+# Hukum
+
+Syarat ini tunduk pada hukum Republik Indonesia.
+
+# Kontak
+
+{operator}, {email}. Lihat [kontak]({contactHref}).
+
+## legal.privacy.nav.en
+Privacy
+## legal.privacy.nav.id
+Privasi
+## legal.privacy.title.en
+Privacy policy
+## legal.privacy.title.id
+Kebijakan privasi
+## legal.privacy.body.en
+This page says what zippp collects, where it goes, and how to delete it. Short version: the photo is read and dropped, the rows go to your sheet, and we keep only what is needed to run your account and your credits.
+
+# What we store
+
+- Your Google user id and email, to identify your account.
+- A Google OAuth refresh token, encrypted at rest, so zippp can append to your sheet. Scopes: spreadsheets and drive.file. zippp cannot see files it did not create or you did not pick.
+- Your sheet setup: spreadsheet id, tab name, column map, staff names, outlets.
+- Your credit ledger: top-ups, spends, refunds, referral rewards, and payment order records.
+- Technical logs for each read: timings, which provider answered, and verification flags. No receipt values and no images.
+- Anonymous correction counts when you accept a card: which fields you edited and whether they were flagged. No values, no images.
+
+# What we do not store
+
+- Receipt photos. The image is processed and discarded. It is held in your browser only until the rows are sent.
+- Receipt rows. They go to your Google Sheet and nowhere else.
+- Card numbers or wallet credentials. Payments are handled by the payment provider.
+
+# Who processes your photo
+
+- Baidu AI Studio (PaddleOCR) reads the text in the image.
+- DeepSeek structures that text into rows.
+- Google Gemini is used only if the first two fail.
+- Google Sheets receives the rows you approve.
+
+These providers process the data to return a result and are bound by their own terms. We do not use the free tier of any provider for your receipts except where stated on the pricing page.
+
+# Optional photo donation
+
+If a photo cannot be read, zippp may offer to save it to help improve reading. This happens only if you tap yes. Only the image and the failure reason are kept, with no link to your account or sheet. You can ask us to delete it.
+
+# Hosting and storage
+
+zippp runs on Vercel. Account records are stored in Vercel Blob or Upstash Redis. Payments go through Paddle (international) and DOKU (Indonesia). Neither we nor our servers see your card or account details. Admin alerts go through Telegram and contain invoice number, email, and amount.
+
+# Cookies
+
+A session cookie keeps you signed in. A region cookie remembers which language and currency you saw. A referral cookie remembers an invite code for 30 days. No advertising cookies.
+
+# Deleting your data
+
+Disconnect Google in Settings: the refresh token and sheet setup are deleted at once. To delete your account record and ledger, email {email} from the Google address on the account. Rows in your sheet are yours and are never deleted by zippp.
+
+# Changes
+
+We update this page when something changes and show the date at the top.
+
+# Contact
+
+{operator}, {email}. See [contact]({contactHref}).
+## legal.privacy.body.id
+Halaman ini menjelaskan apa yang dikumpulkan zippp, ke mana datanya pergi, dan cara menghapusnya. Singkatnya: foto dibaca lalu dibuang, baris masuk ke sheet Anda, dan kami hanya menyimpan yang diperlukan untuk menjalankan akun dan kredit Anda.
+
+# Yang kami simpan
+
+- Id pengguna Google dan email Anda, untuk mengenali akun.
+- Refresh token OAuth Google, dienkripsi saat disimpan, agar zippp bisa menambah baris ke sheet Anda. Cakupan: spreadsheets dan drive.file. zippp tidak bisa melihat file yang tidak dibuatnya atau tidak Anda pilih.
+- Pengaturan sheet: id spreadsheet, nama tab, peta kolom, nama staf, outlet.
+- Buku kredit Anda: isi saldo, pemakaian, refund, bonus referal, dan catatan pesanan pembayaran.
+- Log teknis tiap pembacaan: durasi, penyedia yang menjawab, dan tanda verifikasi. Tanpa nilai resi dan tanpa gambar.
+- Hitungan koreksi anonim saat Anda menekan Terima: kolom mana yang diubah dan apakah ditandai. Tanpa nilai, tanpa gambar.
+
+# Yang tidak kami simpan
+
+- Foto resi. Gambar diproses lalu dibuang. Gambar hanya ada di browser Anda sampai baris terkirim.
+- Baris resi. Semua masuk ke Google Sheet Anda, tidak ke tempat lain.
+- Nomor kartu atau kredensial dompet. Pembayaran ditangani penyedia pembayaran.
+
+# Siapa yang memproses foto Anda
+
+- Baidu AI Studio (PaddleOCR) membaca teks di gambar.
+- DeepSeek menyusun teks itu menjadi baris.
+- Google Gemini hanya dipakai jika dua yang pertama gagal.
+- Google Sheets menerima baris yang Anda setujui.
+
+Penyedia ini memproses data untuk mengembalikan hasil dan terikat syarat mereka sendiri.
+
+# Donasi foto (opsional)
+
+Jika foto tidak terbaca, zippp bisa menawarkan untuk menyimpannya demi memperbaiki pembacaan. Ini hanya terjadi jika Anda menekan ya. Hanya gambar dan alasan kegagalan yang disimpan, tanpa kaitan ke akun atau sheet Anda. Anda bisa minta kami menghapusnya.
+
+# Hosting dan penyimpanan
+
+zippp berjalan di Vercel. Catatan akun disimpan di Vercel Blob atau Upstash Redis. Pembayaran lewat Paddle (internasional) dan DOKU (Indonesia). Kami dan server kami tidak melihat data kartu atau rekening Anda. Notifikasi admin lewat Telegram berisi nomor invoice, email, dan nominal.
+
+# Cookie
+
+Cookie sesi menjaga Anda tetap masuk. Cookie wilayah mengingat bahasa dan mata uang yang Anda lihat. Cookie referal mengingat kode undangan selama 30 hari. Tidak ada cookie iklan.
+
+# Menghapus data Anda
+
+Putuskan Google di Pengaturan: refresh token dan pengaturan sheet langsung dihapus. Untuk menghapus catatan akun dan buku kredit, kirim email ke {email} dari alamat Google yang dipakai di akun. Baris di sheet Anda adalah milik Anda dan tidak pernah dihapus zippp.
+
+# Perubahan
+
+Kami memperbarui halaman ini saat ada perubahan dan menampilkan tanggalnya di atas.
+
+# Kontak
+
+{operator}, {email}. Lihat [kontak]({contactHref}).
+
+## legal.refund.nav.en
+Refunds
+## legal.refund.nav.id
+Refund
+## legal.refund.title.en
+Refund policy
+## legal.refund.title.id
+Kebijakan refund
+## legal.refund.body.en
+Credits are prepaid and digital. This page says when money or credit comes back.
+
+# Automatic
+
+- A photo that cannot be read costs nothing.
+- If sending to your sheet fails after the credit was taken, the credit is returned automatically.
+- A payment page that is not paid within 60 minutes expires and nothing is charged.
+
+# On request
+
+Email {email} within 7 days of the payment if:
+
+- you were charged twice for one top-up,
+- you paid but credits were not added after verification,
+- you were charged an amount you did not choose.
+
+We refund to the payment method you used, or add the missing credits, within 7 working days of confirming the issue.
+
+# Not refunded
+
+- Credits that were used to send rows.
+- Credits that expired after {ttlDays} days.
+- Change of mind after the credits were added, unless required by law.
+
+# Contact
+
+{operator}, {email}. See [contact]({contactHref}).
+## legal.refund.body.id
+Kredit dibayar di muka dan bersifat digital. Halaman ini menjelaskan kapan uang atau kredit dikembalikan.
+
+# Otomatis
+
+- Foto yang tidak terbaca tidak dikenai biaya.
+- Jika pengiriman ke sheet gagal setelah kredit terpakai, kredit dikembalikan otomatis.
+- Halaman pembayaran yang tidak dibayar dalam 60 menit kedaluwarsa dan tidak ada tagihan.
+
+# Atas permintaan
+
+Email ke {email} dalam 7 hari sejak pembayaran jika:
+
+- Anda tertagih dua kali untuk satu isi saldo,
+- Anda sudah bayar tetapi kredit tidak masuk setelah diverifikasi,
+- Anda tertagih nominal yang tidak Anda pilih.
+
+Kami mengembalikan ke metode pembayaran yang Anda pakai, atau menambahkan kredit yang kurang, dalam 7 hari kerja setelah masalah dikonfirmasi.
+
+# Tidak dikembalikan
+
+- Kredit yang sudah dipakai untuk mengirim baris.
+- Kredit yang kedaluwarsa setelah {ttlDays} hari.
+- Berubah pikiran setelah kredit masuk, kecuali diwajibkan hukum.
+
+# Kontak
+
+{operator}, {email}. Lihat [kontak]({contactHref}).
+
+## legal.contact.nav.en
+Contact
+## legal.contact.nav.id
+Kontak
+## legal.contact.title.en
+Contact
+## legal.contact.title.id
+Kontak
+## legal.contact.body.en
+zippp is operated by {operator}.
+
+- Email: {email}
+- WhatsApp: {whatsapp}
+- Address: {address}
+
+We answer within one working day. For payment issues, include the order id or the email on your account.
+## legal.contact.body.id
+zippp dikelola oleh {operator}.
+
+- Email: {email}
+- WhatsApp: {whatsapp}
+- Alamat: {address}
+
+Kami membalas dalam satu hari kerja. Untuk masalah pembayaran, sertakan id pesanan atau email akun Anda.
+
+## legal.pricing.tiers.title.en
+Buy credits
+
+## legal.pricing.tiers.title.id
+Pilih nominal isi saldo
+
+## legal.pricing.tiers.credits.en
+{count} credits
+
+## legal.pricing.tiers.credits.id
+{count} kredit
+
+## legal.pricing.tiers.methods.en
+One-time card payment through Paddle. Credits appear in your account within a minute of payment.
+
+## legal.pricing.tiers.methods.id
+Isi saldo berapa pun di atas Rp {minTopupIdr}. Bayar lewat QRIS, virtual account, e-wallet, atau kartu di halaman pembayaran DOKU. Kredit masuk otomatis setelah pembayaran terkonfirmasi.
+
+## legal.pricing.tiers.cta.en
+Sign in with Google to buy
+
+## legal.pricing.tiers.cta.id
+Masuk dengan Google untuk bayar
+
+## app.topup.doku.pay.en
+Pay
+
+## app.topup.doku.pay.id
+Bayar
+
+## app.topup.doku.methods.en
+QRIS, bank transfer, e-wallet, or card. You will be taken to DOKU's secure payment page.
+
+## app.topup.doku.methods.id
+QRIS, transfer bank, e-wallet, atau kartu. Anda akan diarahkan ke halaman pembayaran aman DOKU.
+
+## app.topup.doku.pending.en
+Waiting for payment confirmation. This usually takes under a minute.
+
+## app.topup.doku.pending.id
+Menunggu konfirmasi pembayaran. Biasanya kurang dari satu menit.
+
+## app.topup.doku.paid.en
+Payment received. Your credits are in.
+
+## app.topup.doku.paid.id
+Pembayaran diterima. Kredit sudah masuk.
+
+## app.topup.doku.failed.en
+Payment failed. Nothing was charged. Try again.
+
+## app.topup.doku.failed.id
+Pembayaran gagal. Tidak ada yang terpotong. Coba lagi.
+
+## app.topup.doku.expired.en
+The payment page expired. Create a new one.
+
+## app.topup.doku.expired.id
+Halaman pembayaran kedaluwarsa. Buat yang baru.
+
+## admin.doku.en
+DOKU payments
+
+## admin.doku.id
+Pembayaran DOKU

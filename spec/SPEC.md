@@ -52,7 +52,7 @@ learn ours. The job is append + one map, not a second general ledger.
 6. Append one row per line item. Header facts + `staff` / `outlet` repeat.
 7. Show success with the number of rows appended. Fail = no write.
 8. **Google Sheets is the only destination.** CSV/JSON export was removed.
-9. **Credits**: 1 credit = 1 scan, spent on Send. Top-ups (GoPay manual / Paddle)
+9. **Credits**: 1 credit = 1 scan, spent on Send. Top-ups (DOKU / Paddle)
    create 30-day lots. Block Send and Snap at zero credits. The **only free
    credit** is the referral bonus; no trial, no free tier.
 10. **Region-aware**: `/id` is Indonesian + IDR, `/` is English (US) + intl. The

@@ -1,5 +1,8 @@
 "use client";
 
+import SiteFooter from "./SiteFooter";
+import type { BusinessInfo } from "@/lib/business";
+import { legalHref } from "@/lib/legal";
 import { makeT, type Wording } from "@/lib/t";
 import type { Lang, Region } from "@/lib/region";
 
@@ -11,10 +14,12 @@ export default function Landing({
     wording,
     lang,
     region,
+    business,
 }: {
     wording: Wording;
     lang: Lang;
     region: Region;
+    business: BusinessInfo;
 }) {
     const t = makeT(wording, lang);
     const otherHref = lang === "id" ? "/" : "/id";
@@ -124,12 +129,20 @@ export default function Landing({
                         <p className="mt-4 max-w-[48ch] text-muted">
                             {t("landing.pricing.body")}
                         </p>
-                        <a
-                            href="/api/auth/login"
-                            className="mt-6 inline-flex items-center rounded-full bg-maroon px-7 py-4 font-semibold text-white"
-                        >
-                            {t("landing.pricing.cta")}
-                        </a>
+                        <div className="mt-6 flex flex-wrap gap-3">
+                            <a
+                                href="/api/auth/login"
+                                className="inline-flex items-center rounded-full bg-maroon px-7 py-4 font-semibold text-white"
+                            >
+                                {t("landing.pricing.cta")}
+                            </a>
+                            <a
+                                href={legalHref("pricing", lang)}
+                                className="inline-flex items-center rounded-full bg-peach px-7 py-4 font-semibold text-ink"
+                            >
+                                {t("landing.pricing.details")}
+                            </a>
+                        </div>
 
                         <div className="mt-8 max-w-[980px] rounded-panel bg-surface p-7">
                             <h3 className="font-head text-2xl font-extrabold tracking-tight">
@@ -176,6 +189,7 @@ export default function Landing({
                             {t("landing.foot.cta")}
                         </a>
                     </footer>
+                    <SiteFooter t={t} lang={lang} business={business} />
                 </main>
             </div>
         </div>

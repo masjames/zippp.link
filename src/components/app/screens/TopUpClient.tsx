@@ -1,27 +1,62 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import PhoneShell from "../PhoneShell";
 import { useApp } from "../AppProvider";
 import { fill } from "@/lib/t";
 import type { PaddleConfig } from "@/lib/billing/paddle";
+import { IDR_TOPUP_PRESETS as PRESETS } from "@/lib/billing/config";
 
 type Props = {
     region: "id" | "intl";
     paddle: PaddleConfig & { configured: boolean };
+    /** DOKU hosted checkout is configured (Indonesia). */
+    doku: boolean;
     minIdr: number;
     idrPerCredit: number;
 };
 
-const PRESETS = [50000, 100000, 200000, 300000];
+type DokuState = "pending" | "paid" | "failed" | "expired";
 
-export default function TopUpClient({ region, paddle, minIdr, idrPerCredit }: Props) {
-    const { t, auth } = useApp();
+export default function TopUpClient({
+    region,
+    paddle,
+    doku,
+    minIdr,
+    idrPerCredit,
+}: Props) {
+    const { t, auth, refreshBalance } = useApp();
     const router = useRouter();
+    const params = useSearchParams();
+    const returnedInvoice = params.get("doku");
     const [amount, setAmount] = useState(PRESETS[1]);
     const [error, setError] = useState<string | null>(null);
     const [busy, setBusy] = useState(false);
+    const [dokuState, setDokuState] = useState<DokuState | null>(null);
+
+    // Back from DOKU's page: poll until the notification has landed.
+    useEffect(() => {
+        if (!returnedInvoice) return;
+        let stop = false;
+        let tries = 0;
+        async function poll() {
+            const res = await fetch(`/api/topup/doku/${returnedInvoice}`, { cache: "no-store" });
+            const data = await res.json();
+            if (stop) return;
+            const state: DokuState | null = data.ok ? data.order.state : null;
+            setDokuState(state ?? "pending");
+            if (state === "paid") {
+                void refreshBalance();
+                return;
+            }
+            if (state === "pending" && tries++ < 24) setTimeout(poll, 5000);
+        }
+        void poll();
+        return () => {
+            stop = true;
+        };
+    }, [returnedInvoice, refreshBalance]);
 
     useEffect(() => {
         if (region !== "intl" || !paddle.clientToken) return;
@@ -39,26 +74,25 @@ export default function TopUpClient({ region, paddle, minIdr, idrPerCredit }: Pr
         };
     }, [region, paddle.clientToken, paddle.env]);
 
-    async function createGoPayOrder() {
+    async function payWithDoku() {
         setBusy(true);
         setError(null);
         try {
-            const res = await fetch("/api/topup/orders", {
+            const res = await fetch("/api/topup/doku", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ baseIdr: amount }),
+                body: JSON.stringify({ amountIdr: amount }),
             });
             const data = await res.json();
-            if (data.ok && data.order?.id) {
-                router.push(`/app/topup/order/${data.order.id}`);
-            } else {
-                setError(data.error || "Failed.");
+            if (data.ok && data.order?.url) {
+                window.location.assign(data.order.url);
+                return;
             }
+            setError(data.error || "Failed.");
         } catch {
             setError("Network error.");
-        } finally {
-            setBusy(false);
         }
+        setBusy(false);
     }
 
     function buyPaddle() {
@@ -78,6 +112,20 @@ export default function TopUpClient({ region, paddle, minIdr, idrPerCredit }: Pr
             <h2 className="mt-2 font-head text-3xl font-extrabold leading-none">
                 {t("app.topup.title")}
             </h2>
+
+            {region === "id" && returnedInvoice ? (
+                <div
+                    className={`rounded-2xl px-4 py-3 text-sm font-medium ${
+                        dokuState === "paid"
+                            ? "bg-peach text-ink"
+                            : dokuState === "failed" || dokuState === "expired"
+                              ? "bg-card text-danger"
+                              : "bg-card text-muted"
+                    }`}
+                >
+                    {t(`app.topup.doku.${dokuState ?? "pending"}`)}
+                </div>
+            ) : null}
 
             {region === "id" ? (
                 <>
@@ -121,12 +169,15 @@ export default function TopUpClient({ region, paddle, minIdr, idrPerCredit }: Pr
                     ) : null}
                     <button
                         type="button"
-                        disabled={busy || amount < minIdr}
-                        onClick={createGoPayOrder}
+                        disabled={busy || amount < minIdr || !doku}
+                        onClick={payWithDoku}
                         className="mt-auto rounded-full bg-btn px-6 py-4 font-semibold text-btntext disabled:opacity-60"
                     >
-                        {t("app.topup.create")}
+                        {t("app.topup.doku.pay")}
                     </button>
+                    <p className="text-center text-xs text-muted">
+                        {t(doku ? "app.topup.doku.methods" : "app.topup.unavailable")}
+                    </p>
                 </>
             ) : (
                 <>

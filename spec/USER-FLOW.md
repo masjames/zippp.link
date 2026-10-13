@@ -25,6 +25,27 @@ The sheet stays the system of record. zippp is the intake mill.
 - English `/` (USD) and Indonesian `/id` (IDR), no language toggle.
 - Sections: hero ("Receipts in. Rows out."), How it works, audience, credit
   pricing + referral, FAQ, and CTAs that sign in with Google directly.
+- Footer links to the public information pages and shows the operator's
+  contact line (`BUSINESS_*` / `CONTACT_*` env).
+
+## Public information pages
+
+Required by payment gateway review (DOKU, Paddle) and by Google OAuth
+verification. Static, bilingual, copy in `wording.md` under `legal.*`,
+rendered by `LegalPage`. Slugs are translated:
+
+| Page | `/` (en) | `/id` |
+|---|---|---|
+| Pricing | `/pricing` | `/id/harga` |
+| Terms of service | `/terms` | `/id/syarat` |
+| Privacy policy | `/privacy` | `/id/privasi` |
+| Refund policy | `/refund` | `/id/refund` |
+| Contact | `/contact` | `/id/kontak` |
+
+The pricing page doubles as the public payment page for gateway review: it
+lists the top-up presets (`IDR_TOPUP_PRESETS`) with the credits each gives,
+the accepted methods, and a sign-in CTA. Actual payment stays behind sign-in
+at `/app/topup`.
 
 ---
 
@@ -40,11 +61,10 @@ The sheet stays the system of record. zippp is the intake mill.
 | `/app` | redirects via the guard to `/app/snap` | everyone |
 | `/app/start` | Intro, then Sign in | logged out |
 | `/app/snap` | Single screen: camera + batch review (home) | signed in, sheet OK, credits |
-| `/app/topup` | Top up: GoPay (id) or Paddle (intl) | signed in |
-| `/app/topup/order/[id]` | GoPay order: amount, countdown, "I have paid" | signed in |
+| `/app/topup` | Top up: DOKU hosted checkout (id) or Paddle (intl); `?doku=INVOICE` shows the return status | signed in |
 | `/app/settings` | balance, invite link, sheet, sign out | signed in |
 | `/app/settings/sheet` | sheet status, create/choose sheet, reconnect | signed in |
-| `/admin` | GoPay orders: approve/reject/manual grant | admin emails only |
+| `/admin` | Recent DOKU payments, manual grant | admin emails only |
 
 `/` is English with USD; `/id` is Indonesian with IDR (no language toggle). The
 region cookie is set at entry and drives the app language and top-up channel.

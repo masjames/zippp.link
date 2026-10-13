@@ -11,12 +11,13 @@ the two-plan drafts.
 - Spending uses the lot that expires first.
 - Zero credits: Snap and Send are blocked and the user is sent to Top up.
 
-## Indonesia (`/id`, GoPay, manual)
+## Indonesia (`/id`)
 
 - Minimum top-up **Rp 15.000**. **Rp 150 per credit.** Credits = `floor(base / 150)`.
-- The unique code digits are not credited; only the base amount counts.
-- Pay to the GoPay number in env. The order page shows the exact amount and a
-  60-minute countdown. An admin approves it in `/admin`.
+- Presets shown: Rp 50.000 / 100.000 / 200.000 / 300.000, plus a custom amount.
+- **DOKU Checkout**: QRIS, virtual account, e-wallet, card on DOKU's hosted
+  page. Credits land automatically on DOKU's notification. The customer pays
+  the base amount; DOKU's fee is on us (see COGS). Page expires in 60 minutes.
 
 ## International (`/`, Paddle)
 
@@ -29,7 +30,7 @@ the two-plan drafts.
 |---|---|
 | Referrer reward | 20% of each referred top-up, in credit (floor) |
 | Referred bonus | 20 credits, once, after their first approved top-up |
-| Applies to | GoPay and Paddle |
+| Applies to | DOKU and Paddle |
 | Reward lots | Expire in 30 days |
 | Locked | At first sign-in; one referrer, cannot change |
 | Self-referral | Blocked (same Google account) |

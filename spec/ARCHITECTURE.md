@@ -113,23 +113,31 @@ Upstash the app runs unconfigured and does not enforce credits.
 - `GET /api/auth/me` creates the user record (ref code + referral lock) on load.
 
 Keys: `bill:acct:{id}`, `bill:ledger:{id}`, `bill:user:{id}`, `bill:ref:{code}`,
-`bill:email:{email}`, `bill:idem:{key}`, `bill:order:{id}`, `bill:orders:open`,
-`bill:orders:recent`, `bill:codes`, `bill:orders:hour:{id}:{hour}`.
+`bill:email:{email}`, `bill:idem:{key}`, `bill:doku:{invoice}`,
+`bill:doku:recent`. (`bill:order:*`, `bill:orders:*`, `bill:codes` are
+leftovers from the retired GoPay flow and can be deleted.)
 
 ### Top-up and admin
 
-- **Indonesia** (`/id`): manual GoPay. `POST /api/topup/orders` creates an order
-  with a unique code 1-999; the pay amount is base + code. States:
-  `pending -> claimed -> approved | rejected | expired` (60-min TTL, one open
-  order per user, max 5/hour). `/app/topup/order/[id]` shows the number, exact
-  amount, countdown and "I have paid".
+- **Indonesia** (`/id`): DOKU Checkout (hosted page). `POST
+  /api/topup/doku` signs a `/checkout/v1/payment` request (HMAC-SHA256 over
+  Client-Id, Request-Id, Request-Timestamp, Request-Target, Digest), stores
+  `bill:doku:{invoice}` and redirects to DOKU's URL. Invoice numbers are
+  alphanumeric, under 30 chars. DOKU POSTs to `/api/doku/notify`; the route
+  verifies the signature against its own path, checks the amount, and grants
+  once (idempotent on `doku:{invoice}`). The customer returns to
+  `/app/topup?doku={invoice}`, which polls `GET /api/topup/doku/[invoice]`.
+  States: `pending -> paid | failed | expired`. Sandbox and production are
+  selected by `DOKU_ENV`. The manual GoPay flow was retired; old ledger
+  entries keep `topup_gopay` as their source.
 - **International**: Paddle.js checkout (`PADDLE_CLIENT_TOKEN`,
   `PADDLE_PACK_PRICE_ID`); `POST /api/paddle/webhook` verifies the signature and
   grants on `transaction.completed` (idempotent on the transaction id).
-- **Admin** (`/admin`, `ADMIN_EMAILS`): approve/reject orders and manual grant.
+- **Admin** (`/admin`, `ADMIN_EMAILS`): recent DOKU payments (read-only) and
+  manual grant.
   Every admin route checks the email server-side and returns 404 otherwise.
-- **Telegram** (`TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`): new-order and
-  paid-notice alerts; a failure never blocks the order.
+- **Telegram** (`TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`): paid and
+  amount-mismatch alerts; a failure never blocks the payment.
 - **Referral**: 20% to the referrer and a 20-credit first-top-up bonus, run on
   every approved/completed top-up (`src/lib/billing/referral.ts`).
 
@@ -233,7 +241,9 @@ Admin-only, guarded like `/admin` (server `currentUser().admin`, 404 otherwise).
 | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` / `GOOGLE_REDIRECT_URI` | server |
 | `TOKEN_ENCRYPTION_KEY` | server |
 | `BLOB_READ_WRITE_TOKEN` **or** `UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN` | server |
+| `DOKU_ENV` / `DOKU_CLIENT_ID` / `DOKU_SECRET_KEY` / `DOKU_NOTIFY_PATH` | server; DOKU Checkout (`src/lib/billing/doku.ts`) |
 | `ZIPPP_DATA_DIR` | server (local only) |
+| `BUSINESS_NAME` / `BUSINESS_OPERATOR` / `BUSINESS_ADDRESS` / `CONTACT_EMAIL` / `CONTACT_WA` | server; shown on the public info pages (`src/lib/business.ts`) |
 
 Never `NEXT_PUBLIC_` for secrets.
 

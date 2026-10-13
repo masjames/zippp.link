@@ -3,8 +3,10 @@ import { CREDIT_TTL_DAYS } from "./config";
 import { billingConfigured, command, evalScript } from "./redis";
 
 export type LedgerSource =
+    /** Retired manual flow; kept so old ledger entries still type-check. */
     | "topup_gopay"
     | "topup_paddle"
+    | "topup_doku"
     | "referral_reward"
     | "referral_bonus"
     | "admin_grant"

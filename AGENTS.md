@@ -13,7 +13,7 @@ Receipt photo to Google Sheet intake. Site: zippp.link. Prepaid credits.
 Next.js App Router, TypeScript, Tailwind, Vercel.
 google-auth-library for OAuth and Sheets. Vercel Blob or Upstash for session data (src/lib/google/kv.ts).
 Upstash Redis (separate client) for credits, orders, referrals.
-Paddle (sandbox) for international packs. Manual GoPay orders for Indonesia. Telegram bot for admin alerts.
+Paddle (sandbox) for international packs. DOKU Checkout for Indonesia. Telegram bot for admin alerts.
 Extraction: PP-OCRv6 then DeepSeek Flash.
 
 ## Rules
