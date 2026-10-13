@@ -244,6 +244,7 @@ Admin-only, guarded like `/admin` (server `currentUser().admin`, 404 otherwise).
 | `DOKU_ENV` / `DOKU_CLIENT_ID` / `DOKU_SECRET_KEY` / `DOKU_NOTIFY_PATH` | server; DOKU Checkout (`src/lib/billing/doku.ts`) |
 | `ZIPPP_DATA_DIR` | server (local only) |
 | `BUSINESS_NAME` / `BUSINESS_OPERATOR` / `BUSINESS_ADDRESS` / `CONTACT_EMAIL` / `CONTACT_WA` | server; shown on the public info pages (`src/lib/business.ts`) |
+| `CONTACT_REVEAL_SECRET` | server; signs the contact-page email reveal challenge (`/api/contact/reveal`). Falls back to `TOKEN_ENCRYPTION_KEY` |
 
 Never `NEXT_PUBLIC_` for secrets.
 

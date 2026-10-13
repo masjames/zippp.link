@@ -1397,7 +1397,7 @@ These terms follow the laws of the Republic of Indonesia.
 
 # Contact
 
-{operator}, {email}. See [contact]({contactHref}).
+{operator}. See [contact]({contactHref}).
 ## legal.terms.body.id
 Syarat ini berlaku saat Anda memakai zippp di zippp.link. Dengan masuk ke layanan, Anda menyetujuinya. Jika tidak setuju, jangan gunakan layanan ini.
 
@@ -1443,7 +1443,7 @@ Syarat ini tunduk pada hukum Republik Indonesia.
 
 # Kontak
 
-{operator}, {email}. Lihat [kontak]({contactHref}).
+{operator}. Lihat [kontak]({contactHref}).
 
 ## legal.privacy.nav.en
 Privacy
@@ -1494,7 +1494,7 @@ A session cookie keeps you signed in. A region cookie remembers which language a
 
 # Deleting your data
 
-Disconnect Google in Settings: the refresh token and sheet setup are deleted at once. To delete your account record and ledger, email {email} from the Google address on the account. Rows in your sheet are yours and are never deleted by zippp.
+Disconnect Google in Settings: the refresh token and sheet setup are deleted at once. To delete your account record and ledger, email us from the Google address on the account (see the contact page) on the account. Rows in your sheet are yours and are never deleted by zippp.
 
 # Changes
 
@@ -1502,7 +1502,7 @@ We update this page when something changes and show the date at the top.
 
 # Contact
 
-{operator}, {email}. See [contact]({contactHref}).
+{operator}. See [contact]({contactHref}).
 ## legal.privacy.body.id
 Halaman ini menjelaskan apa yang dikumpulkan zippp, ke mana datanya pergi, dan cara menghapusnya. Singkatnya: foto dibaca lalu dibuang, baris masuk ke sheet Anda, dan kami hanya menyimpan yang diperlukan untuk menjalankan akun dan kredit Anda.
 
@@ -1544,7 +1544,7 @@ Cookie sesi menjaga Anda tetap masuk. Cookie wilayah mengingat bahasa dan mata u
 
 # Menghapus data Anda
 
-Putuskan Google di Pengaturan: refresh token dan pengaturan sheet langsung dihapus. Untuk menghapus catatan akun dan buku kredit, kirim email ke {email} dari alamat Google yang dipakai di akun. Baris di sheet Anda adalah milik Anda dan tidak pernah dihapus zippp.
+Putuskan Google di Pengaturan: refresh token dan pengaturan sheet langsung dihapus. Untuk menghapus catatan akun dan buku kredit, kirim email dari alamat Google akun Anda (lihat halaman kontak) yang dipakai di akun. Baris di sheet Anda adalah milik Anda dan tidak pernah dihapus zippp.
 
 # Perubahan
 
@@ -1552,7 +1552,7 @@ Kami memperbarui halaman ini saat ada perubahan dan menampilkan tanggalnya di at
 
 # Kontak
 
-{operator}, {email}. Lihat [kontak]({contactHref}).
+{operator}. Lihat [kontak]({contactHref}).
 
 ## legal.refund.nav.en
 Refunds
@@ -1573,7 +1573,7 @@ Credits are prepaid and digital. This page says when money or credit comes back.
 
 # On request
 
-Email {email} within 7 days of the payment if:
+Email us within 7 days (see the contact page) of the payment if:
 
 - you were charged twice for one top-up,
 - you paid but credits were not added after verification,
@@ -1589,7 +1589,7 @@ We refund to the payment method you used, or add the missing credits, within 7 w
 
 # Contact
 
-{operator}, {email}. See [contact]({contactHref}).
+{operator}. See [contact]({contactHref}).
 ## legal.refund.body.id
 Kredit dibayar di muka dan bersifat digital. Halaman ini menjelaskan kapan uang atau kredit dikembalikan.
 
@@ -1601,7 +1601,7 @@ Kredit dibayar di muka dan bersifat digital. Halaman ini menjelaskan kapan uang 
 
 # Atas permintaan
 
-Email ke {email} dalam 7 hari sejak pembayaran jika:
+Email kami dalam 7 hari (lihat halaman kontak) sejak pembayaran jika:
 
 - Anda tertagih dua kali untuk satu isi saldo,
 - Anda sudah bayar tetapi kredit tidak masuk setelah diverifikasi,
@@ -1617,7 +1617,7 @@ Kami mengembalikan ke metode pembayaran yang Anda pakai, atau menambahkan kredit
 
 # Kontak
 
-{operator}, {email}. Lihat [kontak]({contactHref}).
+{operator}. Lihat [kontak]({contactHref}).
 
 ## legal.contact.nav.en
 Contact
@@ -1630,7 +1630,7 @@ Kontak
 ## legal.contact.body.en
 zippp is operated by {operator}.
 
-- Email: {email}
+- Email: tap Show email below (a short check keeps scrapers out)
 - WhatsApp: {whatsapp}
 - Address: {address}
 
@@ -1638,7 +1638,7 @@ We answer within one working day. For payment issues, include the order id or th
 ## legal.contact.body.id
 zippp dikelola oleh {operator}.
 
-- Email: {email}
+- Email: tekan Tampilkan email di bawah (cek singkat agar tidak di-scrape)
 - WhatsApp: {whatsapp}
 - Alamat: {address}
 
@@ -1709,3 +1709,28 @@ DOKU payments
 
 ## admin.doku.id
 Pembayaran DOKU
+
+## contact.reveal.show.en
+Show email
+## contact.reveal.show.id
+Tampilkan email
+## contact.reveal.prompt.en
+What is {a} + {b}?
+## contact.reveal.prompt.id
+Berapa {a} + {b}?
+## contact.reveal.submit.en
+Show
+## contact.reveal.submit.id
+Tampilkan
+## contact.reveal.wrong.en
+Wrong answer. Try again.
+## contact.reveal.wrong.id
+Jawaban salah. Coba lagi.
+## contact.reveal.footer.en
+Contact email
+## contact.reveal.footer.id
+Email kontak
+## contact.reveal.placeholder.en
+(see contact page)
+## contact.reveal.placeholder.id
+(lihat halaman kontak)

@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import ProtectedEmail from "./ProtectedEmail";
 import SiteFooter from "./SiteFooter";
 import { businessInfo, whatsappLink } from "@/lib/business";
 import {
@@ -38,7 +39,7 @@ export default function LegalPage({
     const values: Record<string, string | number> = {
         business: business.name,
         operator: business.operator,
-        email: business.email,
+        email: t("contact.reveal.placeholder"),
         whatsapp: business.whatsapp || "-",
         address: business.address || "-",
         idrPerCredit: IDR_PER_CREDIT.toLocaleString("id-ID"),
@@ -90,13 +91,8 @@ export default function LegalPage({
                         </div>
 
                         {id === "contact" ? (
-                            <div className="mt-8 flex flex-wrap gap-3">
-                                <a
-                                    href={`mailto:${business.email}`}
-                                    className="inline-flex items-center rounded-full bg-maroon px-6 py-3 font-semibold text-white"
-                                >
-                                    {business.email}
-                                </a>
+                            <div className="mt-8 flex flex-wrap items-center gap-3">
+                                <ProtectedEmail t={t} />
                                 {wa ? (
                                     <a
                                         href={wa}

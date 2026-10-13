@@ -15,7 +15,7 @@ export type BusinessInfo = {
 export function businessInfo(): BusinessInfo {
     return {
         name: process.env.BUSINESS_NAME || "zippp",
-        email: process.env.CONTACT_EMAIL || "halo@zippp.link",
+        email: process.env.CONTACT_EMAIL || "asilverspoong@gmail.com",
         whatsapp: process.env.CONTACT_WA || "",
         address: process.env.BUSINESS_ADDRESS || "",
         operator: process.env.BUSINESS_OPERATOR || "zippp",

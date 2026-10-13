@@ -42,6 +42,9 @@ rendered by `LegalPage`. Slugs are translated:
 | Refund policy | `/refund` | `/id/refund` |
 | Contact | `/contact` | `/id/kontak` |
 
+Contact email is not in the HTML. `/api/contact/reveal` issues a signed
+`a + b` challenge; the address is returned only after a correct answer.
+
 The pricing page doubles as the public payment page for gateway review: it
 lists the top-up presets (`IDR_TOPUP_PRESETS`) with the credits each gives,
 the accepted methods, and a sign-in CTA. Actual payment stays behind sign-in
