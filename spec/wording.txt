@@ -507,6 +507,10 @@ Keluar
 Back
 ## app.nav.back.id
 Kembali
+## app.nav.camera.en
+Camera
+## app.nav.camera.id
+Kamera
 ## app.check.missing.en
 This scan is no longer in the queue.
 ## app.check.missing.id

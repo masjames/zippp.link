@@ -78,15 +78,18 @@ plus a small playable game. Copy lives under `notfound.*` in `wording.txt`.
 3. No usable sheet → `/app/settings/sheet`. Phases: **check** (find only, never
    create) → **choose source** → **picker** → **template wizard** →
    **creating** → **connected** / **error**. Templates: five (see
-   `TEMPLATES.md`). Settings reachable from the header.
+   `TEMPLATES.md`). Settings reachable from the header. A **Sign out** link on
+   the choose-source screen is the escape.
 4. No credits → `/app/topup` (Settings stays reachable).
 5. Ready: `/app` → `/app/snap`.
 
 ### Chrome
 
-- Header: **credit pill** (tap → top-up; amber under 10; red at 0) + **Settings**
-  + **Admin** for admins. Sign out on Settings.
-- Mobile: device back / gesture. No in-app back button. `/app/snap` is home.
+- Header: **Camera** (off Snap only, back to `/app/snap`) + **credit pill**
+  (tap → top-up; amber under 10; red at 0) + **Settings** + **Admin** for
+  admins. Sign out on Settings.
+- `/app/snap` is home. Every other screen returns there with the Camera button.
+- The sheet setup has a sign-out link, so a user without a sheet is not stuck.
 
 ---
 

@@ -48,6 +48,7 @@ export default function SheetPage() {
         pickSheet,
         recheckSheet,
         createSheet,
+        signOut,
     } = useApp();
     const router = useRouter();
 
@@ -117,6 +118,13 @@ export default function SheetPage() {
                         className="rounded-full bg-mist px-6 py-4 font-semibold text-ink"
                     >
                         {t("app.sheets.useExisting")}
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => void signOut()}
+                        className="rounded-full px-6 py-3 text-sm font-semibold text-muted hover:text-body"
+                    >
+                        {t("app.auth.signout")}
                     </button>
                 </div>
             </PhoneShell>

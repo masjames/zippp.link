@@ -25,6 +25,25 @@ function GearIcon() {
     );
 }
 
+/** Camera glyph for the back-to-app control. */
+function CameraIcon() {
+    return (
+        <svg
+            viewBox="0 0 24 24"
+            className="h-5 w-5"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden
+        >
+            <path d="M3 8a2 2 0 0 1 2-2h2l1.2-2h7.6L17 6h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+            <circle cx="12" cy="12.5" r="3.5" />
+        </svg>
+    );
+}
+
 /** Small lightning bolt for the credit pill. */
 function BoltIcon() {
     return (
@@ -93,7 +112,19 @@ export default function AppShell({ children }: { children: ReactNode }) {
     return (
         <div className="flex min-h-screen flex-col bg-page sm:py-8">
             {signedIn ? (
-                <div className="mx-auto flex w-full max-w-[430px] items-center justify-end gap-3 px-4 pb-1 pt-3">
+                <div className="mx-auto flex w-full max-w-[430px] items-center justify-between gap-3 px-4 pb-1 pt-3">
+                    {pathname !== "/app/snap" && workspace ? (
+                        <button
+                            type="button"
+                            onClick={() => router.push("/app/snap")}
+                            className="flex items-center gap-2 text-sm font-semibold text-muted hover:text-body"
+                        >
+                            <CameraIcon />
+                            {t("app.nav.camera")}
+                        </button>
+                    ) : (
+                        <span />
+                    )}
                     <div className="flex items-center gap-3">
                     {balance?.configured ? (
                         <button
