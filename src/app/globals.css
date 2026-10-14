@@ -5,8 +5,10 @@
 /*
  * Design tokens for zippp, lifted from the approved prototype
  * (zippp-three-screens.html). Everything visual references these.
+ * Light only: there is no dark theme.
  */
 :root {
+    color-scheme: light;
     --c-orange: #ee5329;
     --c-ink: #1c0b09;
     --c-maroon: #3e0f0c;
@@ -25,34 +27,6 @@
 
     --font-head: "Archivo", "Arial Narrow", Impact, sans-serif;
     --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
-}
-
-@media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) {
-        --c-page: #0e0504;
-        --c-bg: #170807;
-        --c-surface: #2b100c;
-        --c-text: #f8e7df;
-        --c-muted: #c9a99d;
-        --c-line: #5a2a20;
-        --c-btn: #ee5329;
-        --c-btn-text: #1c0b09;
-        --c-accent-text: #ff8a66;
-        --c-err: #ff9a92;
-    }
-}
-
-:root[data-theme="dark"] {
-    --c-page: #0e0504;
-    --c-bg: #170807;
-    --c-surface: #2b100c;
-    --c-text: #f8e7df;
-    --c-muted: #c9a99d;
-    --c-line: #5a2a20;
-    --c-btn: #ee5329;
-    --c-btn-text: #1c0b09;
-    --c-accent-text: #ff8a66;
-    --c-err: #ff9a92;
 }
 
 *,

@@ -51,6 +51,9 @@ verification. Static, bilingual, copy in `wording.txt` under `legal.*`.
 Pricing page lists top-up presets (`IDR_TOPUP_PRESETS`). Actual payment stays
 behind sign-in at `/app/topup`.
 
+Unknown routes render a custom 404 (`src/app/not-found.tsx`): a short message
+plus a small playable game. Copy lives under `notfound.*` in `wording.txt`.
+
 ---
 
 ## App routes

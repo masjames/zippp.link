@@ -1998,3 +1998,72 @@ Bulan
 photo
 ## sheet.photoLink.id
 foto
+
+## notfound.title.en
+Page not found
+## notfound.title.id
+Halaman tidak ditemukan
+## notfound.body.en
+That link is broken or the page has moved. Play a round, then head back.
+## notfound.body.id
+Tautan ini rusak atau halamannya sudah pindah. Main sebentar, lalu kembali.
+## notfound.play.en
+Play
+## notfound.play.id
+Main
+## notfound.over.en
+Game over
+## notfound.over.id
+Permainan selesai
+## notfound.restart.en
+Play again
+## notfound.restart.id
+Main lagi
+## notfound.paused.en
+Paused
+## notfound.paused.id
+Jeda
+## notfound.resume.en
+Resume
+## notfound.resume.id
+Lanjut
+## notfound.score.en
+Score
+## notfound.score.id
+Skor
+## notfound.lines.en
+Lines
+## notfound.lines.id
+Baris
+## notfound.controls.en
+Arrow keys move, up rotates, space drops.
+## notfound.controls.id
+Panah untuk gerak, atas untuk putar, spasi untuk jatuh.
+## notfound.left.en
+Left
+## notfound.left.id
+Kiri
+## notfound.right.en
+Right
+## notfound.right.id
+Kanan
+## notfound.rotate.en
+Rotate
+## notfound.rotate.id
+Putar
+## notfound.down.en
+Down
+## notfound.down.id
+Turun
+## notfound.drop.en
+Drop
+## notfound.drop.id
+Jatuh
+## notfound.pause.en
+Pause
+## notfound.pause.id
+Jeda
+## notfound.home.en
+Back to zippp
+## notfound.home.id
+Kembali ke zippp

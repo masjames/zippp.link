@@ -33,7 +33,7 @@ function FlagIdIcon() {
     return (
         <svg
             viewBox="0 0 24 24"
-            className="h-4 w-4 flex-none rounded-[3px]"
+            className="h-4 w-4 flex-none rounded-[1.5px]"
             aria-hidden
         >
             <rect width="24" height="12" fill="#CE1126" />

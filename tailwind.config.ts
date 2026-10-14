@@ -3,7 +3,7 @@ import type { Config } from "tailwindcss";
 /**
  * zippp design tokens, taken from the approved HTML prototype
  * (zippp-three-screens.html). Colour values live in globals.css as CSS
- * variables so light/dark theming works without duplicating values here.
+ * variables. Light theme only.
  */
 const config: Config = {
     content: ["./src/**/*.{ts,tsx}"],
@@ -43,10 +43,21 @@ const config: Config = {
                     "sans-serif",
                 ],
             },
+            // Half the default scale, so the UI reads less bubbly. `full` is
+            // kept for pills.
             borderRadius: {
-                phone: "36px",
-                panel: "28px",
-                line: "22px",
+                none: "0px",
+                sm: "0.0625rem",
+                DEFAULT: "0.125rem",
+                md: "0.1875rem",
+                lg: "0.25rem",
+                xl: "0.375rem",
+                "2xl": "0.5rem",
+                "3xl": "0.75rem",
+                full: "9999px",
+                phone: "18px",
+                panel: "14px",
+                line: "11px",
             },
         },
     },
