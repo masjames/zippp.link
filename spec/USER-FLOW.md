@@ -24,9 +24,8 @@ The sheet stays the system of record. zippp is the intake mill.
 ## Landing page `/`
 
 - Worldwide `/` (USD, English) and Indonesia `/id` (IDR, Indonesian). A region
-  dropdown in the nav and footer (globe / Indonesia flag) switches both and
-  persists in the region and language cookies. The app header keeps a
-  copy-only EN/ID toggle.
+  dropdown in the nav (globe / Indonesia flag) switches both and persists in the
+  region and language cookies. The app header keeps a copy-only EN/ID toggle.
 - Sections: hero with a media slot, How it works (three steps), product
   showcase (sheet + demo slots), **four persona cards**, testimonials
   placeholder, credit pricing + referral, FAQ, CTAs that sign in with Google.

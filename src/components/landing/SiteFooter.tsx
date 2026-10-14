@@ -1,8 +1,7 @@
 import { LEGAL_PAGES, legalHref } from "@/lib/legal";
-import type { Lang, Region } from "@/lib/region";
+import type { Lang } from "@/lib/region";
 import type { T } from "@/lib/t";
 import type { BusinessInfo } from "@/lib/business";
-import RegionSelect from "../RegionSelect";
 
 /**
  * Links to the public information pages plus the operator's contact line.
@@ -12,12 +11,10 @@ import RegionSelect from "../RegionSelect";
 export default function SiteFooter({
     t,
     lang,
-    region,
     business,
 }: {
     t: T;
     lang: Lang;
-    region: Region;
     business: BusinessInfo;
 }) {
     const contact = legalHref("contact", lang);
@@ -33,14 +30,6 @@ export default function SiteFooter({
                         {t(`legal.${id}.nav`)}
                     </a>
                 ))}
-                <RegionSelect
-                    region={region}
-                    labels={{
-                        label: t("region.label"),
-                        worldwide: t("region.worldwide"),
-                        indonesia: t("region.indonesia"),
-                    }}
-                />
             </nav>
             <p className="mt-4">
                 {business.operator}

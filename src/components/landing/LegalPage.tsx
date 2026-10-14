@@ -13,7 +13,7 @@ import {
 } from "@/lib/billing/config";
 import { loadWording } from "@/lib/content";
 import { legalHref, type LegalPageId } from "@/lib/legal";
-import type { Lang, Region } from "@/lib/region";
+import type { Lang } from "@/lib/region";
 import { fill, makeT } from "@/lib/t";
 
 /**
@@ -27,11 +27,9 @@ import { fill, makeT } from "@/lib/t";
 export default function LegalPage({
     id,
     lang,
-    region,
 }: {
     id: LegalPageId;
     lang: Lang;
-    region: Region;
 }) {
     const wording = loadWording();
     const t = makeT(wording, lang);
@@ -118,7 +116,7 @@ export default function LegalPage({
                         ) : null}
                     </article>
 
-                    <SiteFooter t={t} lang={lang} region={region} business={business} />
+                    <SiteFooter t={t} lang={lang} business={business} />
                 </main>
             </div>
         </div>

@@ -278,12 +278,7 @@ export default function Landing({
                             {t("landing.foot.cta")}
                         </a>
                     </footer>
-                    <SiteFooter
-                        t={t}
-                        lang={lang}
-                        region={region}
-                        business={business}
-                    />
+                    <SiteFooter t={t} lang={lang} business={business} />
                 </main>
             </div>
         </div>
