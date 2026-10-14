@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { currentUser } from "@/lib/auth";
 import { createDokuCheckout, dokuConfigured } from "@/lib/billing/doku";
-import { getLocale } from "@/lib/server-locale";
+import { getAppLocale } from "@/lib/server-locale";
 
 export const runtime = "nodejs";
 
@@ -22,7 +22,7 @@ export async function POST(req: Request) {
         /* handled below */
     }
 
-    const { lang } = await getLocale();
+    const { lang } = await getAppLocale();
     // Behind Vercel the public host arrives in x-forwarded-host.
     const host = req.headers.get("x-forwarded-host") || req.headers.get("host") || "";
     const proto = req.headers.get("x-forwarded-proto") || "https";

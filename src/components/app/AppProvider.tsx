@@ -8,7 +8,7 @@ import {
     useState,
     type ReactNode,
 } from "react";
-import { langFromRegion, type Lang, type Region } from "@/lib/region";
+import type { Lang, Region } from "@/lib/region";
 import { makeT, type T, type Wording } from "@/lib/t";
 import type { ExtractResponse } from "@/types/receipt";
 import {
@@ -135,13 +135,14 @@ const REFUSAL_COOLDOWN_MS = 2_500;
 export default function AppProvider({
     wording,
     region,
+    lang,
     children,
 }: {
     wording: Wording;
     region: Region;
+    lang: Lang;
     children: ReactNode;
 }) {
-    const lang = langFromRegion(region);
     const t = makeT(wording, lang);
 
     const [auth, setAuth] = useState<AuthState | null>(null);

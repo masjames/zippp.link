@@ -52,8 +52,8 @@ learn ours. The job is append + map + month layout, not a second general ledger.
 6. Google Sheets is the only destination.
 7. Credits: 1 credit = 1 scan. Top-ups create 30-day lots. Block Snap/Send at
    zero. Only free credit = referral bonus.
-8. Region-aware: `/id` Indonesian + IDR, `/` English + intl. Region is the
-   single switch; the landing dropdown and the app Settings selector change it.
+8. Region-aware: `/id` Indonesian + IDR, `/` English + intl. The landing dropdown
+   switches the region; the app Settings language selector changes copy only.
 9. Always-on debug trace for the extraction pipeline.
 10. Capture: auto-snap on by default, blur hard-blocks, batch on one screen,
     IndexedDB persistence, Accept writes immediately.

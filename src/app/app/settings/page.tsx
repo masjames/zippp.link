@@ -3,11 +3,11 @@
 import { useRouter } from "next/navigation";
 import PhoneShell from "@/components/app/PhoneShell";
 import { useApp } from "@/components/app/AppProvider";
-import RegionSelect from "@/components/RegionSelect";
+import LangSelect from "@/components/LangSelect";
 import { fill } from "@/lib/t";
 
 export default function SettingsPage() {
-    const { t, lang, region, balance, signOut } = useApp();
+    const { t, lang, balance, signOut } = useApp();
     const router = useRouter();
 
     const expiry =
@@ -48,12 +48,11 @@ export default function SettingsPage() {
                     {t("app.settings.language.title")}
                 </p>
                 <div className="mt-2">
-                    <RegionSelect
-                        region={region}
-                        stay
+                    <LangSelect
+                        lang={lang}
                         labels={{
                             label: t("app.settings.language.title"),
-                            worldwide: t("app.settings.language.english"),
+                            english: t("app.settings.language.english"),
                             indonesia: t("app.settings.language.indonesia"),
                         }}
                     />

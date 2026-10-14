@@ -66,20 +66,18 @@ function ChevronIcon() {
 }
 
 /**
- * Region chooser. Picking Indonesia moves to `/id` with IDR and Indonesian;
- * picking Worldwide stays on `/` with USD and English. On landing pages it
- * navigates; in the app (`stay`) it refreshes in place.
+ * Region chooser for the landing nav. Picking Indonesia navigates to `/id`
+ * with IDR and Indonesian; picking Worldwide navigates to `/` with USD and
+ * English.
  */
 export default function RegionSelect({
     region,
     labels,
     tone = "light",
-    stay = false,
 }: {
     region: Region;
     labels: { label: string; worldwide: string; indonesia: string };
     tone?: "light" | "dark";
-    stay?: boolean;
 }) {
     const [open, setOpen] = useState(false);
     const ref = useRef<HTMLDivElement>(null);
@@ -99,10 +97,6 @@ export default function RegionSelect({
         setOpen(false);
         if (next === region) return;
         document.cookie = `${REGION_COOKIE}=${next}; path=/; max-age=${COOKIE_MAX_AGE}; samesite=lax`;
-        if (stay) {
-            router.refresh();
-            return;
-        }
         router.push(next === "id" ? "/id" : "/");
         router.refresh();
     }

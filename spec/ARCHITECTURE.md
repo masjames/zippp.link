@@ -161,9 +161,11 @@ who picked Worldwide is not bounced back. `src/middleware.ts` also sends `/` to
 it stamps `zippp_region` (`id` / `intl`) from the path, forwards it on the
 request so the first render is correct, and stores `?ref=CODE`.
 
-- Region is the **single switch**: it drives pricing currency and copy language.
-  Indonesia → Indonesian + IDR; else English (US) + intl. There is no separate
-  language override, so the two can never drift.
+- Region drives pricing currency and the public copy language (landing, legal).
+  Indonesia → Indonesian + IDR; else English (US) + intl.
+- The app has its own **language setting** (`zippp_lang`, on app Settings): it
+  changes copy only, never the currency. `getAppLocale()` applies it;
+  `getLocale()` does not, so public pages always follow the region.
 
 ## Wording
 

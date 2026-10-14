@@ -24,8 +24,9 @@ The sheet stays the system of record. zippp is the intake mill.
 ## Landing page `/`
 
 - Worldwide `/` (USD, English) and Indonesia `/id` (IDR, Indonesian). A region
-  dropdown in the nav (globe / Indonesia flag) switches both. The app has a
-  language selector on Settings.
+  dropdown in the nav (globe / Indonesia flag) switches language and currency.
+  The app Settings language selector changes app copy only; currency stays with
+  the region.
 - Sections: hero with a media slot, How it works (three steps), product
   showcase (sheet + demo slots), **four persona cards**, testimonials
   placeholder, credit pricing + referral, FAQ, CTAs that sign in with Google.
