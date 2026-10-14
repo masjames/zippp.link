@@ -25,8 +25,8 @@ function GearIcon() {
     );
 }
 
-/** Camera glyph for the back-to-app control. */
-function CameraIcon() {
+/** Home glyph for the back-to-app control. */
+function HomeIcon() {
     return (
         <svg
             viewBox="0 0 24 24"
@@ -38,8 +38,8 @@ function CameraIcon() {
             strokeLinejoin="round"
             aria-hidden
         >
-            <path d="M3 8a2 2 0 0 1 2-2h2l1.2-2h7.6L17 6h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-            <circle cx="12" cy="12.5" r="3.5" />
+            <path d="M3 10.5 12 3l9 7.5" />
+            <path d="M5 10v11h14V10" />
         </svg>
     );
 }
@@ -119,8 +119,8 @@ export default function AppShell({ children }: { children: ReactNode }) {
                             onClick={() => router.push("/app/snap")}
                             className="flex items-center gap-2 text-sm font-semibold text-muted hover:text-body"
                         >
-                            <CameraIcon />
-                            {t("app.nav.camera")}
+                            <HomeIcon />
+                            {t("app.nav.home")}
                         </button>
                     ) : (
                         <span />

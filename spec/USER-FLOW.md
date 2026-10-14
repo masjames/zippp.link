@@ -85,10 +85,10 @@ plus a small playable game. Copy lives under `notfound.*` in `wording.txt`.
 
 ### Chrome
 
-- Header: **Camera** (off Snap only, back to `/app/snap`) + **credit pill**
+- Header: **Home** (off Snap only, back to `/app/snap`) + **credit pill**
   (tap → top-up; amber under 10; red at 0) + **Settings** + **Admin** for
   admins. Sign out on Settings.
-- `/app/snap` is home. Every other screen returns there with the Camera button.
+- `/app/snap` is home. Every other screen returns there with the Home button.
 - The sheet setup has a sign-out link, so a user without a sheet is not stuck.
 
 ---
