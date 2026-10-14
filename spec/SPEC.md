@@ -110,8 +110,9 @@ not from `sheet_tab` (except `custom`).
 
 ## UX contract
 
-See `USER-FLOW.md`. Routes: Intro/Sign in, Snap, Top up, Settings, Sheet, Admin.
-No separate Check or Sent route. Credit pill always visible when signed in.
+See `USER-FLOW.md`. Routes: Snap, Top up, Settings, Sheet, Admin; signed-out
+users go to the landing. No separate Check or Sent route. Credit pill always
+visible when signed in.
 
 ---
 

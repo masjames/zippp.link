@@ -35,6 +35,6 @@ export default async function IdLegalPage({
     const { slug } = await params;
     const id = legalIdFromSlug(slug, "id");
     if (!id) notFound();
-    const { lang } = await getLocale();
-    return <LegalPage id={id} lang={lang} />;
+    const { region, lang } = await getLocale();
+    return <LegalPage id={id} lang={lang} region={region} />;
 }

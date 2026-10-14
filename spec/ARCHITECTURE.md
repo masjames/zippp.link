@@ -95,7 +95,8 @@ private Vercel Blob  →  Upstash Redis REST  →  filesystem (.data / ZIPPP_DAT
   is not signed in (admin routes return 404). Logout clears the cookie.
 - The session is **server-side only** (there is no auth cookie). On open, `/app`
   asks `/api/auth/me` before rendering: a signed-in user lands in the app, a
-  logged-out one sees Intro/Sign in. This is why a reopen does not log you out.
+  logged-out one is sent to the landing (`/` or `/id`) to sign in. This is why
+  a reopen does not log you out.
 
 ---
 

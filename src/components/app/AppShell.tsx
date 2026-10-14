@@ -43,27 +43,22 @@ function BoltIcon() {
 /**
  * Guard + chrome for the /app routes.
  *
- * Guard order (stop at first failure): loading -> no session -> /app/start;
- * no sheet -> /app/settings/sheet; (credits: stub until Task 4); ready ->
- * /app/snap. Bare /app also lands on /app/snap.
+ * Guard order (stop at first failure): loading -> no session -> landing
+ * (`/` or `/id`); no sheet -> /app/settings/sheet; ready -> /app/snap. Bare
+ * /app also lands on /app/snap.
  */
 export default function AppShell({ children }: { children: ReactNode }) {
-    const { t, auth, authChecked, workspace, balance, lang, setLang } =
+    const { t, auth, authChecked, workspace, balance, lang, setLang, region } =
         useApp();
     const pathname = usePathname();
     const router = useRouter();
 
     useEffect(() => {
         if (!authChecked) return;
-        const onStart = pathname === "/app/start";
         const onSheet = pathname === "/app/settings/sheet";
 
         if (!auth?.signedIn) {
-            if (!onStart) router.replace("/app/start");
-            return;
-        }
-        if (onStart) {
-            router.replace("/app/snap");
+            router.replace(region === "id" ? "/id" : "/");
             return;
         }
         if (!workspace && !onSheet) {
@@ -82,7 +77,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
         if (pathname === "/app") {
             router.replace(balance?.admin ? "/admin" : "/app/snap");
         }
-    }, [authChecked, auth, workspace, balance, pathname, router]);
+    }, [authChecked, auth, workspace, balance, pathname, router, region]);
 
     if (!authChecked) {
         return (

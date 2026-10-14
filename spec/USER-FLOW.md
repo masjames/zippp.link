@@ -23,11 +23,16 @@ The sheet stays the system of record. zippp is the intake mill.
 
 ## Landing page `/`
 
-- English `/` (USD) and Indonesian `/id` (IDR). An EN/ID selector in the nav,
-  the footer, and the app header switches copy only; pricing follows the region.
-  Region cookie is set at entry; `/` and `/id` are reached by region or URL.
-- Sections: hero (sheet visual), How it works, **four persona cards**, credit
-  pricing + referral, FAQ, CTAs that sign in with Google.
+- Worldwide `/` (USD, English) and Indonesia `/id` (IDR, Indonesian). A region
+  dropdown in the nav and footer (globe / Indonesia flag) switches both and
+  persists in the region and language cookies. The app header keeps a
+  copy-only EN/ID toggle.
+- Sections: hero with a media slot, How it works (three steps), product
+  showcase (sheet + demo slots), **four persona cards**, testimonials
+  placeholder, credit pricing + referral, FAQ, CTAs that sign in with Google.
+- Media and testimonials render as placeholders. Drop
+  `public/landing/app-<lang>.png`, `sheet-<lang>.png`, or `demo-<lang>.mp4`
+  and the page picks them up (`src/lib/landing-assets.ts`).
 - Footer links to public information pages and the operator contact line.
 
 ## Public information pages
@@ -57,7 +62,6 @@ behind sign-in at `/app/topup`.
 | `/` | English landing | everyone |
 | `/id` | Indonesian landing | everyone |
 | `/app` | guard → `/app/snap` | everyone |
-| `/app/start` | Intro, then Sign in | logged out |
 | `/app/snap` | Camera + batch review (home) | signed in, sheet OK, credits |
 | `/app/topup` | DOKU (id) or Paddle (intl); `?doku=INVOICE` return status | signed in |
 | `/app/settings` | balance, invite, sheet, staff/outlets, photo toggle, sign out | signed in |
@@ -67,7 +71,7 @@ behind sign-in at `/app/topup`.
 ### Guard (server decides; stop at first failure)
 
 1. `!authChecked` → loading spinner. Never show Sign in first.
-2. No session → `/app/start`.
+2. No session → `/` (or `/id`) to sign in.
 3. No usable sheet → `/app/settings/sheet`. Phases: **check** (find only, never
    create) → **choose source** → **picker** → **template wizard** →
    **creating** → **connected** / **error**. Templates: five (see
@@ -78,7 +82,8 @@ behind sign-in at `/app/topup`.
 ### Chrome
 
 - Header: **credit pill** (tap → top-up; amber under 10; red at 0) + **Settings**
-  + **Admin** for admins. Sign out on Settings.
+  + **Admin** for admins. An EN/ID toggle sits on the left. Sign out on
+  Settings.
 - Mobile: device back / gesture. No in-app back button. `/app/snap` is home.
 
 ---

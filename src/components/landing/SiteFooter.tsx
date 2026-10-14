@@ -1,8 +1,8 @@
 import { LEGAL_PAGES, legalHref } from "@/lib/legal";
-import type { Lang } from "@/lib/region";
+import type { Lang, Region } from "@/lib/region";
 import type { T } from "@/lib/t";
 import type { BusinessInfo } from "@/lib/business";
-import LangToggle from "../LangToggle";
+import RegionSelect from "../RegionSelect";
 
 /**
  * Links to the public information pages plus the operator's contact line.
@@ -12,16 +12,18 @@ import LangToggle from "../LangToggle";
 export default function SiteFooter({
     t,
     lang,
+    region,
     business,
 }: {
     t: T;
     lang: Lang;
+    region: Region;
     business: BusinessInfo;
 }) {
     const contact = legalHref("contact", lang);
     return (
         <div className="mx-auto max-w-[980px] px-6 py-8 text-sm text-muted">
-            <nav className="flex flex-wrap gap-x-5 gap-y-2">
+            <nav className="flex flex-wrap items-center gap-x-5 gap-y-3">
                 {LEGAL_PAGES.map((id) => (
                     <a
                         key={id}
@@ -31,7 +33,14 @@ export default function SiteFooter({
                         {t(`legal.${id}.nav`)}
                     </a>
                 ))}
-                <LangToggle lang={lang} label={t("lang.label")} />
+                <RegionSelect
+                    region={region}
+                    labels={{
+                        label: t("region.label"),
+                        worldwide: t("region.worldwide"),
+                        indonesia: t("region.indonesia"),
+                    }}
+                />
             </nav>
             <p className="mt-4">
                 {business.operator}

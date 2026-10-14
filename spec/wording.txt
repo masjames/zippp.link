@@ -42,18 +42,31 @@ Language
 ## lang.label.id
 Bahasa
 
+## region.label.en
+Region
+## region.label.id
+Wilayah
+## region.worldwide.en
+Worldwide
+## region.worldwide.id
+Internasional
+## region.indonesia.en
+Indonesia
+## region.indonesia.id
+Indonesia
+
 ## landing.hero.title1.en
-Receipts in.
+Snap a receipt.
 ## landing.hero.title1.id
-Resi masuk.
+Jepret resi.
 ## landing.hero.title2.en
-Rows out.
+Skip the typing.
 ## landing.hero.title2.id
-Baris keluar.
+Tanpa ketik.
 ## landing.hero.body.en
-Snap a receipt or invoice. zippp reads it and adds lines to your Google Sheet so your stock and spending stay current.
+zippp reads the photo, shows you what it found, and sends the rows to your Google Sheet.
 ## landing.hero.body.id
-Foto resi atau faktur. zippp membaca foto tersebut dan menambahkan barisnya ke dalam Google Sheet Anda. Stok dan pengeluaran selalu diperbarui.
+zippp membaca fotonya, menunjukkan hasilnya, lalu mengirim barisnya ke Google Sheet Anda.
 ## landing.hero.cta.en
 Get started
 ## landing.hero.cta.id
@@ -121,10 +134,42 @@ Ajak teman
 When they top up, you get 20% back in credit.
 ## landing.referral.body.id
 Saat mereka isi saldo, Anda dapat 20% kembali dalam kredit.
-## landing.switch.en
-Bahasa Indonesia
-## landing.switch.id
-English
+## landing.showcase.title.en
+The sheet is the product
+## landing.showcase.title.id
+Sheet-nya yang jadi produk
+## landing.showcase.body.en
+Every accepted receipt becomes a row you can sort, total, and share.
+## landing.showcase.body.id
+Setiap resi yang diterima jadi baris yang bisa Anda urutkan, jumlahkan, dan bagikan.
+## landing.media.hero.en
+App screenshot
+## landing.media.hero.id
+Tangkapan layar aplikasi
+## landing.media.sheet.en
+Month tab
+## landing.media.sheet.id
+Tab bulanan
+## landing.media.video.en
+Short demo
+## landing.media.video.id
+Demo singkat
+## landing.media.note.en
+Coming soon
+## landing.media.note.id
+Segera hadir
+## landing.testimonials.title.en
+What people say
+## landing.testimonials.title.id
+Kata pengguna
+## landing.testimonials.body.en
+We will add real quotes from users here.
+## landing.testimonials.body.id
+Kutipan asli dari pengguna akan kami tambahkan di sini.
+## landing.testimonials.placeholder.en
+Testimonial coming soon
+## landing.testimonials.placeholder.id
+Testimoni segera hadir
 
 ## landing.faq.title.en
 Questions

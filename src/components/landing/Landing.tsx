@@ -1,26 +1,35 @@
 "use client";
 
 import SiteFooter from "./SiteFooter";
-import LangToggle from "../LangToggle";
+import MediaPlaceholder from "./MediaPlaceholder";
+import RegionSelect from "../RegionSelect";
 import type { BusinessInfo } from "@/lib/business";
+import type { LandingAssets } from "@/lib/landing-assets";
 import { legalHref } from "@/lib/legal";
 import { makeT, type Wording } from "@/lib/t";
 import type { Lang, Region } from "@/lib/region";
 
+const PERSONAS = ["resto", "personal", "sales", "reimburse"] as const;
+
 /**
- * Landing page. Region follows the entry route (`/` is USD, `/id` is IDR);
- * language follows the region unless the visitor picked EN or ID.
+ * Public landing. Region follows the route (`/` is USD, `/id` is IDR) and the
+ * Worldwide / Indonesia dropdown; language follows the region.
+ *
+ * Media slots render a placeholder until a file exists in `public/landing/`
+ * (see `landingAssets`). Testimonials are a placeholder section for now.
  */
 export default function Landing({
     wording,
     lang,
     region,
     business,
+    assets,
 }: {
     wording: Wording;
     lang: Lang;
     region: Region;
     business: BusinessInfo;
+    assets: LandingAssets;
 }) {
     const t = makeT(wording, lang);
 
@@ -28,13 +37,16 @@ export default function Landing({
         <div className="min-h-screen bg-page">
             <div className="mx-auto max-w-[1180px] px-5 pb-16 pt-8">
                 <main className="overflow-hidden rounded-phone border-2 border-line bg-card">
-                    <nav className="mx-auto flex max-w-[980px] flex-wrap items-center justify-between gap-3 px-6 py-5">
+                    <nav className="sticky top-0 z-20 flex flex-wrap items-center justify-between gap-3 border-b border-line bg-card/95 px-6 py-4 backdrop-blur">
                         <span className="font-head text-3xl font-black leading-none tracking-tight text-brand">
                             zippp
                         </span>
-                        <div className="hidden items-center gap-6 font-semibold sm:flex">
+                        <div className="hidden items-center gap-6 font-semibold md:flex">
                             <a href="#how" className="text-body hover:text-brand">
                                 {t("nav.how")}
+                            </a>
+                            <a href="#product" className="text-body hover:text-brand">
+                                {t("landing.showcase.title")}
                             </a>
                             <a href="#pricing" className="text-body hover:text-brand">
                                 {t("nav.pricing")}
@@ -46,8 +58,15 @@ export default function Landing({
                                 {t("nav.questions")}
                             </a>
                         </div>
-                        <div className="flex items-center gap-4">
-                            <LangToggle lang={lang} label={t("lang.label")} />
+                        <div className="flex items-center gap-3">
+                            <RegionSelect
+                                region={region}
+                                labels={{
+                                    label: t("region.label"),
+                                    worldwide: t("region.worldwide"),
+                                    indonesia: t("region.indonesia"),
+                                }}
+                            />
                             <a
                                 href="/api/auth/login"
                                 className="inline-flex items-center rounded-full bg-btn px-5 py-2.5 text-sm font-semibold text-btntext"
@@ -58,29 +77,36 @@ export default function Landing({
                     </nav>
 
                     <section className="bg-brand text-ink">
-                        <div className="mx-auto max-w-[980px] px-6 py-14 sm:py-20">
-                            <h1 className="font-head text-[2.8rem] font-extrabold leading-[0.96] tracking-tight sm:text-[5rem]">
-                                {t("landing.hero.title1")}
-                                <br />
-                                {t("landing.hero.title2")}
-                            </h1>
-                            <p className="mt-6 max-w-[44ch] text-lg sm:text-xl">
-                                {t("landing.hero.body")}
-                            </p>
-                            <div className="mt-8 flex flex-wrap gap-3">
-                                <a
-                                    href="/api/auth/login"
-                                    className="inline-flex items-center rounded-full bg-maroon px-7 py-4 font-semibold text-white"
-                                >
-                                    {t("landing.hero.cta")}
-                                </a>
-                                <a
-                                    href="#how"
-                                    className="inline-flex items-center rounded-full bg-peach px-7 py-4 font-semibold text-ink"
-                                >
-                                    {t("landing.hero.cta2")}
-                                </a>
+                        <div className="mx-auto grid max-w-[980px] items-center gap-10 px-6 py-14 sm:py-20 lg:grid-cols-[1.05fr_1fr]">
+                            <div>
+                                <h1 className="font-head text-[3rem] font-extrabold leading-[0.94] tracking-tight sm:text-[4.5rem]">
+                                    {t("landing.hero.title1")}
+                                    <br />
+                                    {t("landing.hero.title2")}
+                                </h1>
+                                <p className="mt-6 max-w-[44ch] text-lg sm:text-xl">
+                                    {t("landing.hero.body")}
+                                </p>
+                                <div className="mt-8 flex flex-wrap gap-3">
+                                    <a
+                                        href="/api/auth/login"
+                                        className="inline-flex items-center rounded-full bg-maroon px-7 py-4 font-semibold text-white"
+                                    >
+                                        {t("landing.hero.cta")}
+                                    </a>
+                                    <a
+                                        href="#how"
+                                        className="inline-flex items-center rounded-full bg-peach px-7 py-4 font-semibold text-ink"
+                                    >
+                                        {t("landing.hero.cta2")}
+                                    </a>
+                                </div>
                             </div>
+                            <MediaPlaceholder
+                                label={t("landing.media.hero")}
+                                note={t("landing.media.note")}
+                                src={assets.heroImage}
+                            />
                         </div>
                     </section>
 
@@ -89,34 +115,102 @@ export default function Landing({
                             {t("landing.how.title")}
                         </h2>
                         <div className="mt-7 grid gap-4 sm:grid-cols-3">
-                            {(["snap", "check", "send"] as const).map((step) => (
+                            {(["snap", "check", "send"] as const).map(
+                                (step, index) => (
+                                    <div
+                                        key={step}
+                                        className="rounded-panel bg-surface p-6"
+                                    >
+                                        <span className="font-head text-sm font-black text-brand">
+                                            {index + 1}
+                                        </span>
+                                        <h3 className="mt-1 font-head text-2xl font-extrabold tracking-tight">
+                                            {t(`landing.how.${step}.title`)}
+                                        </h3>
+                                        <p className="mt-2 text-muted">
+                                            {t(`landing.how.${step}.body`)}
+                                        </p>
+                                    </div>
+                                )
+                            )}
+                        </div>
+                    </section>
+
+                    <section
+                        id="product"
+                        className="border-y border-line bg-surface"
+                    >
+                        <div className="mx-auto max-w-[980px] px-6 py-14">
+                            <h2 className="font-head text-3xl font-extrabold tracking-tight sm:text-4xl">
+                                {t("landing.showcase.title")}
+                            </h2>
+                            <p className="mt-4 max-w-[56ch] text-muted">
+                                {t("landing.showcase.body")}
+                            </p>
+                            <div className="mt-7 grid gap-4 sm:grid-cols-2">
+                                <MediaPlaceholder
+                                    label={t("landing.media.sheet")}
+                                    note={t("landing.media.note")}
+                                    src={assets.sheetImage}
+                                />
+                                <MediaPlaceholder
+                                    label={t("landing.media.video")}
+                                    note={t("landing.media.note")}
+                                    src={assets.demoVideo}
+                                    video
+                                />
+                            </div>
+                        </div>
+                    </section>
+
+                    <section className="mx-auto max-w-[980px] px-6 py-14">
+                        <h2 className="font-head text-3xl font-extrabold tracking-tight sm:text-4xl">
+                            {t("landing.who.title")}
+                        </h2>
+                        <div className="mt-7 grid gap-4 sm:grid-cols-2">
+                            {PERSONAS.map((persona) => (
                                 <div
-                                    key={step}
-                                    className="rounded-panel bg-surface p-6"
+                                    key={persona}
+                                    className="flex flex-col rounded-panel border-2 border-line p-6"
                                 >
                                     <h3 className="font-head text-2xl font-extrabold tracking-tight">
-                                        {t(`landing.how.${step}.title`)}
+                                        {t(`landing.who.${persona}.title`)}
                                     </h3>
-                                    <p className="mt-2 text-muted">
-                                        {t(`landing.how.${step}.body`)}
+                                    <p className="mt-2 flex-1 text-muted">
+                                        {t(`landing.who.${persona}.body`)}
                                     </p>
+                                    <span className="mt-4 self-start rounded-full bg-peach px-3 py-1 text-xs font-semibold text-ink">
+                                        {t(`landing.who.${persona}.template`)}
+                                    </span>
                                 </div>
                             ))}
                         </div>
                     </section>
 
-                    <section className="mx-auto max-w-[980px] px-6 pb-14">
-                        <h2 className="font-head text-3xl font-extrabold tracking-tight sm:text-4xl">
-                            {t("landing.audience.title")}
-                        </h2>
-                        <p className="mt-4 max-w-[56ch] text-muted">
-                            {t("landing.audience.body")}
-                        </p>
+                    <section className="border-y border-line bg-surface">
+                        <div className="mx-auto max-w-[980px] px-6 py-14">
+                            <h2 className="font-head text-3xl font-extrabold tracking-tight sm:text-4xl">
+                                {t("landing.testimonials.title")}
+                            </h2>
+                            <p className="mt-4 max-w-[56ch] text-muted">
+                                {t("landing.testimonials.body")}
+                            </p>
+                            <div className="mt-7 grid gap-4 sm:grid-cols-3">
+                                {[0, 1, 2].map((i) => (
+                                    <div
+                                        key={i}
+                                        className="flex aspect-[4/3] items-center justify-center rounded-panel border-2 border-dashed border-line bg-card p-5 text-center text-sm font-semibold text-muted"
+                                    >
+                                        {t("landing.testimonials.placeholder")}
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
                     </section>
 
                     <section
                         id="pricing"
-                        className="mx-auto max-w-[980px] px-6 pb-14"
+                        className="mx-auto max-w-[980px] px-6 py-14"
                     >
                         <h2 className="font-head text-3xl font-extrabold tracking-tight sm:text-4xl">
                             {t("landing.pricing.title")}
@@ -157,7 +251,7 @@ export default function Landing({
                             {t("landing.faq.title")}
                         </h2>
                         <div className="mt-6">
-                            {[1, 2, 3, 4].map((i) => (
+                            {[1, 2, 3, 4, 5].map((i) => (
                                 <details
                                     key={i}
                                     className="border-t border-line py-4"
@@ -184,7 +278,12 @@ export default function Landing({
                             {t("landing.foot.cta")}
                         </a>
                     </footer>
-                    <SiteFooter t={t} lang={lang} business={business} />
+                    <SiteFooter
+                        t={t}
+                        lang={lang}
+                        region={region}
+                        business={business}
+                    />
                 </main>
             </div>
         </div>
