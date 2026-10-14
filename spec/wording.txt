@@ -16,9 +16,9 @@ zippp: receipts in, rows out
 ## meta.title.id
 zippp: resi masuk, baris keluar
 ## meta.description.en
-Photograph a receipt or invoice, check what zippp read, and send the rows to your Google Sheet.
+Snap a receipt or invoice, check what zippp read, then send the rows to your Google Sheet.
 ## meta.description.id
-Foto resi atau faktur, periksa hasil bacaan zippp, lalu kirim barisnya ke Google Sheet Anda.
+Foto resi atau faktur, cek hasil bacaan zippp, lalu kirim barisnya ke Google Sheet Anda.
 
 ## nav.how.en
 How it works
@@ -72,9 +72,9 @@ Snap
 ## landing.how.snap.title.id
 Foto
 ## landing.how.snap.body.en
-Photograph the receipt, or upload one from your phone.
+Shoot the receipt, or upload one from your phone.
 ## landing.how.snap.body.id
-Foto resinya, atau unggah dari ponsel Anda.
+Jepret resinya, atau unggah dari ponsel Anda.
 ## landing.how.check.title.en
 Check
 ## landing.how.check.title.id
@@ -88,16 +88,16 @@ Send
 ## landing.how.send.title.id
 Kirim
 ## landing.how.send.body.en
-The rows land in your own sheet. You keep the data, always.
+The rows land in your own sheet. The data stays yours.
 ## landing.how.send.body.id
-Barisnya masuk ke sheet Anda sendiri. Datanya tetap milik Anda, selalu.
+Barisnya masuk ke sheet Anda sendiri. Datanya tetap milik Anda.
 
 ## landing.audience.title.en
 Made for people who type receipts
 ## landing.audience.title.id
 Untuk yang masih mengetik nota
 ## landing.audience.body.en
-Kitchen purchasing, personal spending, daily sales recaps, and reimbursement claims. Photograph the paper; the rows land in your Google Sheet.
+Kitchen purchasing, personal spending, daily sales, reimbursement claims. Photograph the paper and the rows land in your Google Sheet.
 ## landing.audience.body.id
 Pembelian dapur, pengeluaran pribadi, rekap penjualan harian, dan klaim penggantian. Foto notanya; baris masuk ke Google Sheet Anda.
 
@@ -151,9 +151,9 @@ Does it work with handwritten notes?
 ## landing.faq.q3.id
 Apakah bisa untuk catatan tulisan tangan?
 ## landing.faq.a3.en
-It works best with printed receipts. Handwritten ones are fine if they are clear because that is what the check step is for.
+Printed receipts read best. Handwriting works when it is clear, which is what the check step is for.
 ## landing.faq.a3.id
-Paling baik untuk resi cetak. Tulisan tangan bergantung kejelasannya, itulah sebabnya ada langkah periksa.
+Resi cetak paling gampang terbaca. Tulisan tangan bisa jalan kalau jelas, dan itu gunanya langkah periksa.
 ## landing.faq.q4.en
 Who sees my receipt?
 ## landing.faq.q4.id
@@ -206,9 +206,9 @@ Sign in to start.
 ## app.signin.title.id
 Masuk untuk memulai.
 ## app.signin.body.en
-Your Google account is the only login. We create one sheet for your receipts and nothing else.
+Sign in with your Google account. We create one sheet for your receipts and touch nothing else.
 ## app.signin.body.id
-Akun Google Anda satu-satunya login. Kami membuat satu sheet untuk resi Anda dan tidak yang lain.
+Masuk dengan akun Google Anda. Kami hanya membuat satu sheet untuk resi Anda, tidak yang lain.
 ## app.signin.google.en
 Sign in with Google
 ## app.signin.google.id
@@ -241,7 +241,7 @@ Ambil foto
 ## app.capture.tapToShoot.en
 Tap this screen to capture
 ## app.capture.tapToShoot.id
-Ketuk layar ini untuk meng-capture
+Ketuk layar untuk memotret
 ## app.capture.starting.en
 Starting camera…
 ## app.capture.starting.id
@@ -317,7 +317,7 @@ Harga satuan
 ## app.capture.noReceipt.en
 No receipt in view.
 ## app.capture.noReceipt.id
-Tidak ada resi di pandangan.
+Tidak ada resi di bingkai.
 ## app.capture.flash.en
 Flash
 ## app.capture.flash.id
@@ -349,9 +349,9 @@ Help improve reading?
 ## app.contribute.title.id
 Bantu perbaiki pembacaan?
 ## app.contribute.body.en
-This photo could not be read. You can save it to help improve reading. Only the photo and the failure reason are kept, not your sheet or account.
+This photo could not be read. Save it if you want to help us read better. We keep only the photo and why it failed, not your sheet or account.
 ## app.contribute.body.id
-Foto ini tidak terbaca. Anda bisa menyimpannya untuk membantu perbaikan pembacaan. Hanya foto dan alasan kegagalan yang disimpan, bukan sheet atau akun Anda.
+Foto ini tidak terbaca. Simpan kalau mau membantu kami membaca lebih baik. Yang disimpan hanya fotonya dan alasan gagalnya, bukan sheet atau akun Anda.
 ## app.contribute.yes.en
 Save this photo
 ## app.contribute.yes.id
@@ -447,9 +447,9 @@ Choose a [zippp] sheet
 ## app.sheets.title.id
 Pilih sheet [zippp]
 ## app.sheets.body.en
-Pick the one that should receive these rows.
+Pick the sheet that should get these rows.
 ## app.sheets.body.id
-Pilih yang akan menerima baris ini.
+Pilih sheet yang akan menerima baris ini.
 ## app.sheets.retry.en
 Try again
 ## app.sheets.retry.id
@@ -476,17 +476,17 @@ Top up
 ## app.topup.title.id
 Isi saldo
 ## app.topup.soon.en
-Credits arrive in a later task.
+Top up is not available right now.
 ## app.topup.soon.id
-Kredit akan hadir di tahap berikutnya.
+Isi saldo belum tersedia saat ini.
 ## app.settings.title.en
 Settings
 ## app.settings.title.id
 Pengaturan
 ## app.settings.soon.en
-Settings arrive in a later task.
+Balance is not available right now.
 ## app.settings.soon.id
-Pengaturan akan hadir di tahap berikutnya.
+Saldo belum tersedia saat ini.
 ## app.settings.admin.en
 Admin
 ## app.settings.admin.id
@@ -1515,7 +1515,7 @@ A session cookie keeps you signed in. A region cookie remembers which language a
 
 # Deleting your data
 
-Disconnect Google in Settings: the refresh token and sheet setup are deleted at once. To delete your account record and ledger, email us from the Google address on the account (see the contact page) on the account. Rows in your sheet are yours and are never deleted by zippp.
+Disconnect Google in Settings: the refresh token and sheet setup are deleted at once. To delete your account record and ledger, email us from the Google address on the account (see the contact page). Rows in your sheet are yours and are never deleted by zippp.
 
 # Changes
 
@@ -1565,7 +1565,7 @@ Cookie sesi menjaga Anda tetap masuk. Cookie wilayah mengingat bahasa dan mata u
 
 # Menghapus data Anda
 
-Putuskan Google di Pengaturan: refresh token dan pengaturan sheet langsung dihapus. Untuk menghapus catatan akun dan buku kredit, kirim email dari alamat Google akun Anda (lihat halaman kontak) yang dipakai di akun. Baris di sheet Anda adalah milik Anda dan tidak pernah dihapus zippp.
+Putuskan Google di Pengaturan: refresh token dan pengaturan sheet langsung dihapus. Untuk menghapus catatan akun dan buku kredit, kirim email dari alamat Google yang dipakai di akun Anda (lihat halaman kontak). Baris di sheet Anda adalah milik Anda dan tidak pernah dihapus zippp.
 
 # Perubahan
 
@@ -1696,10 +1696,10 @@ Pay
 Bayar
 
 ## app.topup.doku.methods.en
-QRIS, bank transfer, e-wallet, or card. You will be taken to DOKU's secure payment page.
+QRIS, bank transfer, e-wallet, or card. You will pay on DOKU's secure page.
 
 ## app.topup.doku.methods.id
-QRIS, transfer bank, e-wallet, atau kartu. Anda akan diarahkan ke halaman pembayaran aman DOKU.
+QRIS, transfer bank, e-wallet, atau kartu. Anda akan bayar di halaman aman DOKU.
 
 ## app.topup.doku.pending.en
 Waiting for payment confirmation. This usually takes under a minute.
@@ -1765,9 +1765,9 @@ No credits.
 ## app.error.noCredits.id
 Kredit habis.
 ## app.error.network.en
-network error
+Network error. Try again.
 ## app.error.network.id
-kesalahan jaringan
+Kesalahan jaringan. Coba lagi.
 ## app.error.failed.en
 Failed.
 ## app.error.failed.id
