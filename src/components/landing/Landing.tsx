@@ -41,23 +41,6 @@ export default function Landing({
                         <span className="font-head text-3xl font-black leading-none tracking-tight text-brand">
                             zippp
                         </span>
-                        <div className="hidden items-center gap-6 font-semibold md:flex">
-                            <a href="#how" className="text-body hover:text-brand">
-                                {t("nav.how")}
-                            </a>
-                            <a href="#product" className="text-body hover:text-brand">
-                                {t("landing.showcase.title")}
-                            </a>
-                            <a href="#pricing" className="text-body hover:text-brand">
-                                {t("nav.pricing")}
-                            </a>
-                            <a
-                                href="#questions"
-                                className="text-body hover:text-brand"
-                            >
-                                {t("nav.questions")}
-                            </a>
-                        </div>
                         <div className="flex items-center gap-3">
                             <RegionSelect
                                 region={region}
