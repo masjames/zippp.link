@@ -7,12 +7,12 @@ import { getLocale } from "@/lib/server-locale";
 /** International landing. Language follows the language selector. */
 export default async function Home() {
     const wording = loadWording();
-    const { lang } = await getLocale();
+    const { region, lang } = await getLocale();
     return (
         <Landing
             wording={wording}
             lang={lang}
-            region="intl"
+            region={region}
             business={businessInfo()}
             assets={landingAssets(lang)}
         />

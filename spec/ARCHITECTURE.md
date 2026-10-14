@@ -156,9 +156,10 @@ remain the regional entry routes.
 
 `next.config.ts` redirects `/` to `/id` when `x-vercel-ip-country` is `ID` and
 the `zippp_region` cookie is missing, so the redirect happens once and anyone
-who picked Worldwide is not bounced back. `src/middleware.ts` stamps
-`zippp_region` (`id` / `intl`) from the path, forwards it on the request so the
-first render is correct, and stores `?ref=CODE`.
+who picked Worldwide is not bounced back. `src/middleware.ts` also sends `/` to
+`/id` when the cookie already says `id`, so the URL and the region stay in sync;
+it stamps `zippp_region` (`id` / `intl`) from the path, forwards it on the
+request so the first render is correct, and stores `?ref=CODE`.
 
 - Region drives **pricing currency**. Indonesia → IDR; else English (US) + intl.
 - Language follows the region by default (`id` → Indonesian, else English). The

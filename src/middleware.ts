@@ -18,6 +18,20 @@ export function middleware(request: NextRequest) {
     const existing = request.cookies.get(REGION_COOKIE)?.value;
     const ref = nextUrl.searchParams.get("ref");
 
+    // Keep the URL and the region in sync. A visitor already in the Indonesian
+    // region who lands on the worldwide route goes to `/id`. The geo case with
+    // no cookie is handled by the redirect in next.config.ts.
+    if (path === "/" && existing === "id") {
+        const url = nextUrl.clone();
+        url.pathname = "/id";
+        const res = NextResponse.redirect(url);
+        res.cookies.set(REGION_COOKIE, "id", { path: "/", maxAge: COOKIE_MAX_AGE, sameSite: "lax" });
+        if (ref) {
+            res.cookies.set(REF_COOKIE, ref, { path: "/", maxAge: COOKIE_MAX_AGE, sameSite: "lax" });
+        }
+        return res;
+    }
+
     let region: "id" | "intl" = existing === "id" ? "id" : "intl";
     if (path === "/id") region = "id";
     else if (path === "/" && !existing) region = "intl";
