@@ -15,23 +15,12 @@ export const LANG_COOKIE = "zippp_lang";
 
 const COOKIE_MAX_AGE = 60 * 60 * 24 * 180; // 180 days
 
-export function regionFromCountry(country: string | null | undefined): Region {
-    return country?.trim().toUpperCase() === "ID" ? "id" : "intl";
-}
-
 export function langFromRegion(region: Region): Lang {
     return region === "id" ? "id" : "en";
 }
 
 export function normalizeLang(value: string | null | undefined): Lang | null {
     return value === "id" ? "id" : value === "en" ? "en" : null;
-}
-
-/** Cheap Accept-Language check used only when no country header exists (local dev). */
-export function regionFromAcceptLanguage(header: string | null): Region {
-    if (!header) return "intl";
-    const first = header.split(",")[0]?.trim().toLowerCase() ?? "";
-    return first.startsWith("id") ? "id" : "intl";
 }
 
 export { COOKIE_MAX_AGE };
