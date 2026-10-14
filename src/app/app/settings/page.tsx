@@ -3,10 +3,11 @@
 import { useRouter } from "next/navigation";
 import PhoneShell from "@/components/app/PhoneShell";
 import { useApp } from "@/components/app/AppProvider";
+import RegionSelect from "@/components/RegionSelect";
 import { fill } from "@/lib/t";
 
 export default function SettingsPage() {
-    const { t, lang, balance, signOut } = useApp();
+    const { t, lang, region, balance, signOut } = useApp();
     const router = useRouter();
 
     const expiry =
@@ -40,6 +41,23 @@ export default function SettingsPage() {
                         {fill(t("app.credits.expires"), { date: expiry })}
                     </p>
                 ) : null}
+            </div>
+
+            <div className="rounded-2xl bg-card p-4">
+                <p className="text-sm font-semibold">
+                    {t("app.settings.language.title")}
+                </p>
+                <div className="mt-2">
+                    <RegionSelect
+                        region={region}
+                        stay
+                        labels={{
+                            label: t("app.settings.language.title"),
+                            worldwide: t("app.settings.language.english"),
+                            indonesia: t("app.settings.language.indonesia"),
+                        }}
+                    />
+                </div>
             </div>
 
             {refLink ? (

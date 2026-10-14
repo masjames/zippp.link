@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
     COOKIE_MAX_AGE,
-    LANG_COOKIE,
     REGION_COOKIE,
     type Region,
 } from "@/lib/region";
@@ -67,18 +66,20 @@ function ChevronIcon() {
 }
 
 /**
- * Region chooser for the public pages. Picking Indonesia moves to `/id` with
- * IDR and Indonesian; picking Worldwide stays on `/` with USD and English.
- * Both cookies are written so the choice sticks.
+ * Region chooser. Picking Indonesia moves to `/id` with IDR and Indonesian;
+ * picking Worldwide stays on `/` with USD and English. On landing pages it
+ * navigates; in the app (`stay`) it refreshes in place.
  */
 export default function RegionSelect({
     region,
     labels,
     tone = "light",
+    stay = false,
 }: {
     region: Region;
     labels: { label: string; worldwide: string; indonesia: string };
     tone?: "light" | "dark";
+    stay?: boolean;
 }) {
     const [open, setOpen] = useState(false);
     const ref = useRef<HTMLDivElement>(null);
@@ -97,9 +98,11 @@ export default function RegionSelect({
     function pick(next: Region) {
         setOpen(false);
         if (next === region) return;
-        const lang = next === "id" ? "id" : "en";
         document.cookie = `${REGION_COOKIE}=${next}; path=/; max-age=${COOKIE_MAX_AGE}; samesite=lax`;
-        document.cookie = `${LANG_COOKIE}=${lang}; path=/; max-age=${COOKIE_MAX_AGE}; samesite=lax`;
+        if (stay) {
+            router.refresh();
+            return;
+        }
         router.push(next === "id" ? "/id" : "/");
         router.refresh();
     }

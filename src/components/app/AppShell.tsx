@@ -4,7 +4,6 @@ import { useEffect, type ReactNode } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { LOW_CREDITS_WARN } from "@/lib/billing/config";
 import { fill } from "@/lib/t";
-import LangToggle from "../LangToggle";
 import { useApp } from "./AppProvider";
 
 /** Small gear for the Settings entry point. */
@@ -48,8 +47,7 @@ function BoltIcon() {
  * /app also lands on /app/snap.
  */
 export default function AppShell({ children }: { children: ReactNode }) {
-    const { t, auth, authChecked, workspace, balance, lang, setLang, region } =
-        useApp();
+    const { t, auth, authChecked, workspace, balance, region } = useApp();
     const pathname = usePathname();
     const router = useRouter();
 
@@ -95,12 +93,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
     return (
         <div className="flex min-h-screen flex-col bg-page sm:py-8">
             {signedIn ? (
-                <div className="mx-auto flex w-full max-w-[430px] items-center justify-between gap-3 px-4 pb-1 pt-3">
-                    <LangToggle
-                        lang={lang}
-                        onChange={setLang}
-                        label={t("lang.label")}
-                    />
+                <div className="mx-auto flex w-full max-w-[430px] items-center justify-end gap-3 px-4 pb-1 pt-3">
                     <div className="flex items-center gap-3">
                     {balance?.configured ? (
                         <button

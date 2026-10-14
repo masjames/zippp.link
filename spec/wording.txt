@@ -37,11 +37,6 @@ Sign in with Google
 ## nav.signin.id
 Masuk dengan Google
 
-## lang.label.en
-Language
-## lang.label.id
-Bahasa
-
 ## region.label.en
 Region
 ## region.label.id
@@ -536,6 +531,18 @@ Saldo belum tersedia saat ini.
 Admin
 ## app.settings.admin.id
 Admin
+## app.settings.language.title.en
+Language
+## app.settings.language.title.id
+Bahasa
+## app.settings.language.english.en
+English
+## app.settings.language.english.id
+English
+## app.settings.language.indonesia.en
+Indonesia
+## app.settings.language.indonesia.id
+Indonesia
 ## admin.back.en
 Back to app
 ## admin.back.id

@@ -8,7 +8,7 @@ import {
     useState,
     type ReactNode,
 } from "react";
-import type { Lang, Region } from "@/lib/region";
+import { langFromRegion, type Lang, type Region } from "@/lib/region";
 import { makeT, type T, type Wording } from "@/lib/t";
 import type { ExtractResponse } from "@/types/receipt";
 import {
@@ -71,7 +71,6 @@ type Value = {
     t: T;
     lang: Lang;
     region: Region;
-    setLang: (lang: Lang) => void;
     auth: AuthState | null;
     authChecked: boolean;
     authError: string | null;
@@ -135,16 +134,14 @@ const REFUSAL_COOLDOWN_MS = 2_500;
 
 export default function AppProvider({
     wording,
-    initialLang,
     region,
     children,
 }: {
     wording: Wording;
-    initialLang: Lang;
     region: Region;
     children: ReactNode;
 }) {
-    const [lang, setLang] = useState<Lang>(initialLang);
+    const lang = langFromRegion(region);
     const t = makeT(wording, lang);
 
     const [auth, setAuth] = useState<AuthState | null>(null);
@@ -693,7 +690,6 @@ export default function AppProvider({
         t,
         lang,
         region,
-        setLang,
         auth,
         authChecked,
         authError,

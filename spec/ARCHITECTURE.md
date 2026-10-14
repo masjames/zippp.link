@@ -148,9 +148,9 @@ leftovers from the retired GoPay flow and can be deleted.)
 
 Regions: `/` (English, USD) and `/id` (Indonesian, IDR). A redirect in
 `next.config.ts` sends Indonesian IPs to `/id`; middleware sets the region
-cookie and captures `?ref=CODE`. An **EN/ID language selector** in the
-landing nav, the footer, and the app header overrides copy only; `/` and `/id`
-remain the regional entry routes.
+cookie and captures `?ref=CODE`. A **Worldwide / Indonesia dropdown** in the
+landing nav switches both; the app has a language selector on Settings. `/` and
+`/id` remain the regional entry routes.
 
 ## Region & language
 
@@ -161,10 +161,9 @@ who picked Worldwide is not bounced back. `src/middleware.ts` also sends `/` to
 it stamps `zippp_region` (`id` / `intl`) from the path, forwards it on the
 request so the first render is correct, and stores `?ref=CODE`.
 
-- Region drives **pricing currency**. Indonesia → IDR; else English (US) + intl.
-- Language follows the region by default (`id` → Indonesian, else English). The
-  EN/ID selector writes `zippp_lang`; `getLocale()` prefers it, so a visitor can
-  read the copy in either language without changing the price currency.
+- Region is the **single switch**: it drives pricing currency and copy language.
+  Indonesia → Indonesian + IDR; else English (US) + intl. There is no separate
+  language override, so the two can never drift.
 
 ## Wording
 

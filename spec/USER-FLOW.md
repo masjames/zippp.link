@@ -24,8 +24,8 @@ The sheet stays the system of record. zippp is the intake mill.
 ## Landing page `/`
 
 - Worldwide `/` (USD, English) and Indonesia `/id` (IDR, Indonesian). A region
-  dropdown in the nav (globe / Indonesia flag) switches both and persists in the
-  region and language cookies. The app header keeps a copy-only EN/ID toggle.
+  dropdown in the nav (globe / Indonesia flag) switches both. The app has a
+  language selector on Settings.
 - Sections: hero with a media slot, How it works (three steps), product
   showcase (sheet + demo slots), **four persona cards**, testimonials
   placeholder, credit pricing + referral, FAQ, CTAs that sign in with Google.
@@ -66,7 +66,7 @@ plus a small playable game. Copy lives under `notfound.*` in `wording.txt`.
 | `/app` | guard → `/app/snap` | everyone |
 | `/app/snap` | Camera + batch review (home) | signed in, sheet OK, credits |
 | `/app/topup` | DOKU (id) or Paddle (intl); `?doku=INVOICE` return status | signed in |
-| `/app/settings` | balance, invite, sheet, staff/outlets, photo toggle, sign out | signed in |
+| `/app/settings` | balance, language, invite, sheet, staff/outlets, photo toggle, sign out | signed in |
 | `/app/settings/sheet` | sheet status, create/choose, template wizard | signed in |
 | `/admin` | Recent DOKU payments, manual grant | admin emails only |
 
@@ -84,8 +84,7 @@ plus a small playable game. Copy lives under `notfound.*` in `wording.txt`.
 ### Chrome
 
 - Header: **credit pill** (tap → top-up; amber under 10; red at 0) + **Settings**
-  + **Admin** for admins. An EN/ID toggle sits on the left. Sign out on
-  Settings.
+  + **Admin** for admins. Sign out on Settings.
 - Mobile: device back / gesture. No in-app back button. `/app/snap` is home.
 
 ---
