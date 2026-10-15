@@ -37,7 +37,7 @@ export default function VsLanding({
         <div className="min-h-screen bg-page">
             <div className="mx-auto max-w-[1180px] px-5 pb-16 pt-8">
                 <main className="overflow-hidden rounded-phone border-2 border-line bg-card">
-                    <LandingNav t={t} region={region} showSignIn />
+                    <LandingNav t={t} region={region} />
 
                     <section className="bg-brand text-ink">
                         <div className="mx-auto max-w-[980px] px-6 py-14 sm:py-20">

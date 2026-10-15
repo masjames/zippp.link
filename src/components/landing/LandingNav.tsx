@@ -8,17 +8,15 @@ import type { Region } from "@/lib/region";
 import type { T } from "@/lib/t";
 
 /**
- * Shared marketing nav: Case studies + Compare + Testimonials.
- * Optional sign-in for for-* / vs-* pages (home keeps CTA in hero only).
+ * Shared marketing nav: Case studies + Compare + Testimonials + region.
+ * Sign-in lives in the hero Google button only.
  */
 export default function LandingNav({
     t,
     region,
-    showSignIn = false,
 }: {
     t: T;
     region: Region;
-    showSignIn?: boolean;
 }) {
     const home = masterHref(region);
     const testimonialsHref = `${home}#testimonials`;
@@ -70,14 +68,6 @@ export default function LandingNav({
                         indonesia: t("region.indonesia"),
                     }}
                 />
-                {showSignIn ? (
-                    <a
-                        href="/api/auth/login"
-                        className="inline-flex items-center rounded-full bg-btn px-5 py-2.5 text-sm font-semibold text-btntext"
-                    >
-                        {t("nav.signin")}
-                    </a>
-                ) : null}
             </div>
         </nav>
     );
