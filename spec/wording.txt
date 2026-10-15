@@ -71,9 +71,9 @@ Get started
 ## landing.hero.cta.id
 Mulai
 ## landing.hero.cta2.en
-See how it works
+See use cases
 ## landing.hero.cta2.id
-Lihat cara kerjanya
+Lihat kasus pakai
 
 ## landing.how.title.en
 Snap, check, then send to your sheet
@@ -2239,6 +2239,10 @@ Kasus pakai
 Proof
 ## nav.proof.id
 Bukti
+## nav.compare.en
+Compare
+## nav.compare.id
+Bandingkan
 ## footer.useCases.en
 Use cases
 ## footer.useCases.id

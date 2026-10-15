@@ -26,10 +26,12 @@ The sheet stays the system of record. zippp is the intake mill.
 - Worldwide `/` (USD, English) and Indonesia `/id` (IDR, Indonesian). A region
   dropdown in the nav switches language and currency. App Settings language is
   copy-only; currency stays with the region.
-- Sections: hero + Google Sheets/Drive badges, How it works (app-flow mock),
-  product showcase (sheet mock or `public/landing/` assets), **four persona
-  cards** linking to `/for-*` pages, impact proof + sample stories (Aldan
-  Arkara), credit pricing + referral, FAQ, CTAs that sign in with Google.
+- Nav: **Use cases** dropdown (`/for-*`), **Compare** dropdown (`/vs-*`),
+  Proof anchor. No How it works or Pricing in the home nav; pricing lives on
+  `/pricing` and `/id/harga` only.
+- Sections: hero + Google Sheets/Drive badges, How it works (app-flow mock,
+  not in nav), product showcase, **four persona cards**, impact proof + sample
+  stories (Aldan Arkara), referral blurb, FAQ, CTAs that sign in with Google.
 - Card order: `/id` leads with purchasing; `/` leads with personal expense.
 - Optional media: drop `public/landing/app-<lang>.png`, `sheet-<lang>.png`, or
   `demo-<lang>.mp4` (`src/lib/landing-assets.ts`).

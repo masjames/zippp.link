@@ -5,21 +5,19 @@ import DoodleArrow from "./DoodleArrow";
 import GoogleIntegrations from "./GoogleIntegrations";
 import HeroPhone from "./HeroPhone";
 import ImpactProof from "./ImpactProof";
+import LandingNav from "./LandingNav";
 import MediaPlaceholder from "./MediaPlaceholder";
 import SheetPreview from "./SheetPreview";
 import SiteFooter from "./SiteFooter";
-import RegionSelect from "../RegionSelect";
 import type { BusinessInfo } from "@/lib/business";
 import type { LandingAssets } from "@/lib/landing-assets";
-import { legalHref } from "@/lib/legal";
 import { personasForRegion, personaHref } from "@/lib/personas";
 import { RichText } from "@/lib/rich-text";
 import { makeT, type Wording } from "@/lib/t";
 import type { Lang, Region } from "@/lib/region";
 
 /**
- * Public master landing. Region follows the route (`/` USD, `/id` IDR).
- * Hero and product sections always show UI mocks when media files are missing.
+ * Public master landing. Pricing lives on /pricing (and /id/harga) only.
  */
 export default function Landing({
     wording,
@@ -40,41 +38,7 @@ export default function Landing({
         <div className="min-h-screen bg-page">
             <div className="mx-auto max-w-[1180px] px-5 pb-16 pt-8">
                 <main className="overflow-hidden rounded-phone border-2 border-line bg-card">
-                    <nav className="sticky top-0 z-20 flex flex-wrap items-center justify-between gap-3 border-b border-line bg-card/95 px-6 py-4 backdrop-blur">
-                        <span className="font-head text-3xl font-black leading-none tracking-tight text-brand">
-                            zippp
-                        </span>
-                        <div className="hidden items-center gap-5 font-semibold md:flex">
-                            <a href="#how" className="text-body hover:text-brand">
-                                {t("nav.how")}
-                            </a>
-                            <a href="#who" className="text-body hover:text-brand">
-                                {t("nav.useCases")}
-                            </a>
-                            <a href="#proof" className="text-body hover:text-brand">
-                                {t("nav.proof")}
-                            </a>
-                            <a href="#pricing" className="text-body hover:text-brand">
-                                {t("nav.pricing")}
-                            </a>
-                        </div>
-                        <div className="flex items-center gap-3">
-                            <RegionSelect
-                                region={region}
-                                labels={{
-                                    label: t("region.label"),
-                                    worldwide: t("region.worldwide"),
-                                    indonesia: t("region.indonesia"),
-                                }}
-                            />
-                            <a
-                                href="/api/auth/login"
-                                className="inline-flex items-center rounded-full bg-btn px-5 py-2.5 text-sm font-semibold text-btntext"
-                            >
-                                {t("nav.signin")}
-                            </a>
-                        </div>
-                    </nav>
+                    <LandingNav t={t} region={region} />
 
                     <section className="bg-brand text-ink">
                         <div className="mx-auto grid max-w-[980px] items-center gap-10 px-6 py-14 sm:py-16 lg:grid-cols-[1.1fr_0.9fr] lg:py-20">
@@ -93,7 +57,7 @@ export default function Landing({
                                         {t("landing.hero.cta")}
                                     </a>
                                     <a
-                                        href="#how"
+                                        href="#who"
                                         className="inline-flex items-center rounded-full bg-peach px-7 py-4 font-semibold text-ink"
                                     >
                                         {t("landing.hero.cta2")}
@@ -238,32 +202,8 @@ export default function Landing({
                         </div>
                     </section>
 
-                    <section
-                        id="pricing"
-                        className="mx-auto max-w-[980px] px-6 py-14"
-                    >
-                        <h2 className="font-head text-3xl font-extrabold tracking-tight sm:text-4xl">
-                            {t("landing.pricing.title")}
-                        </h2>
-                        <p className="mt-4 max-w-[48ch] text-muted leading-relaxed">
-                            <RichText text={t("landing.pricing.body")} />
-                        </p>
-                        <div className="mt-6 flex flex-wrap gap-3">
-                            <a
-                                href="/api/auth/login"
-                                className="inline-flex items-center rounded-full bg-maroon px-7 py-4 font-semibold text-white"
-                            >
-                                {t("landing.pricing.cta")}
-                            </a>
-                            <a
-                                href={legalHref("pricing", lang)}
-                                className="inline-flex items-center rounded-full bg-peach px-7 py-4 font-semibold text-ink"
-                            >
-                                {t("landing.pricing.details")}
-                            </a>
-                        </div>
-
-                        <div className="mt-8 max-w-[980px] rounded-panel bg-surface p-7">
+                    <section className="mx-auto max-w-[980px] px-6 py-10">
+                        <div className="rounded-panel bg-surface p-7">
                             <h3 className="font-head text-2xl font-extrabold tracking-tight">
                                 {t("landing.referral.title")}
                             </h3>
