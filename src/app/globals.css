@@ -133,52 +133,56 @@ h3 {
     animation: hero-row-land 0.7s ease-out forwards;
 }
 
-/* Testimonials endless marquee */
+/* Testimonials: two identical halves → seamless infinite loop */
 @keyframes testimonials-ltr {
     from {
-        transform: translateX(-50%);
+        transform: translate3d(-50%, 0, 0);
     }
     to {
-        transform: translateX(0);
+        transform: translate3d(0, 0, 0);
     }
 }
 @keyframes testimonials-rtl {
     from {
-        transform: translateX(0);
+        transform: translate3d(0, 0, 0);
     }
     to {
-        transform: translateX(-50%);
+        transform: translate3d(-50%, 0, 0);
     }
 }
 .testimonials-fade {
     mask-image: linear-gradient(
         to right,
         transparent,
-        #000 8%,
-        #000 92%,
+        #000 6%,
+        #000 94%,
         transparent
     );
     -webkit-mask-image: linear-gradient(
         to right,
         transparent,
-        #000 8%,
-        #000 92%,
+        #000 6%,
+        #000 94%,
         transparent
     );
 }
-.testimonials-slide-ltr {
-    animation-name: testimonials-ltr;
+.testimonials-slide-ltr,
+.testimonials-slide-rtl {
     animation-timing-function: linear;
     animation-iteration-count: infinite;
+    animation-fill-mode: none;
+    will-change: transform;
+    backface-visibility: hidden;
+}
+.testimonials-slide-ltr {
+    animation-name: testimonials-ltr;
 }
 .testimonials-slide-rtl {
     animation-name: testimonials-rtl;
-    animation-timing-function: linear;
-    animation-iteration-count: infinite;
 }
 @media (prefers-reduced-motion: reduce) {
     .testimonials-slide-ltr,
     .testimonials-slide-rtl {
-        animation: none;
+        animation: none !important;
     }
 }

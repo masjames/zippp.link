@@ -1,24 +1,54 @@
+"use client";
+
 import type { T } from "@/lib/t";
 
-/** Sonny, Adit, Bagas — looped left→right marquee. */
+/** Sonny, Adit, Bagas — seamless infinite marquee. */
 const QUOTES = [1, 2, 3] as const;
 
 export default function ImpactProof({ t }: { t: T }) {
     return (
-        <div className="space-y-10">
+        <div className="space-y-8">
             <h2 className="font-head text-3xl font-extrabold tracking-tight sm:text-4xl">
                 {t("landing.stories.title")}
             </h2>
 
-            <div className="testimonials-fade relative overflow-hidden py-1">
-                <div
-                    className="testimonials-track testimonials-slide-ltr flex w-max gap-4"
-                    style={{ animationDuration: "40s" }}
-                >
-                    {[...QUOTES, ...QUOTES, ...QUOTES].map((n, i) => (
-                        <TestimonialCard key={`${n}-${i}`} n={n} t={t} />
-                    ))}
-                </div>
+            <div className="space-y-3">
+                <MarqueeRow t={t} duration="28s" />
+                <MarqueeRow t={t} duration="36s" reverse />
+            </div>
+        </div>
+    );
+}
+
+function MarqueeRow({
+    t,
+    duration,
+    reverse = false,
+}: {
+    t: T;
+    duration: string;
+    reverse?: boolean;
+}) {
+    // Exactly two identical halves so translateX(-50%) loops without a jump.
+    const half = QUOTES.map((n) => (
+        <TestimonialCard key={`a-${n}`} n={n} t={t} />
+    ));
+    const half2 = QUOTES.map((n) => (
+        <TestimonialCard key={`b-${n}`} n={n} t={t} />
+    ));
+
+    return (
+        <div className="testimonials-fade relative overflow-hidden">
+            <div
+                className={`flex w-max gap-4 ${
+                    reverse
+                        ? "testimonials-slide-rtl"
+                        : "testimonials-slide-ltr"
+                }`}
+                style={{ animationDuration: duration }}
+            >
+                {half}
+                {half2}
             </div>
         </div>
     );
@@ -26,7 +56,7 @@ export default function ImpactProof({ t }: { t: T }) {
 
 function TestimonialCard({ n, t }: { n: number; t: T }) {
     return (
-        <figure className="flex w-[280px] shrink-0 flex-col rounded-panel border-2 border-line bg-card p-5 sm:w-[320px]">
+        <figure className="flex w-[280px] shrink-0 flex-col rounded-panel border-2 border-line bg-card p-5 sm:w-[300px]">
             <div className="flex items-center gap-3">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
