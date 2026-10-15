@@ -3,15 +3,13 @@ import type { T } from "@/lib/t";
 /** One full-width grey row: Terintegrasi dengan · Sheets · Drive. */
 export default function GoogleIntegrations({ t }: { t: T }) {
     return (
-        <div className="flex w-full items-center gap-3 bg-[#e8e4e0] px-4 py-3 text-sm font-semibold text-body">
-            <span className="shrink-0 text-muted">
-                {t("landing.integrations.label")}
-            </span>
-            <span className="inline-flex shrink-0 items-center gap-1.5">
+        <div className="flex w-full flex-wrap items-center justify-center gap-x-4 gap-y-1 bg-[#e8e4e0] px-6 py-3 text-sm font-semibold text-body">
+            <span className="text-muted">{t("landing.integrations.label")}</span>
+            <span className="inline-flex items-center gap-1.5">
                 <SheetsIcon />
                 {t("landing.integrations.sheets")}
             </span>
-            <span className="inline-flex shrink-0 items-center gap-1.5">
+            <span className="inline-flex items-center gap-1.5">
                 <DriveIcon />
                 {t("landing.integrations.drive")}
             </span>

@@ -73,9 +73,6 @@ export default function VsLanding({
                                 <GoogleSignInButton t={t} />
                             </div>
                         </div>
-                    </section>
-
-                    <section className="mx-auto max-w-[980px] px-6 py-10">
                         <GoogleIntegrations t={t} />
                     </section>
 

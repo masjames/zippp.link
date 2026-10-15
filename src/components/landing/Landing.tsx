@@ -51,9 +51,6 @@ export default function Landing({
                                 <div className="mt-8">
                                     <GoogleSignInButton t={t} />
                                 </div>
-                                <div className="mt-7">
-                                    <GoogleIntegrations t={t} />
-                                </div>
                             </div>
                             <div className="relative flex justify-center lg:justify-end">
                                 {assets.heroImage ? (
@@ -67,6 +64,7 @@ export default function Landing({
                                 )}
                             </div>
                         </div>
+                        <GoogleIntegrations t={t} />
                     </section>
 
                     <section id="how" className="mx-auto max-w-[980px] px-6 py-14">
