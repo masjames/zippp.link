@@ -3,7 +3,7 @@
 import SiteFooter from "./SiteFooter";
 import GoogleIntegrations from "./GoogleIntegrations";
 import GoogleSignInButton from "./GoogleSignInButton";
-import RegionSelect from "../RegionSelect";
+import LandingNav from "./LandingNav";
 import type { BusinessInfo } from "@/lib/business";
 import {
     COMPETITORS,
@@ -11,7 +11,6 @@ import {
     VS_ROW_KEYS,
     type CompetitorDef,
 } from "@/lib/competitors";
-import { masterHref } from "@/lib/personas";
 import { RichText } from "@/lib/rich-text";
 import { makeT, type Wording } from "@/lib/t";
 import type { Lang, Region } from "@/lib/region";
@@ -31,7 +30,6 @@ export default function VsLanding({
     business: BusinessInfo;
 }) {
     const t = makeT(wording, lang);
-    const home = masterHref(region);
     const id = competitor.id;
     const others = COMPETITORS.filter((c) => c.id !== id);
 
@@ -39,30 +37,7 @@ export default function VsLanding({
         <div className="min-h-screen bg-page">
             <div className="mx-auto max-w-[1180px] px-5 pb-16 pt-8">
                 <main className="overflow-hidden rounded-phone border-2 border-line bg-card">
-                    <nav className="mx-auto flex max-w-[980px] flex-wrap items-center justify-between gap-3 px-6 py-5">
-                        <a
-                            href={home}
-                            className="font-head text-3xl font-black leading-none tracking-tight text-brand"
-                        >
-                            zippp
-                        </a>
-                        <div className="flex items-center gap-4">
-                            <RegionSelect
-                                region={region}
-                                labels={{
-                                    label: t("region.label"),
-                                    worldwide: t("region.worldwide"),
-                                    indonesia: t("region.indonesia"),
-                                }}
-                            />
-                            <a
-                                href="/api/auth/login"
-                                className="inline-flex items-center rounded-full bg-btn px-5 py-2.5 text-sm font-semibold text-btntext"
-                            >
-                                {t("nav.signin")}
-                            </a>
-                        </div>
-                    </nav>
+                    <LandingNav t={t} region={region} showSignIn />
 
                     <section className="bg-brand text-ink">
                         <div className="mx-auto max-w-[980px] px-6 py-14 sm:py-20">

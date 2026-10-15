@@ -3,25 +3,30 @@
 import { useEffect, useRef, useState } from "react";
 import RegionSelect from "../RegionSelect";
 import { COMPETITORS, competitorHref } from "@/lib/competitors";
-import { PERSONAS, personaHref } from "@/lib/personas";
+import { masterHref, PERSONAS, personaHref } from "@/lib/personas";
 import type { Region } from "@/lib/region";
 import type { T } from "@/lib/t";
 
 /**
- * Master landing nav: Case studies + Compare dropdowns, Testimonials anchor.
- * Pricing lives only on the pricing page; How it works is not linked.
+ * Shared marketing nav: Case studies + Compare + Testimonials.
+ * Optional sign-in for for-* / vs-* pages (home keeps CTA in hero only).
  */
 export default function LandingNav({
     t,
     region,
+    showSignIn = false,
 }: {
     t: T;
     region: Region;
+    showSignIn?: boolean;
 }) {
+    const home = masterHref(region);
+    const testimonialsHref = `${home}#testimonials`;
+
     return (
         <nav className="sticky top-0 z-20 flex flex-wrap items-center justify-between gap-3 border-b border-line bg-card/95 px-6 py-4 backdrop-blur">
             <a
-                href={region === "id" ? "/id" : "/"}
+                href={home}
                 className="font-head text-3xl font-black leading-none tracking-tight text-brand"
             >
                 zippp
@@ -50,7 +55,7 @@ export default function LandingNav({
                     ))}
                 </NavDropdown>
                 <a
-                    href="#testimonials"
+                    href={testimonialsHref}
                     className="rounded-lg px-3 py-2 font-semibold text-body hover:text-brand"
                 >
                     {t("nav.proof")}
@@ -65,6 +70,14 @@ export default function LandingNav({
                         indonesia: t("region.indonesia"),
                     }}
                 />
+                {showSignIn ? (
+                    <a
+                        href="/api/auth/login"
+                        className="inline-flex items-center rounded-full bg-btn px-5 py-2.5 text-sm font-semibold text-btntext"
+                    >
+                        {t("nav.signin")}
+                    </a>
+                ) : null}
             </div>
         </nav>
     );

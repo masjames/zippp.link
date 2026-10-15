@@ -4,12 +4,11 @@ import AppFlowPreview from "./AppFlowPreview";
 import GoogleIntegrations from "./GoogleIntegrations";
 import GoogleSignInButton from "./GoogleSignInButton";
 import ImpactProof from "./ImpactProof";
+import LandingNav from "./LandingNav";
 import PersonaSheetHero from "./PersonaSheetHero";
 import SiteFooter from "./SiteFooter";
-import RegionSelect from "../RegionSelect";
 import type { BusinessInfo } from "@/lib/business";
 import {
-    masterHref,
     type PersonaDef,
     personasForRegion,
     personaHref,
@@ -37,43 +36,13 @@ export default function PersonaLanding({
 }) {
     const t = makeT(wording, lang);
     const key = persona.whoKey;
-    const home = masterHref(region);
     const others = personasForRegion(region).filter((p) => p.id !== persona.id);
 
     return (
         <div className="min-h-screen bg-page">
             <div className="mx-auto max-w-[1180px] px-5 pb-16 pt-8">
                 <main className="overflow-hidden rounded-phone border-2 border-line bg-card">
-                    <nav className="mx-auto flex max-w-[980px] flex-wrap items-center justify-between gap-3 px-6 py-5">
-                        <a
-                            href={home}
-                            className="font-head text-3xl font-black leading-none tracking-tight text-brand"
-                        >
-                            zippp
-                        </a>
-                        <div className="flex items-center gap-4">
-                            <a
-                                href={home}
-                                className="hidden text-sm font-semibold text-body hover:text-brand sm:inline"
-                            >
-                                {t("landing.persona.back")}
-                            </a>
-                            <RegionSelect
-                                region={region}
-                                labels={{
-                                    label: t("region.label"),
-                                    worldwide: t("region.worldwide"),
-                                    indonesia: t("region.indonesia"),
-                                }}
-                            />
-                            <a
-                                href="/api/auth/login"
-                                className="inline-flex items-center rounded-full bg-btn px-5 py-2.5 text-sm font-semibold text-btntext"
-                            >
-                                {t("nav.signin")}
-                            </a>
-                        </div>
-                    </nav>
+                    <LandingNav t={t} region={region} showSignIn />
 
                     <section className="bg-brand text-ink">
                         <div className="mx-auto grid max-w-[980px] items-center gap-10 px-6 py-14 sm:py-16 lg:grid-cols-[1.1fr_0.9fr]">
