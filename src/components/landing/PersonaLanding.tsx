@@ -66,6 +66,12 @@ export default function PersonaLanding({
                                     indonesia: t("region.indonesia"),
                                 }}
                             />
+                            <a
+                                href="/api/auth/login"
+                                className="inline-flex items-center rounded-full bg-btn px-5 py-2.5 text-sm font-semibold text-btntext"
+                            >
+                                {t("nav.signin")}
+                            </a>
                         </div>
                     </nav>
 
@@ -105,7 +111,10 @@ export default function PersonaLanding({
                         <GoogleIntegrations t={t} />
                     </section>
 
-                    <section id="how" className="mx-auto max-w-[980px] px-6 py-14">
+                    <section
+                        id="how"
+                        className="mx-auto max-w-[980px] px-6 pb-14 pt-16 sm:pt-20"
+                    >
                         <h2 className="font-head text-3xl font-extrabold tracking-tight sm:text-4xl">
                             <RichText text={t("landing.how.title")} />
                         </h2>
@@ -114,11 +123,11 @@ export default function PersonaLanding({
                         </div>
                     </section>
 
-                    <section className="mx-auto max-w-[980px] px-6 pb-14">
+                    <section className="mx-auto max-w-[980px] px-6 py-14">
                         <ImpactProof t={t} />
                     </section>
 
-                    <section className="mx-auto max-w-[980px] px-6 pb-14">
+                    <section className="mx-auto max-w-[980px] px-6 py-14">
                         <h2 className="font-head text-2xl font-extrabold tracking-tight sm:text-3xl">
                             {t("landing.persona.otherTitle")}
                         </h2>

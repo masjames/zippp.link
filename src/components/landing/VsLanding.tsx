@@ -55,6 +55,12 @@ export default function VsLanding({
                                     indonesia: t("region.indonesia"),
                                 }}
                             />
+                            <a
+                                href="/api/auth/login"
+                                className="inline-flex items-center rounded-full bg-btn px-5 py-2.5 text-sm font-semibold text-btntext"
+                            >
+                                {t("nav.signin")}
+                            </a>
                         </div>
                     </nav>
 
@@ -76,7 +82,7 @@ export default function VsLanding({
                         <GoogleIntegrations t={t} />
                     </section>
 
-                    <section className="mx-auto max-w-[980px] px-6 pb-14">
+                    <section className="mx-auto max-w-[980px] px-6 pb-14 pt-16 sm:pt-20">
                         <h2 className="font-head text-3xl font-extrabold tracking-tight">
                             {t("landing.vs.tableTitle")}
                         </h2>
@@ -120,7 +126,7 @@ export default function VsLanding({
                         </p>
                     </section>
 
-                    <section className="mx-auto max-w-[980px] px-6 pb-14">
+                    <section className="mx-auto max-w-[980px] px-6 py-14">
                         <h2 className="font-head text-2xl font-extrabold tracking-tight">
                             {t("landing.vs.whyTitle")}
                         </h2>
