@@ -11,10 +11,10 @@ export default function ImpactProof({ t }: { t: T }) {
                 <p className="text-sm font-semibold uppercase tracking-wide text-brand">
                     {t("landing.impact.eyebrow")}
                 </p>
-                <h2 className="mt-2 font-head text-3xl font-extrabold tracking-tight sm:text-4xl">
+                <h2 className="mt-2 max-w-[28ch] font-head text-3xl font-extrabold leading-tight tracking-tight sm:max-w-[36ch] sm:text-4xl">
                     {t("landing.impact.title")}
                 </h2>
-                <p className="mt-3 max-w-[52ch] text-muted">
+                <p className="mt-4 max-w-[52ch] text-muted leading-relaxed">
                     {t("landing.impact.body")}
                 </p>
             </div>
