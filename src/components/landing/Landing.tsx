@@ -3,12 +3,12 @@
 import AppFlowPreview from "./AppFlowPreview";
 import DoodleArrow from "./DoodleArrow";
 import GoogleIntegrations from "./GoogleIntegrations";
-import HeroPhone from "./HeroPhone";
+import HeroSnapSheet from "./HeroSnapSheet";
 import ImpactProof from "./ImpactProof";
 import LandingNav from "./LandingNav";
 import MediaPlaceholder from "./MediaPlaceholder";
-import SheetPreview from "./SheetPreview";
 import SiteFooter from "./SiteFooter";
+import TemplateGallery from "./TemplateGallery";
 import type { BusinessInfo } from "@/lib/business";
 import type { LandingAssets } from "@/lib/landing-assets";
 import { personasForRegion, personaHref } from "@/lib/personas";
@@ -82,7 +82,7 @@ export default function Landing({
                                         aspect="aspect-[9/16] max-w-[280px]"
                                     />
                                 ) : (
-                                    <HeroPhone t={t} />
+                                    <HeroSnapSheet t={t} />
                                 )}
                             </div>
                         </div>
@@ -129,34 +129,12 @@ export default function Landing({
                             <p className="mt-4 max-w-[56ch] text-muted leading-relaxed">
                                 {t("landing.showcase.body")}
                             </p>
-                            <div className="mt-8 grid gap-6 lg:grid-cols-2 lg:items-start">
-                                {assets.sheetImage ? (
-                                    <MediaPlaceholder
-                                        label={t("landing.media.sheet")}
-                                        note={t("landing.media.note")}
-                                        src={assets.sheetImage}
-                                    />
-                                ) : (
-                                    <SheetPreview
-                                        kind="master"
-                                        t={t}
-                                        lang={lang}
-                                    />
-                                )}
-                                {assets.demoVideo ? (
-                                    <MediaPlaceholder
-                                        label={t("landing.media.video")}
-                                        src={assets.demoVideo}
-                                        video
-                                    />
-                                ) : (
-                                    <div className="rounded-panel border-2 border-line bg-card p-5">
-                                        <p className="mb-4 text-sm font-semibold text-body">
-                                            {t("landing.media.flowTitle")}
-                                        </p>
-                                        <AppFlowPreview t={t} />
-                                    </div>
-                                )}
+                            <div className="mt-8">
+                                <TemplateGallery
+                                    t={t}
+                                    lang={lang}
+                                    region={region}
+                                />
                             </div>
                         </div>
                     </section>

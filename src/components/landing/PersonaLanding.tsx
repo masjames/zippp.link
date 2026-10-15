@@ -3,7 +3,7 @@
 import AppFlowPreview from "./AppFlowPreview";
 import DoodleArrow from "./DoodleArrow";
 import GoogleIntegrations from "./GoogleIntegrations";
-import HeroPhone from "./HeroPhone";
+import HeroSnapSheet from "./HeroSnapSheet";
 import ImpactProof from "./ImpactProof";
 import SheetPreview from "./SheetPreview";
 import SiteFooter from "./SiteFooter";
@@ -122,7 +122,7 @@ export default function PersonaLanding({
                                     label={t("landing.doodle.try")}
                                     className="absolute -left-1 top-2 z-10 hidden sm:flex"
                                 />
-                                <HeroPhone t={t} />
+                                <HeroSnapSheet t={t} />
                             </div>
                         </div>
                     </section>

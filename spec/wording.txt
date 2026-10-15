@@ -138,9 +138,9 @@ Your sheet stays the place you work
 ## landing.showcase.title.id
 Sheet yang sudah dipakai, tetap jadi tempat kerjanya
 ## landing.showcase.body.en
-Accepted receipts land as line items you can sort, total, and share with whoever already has access to that spreadsheet.
+Four ready templates. Same snap → check → send flow; columns match the job so the sheet you already use stays the source of truth.
 ## landing.showcase.body.id
-Resi yang diterima jadi baris item yang bisa diurutkan, dijumlah, dan dibagikan ke orang yang sudah punya akses ke spreadsheet itu.
+Empat template siap pakai. Alur sama: foto → cek → kirim; kolomnya cocok dengan kerjaannya, jadi sheet yang sudah dipakai tetap jadi sumber kebenarannya.
 ## landing.media.hero.en
 App screenshot
 ## landing.media.hero.id
