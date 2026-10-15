@@ -48,7 +48,7 @@ export async function generateMetadata(): Promise<Metadata> {
                     height: 630,
                     alt:
                         lang === "id"
-                            ? "zippp — Untuk yang masih mengetik nota"
+                            ? "zippp — Untuk yang masih mengetik struk"
                             : "zippp — For people who still type receipts",
                 },
             ],

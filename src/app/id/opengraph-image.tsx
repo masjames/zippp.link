@@ -1,6 +1,6 @@
 import { OG_SIZE, renderOgImage } from "@/lib/og-image";
 
-export const alt = "zippp — Untuk yang masih mengetik nota";
+export const alt = "zippp — Untuk yang masih mengetik struk";
 export const size = OG_SIZE;
 export const contentType = "image/png";
 
