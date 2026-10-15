@@ -3,9 +3,8 @@
 import AppFlowPreview from "./AppFlowPreview";
 import DoodleArrow from "./DoodleArrow";
 import GoogleIntegrations from "./GoogleIntegrations";
-import HeroSnapSheet from "./HeroSnapSheet";
 import ImpactProof from "./ImpactProof";
-import SheetPreview from "./SheetPreview";
+import PersonaSheetHero from "./PersonaSheetHero";
 import SiteFooter from "./SiteFooter";
 import RegionSelect from "../RegionSelect";
 import type { BusinessInfo } from "@/lib/business";
@@ -119,16 +118,16 @@ export default function PersonaLanding({
                             <div className="relative flex justify-center lg:justify-end">
                                 <DoodleArrow
                                     variant="loop-point"
-                                    label={t("landing.doodle.try")}
+                                    label={t("landing.doodle.sheet")}
                                     className="absolute -left-1 top-2 z-10 hidden sm:flex"
                                 />
-                                <HeroSnapSheet t={t} />
+                                <PersonaSheetHero
+                                    kind={persona.id}
+                                    t={t}
+                                    lang={lang}
+                                />
                             </div>
                         </div>
-                    </section>
-
-                    <section className="mx-auto max-w-[980px] px-6 py-10">
-                        <SheetPreview kind={persona.id} t={t} lang={lang} />
                     </section>
 
                     <section id="how" className="mx-auto max-w-[980px] px-6 py-14">

@@ -2351,9 +2351,9 @@ per scan in Indonesia; $0.09 internationally
 per scan di Indonesia; setara paket internasional
 
 ## landing.stories.title.en
-What people notice after a week
+Testimonials
 ## landing.stories.title.id
-Yang terasa setelah seminggu dipakai
+Testimonial
 ## landing.stories.placeholder.en
 Sample quotes
 ## landing.stories.placeholder.id
