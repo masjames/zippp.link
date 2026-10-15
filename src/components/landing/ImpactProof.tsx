@@ -1,8 +1,10 @@
 import type { T } from "@/lib/t";
 
 const QUOTES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] as const;
+const ROW_A = QUOTES.filter((_, i) => i % 2 === 0);
+const ROW_B = QUOTES.filter((_, i) => i % 2 === 1);
 
-/** Full testimonials grid for the marketing landing. */
+/** Endless left→right fading testimonial marquee. */
 export default function ImpactProof({ t }: { t: T }) {
     return (
         <div className="space-y-10">
@@ -15,39 +17,9 @@ export default function ImpactProof({ t }: { t: T }) {
                 </p>
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {QUOTES.map((n) => (
-                    <figure
-                        key={n}
-                        className="flex flex-col rounded-panel border-2 border-line bg-card p-5"
-                    >
-                        <div className="flex items-center gap-3">
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img
-                                src={`https://images.unsplash.com/${AVATARS[n - 1]}?auto=format&fit=crop&w=96&h=96&q=80`}
-                                alt=""
-                                width={48}
-                                height={48}
-                                className="h-12 w-12 rounded-full object-cover ring-2 ring-line"
-                                loading="lazy"
-                            />
-                            <div>
-                                <figcaption className="text-sm font-bold text-body">
-                                    {t(`landing.stories.q${n}.name`)}
-                                </figcaption>
-                                <p className="text-xs text-muted">
-                                    {t(`landing.stories.q${n}.role`)}
-                                </p>
-                            </div>
-                        </div>
-                        <blockquote className="mt-4 flex-1 text-sm leading-relaxed text-body">
-                            “{t(`landing.stories.q${n}.quote`)}”
-                        </blockquote>
-                        <p className="mt-3 text-xs font-semibold text-brand">
-                            {t(`landing.stories.q${n}.result`)}
-                        </p>
-                    </figure>
-                ))}
+            <div className="space-y-4">
+                <MarqueeRow items={[...ROW_A]} t={t} duration="55s" />
+                <MarqueeRow items={[...ROW_B]} t={t} duration="70s" />
             </div>
 
             <div className="rounded-panel border-2 border-maroon bg-maroon px-6 py-6 text-white sm:px-8">
@@ -63,6 +35,63 @@ export default function ImpactProof({ t }: { t: T }) {
                 <p className="text-sm opacity-80">{t("landing.founder.role")}</p>
             </div>
         </div>
+    );
+}
+
+function MarqueeRow({
+    items,
+    t,
+    duration,
+}: {
+    items: number[];
+    t: T;
+    duration: string;
+}) {
+    const loop = [...items, ...items];
+
+    return (
+        <div className="testimonials-fade relative overflow-hidden py-1">
+            <div
+                className="testimonials-track testimonials-slide-ltr flex w-max gap-4"
+                style={{ animationDuration: duration }}
+            >
+                {loop.map((n, i) => (
+                    <TestimonialCard key={`${n}-${i}`} n={n} t={t} />
+                ))}
+            </div>
+        </div>
+    );
+}
+
+function TestimonialCard({ n, t }: { n: number; t: T }) {
+    return (
+        <figure className="flex w-[280px] shrink-0 flex-col rounded-panel border-2 border-line bg-card p-5 sm:w-[320px]">
+            <div className="flex items-center gap-3">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                    src={`https://images.unsplash.com/${AVATARS[n - 1]}?auto=format&fit=crop&w=96&h=96&q=80`}
+                    alt=""
+                    width={48}
+                    height={48}
+                    className="h-12 w-12 rounded-full object-cover ring-2 ring-line"
+                    loading="lazy"
+                />
+                <div>
+                    <figcaption className="text-sm font-bold text-body">
+                        {t(`landing.stories.q${n}.name`)}
+                    </figcaption>
+                    <p className="text-xs text-muted">
+                        {t(`landing.stories.q${n}.role`)}
+                    </p>
+                </div>
+            </div>
+            <blockquote className="mt-4 flex-1 text-sm leading-relaxed text-body">
+                “{t(`landing.stories.q${n}.quote`)}”
+            </blockquote>
+            <p className="mt-3 text-xs font-semibold text-brand">
+                {t(`landing.stories.q${n}.result`)}
+            </p>
+        </figure>
     );
 }
 

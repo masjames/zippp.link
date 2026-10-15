@@ -115,3 +115,53 @@ h3 {
 .hero-row-land {
     animation: hero-row-land 0.7s ease-out forwards;
 }
+
+/* Testimonials endless marquee */
+@keyframes testimonials-ltr {
+    from {
+        transform: translateX(-50%);
+    }
+    to {
+        transform: translateX(0);
+    }
+}
+@keyframes testimonials-rtl {
+    from {
+        transform: translateX(0);
+    }
+    to {
+        transform: translateX(-50%);
+    }
+}
+.testimonials-fade {
+    mask-image: linear-gradient(
+        to right,
+        transparent,
+        #000 8%,
+        #000 92%,
+        transparent
+    );
+    -webkit-mask-image: linear-gradient(
+        to right,
+        transparent,
+        #000 8%,
+        #000 92%,
+        transparent
+    );
+}
+.testimonials-slide-ltr {
+    animation-name: testimonials-ltr;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+}
+.testimonials-slide-rtl {
+    animation-name: testimonials-rtl;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+    .testimonials-slide-ltr,
+    .testimonials-slide-rtl {
+        animation: none;
+    }
+}
