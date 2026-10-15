@@ -20,19 +20,6 @@ export default function ImpactProof({ t }: { t: T }) {
                     ))}
                 </div>
             </div>
-
-            <div className="rounded-panel border-2 border-maroon bg-maroon px-6 py-6 text-white sm:px-8">
-                <p className="text-sm font-semibold opacity-80">
-                    {t("landing.founder.eyebrow")}
-                </p>
-                <p className="mt-2 max-w-[56ch] text-lg font-semibold leading-snug">
-                    {t("landing.founder.body")}
-                </p>
-                <p className="mt-4 font-head text-xl font-black tracking-tight">
-                    {t("landing.founder.name")}
-                </p>
-                <p className="text-sm opacity-80">{t("landing.founder.role")}</p>
-            </div>
         </div>
     );
 }
