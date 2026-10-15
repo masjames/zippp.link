@@ -12,13 +12,13 @@ Prices are regional: Indonesian copy (id) quotes IDR, English (intl) quotes USD.
 ---
 
 ## meta.title.en
-zippp: receipts in, rows out
+zippp · receipt photos to Google Sheets
 ## meta.title.id
-zippp: resi masuk, baris keluar
+zippp · foto nota ke Google Sheets
 ## meta.description.en
-Snap a receipt or invoice, check what zippp read, then send the rows to your Google Sheet.
+zippp turns a receipt or invoice photo into line-item rows in your Google Sheet. Check flagged fields before send. Prepaid credits from $9.
 ## meta.description.id
-Foto resi atau faktur, cek hasil bacaan zippp, lalu kirim barisnya ke Google Sheet Anda.
+zippp mengubah foto nota atau faktur jadi baris item di Google Sheet Anda. Cek kolom yang ditandai sebelum kirim. Kredit mulai Rp 15.000.
 
 ## nav.how.en
 How it works

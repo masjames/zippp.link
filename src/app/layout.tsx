@@ -1,9 +1,16 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 import { loadWording } from "@/lib/content";
 import { getLocale } from "@/lib/server-locale";
+import { SITE_URL } from "@/lib/site";
 import { makeT } from "@/lib/t";
 import "./globals.css";
+
+export const viewport: Viewport = {
+    themeColor: "#ee5329",
+    width: "device-width",
+    initialScale: 1,
+};
 
 export async function generateMetadata(): Promise<Metadata> {
     const { lang } = await getLocale();
@@ -11,13 +18,28 @@ export async function generateMetadata(): Promise<Metadata> {
     const title = t("meta.title");
     const description = t("meta.description");
     return {
-        metadataBase: new URL("https://www.zippp.link"),
-        title,
+        metadataBase: new URL(SITE_URL),
+        title: {
+            default: title,
+            template: "%s · zippp",
+        },
         description,
+        applicationName: "zippp",
+        authors: [{ name: "Aldan Arkara", url: SITE_URL }],
+        creator: "Aldan Arkara",
+        publisher: "zippp",
+        icons: {
+            icon: [
+                { url: "/favicon.svg", type: "image/svg+xml" },
+                { url: "/icon", type: "image/png" },
+            ],
+            apple: [{ url: "/apple-icon", sizes: "180x180", type: "image/png" }],
+        },
         openGraph: {
             title,
             description,
-            url: "https://www.zippp.link",
+            url: SITE_URL,
+            siteName: "zippp",
             type: "website",
             images: [
                 {
@@ -33,6 +55,17 @@ export async function generateMetadata(): Promise<Metadata> {
             title,
             description,
             images: ["/og.png"],
+        },
+        robots: {
+            index: true,
+            follow: true,
+            googleBot: {
+                index: true,
+                follow: true,
+                "max-image-preview": "large",
+                "max-snippet": -1,
+                "max-video-preview": -1,
+            },
         },
     };
 }

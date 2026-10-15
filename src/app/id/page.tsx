@@ -1,20 +1,42 @@
+import type { Metadata } from "next";
 import Landing from "@/components/landing/Landing";
+import JsonLd from "@/components/seo/JsonLd";
 import { businessInfo } from "@/lib/business";
 import { loadWording } from "@/lib/content";
 import { landingAssets } from "@/lib/landing-assets";
 import { getLocale } from "@/lib/server-locale";
+import { buildPageMetadata } from "@/lib/seo";
+import { masterJsonLd } from "@/lib/structured-data";
+import { makeT } from "@/lib/t";
 
-/** Indonesian landing. Language follows the language selector. */
+export async function generateMetadata(): Promise<Metadata> {
+    const { lang, region } = await getLocale();
+    const t = makeT(loadWording(), lang);
+    return buildPageMetadata({
+        title: t("meta.title"),
+        description: t("meta.description"),
+        path: "/id",
+        alternatePath: "/",
+        lang,
+        region,
+    });
+}
+
+/** Indonesian landing. */
 export default async function IdHome() {
     const wording = loadWording();
     const { region, lang } = await getLocale();
+    const t = makeT(wording, lang);
     return (
-        <Landing
-            wording={wording}
-            lang={lang}
-            region={region}
-            business={businessInfo()}
-            assets={landingAssets(lang)}
-        />
+        <>
+            <JsonLd data={masterJsonLd(t, lang, "id")} />
+            <Landing
+                wording={wording}
+                lang={lang}
+                region={region}
+                business={businessInfo()}
+                assets={landingAssets(lang)}
+            />
+        </>
     );
 }
