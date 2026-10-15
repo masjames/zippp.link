@@ -2244,9 +2244,9 @@ Compare
 ## nav.compare.id
 Bandingkan
 ## footer.useCases.en
-Use cases
+Case studies
 ## footer.useCases.id
-Kasus pakai
+Studi kasus
 ## footer.compare.en
 Compare
 ## footer.compare.id
@@ -2289,9 +2289,9 @@ Illustrative rows. Your live sheet uses the same columns after you pick a templa
 Baris contoh. Sheet live Anda memakai kolom yang sama setelah memilih template.
 
 ## landing.flow.snapCue.en
-Hold steady
+Photo the receipt
 ## landing.flow.snapCue.id
-Tahan stabil
+Foto notanya
 ## landing.flow.merchant.en
 Merchant
 ## landing.flow.merchant.id
