@@ -117,15 +117,6 @@ export default function PersonaLanding({
                     </section>
 
                     <section className="mx-auto max-w-[980px] px-6 pb-14">
-                        <h2 className="font-head text-3xl font-extrabold tracking-tight sm:text-4xl">
-                            {t(`landing.persona.${key}.outcomeTitle`)}
-                        </h2>
-                        <p className="mt-4 max-w-[56ch] text-muted">
-                            {t(`landing.persona.${key}.outcomeBody`)}
-                        </p>
-                    </section>
-
-                    <section className="mx-auto max-w-[980px] px-6 pb-14">
                         <ImpactProof t={t} />
                     </section>
 
