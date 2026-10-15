@@ -71,12 +71,6 @@ export default function LegalPage({
                         >
                             zippp
                         </a>
-                        <a
-                            href="/api/auth/login"
-                            className="inline-flex items-center rounded-full bg-btn px-5 py-2.5 text-sm font-semibold text-btntext"
-                        >
-                            {t("nav.signin")}
-                        </a>
                     </nav>
 
                     <article className="mx-auto max-w-[760px] px-6 pb-14 pt-6">
