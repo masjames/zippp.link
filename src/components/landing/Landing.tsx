@@ -82,7 +82,7 @@ export default function Landing({
                                 <h1 className="font-head text-[2.6rem] font-extrabold leading-[1.05] tracking-tight sm:text-[3.75rem]">
                                     <RichText text={t("landing.hero.title")} />
                                 </h1>
-                                <p className="mt-5 max-w-[42ch] text-lg leading-relaxed sm:text-xl">
+                                <p className="mt-5 max-w-[48ch] text-lg leading-relaxed sm:text-xl">
                                     <RichText text={t("landing.hero.body")} />
                                 </p>
                                 <div className="mt-8 flex flex-wrap gap-3">

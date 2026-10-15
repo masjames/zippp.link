@@ -33,20 +33,23 @@ export function buildPageMetadata(input: PageSeoInput): Metadata {
         keywords:
             lang === "id"
                 ? [
-                      "scan nota Google Sheets",
-                      "OCR resi Indonesia",
-                      "foto nota ke spreadsheet",
-                      "zippp",
+                      "mengetik nota",
+                      "foto nota Google Sheets",
+                      "scan nota ke spreadsheet",
                       "pembelian dapur",
-                      "expense Google Sheets",
+                      "pengeluaran pribadi",
+                      "rekap penjualan harian",
+                      "klaim penggantian",
+                      "zippp",
                   ]
                 : [
+                      "type receipts into sheets",
                       "receipt to Google Sheets",
-                      "receipt OCR",
-                      "invoice to spreadsheet",
+                      "kitchen purchasing",
+                      "personal expenses",
+                      "daily sales recap",
+                      "reimbursement claims",
                       "zippp",
-                      "expense tracker Google Sheets",
-                      "photograph receipt",
                   ],
         alternates: {
             canonical: url,

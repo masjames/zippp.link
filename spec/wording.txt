@@ -12,13 +12,13 @@ Prices are regional: Indonesian copy (id) quotes IDR, English (intl) quotes USD.
 ---
 
 ## meta.title.en
-zippp · receipt photos to Google Sheets
+zippp · for people who still type receipts into Sheets
 ## meta.title.id
-zippp · foto nota ke Google Sheets
+zippp · untuk yang masih mengetik nota
 ## meta.description.en
-zippp turns a receipt or invoice photo into line-item rows in your Google Sheet. Check flagged fields before send. Prepaid credits from $9.
+For kitchen purchasing, personal spending, daily sales, and reimbursement claims. Photograph the paper; the rows land in your Google Sheet.
 ## meta.description.id
-zippp mengubah foto nota atau faktur jadi baris item di Google Sheet Anda. Cek kolom yang ditandai sebelum kirim. Kredit mulai Rp 15.000.
+Untuk pembelian dapur, pengeluaran pribadi, rekap penjualan harian, dan klaim penggantian. Foto notanya; baris masuk ke Google Sheet Anda.
 
 ## nav.how.en
 How it works
@@ -51,21 +51,21 @@ Indonesia
 Indonesia
 
 ## landing.hero.title.en
-From a receipt photo to rows in *your Google Sheet*
+For people who still *type receipts*
 ## landing.hero.title.id
-Dari foto nota ke baris di *Google Sheet Anda*
+Untuk yang masih *mengetik nota*
 ## landing.hero.title1.en
-From a receipt photo to rows in *your Google Sheet*
+For people who still *type receipts*
 ## landing.hero.title1.id
-Dari foto nota ke baris di *Google Sheet Anda*
+Untuk yang masih *mengetik nota*
 ## landing.hero.title2.en
 
 ## landing.hero.title2.id
 
 ## landing.hero.body.en
-zippp reads the paper, lets you fix anything that looks off, then appends the lines to the sheet you already run the shop on.
+Kitchen purchasing, personal spending, daily sales recaps, and reimbursement claims. Photograph the paper; the rows land in your Google Sheet.
 ## landing.hero.body.id
-zippp membaca notanya, Anda bisa betulkan yang kurang pas, lalu barisnya masuk ke sheet yang sudah dipakai buat jalanin toko.
+Pembelian dapur, pengeluaran pribadi, rekap penjualan harian, dan klaim penggantian. Foto notanya; baris masuk ke Google Sheet Anda.
 ## landing.hero.cta.en
 Get started
 ## landing.hero.cta.id
@@ -105,13 +105,13 @@ The rows land in your own sheet. The data stays yours.
 Barisnya masuk ke sheet Anda sendiri. Datanya tetap milik Anda.
 
 ## landing.audience.title.en
-Made for people who type receipts
+For people who still type receipts
 ## landing.audience.title.id
 Untuk yang masih mengetik nota
 ## landing.audience.body.en
-Kitchen purchasing, personal spending, daily sales, reimbursement claims. Photograph the paper and the rows land in your Google Sheet.
+Pick the job that matches how you work. Each one opens a sheet template built for that flow.
 ## landing.audience.body.id
-Pembelian dapur, pengeluaran pribadi, rekap penjualan harian, dan klaim penggantian. Foto notanya; baris masuk ke Google Sheet Anda.
+Pilih kerjaan yang paling mirip. Tiap kartu membuka template sheet untuk alur itu.
 
 ## landing.pricing.title.en
 Pay for the receipts you accept
@@ -1930,9 +1930,9 @@ Purpose
 ## app.check.purpose.id
 Keperluan
 ## landing.who.title.en
-Built around the jobs that still use paper
+Four jobs zippp is built for
 ## landing.who.title.id
-Dibuat untuk kerja yang masih pakai kertas
+Empat kerjaan yang zippp bantu
 ## landing.who.resto.title.en
 Kitchen and shop purchasing
 ## landing.who.resto.title.id
