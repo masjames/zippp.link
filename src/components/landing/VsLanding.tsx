@@ -70,12 +70,7 @@ export default function VsLanding({
                                 <RichText text={t(`landing.vs.${id}.body`)} />
                             </p>
                             <div className="mt-8">
-                                <a
-                                    href="/api/auth/login"
-                                    className="inline-flex items-center rounded-full bg-maroon px-7 py-4 font-semibold text-white"
-                                >
-                                    {t("landing.vs.cta")}
-                                </a>
+                                <GoogleSignInButton t={t} />
                             </div>
                         </div>
                     </section>

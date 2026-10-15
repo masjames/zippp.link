@@ -8,14 +8,9 @@ const ROW_B = QUOTES.filter((_, i) => i % 2 === 1);
 export default function ImpactProof({ t }: { t: T }) {
     return (
         <div className="space-y-10">
-            <div>
-                <h2 className="font-head text-3xl font-extrabold tracking-tight sm:text-4xl">
-                    {t("landing.stories.title")}
-                </h2>
-                <p className="mt-4 max-w-[52ch] text-muted leading-relaxed">
-                    {t("landing.stories.lead")}
-                </p>
-            </div>
+            <h2 className="font-head text-3xl font-extrabold tracking-tight sm:text-4xl">
+                {t("landing.stories.title")}
+            </h2>
 
             <div className="space-y-4">
                 <MarqueeRow items={[...ROW_A]} t={t} duration="55s" />

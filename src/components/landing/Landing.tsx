@@ -73,9 +73,6 @@ export default function Landing({
                         <h2 className="font-head text-3xl font-extrabold tracking-tight sm:text-4xl">
                             <RichText text={t("landing.how.title")} />
                         </h2>
-                        <p className="mt-4 max-w-[52ch] text-muted leading-relaxed">
-                            {t("landing.how.lead")}
-                        </p>
                         <div className="mt-8">
                             <AppFlowPreview t={t} />
                         </div>
@@ -89,9 +86,6 @@ export default function Landing({
                             <h2 className="max-w-[36ch] font-head text-3xl font-extrabold tracking-tight sm:text-4xl">
                                 <RichText text={t("landing.showcase.title")} />
                             </h2>
-                            <p className="mt-4 max-w-[56ch] text-muted leading-relaxed">
-                                {t("landing.showcase.body")}
-                            </p>
                             <div className="mt-8">
                                 <TemplateGallery
                                     t={t}
