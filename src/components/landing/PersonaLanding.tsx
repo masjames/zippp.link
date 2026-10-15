@@ -8,7 +8,6 @@ import PersonaSheetHero from "./PersonaSheetHero";
 import SiteFooter from "./SiteFooter";
 import RegionSelect from "../RegionSelect";
 import type { BusinessInfo } from "@/lib/business";
-import { legalHref } from "@/lib/legal";
 import {
     masterHref,
     type PersonaDef,
@@ -150,32 +149,6 @@ export default function PersonaLanding({
 
                     <section className="mx-auto max-w-[980px] px-6 pb-14">
                         <ImpactProof t={t} />
-                    </section>
-
-                    <section
-                        id="pricing"
-                        className="mx-auto max-w-[980px] px-6 pb-14"
-                    >
-                        <h2 className="font-head text-3xl font-extrabold tracking-tight sm:text-4xl">
-                            {t("landing.pricing.title")}
-                        </h2>
-                        <p className="mt-4 max-w-[48ch] text-muted">
-                            <RichText text={t("landing.pricing.body")} />
-                        </p>
-                        <div className="mt-6 flex flex-wrap gap-3">
-                            <a
-                                href="/api/auth/login"
-                                className="inline-flex items-center rounded-full bg-maroon px-7 py-4 font-semibold text-white"
-                            >
-                                {t("landing.pricing.cta")}
-                            </a>
-                            <a
-                                href={legalHref("pricing", lang)}
-                                className="inline-flex items-center rounded-full bg-peach px-7 py-4 font-semibold text-ink"
-                            >
-                                {t("landing.pricing.details")}
-                            </a>
-                        </div>
                     </section>
 
                     <section className="mx-auto max-w-[980px] px-6 pb-14">
