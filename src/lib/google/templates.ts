@@ -7,7 +7,7 @@ export const ZIPPP_RESTO_SHEET_TITLE = "[zippp] Resto inventory";
 /** Name marker used to find zippp-managed spreadsheets (case-insensitive). */
 export const ZIPPP_NAME_MARKER = "[zippp]";
 
-/** Row-1 headers for a new resto-inventory sheet (spec/TEMPLATES.md). */
+/** Row-1 headers for a new resto-inventory sheet (spec/TEMPLATES.md T1). */
 export const RESTO_INVENTORY_HEADERS = [
   "Date",
   "Supplier",
@@ -23,6 +23,8 @@ export const RESTO_INVENTORY_HEADERS = [
   "Outlet",
   "Category",
   "Notes",
+  "Photo",
+  "Receipt ID",
   "Captured at",
 ] as const;
 
@@ -39,10 +41,48 @@ export const PERSONAL_EXPENSE_HEADERS = [
   "Category",
   "Payment",
   "Notes",
+  "Photo",
+  "Receipt ID",
   "Captured at",
 ] as const;
 
-/** Row-1 headers for a new custom sheet: the mill fields (spec/TEMPLATES.md T3). */
+/** Row-1 headers for sales-recap (spec/TEMPLATES.md T3). */
+export const SALES_RECAP_HEADERS = [
+  "Date",
+  "Item",
+  "Qty",
+  "Unit price",
+  "Amount",
+  "Discount",
+  "Nota total",
+  "Currency",
+  "Payment",
+  "Customer",
+  "Notes",
+  "Photo",
+  "Receipt ID",
+  "Captured at",
+] as const;
+
+/** Row-1 headers for reimbursement (spec/TEMPLATES.md T4). */
+export const REIMBURSEMENT_HEADERS = [
+  "Date",
+  "Merchant",
+  "Description",
+  "Qty",
+  "Amount",
+  "Tax",
+  "Total",
+  "Currency",
+  "Category",
+  "Purpose",
+  "Notes",
+  "Photo",
+  "Receipt ID",
+  "Captured at",
+] as const;
+
+/** Row-1 headers for a new custom sheet. */
 export const CUSTOM_HEADERS = [
   "Date",
   "Merchant",
@@ -57,19 +97,22 @@ export const CUSTOM_HEADERS = [
   "Staff",
   "Outlet",
   "Notes",
+  "Photo",
+  "Receipt ID",
   "Captured at",
 ] as const;
 
-/** Default title for a newly created personal-expense sheet. */
 export const ZIPPP_PERSONAL_SHEET_TITLE = "[zippp] Expenses";
-
-/** Default title for a newly created custom sheet. */
+export const ZIPPP_SALES_SHEET_TITLE = "[zippp] Sales";
+export const ZIPPP_REIMBURSE_SHEET_TITLE = "[zippp] Reimbursement";
 export const ZIPPP_CUSTOM_SHEET_TITLE = "[zippp] Custom";
 
 /** Sheet title per template. */
 export const TEMPLATE_SHEET_TITLE: Record<TemplateId, string> = {
   "resto-inventory": ZIPPP_RESTO_SHEET_TITLE,
   "personal-expense": ZIPPP_PERSONAL_SHEET_TITLE,
+  "sales-recap": ZIPPP_SALES_SHEET_TITLE,
+  reimbursement: ZIPPP_REIMBURSE_SHEET_TITLE,
   custom: ZIPPP_CUSTOM_SHEET_TITLE,
 };
 
@@ -77,6 +120,8 @@ export const TEMPLATE_SHEET_TITLE: Record<TemplateId, string> = {
 export const TEMPLATE_HEADERS: Record<TemplateId, readonly string[]> = {
   "resto-inventory": RESTO_INVENTORY_HEADERS,
   "personal-expense": PERSONAL_EXPENSE_HEADERS,
+  "sales-recap": SALES_RECAP_HEADERS,
+  reimbursement: REIMBURSEMENT_HEADERS,
   custom: CUSTOM_HEADERS,
 };
 
@@ -89,35 +134,15 @@ export const RESTO_INVENTORY_FIELDS = [
   { id: "unit_price", label: "Unit price", aliases: ["unit price", "unit_price", "price"] },
   { id: "amount", label: "Line amount", aliases: ["line amount", "amount"] },
   { id: "tax", label: "Tax", aliases: ["tax"] },
-  { id: "total", label: "Receipt total", aliases: ["receipt total", "total"] },
+  { id: "total", label: "Receipt total", aliases: ["receipt total", "total", "nota total"] },
   { id: "currency", label: "Currency", aliases: ["currency"] },
   { id: "category", label: "Category", aliases: ["category"] },
   { id: "staff", label: "Staff (op)", aliases: ["staff"] },
   { id: "outlet", label: "Outlet (op)", aliases: ["outlet"] },
+  { id: "photo", label: "Photo", aliases: ["photo"] },
+  { id: "receipt_id", label: "Receipt ID", aliases: ["receipt id", "receipt_id", "scan id"] },
   { id: "captured_at", label: "Captured at (op)", aliases: ["captured at", "captured_at"] },
 ] as const;
-
-/** Constant columns for resto-inventory (header → default value). */
-const RESTO_CONSTANT_ALIASES: {
-  aliases: string[];
-  defaultValue: string;
-}[] = [
-  { aliases: ["unit", "units", "uom"], defaultValue: "" },
-  { aliases: ["notes", "note"], defaultValue: "" },
-];
-
-function norm(s: string): string {
-  return s.trim().toLowerCase().replace(/_/g, " ").replace(/\s+/g, " ");
-}
-
-function findHeader(headers: string[], aliases: string[]): string | null {
-  const byNorm = new Map(headers.map((h) => [norm(h), h]));
-  for (const alias of aliases) {
-    const hit = byNorm.get(norm(alias));
-    if (hit !== undefined) return hit;
-  }
-  return null;
-}
 
 type FieldDef = { id: string; aliases: readonly string[] };
 
@@ -131,6 +156,40 @@ const PERSONAL_EXPENSE_FIELDS: FieldDef[] = [
   { id: "total", aliases: ["total", "receipt total"] },
   { id: "currency", aliases: ["currency"] },
   { id: "category", aliases: ["category"] },
+  { id: "payment", aliases: ["payment"] },
+  { id: "photo", aliases: ["photo"] },
+  { id: "receipt_id", aliases: ["receipt id", "receipt_id", "scan id"] },
+  { id: "captured_at", aliases: ["captured at", "captured_at"] },
+];
+
+const SALES_RECAP_FIELDS: FieldDef[] = [
+  { id: "date", aliases: ["date"] },
+  { id: "description", aliases: ["item", "description"] },
+  { id: "qty", aliases: ["qty", "quantity"] },
+  { id: "unit_price", aliases: ["unit price", "unit_price", "price"] },
+  { id: "amount", aliases: ["amount", "line amount"] },
+  { id: "total", aliases: ["nota total", "total", "receipt total"] },
+  { id: "currency", aliases: ["currency"] },
+  { id: "payment", aliases: ["payment"] },
+  { id: "customer", aliases: ["customer"] },
+  { id: "photo", aliases: ["photo"] },
+  { id: "receipt_id", aliases: ["receipt id", "receipt_id", "scan id"] },
+  { id: "captured_at", aliases: ["captured at", "captured_at"] },
+];
+
+const REIMBURSEMENT_FIELDS: FieldDef[] = [
+  { id: "date", aliases: ["date"] },
+  { id: "merchant", aliases: ["merchant", "supplier"] },
+  { id: "description", aliases: ["description", "item"] },
+  { id: "qty", aliases: ["qty", "quantity"] },
+  { id: "amount", aliases: ["amount", "line amount"] },
+  { id: "tax", aliases: ["tax"] },
+  { id: "total", aliases: ["total", "receipt total"] },
+  { id: "currency", aliases: ["currency"] },
+  { id: "category", aliases: ["category"] },
+  { id: "purpose", aliases: ["purpose", "keperluan"] },
+  { id: "photo", aliases: ["photo"] },
+  { id: "receipt_id", aliases: ["receipt id", "receipt_id", "scan id"] },
   { id: "captured_at", aliases: ["captured at", "captured_at"] },
 ];
 
@@ -147,7 +206,17 @@ const CUSTOM_FIELDS: FieldDef[] = [
   { id: "currency", aliases: ["currency"] },
   { id: "staff", aliases: ["staff"] },
   { id: "outlet", aliases: ["outlet"] },
+  { id: "photo", aliases: ["photo"] },
+  { id: "receipt_id", aliases: ["receipt id", "receipt_id", "scan id"] },
   { id: "captured_at", aliases: ["captured at", "captured_at"] },
+];
+
+const RESTO_CONSTANT_ALIASES: {
+  aliases: string[];
+  defaultValue: string;
+}[] = [
+  { aliases: ["unit", "units", "uom"], defaultValue: "" },
+  { aliases: ["notes", "note"], defaultValue: "" },
 ];
 
 const PERSONAL_EXPENSE_CONSTANTS: {
@@ -155,6 +224,24 @@ const PERSONAL_EXPENSE_CONSTANTS: {
   defaultValue: string;
 }[] = [
   { aliases: ["payment"], defaultValue: "" },
+  { aliases: ["notes", "note"], defaultValue: "" },
+];
+
+const SALES_RECAP_CONSTANTS: {
+  aliases: string[];
+  defaultValue: string;
+}[] = [
+  { aliases: ["discount"], defaultValue: "" },
+  { aliases: ["payment"], defaultValue: "" },
+  { aliases: ["customer"], defaultValue: "" },
+  { aliases: ["notes", "note"], defaultValue: "" },
+];
+
+const REIMBURSEMENT_CONSTANTS: {
+  aliases: string[];
+  defaultValue: string;
+}[] = [
+  { aliases: ["purpose", "keperluan"], defaultValue: "" },
   { aliases: ["notes", "note"], defaultValue: "" },
 ];
 
@@ -166,6 +253,8 @@ const CUSTOM_CONSTANTS: { aliases: string[]; defaultValue: string }[] = [
 const TEMPLATE_FIELDS: Record<TemplateId, FieldDef[]> = {
   "resto-inventory": RESTO_INVENTORY_FIELDS as unknown as FieldDef[],
   "personal-expense": PERSONAL_EXPENSE_FIELDS,
+  "sales-recap": SALES_RECAP_FIELDS,
+  reimbursement: REIMBURSEMENT_FIELDS,
   custom: CUSTOM_FIELDS,
 };
 
@@ -175,8 +264,23 @@ const TEMPLATE_CONSTANTS: Record<
 > = {
   "resto-inventory": RESTO_CONSTANT_ALIASES,
   "personal-expense": PERSONAL_EXPENSE_CONSTANTS,
+  "sales-recap": SALES_RECAP_CONSTANTS,
+  reimbursement: REIMBURSEMENT_CONSTANTS,
   custom: CUSTOM_CONSTANTS,
 };
+
+function norm(s: string): string {
+  return s.trim().toLowerCase().replace(/_/g, " ").replace(/\s+/g, " ");
+}
+
+function findHeader(headers: string[], aliases: string[]): string | null {
+  const byNorm = new Map(headers.map((h) => [norm(h), h]));
+  for (const alias of aliases) {
+    const hit = byNorm.get(norm(alias));
+    if (hit !== undefined) return hit;
+  }
+  return null;
+}
 
 /**
  * Build default column_map + constants for a template by matching
@@ -212,6 +316,12 @@ export type BuildAppendRowsInput = {
   staff: string;
   outlet: string | null;
   captured_at: string;
+  /** Optional Drive photo hyperlink formula or URL. */
+  photo?: string;
+  receipt_id?: string;
+  payment?: string;
+  purpose?: string;
+  customer?: string;
 };
 
 /** Empty string for null — never invent qty/units/money. */
@@ -232,7 +342,14 @@ function valueForField(
   lineCount: number,
   staff: string,
   outlet: string | null,
-  captured_at: string
+  captured_at: string,
+  extras: {
+    photo?: string;
+    receipt_id?: string;
+    payment?: string;
+    purpose?: string;
+    customer?: string;
+  }
 ): CellValue {
   switch (fieldId) {
     case "date":
@@ -264,6 +381,16 @@ function valueForField(
       return outlet ?? "";
     case "captured_at":
       return captured_at;
+    case "photo":
+      return extras.photo ?? "";
+    case "receipt_id":
+      return extras.receipt_id ?? "";
+    case "payment":
+      return extras.payment ?? "";
+    case "purpose":
+      return extras.purpose ?? "";
+    case "customer":
+      return extras.customer ?? "";
     default:
       return "";
   }
@@ -275,17 +402,26 @@ function valueForField(
  * column_map overrides. Unmapped headers stay empty (or constant).
  */
 export function buildAppendRows(input: BuildAppendRowsInput): CellValue[][] {
-  const { receipt, column_map, constants, headers, staff, outlet, captured_at } =
-    input;
+  const {
+    receipt,
+    column_map,
+    constants,
+    headers,
+    staff,
+    outlet,
+    captured_at,
+    photo,
+    receipt_id,
+    payment,
+    purpose,
+    customer,
+  } = input;
 
   if (!headers.length) {
     throw new Error("Workspace has no header row — cannot append.");
   }
 
-  const lines =
-    receipt.line_items.length > 0
-      ? receipt.line_items
-      : [];
+  const lines = receipt.line_items.length > 0 ? receipt.line_items : [];
 
   if (lines.length === 0) {
     throw new Error("Receipt has no line items to append.");
@@ -294,6 +430,7 @@ export function buildAppendRows(input: BuildAppendRowsInput): CellValue[][] {
   const headerIndex = new Map(headers.map((h, i) => [h, i]));
   const width = headers.length;
   const rows: CellValue[][] = [];
+  const extras = { photo, receipt_id, payment, purpose, customer };
 
   for (let i = 0; i < lines.length; i++) {
     const row: CellValue[] = Array.from({ length: width }, () => "");
@@ -314,7 +451,8 @@ export function buildAppendRows(input: BuildAppendRowsInput): CellValue[][] {
         lines.length,
         staff,
         outlet,
-        captured_at
+        captured_at,
+        extras
       );
     }
 

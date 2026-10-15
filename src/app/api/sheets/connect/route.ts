@@ -120,10 +120,18 @@ export async function POST(req: Request) {
 
     // Force-create a new sheet for the chosen template.
     if (body.mode === "create") {
-      const templateId: TemplateId =
-        body.templateId === "personal-expense" || body.templateId === "custom"
-          ? body.templateId
-          : "resto-inventory";
+      const allowed: TemplateId[] = [
+        "resto-inventory",
+        "personal-expense",
+        "sales-recap",
+        "reimbursement",
+        "custom",
+      ];
+      const templateId: TemplateId = allowed.includes(
+        body.templateId as TemplateId
+      )
+        ? (body.templateId as TemplateId)
+        : "resto-inventory";
       const { meta, sheetTab, headers } =
         await createTemplateSpreadsheet(templateId);
       const result = await persistConnection({

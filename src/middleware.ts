@@ -33,8 +33,14 @@ export function middleware(request: NextRequest) {
     }
 
     let region: "id" | "intl" = existing === "id" ? "id" : "intl";
-    if (path === "/id") region = "id";
+    if (path === "/id" || path.startsWith("/id/")) region = "id";
     else if (path === "/" && !existing) region = "intl";
+    else if (
+        path.startsWith("/for-") &&
+        existing !== "id"
+    ) {
+        region = "intl";
+    }
 
     const headers = new Headers(request.headers);
     if (existing !== region) {

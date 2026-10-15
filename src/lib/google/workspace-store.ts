@@ -3,7 +3,12 @@ import path from "path";
 import { remoteTextStore } from "./kv";
 import { sessionUserId } from "./session";
 
-export type TemplateId = "resto-inventory" | "personal-expense" | "custom";
+export type TemplateId =
+    | "resto-inventory"
+    | "personal-expense"
+    | "sales-recap"
+    | "reimbursement"
+    | "custom";
 
 /** mill_field | op_field → actual sheet header string */
 export type ColumnMap = Record<string, string>;

@@ -51,17 +51,18 @@ Indonesia
 Indonesia
 
 ## landing.hero.title1.en
-Snap a receipt.
+## landing.hero.title1.en
+*Snap* a receipt.
 ## landing.hero.title1.id
-Jepret resi.
+*Jepret* resi.
 ## landing.hero.title2.en
-Skip the typing.
+Skip the *typing*.
 ## landing.hero.title2.id
-Tanpa ketik.
+Tanpa *ketik*.
 ## landing.hero.body.en
-zippp reads the photo, shows you what it found, and sends the rows to your Google Sheet.
+zippp reads the photo, shows you what it found, and sends the rows to *your Google Sheet*.
 ## landing.hero.body.id
-zippp membaca fotonya, menunjukkan hasilnya, lalu mengirim barisnya ke Google Sheet Anda.
+zippp membaca fotonya, menunjukkan hasilnya, lalu mengirim barisnya ke *Google Sheet Anda*.
 ## landing.hero.cta.en
 Get started
 ## landing.hero.cta.id
@@ -72,9 +73,9 @@ See how it works
 Lihat cara kerjanya
 
 ## landing.how.title.en
-Three taps, no typing
+Three taps, *no typing*
 ## landing.how.title.id
-Tiga ketukan, tanpa mengetik
+Tiga ketukan, *tanpa mengetik*
 ## landing.how.snap.title.en
 Snap
 ## landing.how.snap.title.id
@@ -114,9 +115,9 @@ Pay for what you scan.
 ## landing.pricing.title.id
 Bayar sesuai jumlah scan.
 ## landing.pricing.body.en
-100 scans for $9. Credits last 30 days.
+*100 scans* for $9. Credits last 30 days.
 ## landing.pricing.body.id
-Mulai Rp 15.000 untuk 100 scan. Berlaku 30 hari.
+Mulai *Rp 15.000* untuk 100 scan. Berlaku 30 hari.
 ## landing.pricing.cta.en
 Get started
 ## landing.pricing.cta.id
@@ -204,9 +205,9 @@ The photo is sent to Baidu AI Studio (PaddleOCR) to read text; text is processed
 Fotonya dikirim ke Baidu AI Studio (PaddleOCR) untuk membaca teks. Teksnya dikirim ke DeepSeek untuk disusun. Google Gemini menjadi cadangan bila dua yang pertama gagal. Fotonya tidak disimpan setelah dibaca.
 
 ## landing.foot.title.en
-Your next receipt, in your sheet in a minute.
+Your next receipt, in your sheet in *a minute*.
 ## landing.foot.title.id
-Resi berikutnya, masuk ke sheet Anda dalam satu menit.
+Resi berikutnya, masuk ke sheet Anda dalam *satu menit*.
 ## landing.foot.cta.en
 Sign in with Google
 ## landing.foot.cta.id
@@ -2078,3 +2079,906 @@ Jeda
 Back to zippp
 ## notfound.home.id
 Kembali ke zippp
+## landing.persona.back.en
+All use cases
+## landing.persona.back.id
+Semua kasus pakai
+## landing.persona.cta.en
+Get started
+## landing.persona.cta.id
+Mulai
+## landing.persona.softNote.en
+Template for this use case is still rolling out. You can sign in now; purchasing and personal expense sheets are ready today.
+## landing.persona.softNote.id
+Template untuk kasus ini masih digulirkan. Anda bisa masuk sekarang; sheet pembelian dan pengeluaran pribadi sudah siap hari ini.
+## landing.persona.otherTitle.en
+Other ways people use zippp
+## landing.persona.otherTitle.id
+Cara lain orang memakai zippp
+
+## landing.persona.resto.metaTitle.en
+Kitchen purchasing receipts to Google Sheets
+## landing.persona.resto.metaTitle.id
+Nota pembelian dapur ke Google Sheets
+## landing.persona.resto.metaDesc.en
+Staff photograph supplier notas. zippp sends line items to your inventory sheet so you stop retyping.
+## landing.persona.resto.metaDesc.id
+Staf foto nota pemasok. zippp mengirim baris ke sheet stok Anda supaya tidak perlu mengetik ulang.
+## landing.persona.resto.title1.en
+Staff snap the *nota*.
+## landing.persona.resto.title1.id
+Staf jepret notanya.
+## landing.persona.resto.title2.en
+Your *sheet* fills.
+## landing.persona.resto.title2.id
+Sheet Anda terisi.
+## landing.persona.resto.body.en
+Purchasing staff photograph supplier receipts on the phone. You check what zippp read, then the rows land in your kitchen inventory sheet.
+## landing.persona.resto.body.id
+Staf pembelian foto nota pemasok di ponsel. Anda periksa bacaan zippp, lalu barisnya masuk ke sheet stok dapur.
+## landing.persona.resto.outcomeTitle.en
+Built for kitchen and shop purchasing
+## landing.persona.resto.outcomeTitle.id
+Untuk pembelian dapur dan toko
+## landing.persona.resto.outcomeBody.en
+One credit per accepted receipt. Failed reads cost nothing. Your Google Sheet stays the system of record; zippp is only the intake.
+## landing.persona.resto.outcomeBody.id
+Satu kredit per resi yang diterima. Bacaan gagal tidak dipotong. Google Sheet tetap sistem catatan Anda; zippp hanya pintu masuknya.
+## landing.persona.resto.foot.en
+Your next supplier nota, in the sheet in a minute.
+## landing.persona.resto.foot.id
+Nota pemasok berikutnya, masuk sheet dalam satu menit.
+
+## landing.persona.personal.metaTitle.en
+Personal expense receipts to Google Sheets
+## landing.persona.personal.metaTitle.id
+Struk pengeluaran pribadi ke Google Sheets
+## landing.persona.personal.metaDesc.en
+Photograph every spend. zippp adds the lines to your expense sheet with day and month totals.
+## landing.persona.personal.metaDesc.id
+Foto setiap pengeluaran. zippp menambahkan baris ke sheet Anda dengan total harian dan bulanan.
+## landing.persona.personal.title1.en
+Snap *every* spend.
+## landing.persona.personal.title1.id
+Foto setiap pengeluaran.
+## landing.persona.personal.title2.en
+Totals stay in Sheets.
+## landing.persona.personal.title2.id
+Totalnya di Sheets.
+## landing.persona.personal.body.en
+Photograph receipts as you go. Check the read, send the rows, and keep day and month totals in a sheet you already know how to use.
+## landing.persona.personal.body.id
+Foto struk sepanjang hari. Periksa bacaan, kirim barisnya, dan simpan total harian serta bulanan di sheet yang sudah Anda pakai.
+## landing.persona.personal.outcomeTitle.en
+Built for personal spending
+## landing.persona.personal.outcomeTitle.id
+Untuk pengeluaran pribadi
+## landing.persona.personal.outcomeBody.en
+Pay only for what you accept. Credits last 30 days. No second ledger — just cleaner rows in your own Google Sheet.
+## landing.persona.personal.outcomeBody.id
+Bayar hanya untuk yang Anda terima. Kredit berlaku 30 hari. Bukan buku kedua — hanya baris lebih rapi di Google Sheet Anda sendiri.
+## landing.persona.personal.foot.en
+Your next receipt, logged without typing.
+## landing.persona.personal.foot.id
+Struk berikutnya, tercatat tanpa mengetik.
+
+## landing.persona.sales.metaTitle.en
+Daily sales recap from paper notas
+## landing.persona.sales.metaTitle.id
+Rekap penjualan harian dari nota kertas
+## landing.persona.sales.metaDesc.en
+Photograph sales notas and land a daily recap in your Google Sheet month tab.
+## landing.persona.sales.metaDesc.id
+Foto nota penjualan dan dapatkan rekap harian di tab bulan Google Sheet Anda.
+## landing.persona.sales.title1.en
+Paper sales.
+## landing.persona.sales.title1.id
+Penjualan di kertas.
+## landing.persona.sales.title2.en
+Daily *recap* in Sheets.
+## landing.persona.sales.title2.id
+Rekap harian di Sheets.
+## landing.persona.sales.body.en
+Photograph your sales notas at the end of the day. zippp reads them so the month tab can show the daily recap without retyping.
+## landing.persona.sales.body.id
+Foto nota penjualan di akhir hari. zippp membacanya supaya tab bulan bisa menampilkan rekap harian tanpa mengetik ulang.
+## landing.persona.sales.outcomeTitle.en
+Built for daily sales recaps
+## landing.persona.sales.outcomeTitle.id
+Untuk rekap penjualan harian
+## landing.persona.sales.outcomeBody.en
+Month tabs and daily totals are the point. You keep the sheet; zippp fills the rows from the paper you already print.
+## landing.persona.sales.outcomeBody.id
+Tab bulanan dan total harian adalah intinya. Sheet tetap milik Anda; zippp mengisi baris dari kertas yang sudah Anda cetak.
+## landing.persona.sales.foot.en
+Close the day without retyping every nota.
+## landing.persona.sales.foot.id
+Tutup hari tanpa mengetik ulang setiap nota.
+
+## landing.persona.reimburse.metaTitle.en
+Reimbursement claims with receipt photos
+## landing.persona.reimburse.metaTitle.id
+Klaim penggantian dengan foto resi
+## landing.persona.reimburse.metaDesc.en
+One month tab plus Drive photo proof. Share the sheet when you file the claim.
+## landing.persona.reimburse.metaDesc.id
+Satu tab per bulan plus bukti foto di Drive. Bagikan sheet saat mengajukan klaim.
+## landing.persona.reimburse.title1.en
+Receipts for the claim.
+## landing.persona.reimburse.title1.id
+Resi untuk klaim.
+## landing.persona.reimburse.title2.en
+Sheet plus *photo proof*.
+## landing.persona.reimburse.title2.id
+Sheet plus bukti foto.
+## landing.persona.reimburse.body.en
+Snap each receipt for the claim pack. Rows land in a month tab; optional photo proof goes to your Google Drive and links from the row.
+## landing.persona.reimburse.body.id
+Jepret setiap resi untuk paket klaim. Baris masuk tab bulanan; bukti foto opsional ke Google Drive Anda dan tertaut dari baris.
+## landing.persona.reimburse.outcomeTitle.en
+Built for reimbursement claims
+## landing.persona.reimburse.outcomeTitle.id
+Untuk klaim penggantian
+## landing.persona.reimburse.outcomeBody.en
+Share one sheet with finance. They see the lines and the linked photos without digging through a chat thread.
+## landing.persona.reimburse.outcomeBody.id
+Bagikan satu sheet ke finance. Mereka melihat baris dan foto tertaut tanpa mengorek-ngorek chat.
+## landing.persona.reimburse.foot.en
+Send the claim pack, not a pile of photos.
+## landing.persona.reimburse.foot.id
+Kirim paket klaim, bukan tumpukan foto.
+
+## nav.useCases.en
+Use cases
+## nav.useCases.id
+Kasus pakai
+## nav.proof.en
+Proof
+## nav.proof.id
+Bukti
+## footer.useCases.en
+Use cases
+## footer.useCases.id
+Kasus pakai
+## footer.compare.en
+Compare
+## footer.compare.id
+Bandingkan
+
+## landing.integrations.label.en
+Works with
+## landing.integrations.label.id
+Terintegrasi dengan
+## landing.integrations.sheets.en
+Google Sheets
+## landing.integrations.sheets.id
+Google Sheets
+## landing.integrations.drive.en
+Google Drive
+## landing.integrations.drive.id
+Google Drive
+
+## landing.doodle.try.en
+start here
+## landing.doodle.try.id
+mulai di sini
+## landing.doodle.sheet.en
+your real sheet
+## landing.doodle.sheet.id
+sheet asli Anda
+
+## landing.how.lead.en
+Photograph, check flagged fields, send. The sheet stays yours.
+## landing.how.lead.id
+Foto, periksa kolom yang ditandai, kirim. Sheet tetap milik Anda.
+
+## landing.sheet.badge.en
+Sample sheet
+## landing.sheet.badge.id
+Contoh sheet
+## landing.sheet.caption.en
+Illustrative rows. Your live sheet uses the same columns after you pick a template.
+## landing.sheet.caption.id
+Baris contoh. Sheet live Anda memakai kolom yang sama setelah memilih template.
+
+## landing.flow.snapCue.en
+Hold steady
+## landing.flow.snapCue.id
+Tahan stabil
+## landing.flow.merchant.en
+Merchant
+## landing.flow.merchant.id
+Toko
+## landing.flow.total.en
+Total
+## landing.flow.total.id
+Total
+## landing.flow.accept.en
+Accept
+## landing.flow.accept.id
+Terima
+## landing.flow.sent.en
+Rows sent
+## landing.flow.sent.id
+Baris terkirim
+## landing.flow.sentHint.en
+Open Google Sheets
+## landing.flow.sentHint.id
+Buka Google Sheets
+
+## landing.impact.eyebrow.en
+Why buying zippp pays back
+## landing.impact.eyebrow.id
+Kenapa beli zippp menguntungkan
+## landing.impact.title.en
+Less typing. Cleaner books. Faster close.
+## landing.impact.title.id
+Lebih sedikit ketik. Buku lebih rapi. Closing lebih cepat.
+## landing.impact.body.en
+Operators stop paying staff to retype notas. The sheet fills from photos you already take. Credits only spend when a receipt is accepted.
+## landing.impact.body.id
+Operator berhenti bayar staf untuk mengetik ulang nota. Sheet terisi dari foto yang sudah diambil. Kredit hanya terpakai saat resi diterima.
+## landing.impact.stat.hours.value.en
+~2 hrs
+## landing.impact.stat.hours.value.id
+~2 jam
+## landing.impact.stat.hours.label.en
+saved per busy day of purchasing entry
+## landing.impact.stat.hours.label.id
+tersimpan per hari sibuk entri pembelian
+## landing.impact.stat.rows.value.en
+1 credit
+## landing.impact.stat.rows.value.id
+1 kredit
+## landing.impact.stat.rows.label.en
+per accepted receipt, never on a failed read
+## landing.impact.stat.rows.label.id
+per resi diterima, tidak pernah pada bacaan gagal
+## landing.impact.stat.cost.value.en
+Rp 150
+## landing.impact.stat.cost.value.id
+Rp 150
+## landing.impact.stat.cost.label.en
+per scan in Indonesia; $0.09 internationally
+## landing.impact.stat.cost.label.id
+per scan di Indonesia; setara paket internasional
+
+## landing.stories.title.en
+Stories after zippp
+## landing.stories.title.id
+Cerita setelah pakai zippp
+## landing.stories.placeholder.en
+Sample quotes
+## landing.stories.placeholder.id
+Kutipan contoh
+## landing.stories.q1.name.en
+Raka S.
+## landing.stories.q1.name.id
+Raka S.
+## landing.stories.q1.role.en
+Kitchen operator, Jakarta
+## landing.stories.q1.role.id
+Operator dapur, Jakarta
+## landing.stories.q1.quote.en
+Staff used to type every supplier nota after market. Now they snap and I review the sheet at night.
+## landing.stories.q1.quote.id
+Staf dulu mengetik setiap nota pemasok setelah belanja. Sekarang mereka jepret, saya cek sheet malam hari.
+## landing.stories.q1.result.en
+Purchasing entry cut from evening overtime to a 10-minute review.
+## landing.stories.q1.result.id
+Entri pembelian dari lembur malam jadi review 10 menit.
+## landing.stories.q2.name.en
+Maya L.
+## landing.stories.q2.name.id
+Maya L.
+## landing.stories.q2.role.en
+Freelance, Singapore
+## landing.stories.q2.role.id
+Pekerja lepas, Singapura
+## landing.stories.q2.quote.en
+I hated expense apps that locked my data. zippp drops rows into the Sheet I already share with my accountant.
+## landing.stories.q2.quote.id
+Saya benci aplikasi expense yang mengunci data. zippp menjatuhkan baris ke Sheet yang sudah saya bagikan ke akuntan.
+## landing.stories.q2.result.en
+Month-end export became open the same tab.
+## landing.stories.q2.result.id
+Ekspor akhir bulan jadi buka tab yang sama.
+## landing.stories.q3.name.en
+Dimas P.
+## landing.stories.q3.name.id
+Dimas P.
+## landing.stories.q3.role.en
+Cafe owner, Bandung
+## landing.stories.q3.role.id
+Pemilik kafe, Bandung
+## landing.stories.q3.quote.en
+The check step matters. Wrong totals get flagged before they hit inventory.
+## landing.stories.q3.quote.id
+Langkah periksa penting. Total yang salah ditandai sebelum masuk stok.
+## landing.stories.q3.result.en
+Fewer silent mistakes in the kitchen sheet.
+## landing.stories.q3.result.id
+Lebih sedikit kesalahan diam di sheet dapur.
+
+## landing.founder.eyebrow.en
+Built in the open
+## landing.founder.eyebrow.id
+Dibangun secara terbuka
+## landing.founder.body.en
+I built zippp because shops already live in Google Sheets. The job is not another ledger. It is getting paper into those rows without retyping, and never silently wrong.
+## landing.founder.body.id
+Saya membuat zippp karena toko sudah hidup di Google Sheets. Tugasnya bukan buku besar baru. Tugasnya memasukkan kertas ke baris itu tanpa mengetik ulang, dan tidak pernah salah diam-diam.
+## landing.founder.name.en
+Aldan Arkara
+## landing.founder.name.id
+Aldan Arkara
+## landing.founder.role.en
+Founder, zippp
+## landing.founder.role.id
+Founder, zippp
+
+## landing.vs.eyebrow.en
+Compare
+## landing.vs.eyebrow.id
+Bandingkan
+## landing.vs.cta.en
+Try zippp
+## landing.vs.cta.id
+Coba zippp
+## landing.vs.tableTitle.en
+Side by side
+## landing.vs.tableTitle.id
+Bersebelahan
+## landing.vs.col.feature.en
+Feature
+## landing.vs.col.feature.id
+Fitur
+## landing.vs.disclaimer.en
+Competitor features change. This page reflects publicly described positioning. Verify on their site before you switch.
+## landing.vs.disclaimer.id
+Fitur kompetitor berubah. Halaman ini mencerminkan posisi yang dipublikasikan. Verifikasi di situs mereka sebelum beralih.
+## landing.vs.whyTitle.en
+Why teams pick zippp
+## landing.vs.whyTitle.id
+Kenapa tim memilih zippp
+## landing.vs.otherTitle.en
+More comparisons
+## landing.vs.otherTitle.id
+Perbandingan lain
+## landing.vs.foot.en
+Keep the sheet. Skip the typing.
+## landing.vs.foot.id
+Pertahankan sheet. Lewati mengetik.
+## landing.vs.row.destination.en
+Where data lives
+## landing.vs.row.destination.id
+Di mana data tinggal
+## landing.vs.row.lineItems.en
+Line items
+## landing.vs.row.lineItems.id
+Baris item
+## landing.vs.row.checkStep.en
+Human check before write
+## landing.vs.row.checkStep.id
+Periksa manusia sebelum tulis
+## landing.vs.row.indonesia.en
+Indonesian notas and IDR pricing
+## landing.vs.row.indonesia.id
+Nota Indonesia dan harga IDR
+## landing.vs.row.pricing.en
+Pricing shape
+## landing.vs.row.pricing.id
+Bentuk harga
+## landing.vs.row.photoProof.en
+Photo proof in your Drive
+## landing.vs.row.photoProof.id
+Bukti foto di Drive Anda
+## landing.vs.row.lockIn.en
+Vendor lock-in
+## landing.vs.row.lockIn.id
+Terkunci di vendor
+
+## landing.vs.snaply.metaTitle.en
+zippp vs Snaply
+## landing.vs.snaply.metaTitle.id
+zippp vs Snaply
+## landing.vs.snaply.metaDesc.en
+Compare zippp and Snaply-style receipt snap apps. zippp writes line items to your Google Sheet with a check step.
+## landing.vs.snaply.metaDesc.id
+Bandingkan zippp dan aplikasi jepret resi ala Snaply. zippp menulis baris item ke Google Sheet dengan langkah periksa.
+## landing.vs.snaply.title.en
+zippp vs *Snaply*
+## landing.vs.snaply.title.id
+zippp vs *Snaply*
+## landing.vs.snaply.body.en
+Snaply-style apps are great at capturing photos. zippp is built so the *sheet* is the product: line items, check, then append.
+## landing.vs.snaply.body.id
+Aplikasi ala Snaply hebat menangkap foto. zippp dibangun supaya *sheet*-nya yang jadi produk: baris item, periksa, lalu append.
+## landing.vs.snaply.zippp.destination.en
+Your Google Sheet
+## landing.vs.snaply.zippp.destination.id
+Google Sheet Anda
+## landing.vs.snaply.them.destination.en
+Often an in-app ledger first
+## landing.vs.snaply.them.destination.id
+Sering buku di dalam app dulu
+## landing.vs.snaply.zippp.lineItems.en
+One row per line item
+## landing.vs.snaply.zippp.lineItems.id
+Satu baris per item
+## landing.vs.snaply.them.lineItems.en
+Varies; many store totals only
+## landing.vs.snaply.them.lineItems.id
+Beragam; banyak hanya total
+## landing.vs.snaply.zippp.checkStep.en
+Flagged fields must be tapped
+## landing.vs.snaply.zippp.checkStep.id
+Kolom ditandai harus diketuk
+## landing.vs.snaply.them.checkStep.en
+Depends on the product
+## landing.vs.snaply.them.checkStep.id
+Tergantung produknya
+## landing.vs.snaply.zippp.indonesia.en
+Built for ID notas + DOKU top-up
+## landing.vs.snaply.zippp.indonesia.id
+Untuk nota ID + top-up DOKU
+## landing.vs.snaply.them.indonesia.en
+Not IDR-first
+## landing.vs.snaply.them.indonesia.id
+Bukan IDR-first
+## landing.vs.snaply.zippp.pricing.en
+Credits from Rp 15k / $9 pack
+## landing.vs.snaply.zippp.pricing.id
+Kredit dari Rp 15rb / paket $9
+## landing.vs.snaply.them.pricing.en
+Usually subscription
+## landing.vs.snaply.them.pricing.id
+Biasanya langganan
+## landing.vs.snaply.zippp.photoProof.en
+Optional link in your Drive
+## landing.vs.snaply.zippp.photoProof.id
+Tautan opsional di Drive Anda
+## landing.vs.snaply.them.photoProof.en
+Vendor cloud common
+## landing.vs.snaply.them.photoProof.id
+Cloud vendor umum
+## landing.vs.snaply.zippp.lockIn.en
+Sheet stays yours if you leave
+## landing.vs.snaply.zippp.lockIn.id
+Sheet tetap milik Anda jika keluar
+## landing.vs.snaply.them.lockIn.en
+Export steps to leave
+## landing.vs.snaply.them.lockIn.id
+Perlu ekspor untuk keluar
+## landing.vs.snaply.why1.en
+Your Google Sheet stays the system of record.
+## landing.vs.snaply.why1.id
+Google Sheet Anda tetap sistem catatan.
+## landing.vs.snaply.why2.en
+Credits beat subscriptions when scan volume is uneven.
+## landing.vs.snaply.why2.id
+Kredit mengalahkan langganan saat volume tidak rata.
+## landing.vs.snaply.why3.en
+Flagged fields stop silent bad rows.
+## landing.vs.snaply.why3.id
+Kolom ditandai menghentikan baris salah diam-diam.
+## landing.vs.sheetify.metaTitle.en
+zippp vs Sheetify
+## landing.vs.sheetify.metaTitle.id
+zippp vs Sheetify
+## landing.vs.sheetify.metaDesc.en
+zippp vs Sheetify for receipt-to-Google-Sheets. Line items, Indonesian pricing, and a forced check step.
+## landing.vs.sheetify.metaDesc.id
+zippp vs Sheetify untuk resi ke Google Sheets. Baris item, harga Indonesia, dan langkah periksa wajib.
+## landing.vs.sheetify.title.en
+zippp vs *Sheetify*
+## landing.vs.sheetify.title.id
+zippp vs *Sheetify*
+## landing.vs.sheetify.body.en
+Both aim at Sheets. zippp leans harder on *line-item rows*, kitchen purchasing templates, and Indonesian top-up.
+## landing.vs.sheetify.body.id
+Keduanya menuju Sheets. zippp lebih menekan *baris per item*, template pembelian dapur, dan top-up Indonesia.
+## landing.vs.sheetify.zippp.destination.en
+Your Google Sheet
+## landing.vs.sheetify.zippp.destination.id
+Google Sheet Anda
+## landing.vs.sheetify.them.destination.en
+Google Sheets
+## landing.vs.sheetify.them.destination.id
+Google Sheets
+## landing.vs.sheetify.zippp.lineItems.en
+One row per line item
+## landing.vs.sheetify.zippp.lineItems.id
+Satu baris per item
+## landing.vs.sheetify.them.lineItems.en
+Vendor, date, total focused
+## landing.vs.sheetify.them.lineItems.id
+Fokus vendor, tanggal, total
+## landing.vs.sheetify.zippp.checkStep.en
+Flagged fields must be tapped
+## landing.vs.sheetify.zippp.checkStep.id
+Kolom ditandai harus diketuk
+## landing.vs.sheetify.them.checkStep.en
+Review before send
+## landing.vs.sheetify.them.checkStep.id
+Tinjau sebelum kirim
+## landing.vs.sheetify.zippp.indonesia.en
+Built for ID notas + DOKU top-up
+## landing.vs.sheetify.zippp.indonesia.id
+Untuk nota ID + top-up DOKU
+## landing.vs.sheetify.them.indonesia.en
+Global app store focus
+## landing.vs.sheetify.them.indonesia.id
+Fokus app store global
+## landing.vs.sheetify.zippp.pricing.en
+Credits from Rp 15k / $9 pack
+## landing.vs.sheetify.zippp.pricing.id
+Kredit dari Rp 15rb / paket $9
+## landing.vs.sheetify.them.pricing.en
+App store plans
+## landing.vs.sheetify.them.pricing.id
+Paket app store
+## landing.vs.sheetify.zippp.photoProof.en
+Optional link in your Drive
+## landing.vs.sheetify.zippp.photoProof.id
+Tautan opsional di Drive Anda
+## landing.vs.sheetify.them.photoProof.en
+Drive folder support
+## landing.vs.sheetify.them.photoProof.id
+Dukungan folder Drive
+## landing.vs.sheetify.zippp.lockIn.en
+Sheet stays yours if you leave
+## landing.vs.sheetify.zippp.lockIn.id
+Sheet tetap milik Anda jika keluar
+## landing.vs.sheetify.them.lockIn.en
+Data in your Drive/Sheet
+## landing.vs.sheetify.them.lockIn.id
+Data di Drive/Sheet Anda
+## landing.vs.sheetify.why1.en
+Purchasing templates with staff and outlet fields.
+## landing.vs.sheetify.why1.id
+Template pembelian dengan staf dan outlet.
+## landing.vs.sheetify.why2.en
+IDR credits via DOKU for Indonesian shops.
+## landing.vs.sheetify.why2.id
+Kredit IDR via DOKU untuk toko Indonesia.
+## landing.vs.sheetify.why3.en
+Verifier flags values that are not in the OCR text.
+## landing.vs.sheetify.why3.id
+Verifier menandai nilai yang tidak ada di teks OCR.
+## landing.vs.scan2sheet.metaTitle.en
+zippp vs Scan2Sheet
+## landing.vs.scan2sheet.metaTitle.id
+zippp vs Scan2Sheet
+## landing.vs.scan2sheet.metaDesc.en
+Compare zippp and Scan2Sheet. zippp focuses on check-before-send and kitchen purchasing sheets.
+## landing.vs.scan2sheet.metaDesc.id
+Bandingkan zippp dan Scan2Sheet. zippp fokus pada periksa-sebelum-kirim dan sheet pembelian dapur.
+## landing.vs.scan2sheet.title.en
+zippp vs *Scan2Sheet*
+## landing.vs.scan2sheet.title.id
+zippp vs *Scan2Sheet*
+## landing.vs.scan2sheet.body.en
+Scan2Sheet syncs expenses to Sheets. zippp is the *intake mill* for shops that already run on a sheet.
+## landing.vs.scan2sheet.body.id
+Scan2Sheet menyinkronkan expense ke Sheets. zippp adalah *pabrik intake* untuk toko yang sudah jalan di sheet.
+## landing.vs.scan2sheet.zippp.destination.en
+Your Google Sheet
+## landing.vs.scan2sheet.zippp.destination.id
+Google Sheet Anda
+## landing.vs.scan2sheet.them.destination.en
+Google Sheets
+## landing.vs.scan2sheet.them.destination.id
+Google Sheets
+## landing.vs.scan2sheet.zippp.lineItems.en
+One row per line item
+## landing.vs.scan2sheet.zippp.lineItems.id
+Satu baris per item
+## landing.vs.scan2sheet.them.lineItems.en
+Merchant, qty, totals
+## landing.vs.scan2sheet.them.lineItems.id
+Toko, qty, total
+## landing.vs.scan2sheet.zippp.checkStep.en
+Flagged fields must be tapped
+## landing.vs.scan2sheet.zippp.checkStep.id
+Kolom ditandai harus diketuk
+## landing.vs.scan2sheet.them.checkStep.en
+AI extract then sync
+## landing.vs.scan2sheet.them.checkStep.id
+AI ekstrak lalu sync
+## landing.vs.scan2sheet.zippp.indonesia.en
+Built for ID notas + DOKU top-up
+## landing.vs.scan2sheet.zippp.indonesia.id
+Untuk nota ID + top-up DOKU
+## landing.vs.scan2sheet.them.indonesia.en
+Global SaaS pricing
+## landing.vs.scan2sheet.them.indonesia.id
+Harga SaaS global
+## landing.vs.scan2sheet.zippp.pricing.en
+Credits from Rp 15k / $9 pack
+## landing.vs.scan2sheet.zippp.pricing.id
+Kredit dari Rp 15rb / paket $9
+## landing.vs.scan2sheet.them.pricing.en
+Monthly tiers by volume
+## landing.vs.scan2sheet.them.pricing.id
+Tier bulanan per volume
+## landing.vs.scan2sheet.zippp.photoProof.en
+Optional link in your Drive
+## landing.vs.scan2sheet.zippp.photoProof.id
+Tautan opsional di Drive Anda
+## landing.vs.scan2sheet.them.photoProof.en
+Cloud + sheet link
+## landing.vs.scan2sheet.them.photoProof.id
+Cloud + tautan sheet
+## landing.vs.scan2sheet.zippp.lockIn.en
+Sheet stays yours if you leave
+## landing.vs.scan2sheet.zippp.lockIn.id
+Sheet tetap milik Anda jika keluar
+## landing.vs.scan2sheet.them.lockIn.en
+Account + sheet
+## landing.vs.scan2sheet.them.lockIn.id
+Akun + sheet
+## landing.vs.scan2sheet.why1.en
+Pay per accepted scan, not a seat.
+## landing.vs.scan2sheet.why1.id
+Bayar per scan diterima, bukan seat.
+## landing.vs.scan2sheet.why2.en
+Designed for supplier notas and outlets.
+## landing.vs.scan2sheet.why2.id
+Dirancang untuk nota pemasok dan outlet.
+## landing.vs.scan2sheet.why3.en
+Human confirm on amber fields before append.
+## landing.vs.scan2sheet.why3.id
+Konfirmasi manusia pada kolom amber sebelum append.
+## landing.vs.expensify.metaTitle.en
+zippp vs Expensify
+## landing.vs.expensify.metaTitle.id
+zippp vs Expensify
+## landing.vs.expensify.metaDesc.en
+zippp vs Expensify: keep Google Sheets as the ledger instead of another expense suite.
+## landing.vs.expensify.metaDesc.id
+zippp vs Expensify: tetap pakai Google Sheets sebagai ledger, bukan suite expense lain.
+## landing.vs.expensify.title.en
+zippp vs *Expensify*
+## landing.vs.expensify.title.id
+zippp vs *Expensify*
+## landing.vs.expensify.body.en
+Expensify is an expense platform. zippp is thinner: *photo to your Sheet*, then you stay in Google.
+## landing.vs.expensify.body.id
+Expensify adalah platform expense. zippp lebih tipis: *foto ke Sheet Anda*, lalu Anda tetap di Google.
+## landing.vs.expensify.zippp.destination.en
+Your Google Sheet
+## landing.vs.expensify.zippp.destination.id
+Google Sheet Anda
+## landing.vs.expensify.them.destination.en
+Expensify first; Sheets via export/Zapier
+## landing.vs.expensify.them.destination.id
+Expensify dulu; Sheets via ekspor/Zapier
+## landing.vs.expensify.zippp.lineItems.en
+One row per line item
+## landing.vs.expensify.zippp.lineItems.id
+Satu baris per item
+## landing.vs.expensify.them.lineItems.en
+Strong expense reports
+## landing.vs.expensify.them.lineItems.id
+Laporan expense kuat
+## landing.vs.expensify.zippp.checkStep.en
+Flagged fields must be tapped
+## landing.vs.expensify.zippp.checkStep.id
+Kolom ditandai harus diketuk
+## landing.vs.expensify.them.checkStep.en
+Approvals and policies
+## landing.vs.expensify.them.checkStep.id
+Persetujuan dan kebijakan
+## landing.vs.expensify.zippp.indonesia.en
+Built for ID notas + DOKU top-up
+## landing.vs.expensify.zippp.indonesia.id
+Untuk nota ID + top-up DOKU
+## landing.vs.expensify.them.indonesia.en
+Enterprise global
+## landing.vs.expensify.them.indonesia.id
+Enterprise global
+## landing.vs.expensify.zippp.pricing.en
+Credits from Rp 15k / $9 pack
+## landing.vs.expensify.zippp.pricing.id
+Kredit dari Rp 15rb / paket $9
+## landing.vs.expensify.them.pricing.en
+Per user subscription
+## landing.vs.expensify.them.pricing.id
+Langganan per pengguna
+## landing.vs.expensify.zippp.photoProof.en
+Optional link in your Drive
+## landing.vs.expensify.zippp.photoProof.id
+Tautan opsional di Drive Anda
+## landing.vs.expensify.them.photoProof.en
+Inside Expensify
+## landing.vs.expensify.them.photoProof.id
+Di dalam Expensify
+## landing.vs.expensify.zippp.lockIn.en
+Sheet stays yours if you leave
+## landing.vs.expensify.zippp.lockIn.id
+Sheet tetap milik Anda jika keluar
+## landing.vs.expensify.them.lockIn.en
+Platform workflows
+## landing.vs.expensify.them.lockIn.id
+Alur platform
+## landing.vs.expensify.why1.en
+No second system of record to learn.
+## landing.vs.expensify.why1.id
+Tidak ada sistem catatan kedua untuk dipelajari.
+## landing.vs.expensify.why2.en
+Better fit when Sheets already is the book.
+## landing.vs.expensify.why2.id
+Lebih cocok saat Sheets sudah jadi buku.
+## landing.vs.expensify.why3.en
+Lower cost for small kitchens and solo trackers.
+## landing.vs.expensify.why3.id
+Biaya lebih rendah untuk dapur kecil dan pelacak solo.
+## landing.vs.smartscandoc.metaTitle.en
+zippp vs SmartScan Doc
+## landing.vs.smartscandoc.metaTitle.id
+zippp vs SmartScan Doc
+## landing.vs.smartscandoc.metaDesc.en
+zippp vs SmartScan Doc for Indonesian document OCR. zippp writes straight into Google Sheets templates.
+## landing.vs.smartscandoc.metaDesc.id
+zippp vs SmartScan Doc untuk OCR dokumen Indonesia. zippp menulis langsung ke template Google Sheets.
+## landing.vs.smartscandoc.title.en
+zippp vs *SmartScan Doc*
+## landing.vs.smartscandoc.title.id
+zippp vs *SmartScan Doc*
+## landing.vs.smartscandoc.body.en
+SmartScan covers many document types. zippp stays narrow: *receipts and invoices into Sheets*.
+## landing.vs.smartscandoc.body.id
+SmartScan mencakup banyak jenis dokumen. zippp tetap sempit: *resi dan faktur ke Sheets*.
+## landing.vs.smartscandoc.zippp.destination.en
+Your Google Sheet
+## landing.vs.smartscandoc.zippp.destination.id
+Google Sheet Anda
+## landing.vs.smartscandoc.them.destination.en
+Tables, Excel/PDF, accounting hooks
+## landing.vs.smartscandoc.them.destination.id
+Tabel, Excel/PDF, kait akuntansi
+## landing.vs.smartscandoc.zippp.lineItems.en
+One row per line item
+## landing.vs.smartscandoc.zippp.lineItems.id
+Satu baris per item
+## landing.vs.smartscandoc.them.lineItems.en
+Structured extract
+## landing.vs.smartscandoc.them.lineItems.id
+Ekstrak terstruktur
+## landing.vs.smartscandoc.zippp.checkStep.en
+Flagged fields must be tapped
+## landing.vs.smartscandoc.zippp.checkStep.id
+Kolom ditandai harus diketuk
+## landing.vs.smartscandoc.them.checkStep.en
+Edit in their table
+## landing.vs.smartscandoc.them.checkStep.id
+Edit di tabel mereka
+## landing.vs.smartscandoc.zippp.indonesia.en
+Built for ID notas + DOKU top-up
+## landing.vs.smartscandoc.zippp.indonesia.id
+Untuk nota ID + top-up DOKU
+## landing.vs.smartscandoc.them.indonesia.en
+Strong ID language support
+## landing.vs.smartscandoc.them.indonesia.id
+Dukungan bahasa ID kuat
+## landing.vs.smartscandoc.zippp.pricing.en
+Credits from Rp 15k / $9 pack
+## landing.vs.smartscandoc.zippp.pricing.id
+Kredit dari Rp 15rb / paket $9
+## landing.vs.smartscandoc.them.pricing.en
+Document quotas
+## landing.vs.smartscandoc.them.pricing.id
+Kuota dokumen
+## landing.vs.smartscandoc.zippp.photoProof.en
+Optional link in your Drive
+## landing.vs.smartscandoc.zippp.photoProof.id
+Tautan opsional di Drive Anda
+## landing.vs.smartscandoc.them.photoProof.en
+Their storage / export
+## landing.vs.smartscandoc.them.photoProof.id
+Penyimpanan / ekspor mereka
+## landing.vs.smartscandoc.zippp.lockIn.en
+Sheet stays yours if you leave
+## landing.vs.smartscandoc.zippp.lockIn.id
+Sheet tetap milik Anda jika keluar
+## landing.vs.smartscandoc.them.lockIn.en
+Parser workspace
+## landing.vs.smartscandoc.them.lockIn.id
+Workspace parser
+## landing.vs.smartscandoc.why1.en
+Sheets-native templates for kitchens and claims.
+## landing.vs.smartscandoc.why1.id
+Template native Sheets untuk dapur dan klaim.
+## landing.vs.smartscandoc.why2.en
+Phone snap flow built for daily purchasing.
+## landing.vs.smartscandoc.why2.id
+Alur jepret ponsel untuk pembelian harian.
+## landing.vs.smartscandoc.why3.en
+Credits map 1:1 to accepted receipts.
+## landing.vs.smartscandoc.why3.id
+Kredit 1:1 dengan resi yang diterima.
+## landing.vs.typing.metaTitle.en
+zippp vs typing into Sheets
+## landing.vs.typing.metaTitle.id
+zippp vs mengetik ke Sheets
+## landing.vs.typing.metaDesc.en
+Stop retyping receipts into Google Sheets. zippp photographs, checks, and appends line items.
+## landing.vs.typing.metaDesc.id
+Berhenti mengetik ulang resi ke Google Sheets. zippp memfoto, memeriksa, dan menambahkan baris item.
+## landing.vs.typing.title.en
+zippp vs *typing* into Sheets
+## landing.vs.typing.title.id
+zippp vs *mengetik* ke Sheets
+## landing.vs.typing.body.en
+The real competitor is a staff member with a keyboard. zippp removes that *retype loop*.
+## landing.vs.typing.body.id
+Kompetitor sungguhan adalah staf dengan keyboard. zippp menghapus *loop ketik ulang* itu.
+## landing.vs.typing.zippp.destination.en
+Your Google Sheet
+## landing.vs.typing.zippp.destination.id
+Google Sheet Anda
+## landing.vs.typing.them.destination.en
+Your Google Sheet
+## landing.vs.typing.them.destination.id
+Google Sheet Anda
+## landing.vs.typing.zippp.lineItems.en
+One row per line item
+## landing.vs.typing.zippp.lineItems.id
+Satu baris per item
+## landing.vs.typing.them.lineItems.en
+Whatever they type
+## landing.vs.typing.them.lineItems.id
+Apa pun yang diketik
+## landing.vs.typing.zippp.checkStep.en
+Flagged fields must be tapped
+## landing.vs.typing.zippp.checkStep.id
+Kolom ditandai harus diketuk
+## landing.vs.typing.them.checkStep.en
+Typos slip in
+## landing.vs.typing.them.checkStep.id
+Salah ketik masuk
+## landing.vs.typing.zippp.indonesia.en
+Built for ID notas + DOKU top-up
+## landing.vs.typing.zippp.indonesia.id
+Untuk nota ID + top-up DOKU
+## landing.vs.typing.them.indonesia.en
+Works, slowly
+## landing.vs.typing.them.indonesia.id
+Jalan, pelan
+## landing.vs.typing.zippp.pricing.en
+Credits from Rp 15k / $9 pack
+## landing.vs.typing.zippp.pricing.id
+Kredit dari Rp 15rb / paket $9
+## landing.vs.typing.them.pricing.en
+Staff wages / overtime
+## landing.vs.typing.them.pricing.id
+Gaji staf / lembur
+## landing.vs.typing.zippp.photoProof.en
+Optional link in your Drive
+## landing.vs.typing.zippp.photoProof.id
+Tautan opsional di Drive Anda
+## landing.vs.typing.them.photoProof.en
+Chat photo piles
+## landing.vs.typing.them.photoProof.id
+Tumpukan foto di chat
+## landing.vs.typing.zippp.lockIn.en
+Sheet stays yours if you leave
+## landing.vs.typing.zippp.lockIn.id
+Sheet tetap milik Anda jika keluar
+## landing.vs.typing.them.lockIn.en
+None, but slow
+## landing.vs.typing.them.lockIn.id
+Tidak ada, tapi lambat
+## landing.vs.typing.why1.en
+Minutes per nota instead of full retype.
+## landing.vs.typing.why1.id
+Menit per nota, bukan ketik penuh.
+## landing.vs.typing.why2.en
+Photos can link from the row for proof.
+## landing.vs.typing.why2.id
+Foto bisa tertaut dari baris sebagai bukti.
+## landing.vs.typing.why3.en
+Same sheet your team already opens.
+## landing.vs.typing.why3.id
+Sheet yang sama yang sudah dibuka tim Anda.

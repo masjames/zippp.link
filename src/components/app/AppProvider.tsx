@@ -46,6 +46,8 @@ export type SheetCandidate = { id: string; name: string; modifiedTime: string };
 export type SheetTemplateId =
     | "resto-inventory"
     | "personal-expense"
+    | "sales-recap"
+    | "reimbursement"
     | "custom";
 
 /** One screen at a time for the sheet connect flow. */

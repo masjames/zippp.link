@@ -21,19 +21,51 @@ The sheet stays the system of record. zippp is the intake mill.
 
 ---
 
-## Landing page `/`
+## Landing page `/` (master)
 
 - Worldwide `/` (USD, English) and Indonesia `/id` (IDR, Indonesian). A region
-  dropdown in the nav (globe / Indonesia flag) switches language and currency.
-  The app Settings language selector changes app copy only; currency stays with
-  the region.
-- Sections: hero with a media slot, How it works (three steps), product
-  showcase (sheet + demo slots), **four persona cards**, testimonials
-  placeholder, credit pricing + referral, FAQ, CTAs that sign in with Google.
-- Media and testimonials render as placeholders. Drop
-  `public/landing/app-<lang>.png`, `sheet-<lang>.png`, or `demo-<lang>.mp4`
-  and the page picks them up (`src/lib/landing-assets.ts`).
+  dropdown in the nav switches language and currency. App Settings language is
+  copy-only; currency stays with the region.
+- Sections: hero + Google Sheets/Drive badges, How it works (app-flow mock),
+  product showcase (sheet mock or `public/landing/` assets), **four persona
+  cards** linking to `/for-*` pages, impact proof + sample stories (Aldan
+  Arkara), credit pricing + referral, FAQ, CTAs that sign in with Google.
+- Card order: `/id` leads with purchasing; `/` leads with personal expense.
+- Optional media: drop `public/landing/app-<lang>.png`, `sheet-<lang>.png`, or
+  `demo-<lang>.mp4` (`src/lib/landing-assets.ts`).
 - Footer links to public information pages and the operator contact line.
+
+## Use-case landing pages (flat `for-*`)
+
+Master is the hub. Each persona has its own route (same slug EN and ID):
+
+| Persona | Template | Soft-launch | `/` (intl) | `/id` |
+|---|---|---|---|---|
+| Purchasing (Sonny) | `resto-inventory` | no — ads OK | `/for-purchasing` | `/id/for-purchasing` |
+| Expenses (Bibian) | `personal-expense` | no — ads OK | `/for-expenses` | `/id/for-expenses` |
+| Sales (Fais) | `sales-recap` | no — create OK | `/for-sales` | `/id/for-sales` |
+| Reimburse (Bagas) | `reimbursement` | no — create OK | `/for-reimbursement` | `/id/for-reimbursement` |
+
+Templates `sales-recap` and `reimbursement` can be created from Settings.
+Month-tab / daily-block flywheel may still be incomplete; ads can still prefer
+purchasing + expenses. Copy in `wording.txt` under `landing.persona.*`.
+Helpers: `src/lib/personas.ts`, `src/components/landing/PersonaLanding.tsx`.
+
+## Compare pages (PhotoAI-style)
+
+Flat slugs under `/` and `/id/`:
+
+| Page | Route |
+|---|---|
+| zippp vs Snaply | `/vs-snaply` · `/id/vs-snaply` |
+| zippp vs Sheetify | `/vs-sheetify` · `/id/vs-sheetify` |
+| zippp vs Scan2Sheet | `/vs-scan2sheet` · `/id/vs-scan2sheet` |
+| zippp vs Expensify | `/vs-expensify` · `/id/vs-expensify` |
+| zippp vs SmartScan Doc | `/vs-smartscandoc` · `/id/vs-smartscandoc` |
+| zippp vs typing | `/vs-typing` · `/id/vs-typing` |
+
+Linked from the site footer. Helpers: `src/lib/competitors.ts`,
+`src/components/landing/VsLanding.tsx`.
 
 ## Public information pages
 
@@ -62,8 +94,9 @@ plus a small playable game. Copy lives under `notfound.*` in `wording.txt`.
 
 | Route | Screen | Who |
 |---|---|---|
-| `/` | English landing | everyone |
-| `/id` | Indonesian landing | everyone |
+| `/` | English master landing | everyone |
+| `/id` | Indonesian master landing | everyone |
+| `/for-*` · `/id/for-*` | Use-case landings (see above) | everyone |
 | `/app` | guard → `/app/snap` | everyone |
 | `/app/snap` | Camera + batch review (home) | signed in, sheet OK, credits |
 | `/app/topup` | DOKU (id) or Paddle (intl); `?doku=INVOICE` return status | signed in |

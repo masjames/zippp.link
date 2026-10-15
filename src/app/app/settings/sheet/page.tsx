@@ -8,6 +8,8 @@ import { fill } from "@/lib/t";
 const TEMPLATES: { id: SheetTemplateId; name: string; body: string }[] = [
     { id: "resto-inventory", name: "app.sheets.tpl.resto", body: "app.sheets.tpl.restoBody" },
     { id: "personal-expense", name: "app.sheets.tpl.expense", body: "app.sheets.tpl.expenseBody" },
+    { id: "sales-recap", name: "app.sheets.tpl.sales", body: "app.sheets.tpl.salesBody" },
+    { id: "reimbursement", name: "app.sheets.tpl.reimburse", body: "app.sheets.tpl.reimburseBody" },
     { id: "custom", name: "app.sheets.tpl.custom", body: "app.sheets.tpl.customBody" },
 ];
 

@@ -18,7 +18,7 @@ export function businessInfo(): BusinessInfo {
         email: process.env.CONTACT_EMAIL || "asilverspoong@gmail.com",
         whatsapp: process.env.CONTACT_WA || "",
         address: process.env.BUSINESS_ADDRESS || "",
-        operator: process.env.BUSINESS_OPERATOR || "zippp",
+        operator: process.env.BUSINESS_OPERATOR || "Aldan Arkara",
     };
 }
 

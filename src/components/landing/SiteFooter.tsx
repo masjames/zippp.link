@@ -1,22 +1,27 @@
+import { COMPETITORS, competitorHref } from "@/lib/competitors";
 import { LEGAL_PAGES, legalHref } from "@/lib/legal";
-import type { Lang } from "@/lib/region";
+import { PERSONAS, personaHref } from "@/lib/personas";
+import type { Lang, Region } from "@/lib/region";
 import type { T } from "@/lib/t";
 import type { BusinessInfo } from "@/lib/business";
 
 /**
- * Links to the public information pages plus the operator's contact line.
- * Shared by the landing and every legal page so reviewers can reach them all.
+ * Links to legal pages, use cases, and vs-competitor pages (PhotoAI-style).
  * Email is not printed here; scrapers follow the contact page reveal instead.
  */
 export default function SiteFooter({
     t,
     lang,
     business,
+    region,
 }: {
     t: T;
     lang: Lang;
     business: BusinessInfo;
+    region?: Region;
 }) {
+    const resolvedRegion: Region =
+        region ?? (lang === "id" ? "id" : "intl");
     const contact = legalHref("contact", lang);
     return (
         <div className="mx-auto max-w-[980px] px-6 py-8 text-sm text-muted">
@@ -31,7 +36,38 @@ export default function SiteFooter({
                     </a>
                 ))}
             </nav>
-            <p className="mt-4">
+
+            <p className="mt-6 text-xs font-bold uppercase tracking-wide text-body">
+                {t("footer.useCases")}
+            </p>
+            <nav className="mt-2 flex flex-wrap gap-x-5 gap-y-2">
+                {PERSONAS.map((p) => (
+                    <a
+                        key={p.id}
+                        href={personaHref(p.id, resolvedRegion)}
+                        className="font-semibold hover:text-body"
+                    >
+                        {t(`landing.who.${p.whoKey}.title`)}
+                    </a>
+                ))}
+            </nav>
+
+            <p className="mt-6 text-xs font-bold uppercase tracking-wide text-body">
+                {t("footer.compare")}
+            </p>
+            <nav className="mt-2 flex flex-wrap gap-x-5 gap-y-2">
+                {COMPETITORS.map((c) => (
+                    <a
+                        key={c.id}
+                        href={competitorHref(c.id, resolvedRegion)}
+                        className="font-semibold hover:text-body"
+                    >
+                        zippp vs {c.shortName}
+                    </a>
+                ))}
+            </nav>
+
+            <p className="mt-6">
                 {business.operator}
                 {business.address ? ` · ${business.address}` : ""}
                 {" · "}
