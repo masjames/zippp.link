@@ -2,6 +2,7 @@
 
 import AppFlowPreview from "./AppFlowPreview";
 import GoogleIntegrations from "./GoogleIntegrations";
+import GoogleSignInButton from "./GoogleSignInButton";
 import HeroSnapSheet from "./HeroSnapSheet";
 import ImpactProof from "./ImpactProof";
 import LandingNav from "./LandingNav";
@@ -47,19 +48,8 @@ export default function Landing({
                                 <p className="mt-5 max-w-[48ch] text-lg leading-relaxed sm:text-xl">
                                     <RichText text={t("landing.hero.body")} />
                                 </p>
-                                <div className="mt-8 flex flex-wrap gap-3">
-                                    <a
-                                        href="/api/auth/login"
-                                        className="inline-flex items-center rounded-full bg-maroon px-7 py-4 font-semibold text-white"
-                                    >
-                                        {t("landing.hero.cta")}
-                                    </a>
-                                    <a
-                                        href="#product"
-                                        className="inline-flex items-center rounded-full bg-peach px-7 py-4 font-semibold text-ink"
-                                    >
-                                        {t("landing.hero.cta2")}
-                                    </a>
+                                <div className="mt-8">
+                                    <GoogleSignInButton t={t} />
                                 </div>
                                 <div className="mt-7">
                                     <GoogleIntegrations t={t} />

@@ -65,12 +65,6 @@ export default function LandingNav({
                         indonesia: t("region.indonesia"),
                     }}
                 />
-                <a
-                    href="/api/auth/login"
-                    className="inline-flex items-center rounded-full bg-btn px-5 py-2.5 text-sm font-semibold text-btntext"
-                >
-                    {t("nav.signin")}
-                </a>
             </div>
         </nav>
     );

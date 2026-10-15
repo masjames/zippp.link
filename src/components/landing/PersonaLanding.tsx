@@ -2,6 +2,7 @@
 
 import AppFlowPreview from "./AppFlowPreview";
 import GoogleIntegrations from "./GoogleIntegrations";
+import GoogleSignInButton from "./GoogleSignInButton";
 import ImpactProof from "./ImpactProof";
 import PersonaSheetHero from "./PersonaSheetHero";
 import SiteFooter from "./SiteFooter";
@@ -65,12 +66,6 @@ export default function PersonaLanding({
                                     indonesia: t("region.indonesia"),
                                 }}
                             />
-                            <a
-                                href="/api/auth/login"
-                                className="inline-flex items-center rounded-full bg-btn px-5 py-2.5 text-sm font-semibold text-btntext"
-                            >
-                                {t("nav.signin")}
-                            </a>
                         </div>
                     </nav>
 
@@ -95,19 +90,8 @@ export default function PersonaLanding({
                                         {t("landing.persona.softNote")}
                                     </p>
                                 ) : null}
-                                <div className="mt-8 flex flex-wrap gap-3">
-                                    <a
-                                        href="/api/auth/login"
-                                        className="inline-flex items-center rounded-full bg-maroon px-7 py-4 font-semibold text-white"
-                                    >
-                                        {t("landing.persona.cta")}
-                                    </a>
-                                    <a
-                                        href="#how"
-                                        className="inline-flex items-center rounded-full bg-peach px-7 py-4 font-semibold text-ink"
-                                    >
-                                        {t("landing.hero.cta2")}
-                                    </a>
+                                <div className="mt-8">
+                                    <GoogleSignInButton t={t} />
                                 </div>
                                 <div className="mt-7">
                                     <GoogleIntegrations t={t} />

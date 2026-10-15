@@ -78,6 +78,10 @@ Mulai
 See case studies
 ## landing.hero.cta2.id
 Lihat studi kasus
+## landing.hero.ctaGoogle.en
+Sign in with Google
+## landing.hero.ctaGoogle.id
+Masuk dengan Google
 
 ## landing.how.title.en
 Snap, check, then *send to your sheet*
