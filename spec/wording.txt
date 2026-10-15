@@ -2589,9 +2589,9 @@ Try zippp
 ## landing.vs.cta.id
 Coba zippp
 ## landing.vs.tableTitle.en
-Side by side
+Comparison
 ## landing.vs.tableTitle.id
-Bersebelahan
+Perbandingan
 ## landing.vs.col.feature.en
 Feature
 ## landing.vs.col.feature.id
