@@ -154,9 +154,9 @@ Short demo
 ## landing.media.video.id
 Demo singkat
 ## landing.media.note.en
-Coming soon
+Drop a file in public/landing to replace this mock
 ## landing.media.note.id
-Segera hadir
+Taruh file di public/landing untuk mengganti mock ini
 ## landing.testimonials.title.en
 What people say
 ## landing.testimonials.title.id
