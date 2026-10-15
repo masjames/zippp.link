@@ -1,9 +1,9 @@
 import type { T } from "@/lib/t";
 
-/** One grey row: Terintegrasi dengan · Sheets · Drive. */
+/** One full-width grey row: Terintegrasi dengan · Sheets · Drive. */
 export default function GoogleIntegrations({ t }: { t: T }) {
     return (
-        <div className="inline-flex max-w-full items-center gap-3 overflow-x-auto rounded-full bg-[#e8e4e0] px-4 py-2.5 text-sm font-semibold text-body">
+        <div className="flex w-full items-center gap-3 bg-[#e8e4e0] px-4 py-3 text-sm font-semibold text-body">
             <span className="shrink-0 text-muted">
                 {t("landing.integrations.label")}
             </span>

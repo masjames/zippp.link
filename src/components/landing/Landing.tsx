@@ -80,7 +80,7 @@ export default function Landing({
 
                     <section
                         id="product"
-                        className="border-y border-line bg-surface"
+                        className="border-y border-line bg-[#e8e4e0]"
                     >
                         <div className="mx-auto max-w-[980px] px-6 py-14">
                             <h2 className="max-w-[36ch] font-head text-3xl font-extrabold tracking-tight sm:text-4xl">
