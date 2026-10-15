@@ -11,8 +11,8 @@ export function masterJsonLd(t: T, lang: Lang, region: Region) {
     const home = region === "id" ? "/id" : "/";
     const slogan =
         lang === "id"
-            ? "Untuk yang masih mengetik struk"
-            : "For people who still type receipts";
+            ? "Untuk yang masih merekap manual"
+            : "For people who still recap manually";
     const faqs = [1, 2, 3, 4, 5].map((i) => ({
         "@type": "Question",
         name: t(`landing.faq.q${i}`),

@@ -12,17 +12,17 @@ Prices are regional: Indonesian copy (id) quotes IDR, English (intl) quotes USD.
 ---
 
 ## meta.title.en
-For people who still type receipts · zippp
+For people who still recap manually · zippp
 ## meta.title.id
-Untuk yang masih mengetik struk · zippp
+Untuk yang masih merekap manual · zippp
 ## meta.description.en
-Still typing receipts into Sheets? Kitchen buys, daily spend, sales notes, reimbursement — photo the paper, rows show up in your Google Sheet.
+Still recapping manually into Sheets? Kitchen buys, daily spend, sales notes, reimbursement — photo the paper, rows show up in your Google Sheet.
 ## meta.description.id
-Masih ngetik struk ke Sheets? Belanja dapur, pengeluaran harian, struk penjualan, reimbursement — foto kertasnya, barisnya langsung di Google Sheet kamu.
+Masih merekap manual ke Sheets? Belanja dapur, pengeluaran harian, struk penjualan, reimbursement — foto kertasnya, barisnya langsung di Google Sheet kamu.
 ## meta.ogAlt.en
-zippp — For people who still type receipts
+zippp — For people who still recap manually
 ## meta.ogAlt.id
-zippp — Untuk yang masih mengetik struk
+zippp — Untuk yang masih merekap manual
 ## nav.how.en
 How it works
 ## nav.how.id
@@ -54,13 +54,13 @@ Indonesia
 Indonesia
 
 ## landing.hero.title.en
-For people who still *type receipts*
+For people who still *recap manually*
 ## landing.hero.title.id
-Untuk yang masih *mengetik struk*
+Untuk yang masih *merekap manual*
 ## landing.hero.title1.en
-For people who still *type receipts*
+For people who still *recap manually*
 ## landing.hero.title1.id
-Untuk yang masih *mengetik struk*
+Untuk yang masih *merekap manual*
 ## landing.hero.title2.en
 
 ## landing.hero.title2.id
@@ -111,9 +111,9 @@ Rows go into your sheet. Nothing gets filed into a zippp vault.
 ## landing.how.send.body.id
 Baris masuk ke sheet kamu. Bukan disimpan di “brankas” zippp.
 ## landing.audience.title.en
-For people who still type receipts
+For people who still recap manually
 ## landing.audience.title.id
-Untuk yang masih mengetik struk
+Untuk yang masih merekap manual
 ## landing.audience.body.en
 Pick the job that matches how you work. Each one opens a sheet template built for that flow.
 ## landing.audience.body.id

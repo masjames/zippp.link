@@ -41,8 +41,8 @@ export function buildPageMetadata(input: PageSeoInput): Metadata {
     const imageAlt =
         input.ogAlt ??
         (lang === "id"
-            ? "zippp — Untuk yang masih mengetik struk"
-            : "zippp — For people who still type receipts");
+            ? "zippp — Untuk yang masih merekap manual"
+            : "zippp — For people who still recap manually");
 
     return {
         // Absolute so root `title.template` does not double-suffix.
@@ -56,8 +56,8 @@ export function buildPageMetadata(input: PageSeoInput): Metadata {
         keywords:
             lang === "id"
                 ? [
-                      "untuk yang masih mengetik struk",
-                      "mengetik struk",
+                      "untuk yang masih merekap manual",
+                      "merekap manual",
                       "foto nota Google Sheets",
                       "scan nota ke spreadsheet",
                       "pembelian dapur",
@@ -67,8 +67,8 @@ export function buildPageMetadata(input: PageSeoInput): Metadata {
                       "zippp",
                   ]
                 : [
-                      "for people who still type receipts",
-                      "type receipts into sheets",
+                      "for people who still recap manually",
+                      "recap manually into sheets",
                       "receipt to Google Sheets",
                       "kitchen purchasing",
                       "personal expenses",

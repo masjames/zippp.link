@@ -6,13 +6,13 @@ export const OG_SIZE = { width: 1200, height: 630 };
 const COPY = {
     en: {
         brand: "zippp",
-        headline: "For people who still type receipts",
+        headline: "For people who still recap manually",
         body: "Snap the paper. Rows land in the Google Sheet you already use.",
         jobs: "Purchasing · Expenses · Sales · Reimbursement",
     },
     id: {
         brand: "zippp",
-        headline: "Untuk yang masih mengetik struk",
+        headline: "Untuk yang masih merekap manual",
         body: "Jepret struknya. Barisnya masuk Google Sheet yang sudah kamu pakai.",
         jobs: "Pembelian · Pengeluaran · Penjualan · Reimbursement",
     },
