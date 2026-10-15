@@ -2354,6 +2354,10 @@ per scan di Indonesia; setara paket internasional
 Testimonials
 ## landing.stories.title.id
 Testimonial
+## landing.stories.lead.en
+Real workflows, same pattern: photograph the paper, check the read, keep working in Google Sheets.
+## landing.stories.lead.id
+Alur nyata, pola sama: foto kertasnya, cek bacaannya, tetap kerja di Google Sheets.
 ## landing.stories.placeholder.en
 Sample quotes
 ## landing.stories.placeholder.id
@@ -2406,6 +2410,150 @@ Langkah periksa penting. Total yang salah ditandai sebelum masuk stok.
 Wrong totals get caught before they mess up inventory.
 ## landing.stories.q3.result.id
 Total yang salah ketahuan sebelum merusak stok.
+## landing.stories.q4.name.en
+Sinta W.
+## landing.stories.q4.name.id
+Sinta W.
+## landing.stories.q4.role.en
+Purchasing lead, Surabaya
+## landing.stories.q4.role.id
+Lead pembelian, Surabaya
+## landing.stories.q4.quote.en
+We keep one resto inventory sheet for three outlets. Staff snap at the market; I only fix the odd line.
+## landing.stories.q4.quote.id
+Kami pakai satu sheet stok dapur untuk tiga outlet. Staf jepret di pasar; saya hanya betulkan baris yang aneh.
+## landing.stories.q4.result.en
+One shared sheet, fewer WhatsApp photo dumps.
+## landing.stories.q4.result.id
+Satu sheet bersama, dump foto WhatsApp berkurang.
+## landing.stories.q5.name.en
+Tom Hughes.
+## landing.stories.q5.name.id
+Andre K.
+## landing.stories.q5.role.en
+Sales shift lead, Bali
+## landing.stories.q5.role.id
+Lead shift penjualan, Bali
+## landing.stories.q5.quote.en
+Closing the day used to mean retyping every cash and QRIS nota. Now the sales tab fills as we go.
+## landing.stories.q5.quote.id
+Tutup hari dulu berarti mengetik ulang setiap nota cash dan QRIS. Sekarang tab penjualan terisi sambil jalan.
+## landing.stories.q5.result.en
+Daily sales recap done before the last guest leaves.
+## landing.stories.q5.result.id
+Rekap penjualan harian selesai sebelum tamu terakhir pulang.
+## landing.stories.q6.name.en
+Nadia F.
+## landing.stories.q6.name.id
+Nadia F.
+## landing.stories.q6.role.en
+Field consultant, Jakarta
+## landing.stories.q6.role.id
+Konsultan lapangan, Jakarta
+## landing.stories.q6.quote.en
+Reimbursement used to be a folder of photos. Finance gets one month tab with linked Drive proof.
+## landing.stories.q6.quote.id
+Reimbursement dulu folder foto. Finance dapat satu tab bulanan dengan bukti Drive tertaut.
+## landing.stories.q6.result.en
+Claim pack sent without rebuilding the spreadsheet.
+## landing.stories.q6.result.id
+Paket klaim terkirim tanpa menyusun ulang spreadsheet.
+## landing.stories.q7.name.en
+Priya M.
+## landing.stories.q7.name.id
+Priya M.
+## landing.stories.q7.role.en
+Remote contractor, Bangalore
+## landing.stories.q7.role.id
+Kontraktor remote, Bangalore
+## landing.stories.q7.quote.en
+I photograph receipts on the road and they land in the expense sheet my client already uses.
+## landing.stories.q7.quote.id
+Saya foto resi di jalan, lalu barisnya masuk sheet expense yang sudah dipakai klien.
+## landing.stories.q7.result.en
+No more weekend typing into someone else’s format.
+## landing.stories.q7.result.id
+Tidak lagi mengetik akhir pekan ke format orang lain.
+## landing.stories.q8.name.en
+Yoga H.
+## landing.stories.q8.name.id
+Yoga H.
+## landing.stories.q8.role.en
+Warung owner, Yogyakarta
+## landing.stories.q8.role.id
+Pemilik warung, Yogyakarta
+## landing.stories.q8.quote.en
+Failed reads cost nothing, so my staff are not scared to scan crumpled market notes.
+## landing.stories.q8.quote.id
+Bacaan gagal tidak dipotong, jadi staf tidak takut scan nota pasar yang kusut.
+## landing.stories.q8.result.en
+Messy paper still gets tried, not skipped.
+## landing.stories.q8.result.id
+Nota jelek tetap dicoba, bukan dilewati.
+## landing.stories.q9.name.en
+Elena R.
+## landing.stories.q9.name.id
+Elena R.
+## landing.stories.q9.role.en
+Finance ops, Manila
+## landing.stories.q9.role.id
+Ops finance, Manila
+## landing.stories.q9.quote.en
+We ask travelers to use zippp so claims arrive as rows plus photos, not a chat thread.
+## landing.stories.q9.quote.id
+Kami minta traveler pakai zippp supaya klaim datang sebagai baris plus foto, bukan thread chat.
+## landing.stories.q9.result.en
+Review time per claim dropped to a quick sheet pass.
+## landing.stories.q9.result.id
+Waktu review per klaim jadi lewat sheet sebentar.
+## landing.stories.q10.name.en
+Bayu T.
+## landing.stories.q10.name.id
+Bayu T.
+## landing.stories.q10.role.en
+Kitchen supervisor, Medan
+## landing.stories.q10.role.id
+Supervisor dapur, Medan
+## landing.stories.q10.quote.en
+Outlet and staff columns mean I can see who bought what without asking in the group chat.
+## landing.stories.q10.quote.id
+Kolom outlet dan staf membuat saya tahu siapa beli apa tanpa tanya di grup.
+## landing.stories.q10.result.en
+Purchasing questions answered from the sheet.
+## landing.stories.q10.result.id
+Pertanyaan pembelian terjawab dari sheet.
+## landing.stories.q11.name.en
+Chloe A.
+## landing.stories.q11.name.id
+Chloe A.
+## landing.stories.q11.role.en
+Solopreneur, Melbourne
+## landing.stories.q11.role.id
+Solopreneur, Melbourne
+## landing.stories.q11.quote.en
+I already lived in Sheets for taxes. zippp just stops me from typing coffee and Grab lines by hand.
+## landing.stories.q11.quote.id
+Saya sudah hidup di Sheets untuk pajak. zippp menghentikan saya mengetik baris kopi dan Grab manual.
+## landing.stories.q11.result.en
+Expense tracking without a second app to learn.
+## landing.stories.q11.result.id
+Lacak pengeluaran tanpa belajar aplikasi kedua.
+## landing.stories.q12.name.en
+Rina D.
+## landing.stories.q12.name.id
+Rina D.
+## landing.stories.q12.role.en
+Multi-outlet F&B, Jakarta
+## landing.stories.q12.role.id
+F&B multi-outlet, Jakarta
+## landing.stories.q12.quote.en
+Sales and purchasing both stay in Sheets we already shared with the bookkeeper. zippp just feeds the rows.
+## landing.stories.q12.quote.id
+Penjualan dan pembelian tetap di Sheets yang sudah dibagikan ke pembukuan. zippp hanya mengisi barisnya.
+## landing.stories.q12.result.en
+One place for ops and bookkeeping to look.
+## landing.stories.q12.result.id
+Satu tempat untuk ops dan pembukuan.
 
 ## landing.founder.eyebrow.en
 From the founder
