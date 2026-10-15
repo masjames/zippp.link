@@ -43,10 +43,13 @@ export async function generateMetadata(): Promise<Metadata> {
             type: "website",
             images: [
                 {
-                    url: "/og.png",
+                    url: "/opengraph-image",
                     width: 1200,
                     height: 630,
-                    alt: title,
+                    alt:
+                        lang === "id"
+                            ? "zippp — Untuk yang masih mengetik nota"
+                            : "zippp — For people who still type receipts",
                 },
             ],
         },
@@ -54,7 +57,7 @@ export async function generateMetadata(): Promise<Metadata> {
             card: "summary_large_image",
             title,
             description,
-            images: ["/og.png"],
+            images: ["/opengraph-image"],
         },
         robots: {
             index: true,

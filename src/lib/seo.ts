@@ -12,7 +12,20 @@ export type PageSeoInput = {
     lang: Lang;
     region: Region;
     noIndex?: boolean;
+    /** Optional absolute or site-relative OG image override */
+    ogImage?: string;
+    ogAlt?: string;
 };
+
+function ogImageFor(path: string, lang: Lang): string {
+    if (path === "/id" || path.startsWith("/id/")) {
+        return absoluteUrl("/id/opengraph-image");
+    }
+    if (lang === "id") {
+        return absoluteUrl("/id/opengraph-image");
+    }
+    return absoluteUrl("/opengraph-image");
+}
 
 /** Shared metadata for public marketing pages (SEO + social). */
 export function buildPageMetadata(input: PageSeoInput): Metadata {
@@ -20,6 +33,16 @@ export function buildPageMetadata(input: PageSeoInput): Metadata {
     const url = absoluteUrl(path);
     const enPath = lang === "en" ? path : alternatePath;
     const idPath = lang === "id" ? path : alternatePath;
+    const image = input.ogImage
+        ? input.ogImage.startsWith("http")
+            ? input.ogImage
+            : absoluteUrl(input.ogImage)
+        : ogImageFor(path, lang);
+    const imageAlt =
+        input.ogAlt ??
+        (lang === "id"
+            ? "zippp — Untuk yang masih mengetik nota"
+            : "zippp — For people who still type receipts");
 
     return {
         // Absolute so root `title.template` does not double-suffix.
@@ -33,6 +56,7 @@ export function buildPageMetadata(input: PageSeoInput): Metadata {
         keywords:
             lang === "id"
                 ? [
+                      "untuk yang masih mengetik nota",
                       "mengetik nota",
                       "foto nota Google Sheets",
                       "scan nota ke spreadsheet",
@@ -43,6 +67,7 @@ export function buildPageMetadata(input: PageSeoInput): Metadata {
                       "zippp",
                   ]
                 : [
+                      "for people who still type receipts",
                       "type receipts into sheets",
                       "receipt to Google Sheets",
                       "kitchen purchasing",
@@ -68,10 +93,10 @@ export function buildPageMetadata(input: PageSeoInput): Metadata {
             type: "website",
             images: [
                 {
-                    url: "/og.png",
+                    url: image,
                     width: 1200,
                     height: 630,
-                    alt: title,
+                    alt: imageAlt,
                 },
             ],
         },
@@ -79,7 +104,7 @@ export function buildPageMetadata(input: PageSeoInput): Metadata {
             card: "summary_large_image",
             title,
             description,
-            images: ["/og.png"],
+            images: [image],
         },
         robots: noIndex
             ? { index: false, follow: false }

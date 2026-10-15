@@ -12,13 +12,17 @@ Prices are regional: Indonesian copy (id) quotes IDR, English (intl) quotes USD.
 ---
 
 ## meta.title.en
-zippp · for people who still type receipts into Sheets
+For people who still type receipts · zippp
 ## meta.title.id
-zippp · untuk yang masih mengetik nota
+Untuk yang masih mengetik nota · zippp
 ## meta.description.en
-For kitchen purchasing, personal spending, daily sales, and reimbursement claims. Photograph the paper; the rows land in your Google Sheet.
+For people who still type receipts. Kitchen purchasing, personal spending, daily sales, and reimbursement — photograph the paper; rows land in your Google Sheet.
 ## meta.description.id
-Untuk pembelian dapur, pengeluaran pribadi, rekap penjualan harian, dan reimbursement. Foto notanya; baris masuk ke Google Sheet Anda.
+Untuk yang masih mengetik nota. Pembelian dapur, pengeluaran pribadi, rekap penjualan, dan reimbursement. Foto notanya; baris masuk ke Google Sheet Anda.
+## meta.ogAlt.en
+zippp — For people who still type receipts
+## meta.ogAlt.id
+zippp — Untuk yang masih mengetik nota
 
 ## nav.how.en
 How it works
