@@ -60,6 +60,23 @@ h3 {
     }
 }
 
+/* Cuanlagi-style bold wavy underline on emphasized words */
+.mark-u {
+    position: relative;
+    display: inline-block;
+    color: inherit;
+}
+.mark-u-line {
+    position: absolute;
+    left: -2%;
+    bottom: -0.12em;
+    width: 104%;
+    height: 0.28em;
+    pointer-events: none;
+    overflow: visible;
+    color: var(--c-orange);
+}
+
 /* Hero snap → sheet loop */
 @keyframes hero-pulse {
     0%,

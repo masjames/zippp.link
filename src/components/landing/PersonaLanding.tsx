@@ -1,7 +1,6 @@
 "use client";
 
 import AppFlowPreview from "./AppFlowPreview";
-import DoodleArrow from "./DoodleArrow";
 import GoogleIntegrations from "./GoogleIntegrations";
 import ImpactProof from "./ImpactProof";
 import PersonaSheetHero from "./PersonaSheetHero";
@@ -115,11 +114,6 @@ export default function PersonaLanding({
                                 </div>
                             </div>
                             <div className="relative flex justify-center lg:justify-end">
-                                <DoodleArrow
-                                    variant="loop-point"
-                                    label={t("landing.doodle.sheet")}
-                                    className="absolute -left-1 top-2 z-10 hidden sm:flex"
-                                />
                                 <PersonaSheetHero
                                     kind={persona.id}
                                     t={t}

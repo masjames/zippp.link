@@ -1,8 +1,8 @@
 import type { ReactNode } from "react";
 
 /**
- * Render wording with *emphasis* spans (brand color + underline doodle vibe).
- * Example: "Staff snap the *nota*." → nota emphasized.
+ * Render wording with *emphasis* — bold + cuanlagi-style wavy underline.
+ * Example: "Untuk yang masih *mengetik nota*"
  */
 export function RichText({
     text,
@@ -15,13 +15,28 @@ export function RichText({
     return (
         <span className={className}>
             {parts.map((part, i) => {
-                if (part.startsWith("*") && part.endsWith("*") && part.length > 2) {
+                if (
+                    part.startsWith("*") &&
+                    part.endsWith("*") &&
+                    part.length > 2
+                ) {
                     return (
-                        <em
-                            key={i}
-                            className="not-italic font-extrabold text-maroon underline decoration-brand decoration-[3px] underline-offset-4"
-                        >
+                        <em key={i} className="mark-u not-italic font-extrabold">
                             {part.slice(1, -1)}
+                            <svg
+                                className="mark-u-line"
+                                viewBox="0 0 200 12"
+                                preserveAspectRatio="none"
+                                aria-hidden
+                            >
+                                <path
+                                    d="M2 8 C 40 2, 70 11, 110 6 C 145 2, 175 10, 198 5"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="3.5"
+                                    strokeLinecap="round"
+                                />
+                            </svg>
                         </em>
                     );
                 }

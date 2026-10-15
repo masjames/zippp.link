@@ -1,7 +1,6 @@
 "use client";
 
 import AppFlowPreview from "./AppFlowPreview";
-import DoodleArrow from "./DoodleArrow";
 import GoogleIntegrations from "./GoogleIntegrations";
 import HeroSnapSheet from "./HeroSnapSheet";
 import ImpactProof from "./ImpactProof";
@@ -67,13 +66,6 @@ export default function Landing({
                                 </div>
                             </div>
                             <div className="relative flex justify-center lg:justify-end">
-                                <DoodleArrow
-                                    variant="curve-left"
-                                    label={t("landing.doodle.try")}
-                                    className="absolute -left-2 top-0 z-10 hidden sm:flex lg:-left-6"
-                                    width={88}
-                                    height={64}
-                                />
                                 {assets.heroImage ? (
                                     <MediaPlaceholder
                                         label={t("landing.media.hero")}
@@ -88,19 +80,10 @@ export default function Landing({
                     </section>
 
                     <section id="how" className="mx-auto max-w-[980px] px-6 py-14">
-                        <div className="relative inline-block">
-                            <h2 className="font-head text-3xl font-extrabold tracking-tight sm:text-4xl">
-                                <RichText text={t("landing.how.title")} />
-                            </h2>
-                            <DoodleArrow
-                                variant="scribble-under"
-                                className="absolute -bottom-6 left-0"
-                                width={140}
-                                height={36}
-                                color="var(--c-orange)"
-                            />
-                        </div>
-                        <p className="mt-8 max-w-[52ch] text-muted leading-relaxed">
+                        <h2 className="font-head text-3xl font-extrabold tracking-tight sm:text-4xl">
+                            <RichText text={t("landing.how.title")} />
+                        </h2>
+                        <p className="mt-4 max-w-[52ch] text-muted leading-relaxed">
                             {t("landing.how.lead")}
                         </p>
                         <div className="mt-8">
@@ -113,18 +96,9 @@ export default function Landing({
                         className="border-y border-line bg-surface"
                     >
                         <div className="mx-auto max-w-[980px] px-6 py-14">
-                            <div className="relative max-w-[36ch]">
-                                <h2 className="font-head text-3xl font-extrabold tracking-tight sm:text-4xl">
-                                    {t("landing.showcase.title")}
-                                </h2>
-                                <DoodleArrow
-                                    variant="zigzag"
-                                    className="absolute -right-16 top-0 hidden md:flex"
-                                    width={72}
-                                    height={56}
-                                    color="var(--c-orange)"
-                                />
-                            </div>
+                            <h2 className="max-w-[36ch] font-head text-3xl font-extrabold tracking-tight sm:text-4xl">
+                                <RichText text={t("landing.showcase.title")} />
+                            </h2>
                             <p className="mt-4 max-w-[56ch] text-muted leading-relaxed">
                                 {t("landing.showcase.body")}
                             </p>
