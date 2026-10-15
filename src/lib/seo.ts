@@ -41,7 +41,7 @@ export function buildPageMetadata(input: PageSeoInput): Metadata {
     const imageAlt =
         input.ogAlt ??
         (lang === "id"
-            ? "zippp — Untuk yang masih mengetik nota"
+            ? "zippp — Untuk yang masih mengetik struk"
             : "zippp — For people who still type receipts");
 
     return {
@@ -56,8 +56,8 @@ export function buildPageMetadata(input: PageSeoInput): Metadata {
         keywords:
             lang === "id"
                 ? [
-                      "untuk yang masih mengetik nota",
-                      "mengetik nota",
+                      "untuk yang masih mengetik struk",
+                      "mengetik struk",
                       "foto nota Google Sheets",
                       "scan nota ke spreadsheet",
                       "pembelian dapur",
