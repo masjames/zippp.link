@@ -2362,53 +2362,53 @@ Sample quotes
 ## landing.stories.placeholder.id
 Kutipan contoh
 ## landing.stories.q1.name.en
-Raka S.
+Sonny
 ## landing.stories.q1.name.id
-Raka S.
+Sonny
 ## landing.stories.q1.role.en
-Kitchen operator, Jakarta
+Purchasing, Jakarta
 ## landing.stories.q1.role.id
-Operator dapur, Jakarta
+Purchasing, Jakarta
 ## landing.stories.q1.quote.en
-Staff used to type every supplier nota after market. Now they snap and I review the sheet at night.
+After market I used to type every supplier nota. Now I snap on my phone and the kitchen sheet fills itself.
 ## landing.stories.q1.quote.id
-Staf dulu mengetik setiap nota pemasok setelah belanja. Sekarang mereka jepret, saya cek sheet malam hari.
+Habis belanja dulu ngetik tiap nota pemasok. Sekarang jepret di HP, sheet dapur terisi sendiri.
 ## landing.stories.q1.result.en
-Night overtime for purchasing entry became a 10-minute skim.
+No more evening typing shift for purchasing.
 ## landing.stories.q1.result.id
-Lembur malam entri pembelian jadi skim 10 menit.
+Nggak ada lagi shift ngetik malam buat purchasing.
 ## landing.stories.q2.name.en
-Maya L.
+Adit
 ## landing.stories.q2.name.id
-Maya L.
+Adit
 ## landing.stories.q2.role.en
-Freelance, Singapore
+Founding engineer, zippp
 ## landing.stories.q2.role.id
-Pekerja lepas, Singapura
+Founding engineer, zippp
 ## landing.stories.q2.quote.en
-I was done with expense apps that trap my data. zippp writes into the Sheet I already share with my accountant.
+I built zippp because I was tired of watching people retype paper into Sheets. If the check step catches a bad total, that is the whole product.
 ## landing.stories.q2.quote.id
-Capek sama aplikasi expense yang ngonci data. zippp nulis ke Sheet yang sudah saya share ke akuntan.
+Saya bikin zippp karena capek lihat orang ngetik ulang kertas ke Sheets. Kalau langkah cek nemu total jelek, itu intinya produk ini.
 ## landing.stories.q2.result.en
-Month-end is just opening the same tab.
+Dogfoods the same snap → check → sheet flow.
 ## landing.stories.q2.result.id
-Akhir bulan tinggal buka tab yang sama.
+Pakai sendiri alur jepret → cek → sheet.
 ## landing.stories.q3.name.en
-Dimas P.
+Bagas
 ## landing.stories.q3.name.id
-Dimas P.
+Bagas
 ## landing.stories.q3.role.en
-Cafe owner, Bandung
+Reimbursement claims
 ## landing.stories.q3.role.id
-Pemilik kafe, Bandung
+Reimbursement
 ## landing.stories.q3.quote.en
-That check step saved us. Bad totals get caught before they mess up stock.
+Claims used to be a chat full of photos. Now finance gets one month tab with Drive links from each row.
 ## landing.stories.q3.quote.id
-Langkah cek itu yang nyelamatin. Total jelek ketahuan sebelum ngacauin stok.
+Klaim dulu chat penuh foto. Sekarang finance dapat satu tab bulan, tiap baris ada link Drive-nya.
 ## landing.stories.q3.result.en
-Wrong totals stop before they hit inventory.
+Claim pack = sheet + photos, not a scavenger hunt.
 ## landing.stories.q3.result.id
-Total salah berhenti sebelum masuk stok.
+Paket klaim = sheet + foto, bukan buru-buruan di chat.
 ## landing.stories.q4.name.en
 Sinta W.
 ## landing.stories.q4.name.id

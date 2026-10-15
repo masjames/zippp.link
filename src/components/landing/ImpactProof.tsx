@@ -1,10 +1,8 @@
 import type { T } from "@/lib/t";
 
-const QUOTES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] as const;
-const ROW_A = QUOTES.filter((_, i) => i % 2 === 0);
-const ROW_B = QUOTES.filter((_, i) => i % 2 === 1);
+/** Sonny, Adit, Bagas — looped left→right marquee. */
+const QUOTES = [1, 2, 3] as const;
 
-/** Endless left→right fading testimonial marquee. */
 export default function ImpactProof({ t }: { t: T }) {
     return (
         <div className="space-y-10">
@@ -12,9 +10,15 @@ export default function ImpactProof({ t }: { t: T }) {
                 {t("landing.stories.title")}
             </h2>
 
-            <div className="space-y-4">
-                <MarqueeRow items={[...ROW_A]} t={t} duration="55s" />
-                <MarqueeRow items={[...ROW_B]} t={t} duration="70s" />
+            <div className="testimonials-fade relative overflow-hidden py-1">
+                <div
+                    className="testimonials-track testimonials-slide-ltr flex w-max gap-4"
+                    style={{ animationDuration: "40s" }}
+                >
+                    {[...QUOTES, ...QUOTES, ...QUOTES].map((n, i) => (
+                        <TestimonialCard key={`${n}-${i}`} n={n} t={t} />
+                    ))}
+                </div>
             </div>
 
             <div className="rounded-panel border-2 border-maroon bg-maroon px-6 py-6 text-white sm:px-8">
@@ -28,31 +32,6 @@ export default function ImpactProof({ t }: { t: T }) {
                     {t("landing.founder.name")}
                 </p>
                 <p className="text-sm opacity-80">{t("landing.founder.role")}</p>
-            </div>
-        </div>
-    );
-}
-
-function MarqueeRow({
-    items,
-    t,
-    duration,
-}: {
-    items: number[];
-    t: T;
-    duration: string;
-}) {
-    const loop = [...items, ...items];
-
-    return (
-        <div className="testimonials-fade relative overflow-hidden py-1">
-            <div
-                className="testimonials-track testimonials-slide-ltr flex w-max gap-4"
-                style={{ animationDuration: duration }}
-            >
-                {loop.map((n, i) => (
-                    <TestimonialCard key={`${n}-${i}`} n={n} t={t} />
-                ))}
             </div>
         </div>
     );
@@ -92,15 +71,6 @@ function TestimonialCard({ n, t }: { n: number; t: T }) {
 
 const AVATARS = [
     "photo-1507003211169-0a1dd7228f2d",
-    "photo-1494790108377-be9c29b29330",
-    "photo-1472099645785-5658abf4ff4e",
-    "photo-1438761681033-6461ffad8d80",
-    "photo-1500648767791-00dcc994a43e",
-    "photo-1544005313-94ddf0286df2",
-    "photo-1506794778202-cad84cf45f1d",
-    "photo-1534528741775-53994a69daeb",
     "photo-1519345182560-3f2917c472ef",
-    "photo-1524504388940-b1c1722653e1",
-    "photo-1507591064344-4c6ce005b128",
-    "photo-1489424731084-a5d8b219a5bb",
+    "photo-1472099645785-5658abf4ff4e",
 ] as const;
