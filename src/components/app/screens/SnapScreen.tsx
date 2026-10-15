@@ -28,10 +28,11 @@ function SheetsIcon() {
 }
 
 const INPUT_BASE =
-    "rounded-xl border-2 bg-surface px-3 py-2 text-body focus:outline-none";
+    "min-w-0 rounded-lg border bg-surface px-2 py-1.5 text-sm text-body focus:outline-none";
 const INPUT = `${INPUT_BASE} w-full border-line focus:border-brand`;
 const INPUT_ASSUMED = `${INPUT_BASE} w-full border-amber-400 focus:border-amber-500`;
 const INPUT_INLINE = `${INPUT_BASE} border-line focus:border-brand`;
+const LABEL = "text-[10px] font-semibold leading-none text-muted";
 
 /** Stored captures stay within this budget. Smaller means a faster encode. */
 const CAPTURE_MAX_PIXELS = 3_000_000;
@@ -565,30 +566,30 @@ function ReviewOverlay({
     return (
         <div className="fixed inset-0 z-50 flex justify-center bg-black/70">
             <div className="flex h-full w-full max-w-[430px] flex-col">
-                <div className="flex items-center justify-between gap-2 px-4 py-3 text-white">
+                <div className="flex flex-none items-center justify-between gap-2 px-3 py-2 text-white">
                     <button
                         type="button"
                         onClick={onCaptureMore}
-                        className="rounded-full bg-white/15 px-4 py-2 text-sm font-semibold"
+                        className="rounded-full bg-white/15 px-3 py-1.5 text-xs font-semibold"
                     >
                         ↓ {t("app.review.captureMore")}
                     </button>
-                    <span className="text-xs">
+                    <span className="text-[11px]">
                         {fill(t("app.review.toReview"), { count: stack.length })}
                     </span>
                 </div>
 
-                <div className="flex flex-1 items-center justify-center px-4 pb-6">
-                    <div className="relative w-full">
+                <div className="flex min-h-0 flex-1 px-3 pb-3">
+                    <div className="relative flex min-h-0 w-full flex-1 flex-col">
                         {stack.length > 2 ? (
-                            <div className="absolute inset-x-6 -top-4 h-8 rounded-t-3xl bg-white/15" aria-hidden />
+                            <div className="absolute inset-x-6 -top-3 h-6 rounded-t-2xl bg-white/15" aria-hidden />
                         ) : null}
                         {stack.length > 1 ? (
-                            <div className="absolute inset-x-3 -top-2 h-8 rounded-t-3xl bg-white/25" aria-hidden />
+                            <div className="absolute inset-x-3 -top-1.5 h-6 rounded-t-2xl bg-white/25" aria-hidden />
                         ) : null}
-                        <div className="relative flex max-h-[78vh] w-full flex-col overflow-hidden rounded-3xl bg-card shadow-2xl">
+                        <div className="relative flex min-h-0 w-full flex-1 flex-col overflow-hidden rounded-2xl bg-card shadow-2xl">
                             {current.status === "failed" ? (
-                                <div className="min-h-0 flex-1 overflow-y-auto p-4">
+                                <div className="min-h-0 flex-1 overflow-y-auto p-3">
                                     <FailedCard
                                         t={t}
                                         item={current}
@@ -606,7 +607,7 @@ function ReviewOverlay({
                                     onRemove={onRemove}
                                 />
                             ) : (
-                                <p className="py-10 text-center text-sm text-muted">
+                                <p className="py-8 text-center text-sm text-muted">
                                     {t("app.review.reading")}
                                 </p>
                             )}
@@ -720,36 +721,55 @@ function ConfirmCard({
 
     return (
         <div className="flex min-h-0 flex-1 flex-col">
-            <div className="min-h-0 flex-1 overflow-y-auto p-4">
+            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 py-2.5">
                 <input
                     value={d.merchant}
                     onChange={(e) => patch({ merchant: e.target.value })}
                     placeholder={t("app.check.merchantFallback")}
-                    className={`${INPUT} font-head text-xl font-extrabold`}
+                    className={`${INPUT} font-head text-base font-extrabold`}
                 />
 
-                <label className="mt-2 grid gap-1">
-                    <span className="text-xs font-semibold">{t("app.check.category")}</span>
-                    <input
-                        value={d.category}
-                        onChange={(e) => patch({ category: e.target.value })}
-                        placeholder={t("app.check.category")}
-                        className={INPUT}
-                    />
-                </label>
-
-                <div className="mt-2 flex gap-2">
-                    <label className="grid flex-1 gap-1">
-                        <span className="text-xs font-semibold">{t("app.check.date")}</span>
+                <div className="mt-1.5 grid grid-cols-2 gap-1.5">
+                    <label className="grid gap-0.5">
+                        <span className={LABEL}>{t("app.check.category")}</span>
+                        <input
+                            value={d.category}
+                            onChange={(e) => patch({ category: e.target.value })}
+                            placeholder={t("app.check.category")}
+                            className={INPUT}
+                        />
+                    </label>
+                    <label className="grid gap-0.5">
+                        <span className={LABEL}>{t("app.check.date")}</span>
                         <input
                             value={d.date}
-                            onChange={(e) => patch({ date: e.target.value, dateAssumed: false })}
+                            onChange={(e) =>
+                                patch({ date: e.target.value, dateAssumed: false })
+                            }
                             placeholder={t("app.check.datePlaceholder")}
                             className={d.dateAssumed ? INPUT_ASSUMED : INPUT}
                         />
                     </label>
-                    <label className="grid w-32 gap-1">
-                        <span className="text-xs font-semibold">{t("app.check.total")}</span>
+                    <label className="grid gap-0.5">
+                        <span className={LABEL}>{t("app.check.subtotal")}</span>
+                        <input
+                            value={d.subtotal}
+                            onChange={(e) => patch({ subtotal: e.target.value })}
+                            inputMode="decimal"
+                            className={`${INPUT} text-right tabular-money`}
+                        />
+                    </label>
+                    <label className="grid gap-0.5">
+                        <span className={LABEL}>{t("app.check.tax")}</span>
+                        <input
+                            value={d.tax}
+                            onChange={(e) => patch({ tax: e.target.value })}
+                            inputMode="decimal"
+                            className={`${INPUT} text-right tabular-money`}
+                        />
+                    </label>
+                    <label className="col-span-2 grid gap-0.5">
+                        <span className={LABEL}>{t("app.check.total")}</span>
                         <input
                             value={d.total}
                             onChange={(e) => patch({ total: e.target.value })}
@@ -759,89 +779,72 @@ function ConfirmCard({
                     </label>
                 </div>
 
-                <div className="mt-2 flex gap-2">
-                    <label className="grid flex-1 gap-1">
-                        <span className="text-xs font-semibold">{t("app.check.subtotal")}</span>
-                        <input
-                            value={d.subtotal}
-                            onChange={(e) => patch({ subtotal: e.target.value })}
-                            inputMode="decimal"
-                            className={`${INPUT} text-right tabular-money`}
-                        />
-                    </label>
-                    <label className="grid flex-1 gap-1">
-                        <span className="text-xs font-semibold">{t("app.check.tax")}</span>
-                        <input
-                            value={d.tax}
-                            onChange={(e) => patch({ tax: e.target.value })}
-                            inputMode="decimal"
-                            className={`${INPUT} text-right tabular-money`}
-                        />
-                    </label>
-                </div>
-
-                <div className="mt-2 grid gap-2">
-                    {d.lines.map((line, i) => {
-                        return (
-                            <div key={i} className="rounded-xl border-2 border-line p-2">
-                                <input
-                                    value={line.description}
-                                    onChange={(e) => patchLine(i, { description: e.target.value })}
-                                    placeholder={t("app.check.item")}
-                                    className={INPUT}
-                                />
-                                <div className="mt-2 flex items-center gap-2">
-                                    <input
-                                        value={line.qty}
-                                        onChange={(e) => patchLine(i, { qty: e.target.value })}
-                                        placeholder={t("app.check.qty")}
-                                        inputMode="decimal"
-                                        className={`${INPUT_INLINE} w-14 text-center`}
-                                    />
-                                    <input
-                                        value={line.unitPrice}
-                                        onChange={(e) => patchLine(i, { unitPrice: e.target.value })}
-                                        placeholder={t("app.check.unitPrice")}
-                                        inputMode="decimal"
-                                        className={`${INPUT_INLINE} min-w-0 flex-1 text-right tabular-money`}
-                                    />
-                                    <input
-                                        value={line.amount}
-                                        onChange={(e) => patchLine(i, { amount: e.target.value })}
-                                        placeholder={t("app.check.amt")}
-                                        inputMode="decimal"
-                                        className={`${INPUT_INLINE} w-24 text-right tabular-money`}
-                                    />
-                                </div>
-                            </div>
-                        );
-                    })}
+                <div className="mt-1.5 grid gap-1">
+                    {d.lines.map((line, i) => (
+                        <div
+                            key={i}
+                            className="grid grid-cols-[minmax(0,1fr)_2.5rem_minmax(4.5rem,5.5rem)] items-center gap-1 rounded-lg border border-line p-1.5"
+                        >
+                            <input
+                                value={line.description}
+                                onChange={(e) =>
+                                    patchLine(i, { description: e.target.value })
+                                }
+                                placeholder={t("app.check.item")}
+                                className={INPUT}
+                            />
+                            <input
+                                value={line.qty}
+                                onChange={(e) =>
+                                    patchLine(i, { qty: e.target.value })
+                                }
+                                placeholder={t("app.check.qty")}
+                                inputMode="decimal"
+                                aria-label={t("app.check.qty")}
+                                className={`${INPUT_INLINE} text-center`}
+                            />
+                            <input
+                                value={line.amount}
+                                onChange={(e) =>
+                                    patchLine(i, { amount: e.target.value })
+                                }
+                                placeholder={t("app.check.amt")}
+                                inputMode="decimal"
+                                aria-label={t("app.check.amt")}
+                                className={`${INPUT_INLINE} text-right tabular-money`}
+                            />
+                        </div>
+                    ))}
                     {showErrors && noLines ? (
-                        <span className="text-xs font-medium text-danger">{t("app.check.itemsErr")}</span>
+                        <span className="text-[11px] font-medium text-danger">
+                            {t("app.check.itemsErr")}
+                        </span>
                     ) : null}
                     {showErrors && noPrice ? (
-                        <span className="text-xs font-medium text-danger">{t("app.check.priceErr")}</span>
+                        <span className="text-[11px] font-medium text-danger">
+                            {t("app.check.priceErr")}
+                        </span>
                     ) : null}
                 </div>
 
-                <div className="mt-3">
+                <div className="mt-1.5">
                     <DebugPanel debug={item.debug} />
                 </div>
             </div>
 
-            <div className="flex-none border-t-2 border-line bg-card p-3">
+            <div className="flex-none border-t border-line bg-card px-3 py-2">
                 <div className="flex gap-2">
                     <button
                         type="button"
                         onClick={tryAccept}
-                        className="flex-1 rounded-full bg-btn px-4 py-3 font-semibold text-btntext"
+                        className="flex-1 rounded-full bg-btn px-4 py-2.5 text-sm font-semibold text-btntext"
                     >
                         {t("app.review.acceptCost")}
                     </button>
                     <button
                         type="button"
                         onClick={onRemove}
-                        className="rounded-full border-2 border-line px-4 py-3 font-semibold text-danger"
+                        className="rounded-full border border-line px-4 py-2.5 text-sm font-semibold text-danger"
                     >
                         {t("app.review.delete")}
                     </button>
