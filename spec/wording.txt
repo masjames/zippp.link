@@ -450,9 +450,9 @@ Amount
 ## app.check.amt.id
 Jumlah
 ## app.check.total.en
-Total with tax
+Total
 ## app.check.total.id
-Total termasuk pajak
+Total
 ## app.check.category.en
 Category
 ## app.check.category.id
