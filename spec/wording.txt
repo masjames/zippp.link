@@ -213,9 +213,9 @@ The photo goes to Baidu AI Studio (PaddleOCR) to read text, then DeepSeek to str
 ## landing.faq.a4.id
 Fotonya ke Baidu AI Studio (PaddleOCR) buat dibaca, lalu DeepSeek buat disusun. Gemini cadangan kalau dua itu gagal. Setelah dibaca, fotonya nggak disimpan.
 ## landing.foot.title.en
-Next receipt: into the sheet, not into another typing session
+Save time logging your receipts!
 ## landing.foot.title.id
-Struk berikutnya: masuk sheet, bukan sesi ngetik lagi
+Hemat waktu mencatat strukmu!
 ## landing.foot.cta.en
 Sign in with Google
 ## landing.foot.cta.id
