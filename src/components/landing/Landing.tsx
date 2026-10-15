@@ -68,8 +68,17 @@ export default function Landing({
                     </section>
 
                     <section
+                        id="testimonials"
+                        className="border-y border-line bg-surface"
+                    >
+                        <div className="mx-auto max-w-[980px] px-6 pb-14 pt-16 sm:pt-20">
+                            <ImpactProof t={t} />
+                        </div>
+                    </section>
+
+                    <section
                         id="how"
-                        className="mx-auto max-w-[980px] px-6 pb-14 pt-16 sm:pt-20"
+                        className="mx-auto max-w-[980px] px-6 py-14"
                     >
                         <h2 className="font-head text-3xl font-extrabold tracking-tight sm:text-4xl">
                             <RichText text={t("landing.how.title")} />
@@ -94,15 +103,6 @@ export default function Landing({
                                     region={region}
                                 />
                             </div>
-                        </div>
-                    </section>
-
-                    <section
-                        id="testimonials"
-                        className="border-y border-line bg-surface"
-                    >
-                        <div className="mx-auto max-w-[980px] px-6 py-14">
-                            <ImpactProof t={t} />
                         </div>
                     </section>
 

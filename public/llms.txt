@@ -1,6 +1,6 @@
 # zippp
 
-> Untuk yang masih mengetik nota. Belanja dapur, pengeluaran harian, nota penjualan, reimbursement — foto kertasnya, barisnya langsung di Google Sheet kamu.
+> Untuk yang masih mengetik struk. Belanja dapur, pengeluaran harian, struk penjualan, reimbursement — foto kertasnya, barisnya langsung di Google Sheet kamu.
 >
 > For people who still type receipts. Kitchen buys, daily spend, sales notes, reimbursement — snap the paper, rows show up in your Google Sheet.
 
@@ -33,7 +33,7 @@ Founder public name: Aldan Arkara.
 
 ## Primary positioning
 
-- Indonesian: "Untuk yang masih mengetik nota"
+- Indonesian: "Untuk yang masih mengetik struk"
 - English: "For people who still type receipts"
 - Jobs: kitchen purchasing, personal spending, daily sales recaps, reimbursement.
 

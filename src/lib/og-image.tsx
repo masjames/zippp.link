@@ -12,8 +12,8 @@ const COPY = {
     },
     id: {
         brand: "zippp",
-        headline: "Untuk yang masih mengetik nota",
-        body: "Jepret notanya. Barisnya masuk Google Sheet yang sudah kamu pakai.",
+        headline: "Untuk yang masih mengetik struk",
+        body: "Jepret struknya. Barisnya masuk Google Sheet yang sudah kamu pakai.",
         jobs: "Pembelian · Pengeluaran · Penjualan · Reimbursement",
     },
 } as const;

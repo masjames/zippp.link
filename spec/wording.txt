@@ -14,16 +14,15 @@ Prices are regional: Indonesian copy (id) quotes IDR, English (intl) quotes USD.
 ## meta.title.en
 For people who still type receipts · zippp
 ## meta.title.id
-Untuk yang masih mengetik nota · zippp
+Untuk yang masih mengetik struk · zippp
 ## meta.description.en
 Still typing receipts into Sheets? Kitchen buys, daily spend, sales notes, reimbursement — photo the paper, rows show up in your Google Sheet.
 ## meta.description.id
-Masih ngetik nota ke Sheets? Belanja dapur, pengeluaran harian, nota penjualan, reimbursement — foto kertasnya, barisnya langsung di Google Sheet kamu.
+Masih ngetik struk ke Sheets? Belanja dapur, pengeluaran harian, struk penjualan, reimbursement — foto kertasnya, barisnya langsung di Google Sheet kamu.
 ## meta.ogAlt.en
 zippp — For people who still type receipts
 ## meta.ogAlt.id
-zippp — Untuk yang masih mengetik nota
-
+zippp — Untuk yang masih mengetik struk
 ## nav.how.en
 How it works
 ## nav.how.id
@@ -57,11 +56,11 @@ Indonesia
 ## landing.hero.title.en
 For people who still *type receipts*
 ## landing.hero.title.id
-Untuk yang masih *mengetik nota*
+Untuk yang masih *mengetik struk*
 ## landing.hero.title1.en
 For people who still *type receipts*
 ## landing.hero.title1.id
-Untuk yang masih *mengetik nota*
+Untuk yang masih *mengetik struk*
 ## landing.hero.title2.en
 
 ## landing.hero.title2.id
@@ -69,7 +68,7 @@ Untuk yang masih *mengetik nota*
 ## landing.hero.body.en
 Kitchen buys, personal spend, daily sales, reimbursement. Snap the paper. Rows land in the Google Sheet you already use.
 ## landing.hero.body.id
-Belanja dapur, pengeluaran pribadi, rekap penjualan, reimbursement. Jepret notanya. Barisnya masuk Google Sheet yang sudah kamu pakai.
+Belanja dapur, pengeluaran pribadi, rekap penjualan, reimbursement. Jepret struknya. Barisnya masuk Google Sheet yang sudah kamu pakai.
 ## landing.hero.cta.en
 Get started
 ## landing.hero.cta.id
@@ -84,29 +83,29 @@ Sign in with Google
 Masuk dengan Google
 
 ## landing.how.title.en
-Snap, take a look, then *send to Sheets*
+Photo, review, and it's *logged automatically*
 ## landing.how.title.id
-Jepret. Cek sebentar. *Kirim ke sheet*
+Foto, review, dan *otomatis tercatat*
 ## landing.how.snap.title.en
-Snap
+Photo
 ## landing.how.snap.title.id
 Foto
 ## landing.how.snap.body.en
 Point at the receipt, or upload one you already have.
 ## landing.how.snap.body.id
-Arahkan ke nota, atau unggah yang sudah ada di galeri.
+Arahkan ke struk, atau unggah yang sudah ada di galeri.
 ## landing.how.check.title.en
-Check
+Review
 ## landing.how.check.title.id
-Periksa
+Review
 ## landing.how.check.body.en
 See the read. Fix a date or a number if it looks off.
 ## landing.how.check.body.id
 Lihat bacaannya. Betulkan tanggal atau angka kalau agak meleset.
 ## landing.how.send.title.en
-Send
+Logged
 ## landing.how.send.title.id
-Kirim
+Tercatat
 ## landing.how.send.body.en
 Rows go into your sheet. Nothing gets filed into a zippp vault.
 ## landing.how.send.body.id
@@ -114,7 +113,7 @@ Baris masuk ke sheet kamu. Bukan disimpan di “brankas” zippp.
 ## landing.audience.title.en
 For people who still type receipts
 ## landing.audience.title.id
-Untuk yang masih mengetik nota
+Untuk yang masih mengetik struk
 ## landing.audience.body.en
 Pick the job that matches how you work. Each one opens a sheet template built for that flow.
 ## landing.audience.body.id
@@ -141,9 +140,9 @@ Friend tops up — you get 20% back as credit.
 ## landing.referral.body.id
 Teman isi saldo, kamu dapat 20% kredit balik.
 ## landing.showcase.title.en
-Keep working in *your sheet*
+*Use your Google Sheet*
 ## landing.showcase.title.id
-Tetap kerja di *sheet yang sudah ada*
+*Gunakan Google Sheet Anda*
 ## landing.showcase.body.en
 Four templates. Same flow. Columns match the job so you do not rebuild the spreadsheet from scratch.
 ## landing.showcase.body.id
@@ -204,7 +203,7 @@ Apakah bisa untuk catatan tulisan tangan?
 ## landing.faq.a3.en
 Printed receipts read best. Messy handwriting is why the check step exists.
 ## landing.faq.a3.id
-Nota cetak paling gampang. Tulisan tangan yang jelek ya buat itu ada langkah cek.
+Struk cetak paling gampang. Tulisan tangan yang jelek ya buat itu ada langkah cek.
 ## landing.faq.q4.en
 Who sees my receipt?
 ## landing.faq.q4.id
@@ -216,7 +215,7 @@ Fotonya ke Baidu AI Studio (PaddleOCR) buat dibaca, lalu DeepSeek buat disusun. 
 ## landing.foot.title.en
 Next receipt: into the sheet, not into another typing session
 ## landing.foot.title.id
-Nota berikutnya: masuk sheet, bukan sesi ngetik lagi
+Struk berikutnya: masuk sheet, bukan sesi ngetik lagi
 ## landing.foot.cta.en
 Sign in with Google
 ## landing.foot.cta.id
@@ -1282,7 +1281,7 @@ Saya rekap penjualan harian
 ## app.sheets.tpl.salesBody.en
 Item, qty, nota total, daily total
 ## app.sheets.tpl.salesBody.id
-Item, jumlah, total nota, total harian
+Item, jumlah, total struk, total harian
 ## app.sheets.tpl.reimburse.en
 I claim money back from my company
 ## app.sheets.tpl.reimburse.id
@@ -1914,7 +1913,7 @@ Simpan foto ke Google Drive
 ## app.settings.photoProofBody.en
 Each accepted nota is saved in [zippp] Receipts in your Drive and linked from the row.
 ## app.settings.photoProofBody.id
-Setiap nota yang diterima disimpan di [zippp] Receipts di Drive Anda dan ditautkan dari baris.
+Setiap struk yang diterima disimpan di [zippp] Receipts di Drive Anda dan ditautkan dari baris.
 ## app.check.staff.en
 Staff
 ## app.check.staff.id
@@ -1946,7 +1945,7 @@ Pembelian dapur dan toko
 ## landing.who.resto.body.en
 Staff snap supplier notas. Stock sheet fills without the evening typing shift.
 ## landing.who.resto.body.id
-Staf jepret nota pemasok. Sheet stok terisi tanpa lembur ngetik malam.
+Staf jepret struk pemasok. Sheet stok terisi tanpa lembur ngetik malam.
 ## landing.who.resto.template.en
 Purchasing template
 ## landing.who.resto.template.id
@@ -1970,7 +1969,7 @@ Rekap penjualan harian
 ## landing.who.sales.body.en
 End-of-day sales notas become a daily recap on the month tab.
 ## landing.who.sales.body.id
-Nota penjualan akhir hari jadi rekap harian di tab bulan.
+Struk penjualan akhir hari jadi rekap harian di tab bulan.
 ## landing.who.sales.template.en
 Sales template
 ## landing.who.sales.template.id
@@ -2006,7 +2005,7 @@ Hari
 ## sheet.receipts.en
 Receipts
 ## sheet.receipts.id
-Nota
+Struk
 ## sheet.total.en
 Total
 ## sheet.total.id
@@ -2107,15 +2106,15 @@ Kerjaan lain yang juga pakai zippp
 ## landing.persona.resto.metaTitle.en
 Kitchen purchasing receipts to Google Sheets
 ## landing.persona.resto.metaTitle.id
-Nota pembelian dapur ke Google Sheets
+Struk pembelian dapur ke Google Sheets
 ## landing.persona.resto.metaDesc.en
 Staff snap supplier notas. Line items hit your inventory sheet — no retyping.
 ## landing.persona.resto.metaDesc.id
-Staf jepret nota pemasok. Baris masuk sheet stok — tanpa ngetik ulang.
+Staf jepret struk pemasok. Baris masuk sheet stok — tanpa ngetik ulang.
 ## landing.persona.resto.title1.en
 Stop making purchasing retype every supplier nota
 ## landing.persona.resto.title1.id
-Stop suruh purchasing ngetik ulang tiap nota pemasok
+Stop suruh purchasing ngetik ulang tiap struk pemasok
 ## landing.persona.resto.title2.en
 
 ## landing.persona.resto.title2.id
@@ -2135,7 +2134,7 @@ Satu kredit kalau kamu terima. Bacaan gagal gratis. Sheet tetap markas — zippp
 ## landing.persona.resto.foot.en
 Next supplier nota: in the sheet in a minute.
 ## landing.persona.resto.foot.id
-Nota pemasok berikutnya: masuk sheet dalam semenit.
+Struk pemasok berikutnya: masuk sheet dalam semenit.
 ## landing.persona.personal.metaTitle.en
 Personal expense receipts to Google Sheets
 ## landing.persona.personal.metaTitle.id
@@ -2169,17 +2168,17 @@ Next receipt logged — no typing.
 ## landing.persona.personal.foot.id
 Struk berikutnya tercatat — tanpa ngetik.
 ## landing.persona.sales.metaTitle.en
-Daily sales recap from paper notas
+Daily sales recap from paper struks
 ## landing.persona.sales.metaTitle.id
-Rekap penjualan harian dari nota kertas
+Rekap penjualan harian dari struk kertas
 ## landing.persona.sales.metaDesc.en
 Snap sales notas. Get a daily recap on your Google Sheet month tab.
 ## landing.persona.sales.metaDesc.id
-Jepret nota penjualan. Dapat rekap harian di tab bulan Google Sheet.
+Jepret struk penjualan. Dapat rekap harian di tab bulan Google Sheet.
 ## landing.persona.sales.title1.en
 Turn closing-time sales notas into a daily Sheet recap
 ## landing.persona.sales.title1.id
-Nota penjualan tutup toko jadi rekap harian di Sheet
+Struk penjualan tutup toko jadi rekap harian di Sheet
 ## landing.persona.sales.title2.en
 
 ## landing.persona.sales.title2.id
@@ -2199,7 +2198,7 @@ Intinya tab bulan dan total harian. Sheet tetap punya kamu; zippp isi baris dari
 ## landing.persona.sales.foot.en
 Close the day without retyping the stack.
 ## landing.persona.sales.foot.id
-Tutup hari tanpa ngetik ulang tumpukan nota.
+Tutup hari tanpa ngetik ulang tumpukan struk.
 ## landing.persona.reimburse.metaTitle.en
 Reimbursement claims with receipt photos
 ## landing.persona.reimburse.metaTitle.id
@@ -2290,7 +2289,7 @@ Contoh baris. Sheet aslimu pakai kolom yang sama setelah pilih template.
 ## landing.flow.snapCue.en
 Photo the receipt
 ## landing.flow.snapCue.id
-Foto notanya
+Foto struknya
 ## landing.flow.merchant.en
 Merchant
 ## landing.flow.merchant.id
@@ -2319,11 +2318,11 @@ Apa yang berubah setelah dipakai
 ## landing.impact.title.en
 Staff stop retyping supplier notas, and the kitchen sheet stays honest because every row gets a look first
 ## landing.impact.title.id
-Staf berhenti ngetik ulang nota belanja, sheet dapur lebih bisa dipercaya karena tiap baris dicek dulu
+Staf berhenti ngetik ulang struk belanja, sheet dapur lebih bisa dipercaya karena tiap baris dicek dulu
 ## landing.impact.body.en
 You only pay when you accept. Failed reads are free — so messy paper still gets tried.
 ## landing.impact.body.id
-Bayar cuma kalau kamu terima. Bacaan gagal gratis — jadi nota jelek tetap dicoba.
+Bayar cuma kalau kamu terima. Bacaan gagal gratis — jadi struk jelek tetap dicoba.
 ## landing.impact.stat.hours.value.en
 ~2 hrs
 ## landing.impact.stat.hours.value.id
@@ -2372,7 +2371,7 @@ Purchasing, Jakarta
 ## landing.stories.q1.quote.en
 After market I used to type every supplier nota. Now I snap on my phone and the kitchen sheet fills itself.
 ## landing.stories.q1.quote.id
-Habis belanja dulu ngetik tiap nota pemasok. Sekarang jepret di HP, sheet dapur terisi sendiri.
+Habis belanja dulu ngetik tiap struk pemasok. Sekarang jepret di HP, sheet dapur terisi sendiri.
 ## landing.stories.q1.result.en
 No more evening typing shift for purchasing.
 ## landing.stories.q1.result.id
@@ -2436,7 +2435,7 @@ Lead shift penjualan, Bali
 ## landing.stories.q5.quote.en
 Closing the day used to mean retyping every cash and QRIS nota. Now the sales tab fills as we go.
 ## landing.stories.q5.quote.id
-Tutup hari dulu berarti mengetik ulang setiap nota cash dan QRIS. Sekarang tab penjualan terisi sambil jalan.
+Tutup hari dulu berarti mengetik ulang setiap struk cash dan QRIS. Sekarang tab penjualan terisi sambil jalan.
 ## landing.stories.q5.result.en
 Daily sales recap done before the last guest leaves.
 ## landing.stories.q5.result.id
@@ -2484,11 +2483,11 @@ Pemilik warung, Yogyakarta
 ## landing.stories.q8.quote.en
 Failed reads cost nothing, so the team will still try crumpled market notes.
 ## landing.stories.q8.quote.id
-Bacaan gagal nggak dipotong, jadi tim tetap berani scan nota pasar yang kusut.
+Bacaan gagal nggak dipotong, jadi tim tetap berani scan struk pasar yang kusut.
 ## landing.stories.q8.result.en
 Messy paper still gets tried, not skipped.
 ## landing.stories.q8.result.id
-Nota jelek tetap dicoba, bukan dilewati.
+Struk jelek tetap dicoba, bukan dilewati.
 ## landing.stories.q9.name.en
 Elena R.
 ## landing.stories.q9.name.id
@@ -2617,7 +2616,7 @@ Periksa manusia sebelum tulis
 ## landing.vs.row.indonesia.en
 Indonesian notas and IDR pricing
 ## landing.vs.row.indonesia.id
-Nota Indonesia dan harga IDR
+Struk Indonesia dan harga IDR
 ## landing.vs.row.pricing.en
 Pricing shape
 ## landing.vs.row.pricing.id
@@ -2674,7 +2673,7 @@ Tergantung produknya
 ## landing.vs.snaply.zippp.indonesia.en
 Made for Indonesian notas + DOKU top-up
 ## landing.vs.snaply.zippp.indonesia.id
-Untuk nota ID + top-up DOKU
+Untuk struk ID + top-up DOKU
 ## landing.vs.snaply.them.indonesia.en
 Not IDR-first
 ## landing.vs.snaply.them.indonesia.id
@@ -2758,7 +2757,7 @@ Tinjau sebelum kirim
 ## landing.vs.sheetify.zippp.indonesia.en
 Made for Indonesian notas + DOKU top-up
 ## landing.vs.sheetify.zippp.indonesia.id
-Untuk nota ID + top-up DOKU
+Untuk struk ID + top-up DOKU
 ## landing.vs.sheetify.them.indonesia.en
 Global app store focus
 ## landing.vs.sheetify.them.indonesia.id
@@ -2842,7 +2841,7 @@ AI ekstrak lalu sync
 ## landing.vs.scan2sheet.zippp.indonesia.en
 Made for Indonesian notas + DOKU top-up
 ## landing.vs.scan2sheet.zippp.indonesia.id
-Untuk nota ID + top-up DOKU
+Untuk struk ID + top-up DOKU
 ## landing.vs.scan2sheet.them.indonesia.en
 Global SaaS pricing
 ## landing.vs.scan2sheet.them.indonesia.id
@@ -2878,7 +2877,7 @@ Bayar per scan diterima, bukan seat.
 ## landing.vs.scan2sheet.why2.en
 Designed for supplier notas and outlets.
 ## landing.vs.scan2sheet.why2.id
-Dirancang untuk nota pemasok dan outlet.
+Dirancang untuk struk pemasok dan outlet.
 ## landing.vs.scan2sheet.why3.en
 Human confirm on amber fields before append.
 ## landing.vs.scan2sheet.why3.id
@@ -2926,7 +2925,7 @@ Persetujuan dan kebijakan
 ## landing.vs.expensify.zippp.indonesia.en
 Made for Indonesian notas + DOKU top-up
 ## landing.vs.expensify.zippp.indonesia.id
-Untuk nota ID + top-up DOKU
+Untuk struk ID + top-up DOKU
 ## landing.vs.expensify.them.indonesia.en
 Enterprise global
 ## landing.vs.expensify.them.indonesia.id
@@ -3010,7 +3009,7 @@ Edit di tabel mereka
 ## landing.vs.smartscandoc.zippp.indonesia.en
 Made for Indonesian notas + DOKU top-up
 ## landing.vs.smartscandoc.zippp.indonesia.id
-Untuk nota ID + top-up DOKU
+Untuk struk ID + top-up DOKU
 ## landing.vs.smartscandoc.them.indonesia.en
 Strong ID language support
 ## landing.vs.smartscandoc.them.indonesia.id
@@ -3094,7 +3093,7 @@ Salah ketik masuk
 ## landing.vs.typing.zippp.indonesia.en
 Made for Indonesian notas + DOKU top-up
 ## landing.vs.typing.zippp.indonesia.id
-Untuk nota ID + top-up DOKU
+Untuk struk ID + top-up DOKU
 ## landing.vs.typing.them.indonesia.en
 Works, slowly
 ## landing.vs.typing.them.indonesia.id
@@ -3124,9 +3123,9 @@ None, but slow
 ## landing.vs.typing.them.lockIn.id
 Tidak ada, tapi lambat
 ## landing.vs.typing.why1.en
-Minutes per nota instead of full retype.
+Minutes per struk instead of full retype.
 ## landing.vs.typing.why1.id
-Menit per nota, bukan ketik penuh.
+Menit per struk, bukan ketik penuh.
 ## landing.vs.typing.why2.en
 Photos can link from the row for proof.
 ## landing.vs.typing.why2.id
@@ -3139,4 +3138,4 @@ Sheet yang sama yang sudah dibuka tim Anda.
 ## landing.media.flowTitle.en
 How a receipt moves through zippp
 ## landing.media.flowTitle.id
-Jalan sebuah nota di zippp
+Jalan sebuah struk di zippp
