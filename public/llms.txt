@@ -1,6 +1,6 @@
 # zippp
 
-> Untuk yang masih mengetik nota. Pembelian dapur, pengeluaran pribadi, rekap penjualan, klaim penggantian. Foto notanya; baris masuk ke Google Sheet Anda.
+> Untuk yang masih mengetik nota. Pembelian dapur, pengeluaran pribadi, rekap penjualan, reimbursement. Foto notanya; baris masuk ke Google Sheet Anda.
 >
 > For people who still type receipts. Kitchen purchasing, personal spending, daily sales, reimbursement. Photograph the paper; rows land in your Google Sheet.
 

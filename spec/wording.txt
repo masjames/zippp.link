@@ -18,7 +18,7 @@ zippp · untuk yang masih mengetik nota
 ## meta.description.en
 For kitchen purchasing, personal spending, daily sales, and reimbursement claims. Photograph the paper; the rows land in your Google Sheet.
 ## meta.description.id
-Untuk pembelian dapur, pengeluaran pribadi, rekap penjualan harian, dan klaim penggantian. Foto notanya; baris masuk ke Google Sheet Anda.
+Untuk pembelian dapur, pengeluaran pribadi, rekap penjualan harian, dan reimbursement. Foto notanya; baris masuk ke Google Sheet Anda.
 
 ## nav.how.en
 How it works
@@ -65,7 +65,7 @@ Untuk yang masih *mengetik nota*
 ## landing.hero.body.en
 Kitchen purchasing, personal spending, daily sales recaps, and reimbursement claims. Photograph the paper; the rows land in your Google Sheet.
 ## landing.hero.body.id
-Pembelian dapur, pengeluaran pribadi, rekap penjualan harian, dan klaim penggantian. Foto notanya; baris masuk ke Google Sheet Anda.
+Pembelian dapur, pengeluaran pribadi, rekap penjualan harian, dan reimbursement. Foto notanya; baris masuk ke Google Sheet Anda.
 ## landing.hero.cta.en
 Get started
 ## landing.hero.cta.id
@@ -1280,7 +1280,7 @@ Item, jumlah, total nota, total harian
 ## app.sheets.tpl.reimburse.en
 I claim money back from my company
 ## app.sheets.tpl.reimburse.id
-Saya klaim penggantian dari kantor
+Saya klaim reimbursement dari kantor
 ## app.sheets.tpl.reimburseBody.en
 Merchant, total, purpose, photo
 ## app.sheets.tpl.reimburseBody.id
@@ -1972,7 +1972,7 @@ Template penjualan
 ## landing.who.reimburse.title.en
 Reimbursement claims
 ## landing.who.reimburse.title.id
-Klaim penggantian
+Reimbursement
 ## landing.who.reimburse.body.en
 One month tab plus Drive photos. Share the sheet with your company.
 ## landing.who.reimburse.body.id
@@ -1980,7 +1980,7 @@ Satu tab per bulan plus foto di Drive. Bagikan sheet ke kantor.
 ## landing.who.reimburse.template.en
 Reimbursement template
 ## landing.who.reimburse.template.id
-Template penggantian
+Template reimbursement
 ## landing.faq.q5.en
 Where is my photo kept?
 ## landing.faq.q5.id
@@ -2201,7 +2201,7 @@ Tutup hari tanpa mengetik ulang setiap nota.
 ## landing.persona.reimburse.metaTitle.en
 Reimbursement claims with receipt photos
 ## landing.persona.reimburse.metaTitle.id
-Klaim penggantian dengan foto resi
+Reimbursement dengan foto resi
 ## landing.persona.reimburse.metaDesc.en
 One month tab plus Drive photo proof. Share the sheet when you file the claim.
 ## landing.persona.reimburse.metaDesc.id
@@ -2221,7 +2221,7 @@ Jepret setiap resi untuk paket klaim. Baris masuk tab bulanan; bukti foto opsion
 ## landing.persona.reimburse.outcomeTitle.en
 Built for reimbursement claims
 ## landing.persona.reimburse.outcomeTitle.id
-Untuk klaim penggantian
+Untuk reimbursement
 ## landing.persona.reimburse.outcomeBody.en
 Share one sheet with finance. They see the lines and the linked photos without digging through a chat thread.
 ## landing.persona.reimburse.outcomeBody.id

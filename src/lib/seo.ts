@@ -39,7 +39,7 @@ export function buildPageMetadata(input: PageSeoInput): Metadata {
                       "pembelian dapur",
                       "pengeluaran pribadi",
                       "rekap penjualan harian",
-                      "klaim penggantian",
+                      "reimbursement",
                       "zippp",
                   ]
                 : [
