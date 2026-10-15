@@ -71,9 +71,9 @@ Get started
 ## landing.hero.cta.id
 Mulai
 ## landing.hero.cta2.en
-See use cases
+See case studies
 ## landing.hero.cta2.id
-Lihat kasus pakai
+Lihat studi kasus
 
 ## landing.how.title.en
 Snap, check, then send to your sheet
@@ -2083,9 +2083,9 @@ Back to zippp
 ## notfound.home.id
 Kembali ke zippp
 ## landing.persona.back.en
-All use cases
+All case studies
 ## landing.persona.back.id
-Semua kasus pakai
+Semua studi kasus
 ## landing.persona.cta.en
 Get started
 ## landing.persona.cta.id
@@ -2232,9 +2232,9 @@ Send the claim pack, not a pile of photos.
 Kirim paket klaim, bukan tumpukan foto.
 
 ## nav.useCases.en
-Use cases
+Case studies
 ## nav.useCases.id
-Kasus pakai
+Studi kasus
 ## nav.proof.en
 Proof
 ## nav.proof.id
