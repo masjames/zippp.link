@@ -2255,7 +2255,7 @@ Bandingkan
 ## landing.integrations.label.en
 Works with
 ## landing.integrations.label.id
-Jalan bareng
+Terintegrasi dengan
 ## landing.integrations.sheets.en
 Google Sheets
 ## landing.integrations.sheets.id
