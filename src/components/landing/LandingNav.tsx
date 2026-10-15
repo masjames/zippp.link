@@ -8,7 +8,7 @@ import type { Region } from "@/lib/region";
 import type { T } from "@/lib/t";
 
 /**
- * Master landing nav: Use cases + Compare dropdowns, Proof anchor.
+ * Master landing nav: Case studies + Compare dropdowns, Testimonials anchor.
  * Pricing lives only on the pricing page; How it works is not linked.
  */
 export default function LandingNav({
@@ -50,7 +50,7 @@ export default function LandingNav({
                     ))}
                 </NavDropdown>
                 <a
-                    href="#proof"
+                    href="#testimonials"
                     className="rounded-lg px-3 py-2 font-semibold text-body hover:text-brand"
                 >
                     {t("nav.proof")}

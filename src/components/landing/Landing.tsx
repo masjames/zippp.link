@@ -172,7 +172,7 @@ export default function Landing({
                     </section>
 
                     <section
-                        id="proof"
+                        id="testimonials"
                         className="border-y border-line bg-surface"
                     >
                         <div className="mx-auto max-w-[980px] px-6 py-14">

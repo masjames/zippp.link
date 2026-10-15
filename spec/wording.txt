@@ -2236,9 +2236,9 @@ Case studies
 ## nav.useCases.id
 Studi kasus
 ## nav.proof.en
-Proof
+Testimonials
 ## nav.proof.id
-Bukti
+Testimonial
 ## nav.compare.en
 Compare
 ## nav.compare.id
