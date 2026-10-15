@@ -11,7 +11,6 @@ import SiteFooter from "./SiteFooter";
 import TemplateGallery from "./TemplateGallery";
 import type { BusinessInfo } from "@/lib/business";
 import type { LandingAssets } from "@/lib/landing-assets";
-import { personasForRegion, personaHref } from "@/lib/personas";
 import { RichText } from "@/lib/rich-text";
 import { makeT, type Wording } from "@/lib/t";
 import type { Lang, Region } from "@/lib/region";
@@ -57,7 +56,7 @@ export default function Landing({
                                         {t("landing.hero.cta")}
                                     </a>
                                     <a
-                                        href="#who"
+                                        href="#product"
                                         className="inline-flex items-center rounded-full bg-peach px-7 py-4 font-semibold text-ink"
                                     >
                                         {t("landing.hero.cta2")}
@@ -136,38 +135,6 @@ export default function Landing({
                                     region={region}
                                 />
                             </div>
-                        </div>
-                    </section>
-
-                    <section
-                        id="who"
-                        className="mx-auto max-w-[980px] px-6 py-14"
-                    >
-                        <h2 className="font-head text-3xl font-extrabold tracking-tight sm:text-4xl">
-                            {t("landing.who.title")}
-                        </h2>
-                        <p className="mt-4 max-w-[56ch] text-muted leading-relaxed">
-                            {t("landing.audience.body")}
-                        </p>
-                        <div className="mt-7 grid gap-4 sm:grid-cols-2">
-                            {personasForRegion(region).map((persona) => (
-                                <a
-                                    key={persona.id}
-                                    href={personaHref(persona.id, region)}
-                                    className="flex flex-col rounded-panel border-2 border-line bg-card p-6 transition hover:border-brand"
-                                >
-                                    <h3 className="font-head text-2xl font-extrabold tracking-tight">
-                                        {t(`landing.who.${persona.whoKey}.title`)}
-                                    </h3>
-                                    <p className="mt-2 flex-1 text-muted leading-relaxed">
-                                        {t(`landing.who.${persona.whoKey}.body`)}
-                                    </p>
-                                    <span className="mt-4 self-start text-sm font-semibold text-brand">
-                                        {t(`landing.who.${persona.whoKey}.template`)}
-                                        {" →"}
-                                    </span>
-                                </a>
-                            ))}
                         </div>
                     </section>
 
