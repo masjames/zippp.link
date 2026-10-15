@@ -16,9 +16,9 @@ For people who still type receipts · zippp
 ## meta.title.id
 Untuk yang masih mengetik nota · zippp
 ## meta.description.en
-For people who still type receipts. Kitchen purchasing, personal spending, daily sales, and reimbursement — photograph the paper; rows land in your Google Sheet.
+Still typing receipts into Sheets? Kitchen buys, daily spend, sales notes, reimbursement — photo the paper, rows show up in your Google Sheet.
 ## meta.description.id
-Untuk yang masih mengetik nota. Pembelian dapur, pengeluaran pribadi, rekap penjualan, dan reimbursement. Foto notanya; baris masuk ke Google Sheet Anda.
+Masih ngetik nota ke Sheets? Belanja dapur, pengeluaran harian, nota penjualan, reimbursement — foto kertasnya, barisnya langsung di Google Sheet kamu.
 ## meta.ogAlt.en
 zippp — For people who still type receipts
 ## meta.ogAlt.id
@@ -67,9 +67,9 @@ Untuk yang masih *mengetik nota*
 ## landing.hero.title2.id
 
 ## landing.hero.body.en
-Kitchen purchasing, personal spending, daily sales recaps, and reimbursement claims. Photograph the paper; the rows land in your Google Sheet.
+Kitchen buys, personal spend, daily sales, reimbursement. Snap the paper. Rows land in the Google Sheet you already use.
 ## landing.hero.body.id
-Pembelian dapur, pengeluaran pribadi, rekap penjualan harian, dan reimbursement. Foto notanya; baris masuk ke Google Sheet Anda.
+Belanja dapur, pengeluaran pribadi, rekap penjualan, reimbursement. Jepret notanya. Barisnya masuk Google Sheet yang sudah kamu pakai.
 ## landing.hero.cta.en
 Get started
 ## landing.hero.cta.id
@@ -84,34 +84,33 @@ Sign in with Google
 Masuk dengan Google
 
 ## landing.how.title.en
-Snap, check, then *send to your sheet*
+Snap, take a look, then *send to Sheets*
 ## landing.how.title.id
-Foto dulu, cek sebentar, baru *kirim ke sheet*
+Jepret. Cek sebentar. *Kirim ke sheet*
 ## landing.how.snap.title.en
 Snap
 ## landing.how.snap.title.id
 Foto
 ## landing.how.snap.body.en
-Shoot the receipt, or upload one from your phone.
+Point at the receipt, or upload one you already have.
 ## landing.how.snap.body.id
-Jepret resinya, atau unggah dari ponsel Anda.
+Arahkan ke nota, atau unggah yang sudah ada di galeri.
 ## landing.how.check.title.en
 Check
 ## landing.how.check.title.id
 Periksa
 ## landing.how.check.body.en
-See what we read. Fix the date or a number in a few seconds.
+See the read. Fix a date or a number if it looks off.
 ## landing.how.check.body.id
-Lihat hasil bacaan. Perbaiki tanggal atau angka dalam beberapa detik.
+Lihat bacaannya. Betulkan tanggal atau angka kalau agak meleset.
 ## landing.how.send.title.en
 Send
 ## landing.how.send.title.id
 Kirim
 ## landing.how.send.body.en
-The rows land in your own sheet. The data stays yours.
+Rows go into your sheet. Nothing gets filed into a zippp vault.
 ## landing.how.send.body.id
-Barisnya masuk ke sheet Anda sendiri. Datanya tetap milik Anda.
-
+Baris masuk ke sheet kamu. Bukan disimpan di “brankas” zippp.
 ## landing.audience.title.en
 For people who still type receipts
 ## landing.audience.title.id
@@ -138,17 +137,17 @@ Invite a friend
 ## landing.referral.title.id
 Ajak teman
 ## landing.referral.body.en
-When they top up, you get 20% back in credit.
+Friend tops up — you get 20% back as credit.
 ## landing.referral.body.id
-Saat mereka isi saldo, Anda dapat 20% kembali dalam kredit.
+Teman isi saldo, kamu dapat 20% kredit balik.
 ## landing.showcase.title.en
-Your sheet stays the *place you work*
+Keep working in *your sheet*
 ## landing.showcase.title.id
-Sheet yang sudah dipakai, tetap jadi *tempat kerjanya*
+Tetap kerja di *sheet yang sudah ada*
 ## landing.showcase.body.en
-Four ready templates. Same snap → check → send flow; columns match the job so the sheet you already use stays the source of truth.
+Four templates. Same flow. Columns match the job so you do not rebuild the spreadsheet from scratch.
 ## landing.showcase.body.id
-Empat template siap pakai. Alur sama: foto → cek → kirim; kolomnya cocok dengan kerjaannya, jadi sheet yang sudah dipakai tetap jadi sumber kebenarannya.
+Empat template. Alur sama. Kolomnya cocok sama kerjaannya, jadi nggak perlu bikin spreadsheet dari nol.
 ## landing.media.hero.en
 App screenshot
 ## landing.media.hero.id
@@ -187,38 +186,37 @@ Can zippp see my other files?
 ## landing.faq.q1.id
 Apakah zippp bisa melihat file saya yang lain?
 ## landing.faq.a1.en
-No. It can only open the sheet it creates for you.
+No. zippp only opens the sheet it makes for you.
 ## landing.faq.a1.id
-Tidak. zippp hanya bisa membuka sheet yang dibuatnya untuk Anda.
+Nggak. zippp cuma buka sheet yang dia bikin buat kamu.
 ## landing.faq.q2.en
 What if it reads something wrong?
 ## landing.faq.q2.id
 Bagaimana jika ada yang salah baca?
 ## landing.faq.a2.en
-You always check the rows before they are sent, and you can fix them in the sheet later.
+You check before send. Fix it on the card, or fix it later in the sheet.
 ## landing.faq.a2.id
-Anda selalu memeriksa barisnya sebelum dikirim, dan bisa memperbaikinya di sheet nanti.
+Kamu cek dulu sebelum kirim. Bisa dibetulkan di kartu, atau nanti di sheet.
 ## landing.faq.q3.en
 Does it work with handwritten notes?
 ## landing.faq.q3.id
 Apakah bisa untuk catatan tulisan tangan?
 ## landing.faq.a3.en
-Printed receipts read best. Handwriting works when it is clear, which is what the check step is for.
+Printed receipts read best. Messy handwriting is why the check step exists.
 ## landing.faq.a3.id
-Resi cetak paling gampang terbaca. Tulisan tangan bisa jalan kalau jelas, dan itu gunanya langkah periksa.
+Nota cetak paling gampang. Tulisan tangan yang jelek ya buat itu ada langkah cek.
 ## landing.faq.q4.en
 Who sees my receipt?
 ## landing.faq.q4.id
 Siapa yang melihat resi saya?
 ## landing.faq.a4.en
-The photo is sent to Baidu AI Studio (PaddleOCR) to read text; text is processed by DeepSeek for organization. Google Gemini serves as a backup should the first two fail. The photo is deleted after reading.
+The photo goes to Baidu AI Studio (PaddleOCR) to read text, then DeepSeek to structure it. Gemini is the backup if those fail. The photo is not kept after the read.
 ## landing.faq.a4.id
-Fotonya dikirim ke Baidu AI Studio (PaddleOCR) untuk membaca teks. Teksnya dikirim ke DeepSeek untuk disusun. Google Gemini menjadi cadangan bila dua yang pertama gagal. Fotonya tidak disimpan setelah dibaca.
-
+Fotonya ke Baidu AI Studio (PaddleOCR) buat dibaca, lalu DeepSeek buat disusun. Gemini cadangan kalau dua itu gagal. Setelah dibaca, fotonya nggak disimpan.
 ## landing.foot.title.en
-Put the next receipt in your sheet without typing it out
+Next receipt: into the sheet, not into another typing session
 ## landing.foot.title.id
-Masukkan nota berikutnya ke sheet tanpa mengetiknya ulang
+Nota berikutnya: masuk sheet, bukan sesi ngetik lagi
 ## landing.foot.cta.en
 Sign in with Google
 ## landing.foot.cta.id
@@ -1946,9 +1944,9 @@ Kitchen and shop purchasing
 ## landing.who.resto.title.id
 Pembelian dapur dan toko
 ## landing.who.resto.body.en
-Staff photograph supplier notas. Your inventory sheet fills without retyping.
+Staff snap supplier notas. Stock sheet fills without the evening typing shift.
 ## landing.who.resto.body.id
-Staf foto nota pemasok. Sheet stok terisi tanpa mengetik ulang.
+Staf jepret nota pemasok. Sheet stok terisi tanpa lembur ngetik malam.
 ## landing.who.resto.template.en
 Purchasing template
 ## landing.who.resto.template.id
@@ -1958,9 +1956,9 @@ Personal spending
 ## landing.who.personal.title.id
 Pengeluaran pribadi
 ## landing.who.personal.body.en
-Snap every receipt. Day and month totals stay in your sheet.
+Snap each receipt as you go. Day and month totals stay in your sheet.
 ## landing.who.personal.body.id
-Foto setiap struk. Total harian dan bulanan ada di sheet Anda.
+Jepret tiap struk sambil jalan. Total harian dan bulanan tetap di sheet kamu.
 ## landing.who.personal.template.en
 Expense template
 ## landing.who.personal.template.id
@@ -1970,9 +1968,9 @@ Daily sales recap
 ## landing.who.sales.title.id
 Rekap penjualan harian
 ## landing.who.sales.body.en
-Photograph your sales notas. The month tab shows the daily recap.
+End-of-day sales notas become a daily recap on the month tab.
 ## landing.who.sales.body.id
-Foto nota penjualan. Tab bulan menampilkan rekap harian.
+Nota penjualan akhir hari jadi rekap harian di tab bulan.
 ## landing.who.sales.template.en
 Sales template
 ## landing.who.sales.template.id
@@ -1982,9 +1980,9 @@ Reimbursement claims
 ## landing.who.reimburse.title.id
 Reimbursement
 ## landing.who.reimburse.body.en
-One month tab plus Drive photos. Share the sheet with your company.
+One month tab, photos in Drive, share the sheet with finance.
 ## landing.who.reimburse.body.id
-Satu tab per bulan plus foto di Drive. Bagikan sheet ke kantor.
+Satu tab per bulan, foto di Drive, bagikan sheet ke finance.
 ## landing.who.reimburse.template.en
 Reimbursement template
 ## landing.who.reimburse.template.id
@@ -1994,9 +1992,9 @@ Where is my photo kept?
 ## landing.faq.q5.id
 Foto saya disimpan di mana?
 ## landing.faq.a5.en
-If photo proof is on, the photo is saved to your Google Drive under [zippp] Receipts and linked from the row. Otherwise the photo is not kept after the read.
+If photo proof is on, the photo lands in your Google Drive under [zippp] Receipts and links from the row. If it is off, the photo is gone after the read.
 ## landing.faq.a5.id
-Jika bukti foto aktif, fotonya disimpan ke Google Drive Anda di [zippp] Receipts dan ditautkan dari baris. Jika tidak, foto tidak disimpan setelah dibaca.
+Kalau bukti foto nyala, fotonya masuk Google Drive kamu di [zippp] Receipts dan ketaut dari baris. Kalau mati, habis dibaca fotonya hilang.
 ## sheet.summary.en
 Summary
 ## sheet.summary.id
@@ -2099,146 +2097,141 @@ Get started
 ## landing.persona.cta.id
 Mulai
 ## landing.persona.softNote.en
-Template for this use case is still rolling out. You can sign in now; purchasing and personal expense sheets are ready today.
+This template is still rolling out. You can sign in now — purchasing and expense sheets are ready.
 ## landing.persona.softNote.id
-Template untuk kasus ini masih digulirkan. Anda bisa masuk sekarang; sheet pembelian dan pengeluaran pribadi sudah siap hari ini.
+Template ini masih digulir. Boleh masuk dulu — sheet pembelian dan pengeluaran sudah siap.
 ## landing.persona.otherTitle.en
-Other ways people use zippp
+Other jobs people run on zippp
 ## landing.persona.otherTitle.id
-Cara lain orang memakai zippp
-
+Kerjaan lain yang juga pakai zippp
 ## landing.persona.resto.metaTitle.en
 Kitchen purchasing receipts to Google Sheets
 ## landing.persona.resto.metaTitle.id
 Nota pembelian dapur ke Google Sheets
 ## landing.persona.resto.metaDesc.en
-Staff photograph supplier notas. zippp sends line items to your inventory sheet so you stop retyping.
+Staff snap supplier notas. Line items hit your inventory sheet — no retyping.
 ## landing.persona.resto.metaDesc.id
-Staf foto nota pemasok. zippp mengirim baris ke sheet stok Anda supaya tidak perlu mengetik ulang.
+Staf jepret nota pemasok. Baris masuk sheet stok — tanpa ngetik ulang.
 ## landing.persona.resto.title1.en
-Let purchasing staff photograph supplier notas instead of typing them
+Stop making purchasing retype every supplier nota
 ## landing.persona.resto.title1.id
-Biar staf pembelian foto nota pemasok, bukan mengetiknya
+Stop suruh purchasing ngetik ulang tiap nota pemasok
 ## landing.persona.resto.title2.en
 
 ## landing.persona.resto.title2.id
 
 ## landing.persona.resto.body.en
-They snap the paper on a phone. You check what zippp read, then the lines land in the kitchen inventory sheet you already use.
+They snap on a phone. You glance the read. Lines drop into the kitchen sheet you already run.
 ## landing.persona.resto.body.id
-Mereka jepret notanya di ponsel. Anda cek bacaan zippp, lalu barisnya masuk ke sheet stok dapur yang sudah dipakai.
+Mereka jepret di HP. Kamu intip bacaannya. Barisnya masuk sheet dapur yang sudah jalan.
 ## landing.persona.resto.outcomeTitle.en
-Built for kitchen and shop purchasing
+For kitchen and shop purchasing
 ## landing.persona.resto.outcomeTitle.id
-Untuk pembelian dapur dan toko
+Buat pembelian dapur dan toko
 ## landing.persona.resto.outcomeBody.en
-One credit per accepted receipt. Failed reads cost nothing. Your Google Sheet stays the system of record; zippp is only the intake.
+One credit when you accept. Failed reads are free. Your Sheet stays home base — zippp is just the intake.
 ## landing.persona.resto.outcomeBody.id
-Satu kredit per resi yang diterima. Bacaan gagal tidak dipotong. Google Sheet tetap sistem catatan Anda; zippp hanya pintu masuknya.
+Satu kredit kalau kamu terima. Bacaan gagal gratis. Sheet tetap markas — zippp cuma pintu masuknya.
 ## landing.persona.resto.foot.en
-Your next supplier nota, in the sheet in a minute.
+Next supplier nota: in the sheet in a minute.
 ## landing.persona.resto.foot.id
-Nota pemasok berikutnya, masuk sheet dalam satu menit.
-
+Nota pemasok berikutnya: masuk sheet dalam semenit.
 ## landing.persona.personal.metaTitle.en
 Personal expense receipts to Google Sheets
 ## landing.persona.personal.metaTitle.id
 Struk pengeluaran pribadi ke Google Sheets
 ## landing.persona.personal.metaDesc.en
-Photograph every spend. zippp adds the lines to your expense sheet with day and month totals.
+Snap each spend. zippp adds lines to your expense sheet with day and month totals.
 ## landing.persona.personal.metaDesc.id
-Foto setiap pengeluaran. zippp menambahkan baris ke sheet Anda dengan total harian dan bulanan.
+Jepret tiap pengeluaran. zippp nambahin baris ke sheet, lengkap total harian dan bulanan.
 ## landing.persona.personal.title1.en
-Keep personal spending in a Sheet without typing every receipt
+Track spending in Sheets without typing every receipt
 ## landing.persona.personal.title1.id
-Catat pengeluaran pribadi di Sheet tanpa mengetik setiap struk
+Catat pengeluaran di Sheets tanpa ngetik tiap struk
 ## landing.persona.personal.title2.en
 
 ## landing.persona.personal.title2.id
 
 ## landing.persona.personal.body.en
-Photograph receipts as you go, check the read, and keep day and month totals in a spreadsheet you already know how to use.
+Snap as you go, check the read, keep day and month totals where you already look.
 ## landing.persona.personal.body.id
-Foto struk sepanjang jalan, cek bacaannya, dan biarkan total harian serta bulanan tetap di spreadsheet yang sudah biasa dipakai.
+Jepret sambil jalan, cek bacaannya, biar total harian-bulanan tetap di tempat yang biasa kamu buka.
 ## landing.persona.personal.outcomeTitle.en
-Built for personal spending
+For personal spending
 ## landing.persona.personal.outcomeTitle.id
-Untuk pengeluaran pribadi
+Buat pengeluaran pribadi
 ## landing.persona.personal.outcomeBody.en
-Pay only for what you accept. Credits last 30 days. No second ledger — just cleaner rows in your own Google Sheet.
+Pay only for accepts. Credits last 30 days. No second ledger — just cleaner rows in your Sheet.
 ## landing.persona.personal.outcomeBody.id
-Bayar hanya untuk yang Anda terima. Kredit berlaku 30 hari. Bukan buku kedua — hanya baris lebih rapi di Google Sheet Anda sendiri.
+Bayar cuma yang kamu terima. Kredit 30 hari. Bukan buku kedua — baris lebih rapi di Sheet kamu.
 ## landing.persona.personal.foot.en
-Your next receipt, logged without typing.
+Next receipt logged — no typing.
 ## landing.persona.personal.foot.id
-Struk berikutnya, tercatat tanpa mengetik.
-
+Struk berikutnya tercatat — tanpa ngetik.
 ## landing.persona.sales.metaTitle.en
 Daily sales recap from paper notas
 ## landing.persona.sales.metaTitle.id
 Rekap penjualan harian dari nota kertas
 ## landing.persona.sales.metaDesc.en
-Photograph sales notas and land a daily recap in your Google Sheet month tab.
+Snap sales notas. Get a daily recap on your Google Sheet month tab.
 ## landing.persona.sales.metaDesc.id
-Foto nota penjualan dan dapatkan rekap harian di tab bulan Google Sheet Anda.
+Jepret nota penjualan. Dapat rekap harian di tab bulan Google Sheet.
 ## landing.persona.sales.title1.en
-Turn end-of-day sales notas into a daily recap in Sheets
+Turn closing-time sales notas into a daily Sheet recap
 ## landing.persona.sales.title1.id
-Ubah nota penjualan harian jadi rekap di Sheets
+Nota penjualan tutup toko jadi rekap harian di Sheet
 ## landing.persona.sales.title2.en
 
 ## landing.persona.sales.title2.id
 
 ## landing.persona.sales.body.en
-Photograph your sales notas at the end of the day. zippp reads them so the month tab can show the daily recap without retyping.
+Snap the stack at close. The month tab shows the day without you retyping every line.
 ## landing.persona.sales.body.id
-Foto nota penjualan di akhir hari. zippp membacanya supaya tab bulan bisa menampilkan rekap harian tanpa mengetik ulang.
+Jepret tumpukan saat tutup. Tab bulan nunjukin harinya tanpa kamu ngetik tiap baris.
 ## landing.persona.sales.outcomeTitle.en
-Built for daily sales recaps
+For daily sales recaps
 ## landing.persona.sales.outcomeTitle.id
-Untuk rekap penjualan harian
+Buat rekap penjualan harian
 ## landing.persona.sales.outcomeBody.en
-Month tabs and daily totals are the point. You keep the sheet; zippp fills the rows from the paper you already print.
+Month tabs and daily totals are the point. You keep the sheet; zippp fills rows from the paper you already print.
 ## landing.persona.sales.outcomeBody.id
-Tab bulanan dan total harian adalah intinya. Sheet tetap milik Anda; zippp mengisi baris dari kertas yang sudah Anda cetak.
+Intinya tab bulan dan total harian. Sheet tetap punya kamu; zippp isi baris dari kertas yang sudah dicetak.
 ## landing.persona.sales.foot.en
-Close the day without retyping every nota.
+Close the day without retyping the stack.
 ## landing.persona.sales.foot.id
-Tutup hari tanpa mengetik ulang setiap nota.
-
+Tutup hari tanpa ngetik ulang tumpukan nota.
 ## landing.persona.reimburse.metaTitle.en
 Reimbursement claims with receipt photos
 ## landing.persona.reimburse.metaTitle.id
 Reimbursement dengan foto resi
 ## landing.persona.reimburse.metaDesc.en
-One month tab plus Drive photo proof. Share the sheet when you file the claim.
+Month tab plus Drive photos. Share the sheet when you file.
 ## landing.persona.reimburse.metaDesc.id
-Satu tab per bulan plus bukti foto di Drive. Bagikan sheet saat mengajukan klaim.
+Tab bulan plus foto di Drive. Bagikan sheet saat klaim.
 ## landing.persona.reimburse.title1.en
-Build a reimbursement pack with rows and photo proof in Drive
+One reimbursement pack: rows in Sheets, photos in Drive
 ## landing.persona.reimburse.title1.id
-Susun paket klaim dengan baris sheet dan bukti foto di Drive
+Satu paket reimbursement: baris di Sheets, foto di Drive
 ## landing.persona.reimburse.title2.en
 
 ## landing.persona.reimburse.title2.id
 
 ## landing.persona.reimburse.body.en
-Snap each receipt for the claim pack. Rows land in a month tab; optional photo proof goes to your Google Drive and links from the row.
+Snap each claim receipt. Month tab fills; photos can sit in Drive linked from the row.
 ## landing.persona.reimburse.body.id
-Jepret setiap resi untuk paket klaim. Baris masuk tab bulanan; bukti foto opsional ke Google Drive Anda dan tertaut dari baris.
+Jepret tiap resi klaim. Tab bulan terisi; fotonya bisa di Drive, ketaut dari baris.
 ## landing.persona.reimburse.outcomeTitle.en
-Built for reimbursement claims
+For reimbursement
 ## landing.persona.reimburse.outcomeTitle.id
-Untuk reimbursement
+Buat reimbursement
 ## landing.persona.reimburse.outcomeBody.en
-Share one sheet with finance. They see the lines and the linked photos without digging through a chat thread.
+Share one sheet with finance. They see the lines and linked photos — not a scavenger hunt in chat.
 ## landing.persona.reimburse.outcomeBody.id
-Bagikan satu sheet ke finance. Mereka melihat baris dan foto tertaut tanpa mengorek-ngorek chat.
+Bagikan satu sheet ke finance. Mereka lihat baris dan foto tertaut — bukan buru-buru di chat.
 ## landing.persona.reimburse.foot.en
-Send the claim pack, not a pile of photos.
+Send a claim pack, not a chat full of photos.
 ## landing.persona.reimburse.foot.id
-Kirim paket klaim, bukan tumpukan foto.
-
+Kirim paket klaim, bukan chat penuh foto.
 ## nav.useCases.en
 Case studies
 ## nav.useCases.id
@@ -2263,7 +2256,7 @@ Bandingkan
 ## landing.integrations.label.en
 Works with
 ## landing.integrations.label.id
-Terintegrasi dengan
+Jalan bareng
 ## landing.integrations.sheets.en
 Google Sheets
 ## landing.integrations.sheets.id
@@ -2283,19 +2276,17 @@ in Sheets
 di Sheets
 
 ## landing.how.lead.en
-You stay in control of every number. Flagged fields need a tap before anything hits the sheet.
+You still approve the numbers. Nothing lands in the sheet until you tap accept.
 ## landing.how.lead.id
-Angka tetap di tangan Anda. Kolom yang ditandai harus diketuk dulu sebelum masuk sheet.
-
+Angka tetap kamu yang setujui. Belum ketuk terima, belum masuk sheet.
 ## landing.sheet.badge.en
 Sample sheet
 ## landing.sheet.badge.id
 Contoh sheet
 ## landing.sheet.caption.en
-Illustrative rows. Your live sheet uses the same columns after you pick a template.
+Sample rows. Your live sheet gets the same columns after you pick a template.
 ## landing.sheet.caption.id
-Baris contoh. Sheet live Anda memakai kolom yang sama setelah memilih template.
-
+Contoh baris. Sheet aslimu pakai kolom yang sama setelah pilih template.
 ## landing.flow.snapCue.en
 Photo the receipt
 ## landing.flow.snapCue.id
@@ -2326,13 +2317,13 @@ What changes after you use it
 ## landing.impact.eyebrow.id
 Apa yang berubah setelah dipakai
 ## landing.impact.title.en
-Staff stop retyping supplier notas, and the kitchen sheet stays trustworthy because every row is checked first
+Staff stop retyping supplier notas, and the kitchen sheet stays honest because every row gets a look first
 ## landing.impact.title.id
-Staf tidak perlu mengetik ulang nota belanja, dan sheet dapur lebih bisa dipercaya karena setiap baris dicek dulu
+Staf berhenti ngetik ulang nota belanja, sheet dapur lebih bisa dipercaya karena tiap baris dicek dulu
 ## landing.impact.body.en
-You pay for accepted receipts only. Failed reads cost nothing, so people are not afraid to scan messy paper.
+You only pay when you accept. Failed reads are free — so messy paper still gets tried.
 ## landing.impact.body.id
-Anda hanya bayar untuk resi yang diterima. Bacaan gagal tidak dipotong, jadi orang tidak takut scan nota yang jelek.
+Bayar cuma kalau kamu terima. Bacaan gagal gratis — jadi nota jelek tetap dicoba.
 ## landing.impact.stat.hours.value.en
 ~2 hrs
 ## landing.impact.stat.hours.value.id
@@ -2363,9 +2354,9 @@ Testimonials
 ## landing.stories.title.id
 Testimonial
 ## landing.stories.lead.en
-Real workflows, same pattern: photograph the paper, check the read, keep working in Google Sheets.
+Same move every time: photo the paper, check the read, stay in Sheets.
 ## landing.stories.lead.id
-Alur nyata, pola sama: foto kertasnya, cek bacaannya, tetap kerja di Google Sheets.
+Gerakannya sama terus: foto kertasnya, cek bacaannya, tetap di Sheets.
 ## landing.stories.placeholder.en
 Sample quotes
 ## landing.stories.placeholder.id
@@ -2383,9 +2374,9 @@ Staff used to type every supplier nota after market. Now they snap and I review 
 ## landing.stories.q1.quote.id
 Staf dulu mengetik setiap nota pemasok setelah belanja. Sekarang mereka jepret, saya cek sheet malam hari.
 ## landing.stories.q1.result.en
-Purchasing entry cut from evening overtime to a 10-minute review.
+Night overtime for purchasing entry became a 10-minute skim.
 ## landing.stories.q1.result.id
-Entri pembelian dari lembur malam jadi review 10 menit.
+Lembur malam entri pembelian jadi skim 10 menit.
 ## landing.stories.q2.name.en
 Maya L.
 ## landing.stories.q2.name.id
@@ -2395,13 +2386,13 @@ Freelance, Singapore
 ## landing.stories.q2.role.id
 Pekerja lepas, Singapura
 ## landing.stories.q2.quote.en
-I hated expense apps that locked my data. zippp drops rows into the Sheet I already share with my accountant.
+I was done with expense apps that trap my data. zippp writes into the Sheet I already share with my accountant.
 ## landing.stories.q2.quote.id
-Saya benci aplikasi expense yang mengunci data. zippp menjatuhkan baris ke Sheet yang sudah saya bagikan ke akuntan.
+Capek sama aplikasi expense yang ngonci data. zippp nulis ke Sheet yang sudah saya share ke akuntan.
 ## landing.stories.q2.result.en
-Month-end export became open the same tab.
+Month-end is just opening the same tab.
 ## landing.stories.q2.result.id
-Ekspor akhir bulan jadi buka tab yang sama.
+Akhir bulan tinggal buka tab yang sama.
 ## landing.stories.q3.name.en
 Dimas P.
 ## landing.stories.q3.name.id
@@ -2411,13 +2402,13 @@ Cafe owner, Bandung
 ## landing.stories.q3.role.id
 Pemilik kafe, Bandung
 ## landing.stories.q3.quote.en
-The check step matters. Wrong totals get flagged before they hit inventory.
+That check step saved us. Bad totals get caught before they mess up stock.
 ## landing.stories.q3.quote.id
-Langkah periksa penting. Total yang salah ditandai sebelum masuk stok.
+Langkah cek itu yang nyelamatin. Total jelek ketahuan sebelum ngacauin stok.
 ## landing.stories.q3.result.en
-Wrong totals get caught before they mess up inventory.
+Wrong totals stop before they hit inventory.
 ## landing.stories.q3.result.id
-Total yang salah ketahuan sebelum merusak stok.
+Total salah berhenti sebelum masuk stok.
 ## landing.stories.q4.name.en
 Sinta W.
 ## landing.stories.q4.name.id
@@ -2491,9 +2482,9 @@ Warung owner, Yogyakarta
 ## landing.stories.q8.role.id
 Pemilik warung, Yogyakarta
 ## landing.stories.q8.quote.en
-Failed reads cost nothing, so my staff are not scared to scan crumpled market notes.
+Failed reads cost nothing, so the team will still try crumpled market notes.
 ## landing.stories.q8.quote.id
-Bacaan gagal tidak dipotong, jadi staf tidak takut scan nota pasar yang kusut.
+Bacaan gagal nggak dipotong, jadi tim tetap berani scan nota pasar yang kusut.
 ## landing.stories.q8.result.en
 Messy paper still gets tried, not skipped.
 ## landing.stories.q8.result.id
@@ -2511,9 +2502,9 @@ We ask travelers to use zippp so claims arrive as rows plus photos, not a chat t
 ## landing.stories.q9.quote.id
 Kami minta traveler pakai zippp supaya klaim datang sebagai baris plus foto, bukan thread chat.
 ## landing.stories.q9.result.en
-Review time per claim dropped to a quick sheet pass.
+Each claim is a quick pass through one sheet.
 ## landing.stories.q9.result.id
-Waktu review per klaim jadi lewat sheet sebentar.
+Tiap klaim jadi lewat satu sheet sebentar.
 ## landing.stories.q10.name.en
 Bayu T.
 ## landing.stories.q10.name.id
@@ -2527,9 +2518,9 @@ Outlet and staff columns mean I can see who bought what without asking in the gr
 ## landing.stories.q10.quote.id
 Kolom outlet dan staf membuat saya tahu siapa beli apa tanpa tanya di grup.
 ## landing.stories.q10.result.en
-Purchasing questions answered from the sheet.
+Who bought what — answered from the sheet, not the group chat.
 ## landing.stories.q10.result.id
-Pertanyaan pembelian terjawab dari sheet.
+Siapa beli apa — jawabannya di sheet, bukan di grup.
 ## landing.stories.q11.name.en
 Chloe A.
 ## landing.stories.q11.name.id
@@ -2539,13 +2530,13 @@ Solopreneur, Melbourne
 ## landing.stories.q11.role.id
 Solopreneur, Melbourne
 ## landing.stories.q11.quote.en
-I already lived in Sheets for taxes. zippp just stops me from typing coffee and Grab lines by hand.
+I already do taxes in Sheets. zippp just stops me typing coffee and Grab lines by hand.
 ## landing.stories.q11.quote.id
-Saya sudah hidup di Sheets untuk pajak. zippp menghentikan saya mengetik baris kopi dan Grab manual.
+Pajak saya sudah di Sheets. zippp cuma biar saya berhenti ngetik baris kopi dan Grab manual.
 ## landing.stories.q11.result.en
-Expense tracking without a second app to learn.
+Expenses stay in Sheets — no new app to learn.
 ## landing.stories.q11.result.id
-Lacak pengeluaran tanpa belajar aplikasi kedua.
+Pengeluaran tetap di Sheets — nggak perlu belajar app baru.
 ## landing.stories.q12.name.en
 Rina D.
 ## landing.stories.q12.name.id
@@ -2559,18 +2550,17 @@ Sales and purchasing both stay in Sheets we already shared with the bookkeeper. 
 ## landing.stories.q12.quote.id
 Penjualan dan pembelian tetap di Sheets yang sudah dibagikan ke pembukuan. zippp hanya mengisi barisnya.
 ## landing.stories.q12.result.en
-One place for ops and bookkeeping to look.
+Ops and bookkeeping look in the same place.
 ## landing.stories.q12.result.id
-Satu tempat untuk ops dan pembukuan.
-
+Ops dan pembukuan lihat di tempat yang sama.
 ## landing.founder.eyebrow.en
-From the founder
+From Aldan
 ## landing.founder.eyebrow.id
-Dari founder
+Dari Aldan
 ## landing.founder.body.en
-Most shops already run on Google Sheets. I did not want another accounting app. I wanted the paper to become rows without retyping, and without a wrong number sneaking in quietly.
+Most shops already live in Google Sheets. I did not want another accounting app. I wanted paper to become rows — without quiet wrong numbers sneaking in.
 ## landing.founder.body.id
-Kebanyakan toko sudah jalan di Google Sheets. Saya tidak mau bikin aplikasi akuntansi baru. Saya mau kertas jadi baris tanpa diketik ulang, dan tanpa angka salah yang masuk diam-diam.
+Kebanyakan toko sudah hidup di Google Sheets. Saya nggak mau bikin aplikasi akuntansi baru. Saya mau kertas jadi baris — tanpa angka salah yang nyelinap diam-diam.
 ## landing.founder.name.en
 Aldan Arkara
 ## landing.founder.name.id
@@ -2597,13 +2587,13 @@ Feature
 ## landing.vs.col.feature.id
 Fitur
 ## landing.vs.disclaimer.en
-Competitor features change. This page reflects publicly described positioning. Verify on their site before you switch.
+Competitors change. This page mirrors what they say publicly — double-check their site before you switch.
 ## landing.vs.disclaimer.id
-Fitur kompetitor berubah. Halaman ini mencerminkan posisi yang dipublikasikan. Verifikasi di situs mereka sebelum beralih.
+Kompetitor berubah. Halaman ini ikut yang mereka tulis di publik — cek lagi situs mereka sebelum pindah.
 ## landing.vs.whyTitle.en
-Why teams pick zippp
+Why people pick zippp
 ## landing.vs.whyTitle.id
-Kenapa tim memilih zippp
+Kenapa orang pilih zippp
 ## landing.vs.otherTitle.en
 More comparisons
 ## landing.vs.otherTitle.id
@@ -2611,7 +2601,7 @@ Perbandingan lain
 ## landing.vs.foot.en
 Keep the sheet. Skip the typing.
 ## landing.vs.foot.id
-Pertahankan sheet. Lewati mengetik.
+Sheetnya tetap. Ngetiknya yang hilang.
 ## landing.vs.row.destination.en
 Where data lives
 ## landing.vs.row.destination.id
@@ -2682,7 +2672,7 @@ Depends on the product
 ## landing.vs.snaply.them.checkStep.id
 Tergantung produknya
 ## landing.vs.snaply.zippp.indonesia.en
-Built for ID notas + DOKU top-up
+Made for Indonesian notas + DOKU top-up
 ## landing.vs.snaply.zippp.indonesia.id
 Untuk nota ID + top-up DOKU
 ## landing.vs.snaply.them.indonesia.en
@@ -2714,9 +2704,9 @@ Export steps to leave
 ## landing.vs.snaply.them.lockIn.id
 Perlu ekspor untuk keluar
 ## landing.vs.snaply.why1.en
-Your Google Sheet stays the system of record.
+Your Google Sheet stays home base.
 ## landing.vs.snaply.why1.id
-Google Sheet Anda tetap sistem catatan.
+Google Sheet kamu tetap markas.
 ## landing.vs.snaply.why2.en
 Credits beat subscriptions when scan volume is uneven.
 ## landing.vs.snaply.why2.id
@@ -2766,7 +2756,7 @@ Review before send
 ## landing.vs.sheetify.them.checkStep.id
 Tinjau sebelum kirim
 ## landing.vs.sheetify.zippp.indonesia.en
-Built for ID notas + DOKU top-up
+Made for Indonesian notas + DOKU top-up
 ## landing.vs.sheetify.zippp.indonesia.id
 Untuk nota ID + top-up DOKU
 ## landing.vs.sheetify.them.indonesia.en
@@ -2822,9 +2812,9 @@ zippp vs *Scan2Sheet*
 ## landing.vs.scan2sheet.title.id
 zippp vs *Scan2Sheet*
 ## landing.vs.scan2sheet.body.en
-Scan2Sheet syncs expenses to Sheets. zippp is the *intake mill* for shops that already run on a sheet.
+Scan2Sheet syncs expenses to Sheets. zippp *feeds the sheet* for shops that already live there.
 ## landing.vs.scan2sheet.body.id
-Scan2Sheet menyinkronkan expense ke Sheets. zippp adalah *pabrik intake* untuk toko yang sudah jalan di sheet.
+Scan2Sheet menyinkronkan expense ke Sheets. zippp *ngisi sheet* buat toko yang sudah jalan di situ.
 ## landing.vs.scan2sheet.zippp.destination.en
 Your Google Sheet
 ## landing.vs.scan2sheet.zippp.destination.id
@@ -2850,7 +2840,7 @@ AI extract then sync
 ## landing.vs.scan2sheet.them.checkStep.id
 AI ekstrak lalu sync
 ## landing.vs.scan2sheet.zippp.indonesia.en
-Built for ID notas + DOKU top-up
+Made for Indonesian notas + DOKU top-up
 ## landing.vs.scan2sheet.zippp.indonesia.id
 Untuk nota ID + top-up DOKU
 ## landing.vs.scan2sheet.them.indonesia.en
@@ -2934,7 +2924,7 @@ Approvals and policies
 ## landing.vs.expensify.them.checkStep.id
 Persetujuan dan kebijakan
 ## landing.vs.expensify.zippp.indonesia.en
-Built for ID notas + DOKU top-up
+Made for Indonesian notas + DOKU top-up
 ## landing.vs.expensify.zippp.indonesia.id
 Untuk nota ID + top-up DOKU
 ## landing.vs.expensify.them.indonesia.en
@@ -2966,9 +2956,9 @@ Platform workflows
 ## landing.vs.expensify.them.lockIn.id
 Alur platform
 ## landing.vs.expensify.why1.en
-No second system of record to learn.
+No second app to learn.
 ## landing.vs.expensify.why1.id
-Tidak ada sistem catatan kedua untuk dipelajari.
+Nggak perlu belajar app kedua.
 ## landing.vs.expensify.why2.en
 Better fit when Sheets already is the book.
 ## landing.vs.expensify.why2.id
@@ -3018,7 +3008,7 @@ Edit in their table
 ## landing.vs.smartscandoc.them.checkStep.id
 Edit di tabel mereka
 ## landing.vs.smartscandoc.zippp.indonesia.en
-Built for ID notas + DOKU top-up
+Made for Indonesian notas + DOKU top-up
 ## landing.vs.smartscandoc.zippp.indonesia.id
 Untuk nota ID + top-up DOKU
 ## landing.vs.smartscandoc.them.indonesia.en
@@ -3102,7 +3092,7 @@ Typos slip in
 ## landing.vs.typing.them.checkStep.id
 Salah ketik masuk
 ## landing.vs.typing.zippp.indonesia.en
-Built for ID notas + DOKU top-up
+Made for Indonesian notas + DOKU top-up
 ## landing.vs.typing.zippp.indonesia.id
 Untuk nota ID + top-up DOKU
 ## landing.vs.typing.them.indonesia.en
@@ -3149,4 +3139,4 @@ Sheet yang sama yang sudah dibuka tim Anda.
 ## landing.media.flowTitle.en
 How a receipt moves through zippp
 ## landing.media.flowTitle.id
-Alur resi di dalam zippp
+Jalan sebuah nota di zippp

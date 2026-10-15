@@ -7,13 +7,13 @@ const COPY = {
     en: {
         brand: "zippp",
         headline: "For people who still type receipts",
-        body: "Photograph the paper. Rows land in your Google Sheet.",
+        body: "Snap the paper. Rows land in the Google Sheet you already use.",
         jobs: "Purchasing · Expenses · Sales · Reimbursement",
     },
     id: {
         brand: "zippp",
         headline: "Untuk yang masih mengetik nota",
-        body: "Foto notanya. Baris masuk ke Google Sheet Anda.",
+        body: "Jepret notanya. Barisnya masuk Google Sheet yang sudah kamu pakai.",
         jobs: "Pembelian · Pengeluaran · Penjualan · Reimbursement",
     },
 } as const;
