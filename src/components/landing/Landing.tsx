@@ -3,6 +3,7 @@
 import AppFlowPreview from "./AppFlowPreview";
 import DoodleArrow from "./DoodleArrow";
 import GoogleIntegrations from "./GoogleIntegrations";
+import HeroPhone from "./HeroPhone";
 import ImpactProof from "./ImpactProof";
 import MediaPlaceholder from "./MediaPlaceholder";
 import SheetPreview from "./SheetPreview";
@@ -17,9 +18,8 @@ import { makeT, type Wording } from "@/lib/t";
 import type { Lang, Region } from "@/lib/region";
 
 /**
- * Public master landing. Region follows the route (`/` USD, `/id` IDR) via the
- * Worldwide / Indonesia dropdown. Media slots use `public/landing/` when present;
- * otherwise SheetPreview / AppFlowPreview fill the proof surface.
+ * Public master landing. Region follows the route (`/` USD, `/id` IDR).
+ * Hero and product sections always show UI mocks when media files are missing.
  */
 export default function Landing({
     wording,
@@ -76,19 +76,13 @@ export default function Landing({
                         </div>
                     </nav>
 
-                    <section className="relative bg-brand text-ink">
-                        <DoodleArrow
-                            className="absolute right-8 top-10 hidden text-maroon/70 xl:flex"
-                            label={t("landing.doodle.try")}
-                        />
-                        <div className="mx-auto grid max-w-[980px] items-center gap-10 px-6 py-14 sm:py-20 lg:grid-cols-[1.05fr_1fr]">
+                    <section className="bg-brand text-ink">
+                        <div className="mx-auto grid max-w-[980px] items-center gap-10 px-6 py-14 sm:py-16 lg:grid-cols-[1.1fr_0.9fr] lg:py-20">
                             <div>
-                                <h1 className="font-head text-[3rem] font-extrabold leading-[0.94] tracking-tight sm:text-[4.5rem]">
-                                    <RichText text={t("landing.hero.title1")} />
-                                    <br />
-                                    <RichText text={t("landing.hero.title2")} />
+                                <h1 className="font-head text-[2.6rem] font-extrabold leading-[1.05] tracking-tight sm:text-[3.75rem]">
+                                    <RichText text={t("landing.hero.title")} />
                                 </h1>
-                                <p className="mt-6 max-w-[44ch] text-lg sm:text-xl">
+                                <p className="mt-5 max-w-[42ch] text-lg leading-relaxed sm:text-xl">
                                     <RichText text={t("landing.hero.body")} />
                                 </p>
                                 <div className="mt-8 flex flex-wrap gap-3">
@@ -105,23 +99,45 @@ export default function Landing({
                                         {t("landing.hero.cta2")}
                                     </a>
                                 </div>
-                                <div className="mt-8">
+                                <div className="mt-7">
                                     <GoogleIntegrations t={t} />
                                 </div>
                             </div>
-                            <MediaPlaceholder
-                                label={t("landing.media.hero")}
-                                note={t("landing.media.note")}
-                                src={assets.heroImage}
-                            />
+                            <div className="relative flex justify-center lg:justify-end">
+                                <DoodleArrow
+                                    variant="curve-left"
+                                    label={t("landing.doodle.try")}
+                                    className="absolute -left-2 top-0 z-10 hidden sm:flex lg:-left-6"
+                                    width={88}
+                                    height={64}
+                                />
+                                {assets.heroImage ? (
+                                    <MediaPlaceholder
+                                        label={t("landing.media.hero")}
+                                        src={assets.heroImage}
+                                        aspect="aspect-[9/16] max-w-[280px]"
+                                    />
+                                ) : (
+                                    <HeroPhone t={t} />
+                                )}
+                            </div>
                         </div>
                     </section>
 
                     <section id="how" className="mx-auto max-w-[980px] px-6 py-14">
-                        <h2 className="font-head text-3xl font-extrabold tracking-tight sm:text-4xl">
-                            <RichText text={t("landing.how.title")} />
-                        </h2>
-                        <p className="mt-3 max-w-[48ch] text-muted">
+                        <div className="relative inline-block">
+                            <h2 className="font-head text-3xl font-extrabold tracking-tight sm:text-4xl">
+                                <RichText text={t("landing.how.title")} />
+                            </h2>
+                            <DoodleArrow
+                                variant="scribble-under"
+                                className="absolute -bottom-6 left-0"
+                                width={140}
+                                height={36}
+                                color="var(--c-orange)"
+                            />
+                        </div>
+                        <p className="mt-8 max-w-[52ch] text-muted leading-relaxed">
                             {t("landing.how.lead")}
                         </p>
                         <div className="mt-8">
@@ -134,19 +150,22 @@ export default function Landing({
                         className="border-y border-line bg-surface"
                     >
                         <div className="mx-auto max-w-[980px] px-6 py-14">
-                            <div className="relative">
-                                <DoodleArrow
-                                    className="absolute -top-4 right-0 hidden text-brand sm:flex"
-                                    label={t("landing.doodle.sheet")}
-                                />
+                            <div className="relative max-w-[36ch]">
                                 <h2 className="font-head text-3xl font-extrabold tracking-tight sm:text-4xl">
                                     {t("landing.showcase.title")}
                                 </h2>
-                                <p className="mt-4 max-w-[56ch] text-muted">
-                                    {t("landing.showcase.body")}
-                                </p>
+                                <DoodleArrow
+                                    variant="zigzag"
+                                    className="absolute -right-16 top-0 hidden md:flex"
+                                    width={72}
+                                    height={56}
+                                    color="var(--c-orange)"
+                                />
                             </div>
-                            <div className="mt-7 grid gap-4 lg:grid-cols-2">
+                            <p className="mt-4 max-w-[56ch] text-muted leading-relaxed">
+                                {t("landing.showcase.body")}
+                            </p>
+                            <div className="mt-8 grid gap-6 lg:grid-cols-2 lg:items-start">
                                 {assets.sheetImage ? (
                                     <MediaPlaceholder
                                         label={t("landing.media.sheet")}
@@ -160,12 +179,20 @@ export default function Landing({
                                         lang={lang}
                                     />
                                 )}
-                                <MediaPlaceholder
-                                    label={t("landing.media.video")}
-                                    note={t("landing.media.note")}
-                                    src={assets.demoVideo}
-                                    video
-                                />
+                                {assets.demoVideo ? (
+                                    <MediaPlaceholder
+                                        label={t("landing.media.video")}
+                                        src={assets.demoVideo}
+                                        video
+                                    />
+                                ) : (
+                                    <div className="rounded-panel border-2 border-line bg-card p-5">
+                                        <p className="mb-4 text-sm font-semibold text-body">
+                                            {t("landing.media.flowTitle")}
+                                        </p>
+                                        <AppFlowPreview t={t} />
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </section>
@@ -177,7 +204,7 @@ export default function Landing({
                         <h2 className="font-head text-3xl font-extrabold tracking-tight sm:text-4xl">
                             {t("landing.who.title")}
                         </h2>
-                        <p className="mt-4 max-w-[56ch] text-muted">
+                        <p className="mt-4 max-w-[56ch] text-muted leading-relaxed">
                             {t("landing.audience.body")}
                         </p>
                         <div className="mt-7 grid gap-4 sm:grid-cols-2">
@@ -190,7 +217,7 @@ export default function Landing({
                                     <h3 className="font-head text-2xl font-extrabold tracking-tight">
                                         {t(`landing.who.${persona.whoKey}.title`)}
                                     </h3>
-                                    <p className="mt-2 flex-1 text-muted">
+                                    <p className="mt-2 flex-1 text-muted leading-relaxed">
                                         {t(`landing.who.${persona.whoKey}.body`)}
                                     </p>
                                     <span className="mt-4 self-start text-sm font-semibold text-brand">
@@ -218,7 +245,7 @@ export default function Landing({
                         <h2 className="font-head text-3xl font-extrabold tracking-tight sm:text-4xl">
                             {t("landing.pricing.title")}
                         </h2>
-                        <p className="mt-4 max-w-[48ch] text-muted">
+                        <p className="mt-4 max-w-[48ch] text-muted leading-relaxed">
                             <RichText text={t("landing.pricing.body")} />
                         </p>
                         <div className="mt-6 flex flex-wrap gap-3">
@@ -240,7 +267,7 @@ export default function Landing({
                             <h3 className="font-head text-2xl font-extrabold tracking-tight">
                                 {t("landing.referral.title")}
                             </h3>
-                            <p className="mt-2 text-muted">
+                            <p className="mt-2 text-muted leading-relaxed">
                                 {t("landing.referral.body")}
                             </p>
                         </div>
@@ -262,7 +289,7 @@ export default function Landing({
                                     <summary className="cursor-pointer font-semibold">
                                         {t(`landing.faq.q${i}`)}
                                     </summary>
-                                    <p className="mt-2 max-w-[60ch] text-muted">
+                                    <p className="mt-2 max-w-[60ch] text-muted leading-relaxed">
                                         {t(`landing.faq.a${i}`)}
                                     </p>
                                 </details>
@@ -271,7 +298,7 @@ export default function Landing({
                     </section>
 
                     <footer className="bg-maroon px-6 py-14 text-center text-white">
-                        <h2 className="mx-auto max-w-[980px] font-head text-3xl font-extrabold tracking-tight sm:text-4xl">
+                        <h2 className="mx-auto max-w-[40ch] font-head text-3xl font-extrabold leading-tight tracking-tight sm:text-4xl">
                             <RichText text={t("landing.foot.title")} />
                         </h2>
                         <a

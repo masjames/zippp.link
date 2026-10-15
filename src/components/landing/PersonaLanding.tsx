@@ -3,6 +3,7 @@
 import AppFlowPreview from "./AppFlowPreview";
 import DoodleArrow from "./DoodleArrow";
 import GoogleIntegrations from "./GoogleIntegrations";
+import HeroPhone from "./HeroPhone";
 import ImpactProof from "./ImpactProof";
 import SheetPreview from "./SheetPreview";
 import SiteFooter from "./SiteFooter";
@@ -76,50 +77,52 @@ export default function PersonaLanding({
                         </div>
                     </nav>
 
-                    <section className="relative bg-brand text-ink">
-                        <DoodleArrow
-                            className="absolute right-4 top-6 hidden text-maroon/70 sm:flex"
-                            label={t("landing.doodle.try")}
-                        />
-                        <div className="mx-auto max-w-[980px] px-6 py-14 sm:py-20">
-                            <p className="text-sm font-semibold uppercase tracking-wide opacity-80">
-                                {t(`landing.who.${key}.template`)}
-                            </p>
-                            <h1 className="mt-3 font-head text-[2.4rem] font-extrabold leading-[0.96] tracking-tight sm:text-[4.2rem]">
-                                <RichText
-                                    text={t(`landing.persona.${key}.title1`)}
-                                />
-                                <br />
-                                <RichText
-                                    text={t(`landing.persona.${key}.title2`)}
-                                />
-                            </h1>
-                            <p className="mt-6 max-w-[48ch] text-lg sm:text-xl">
-                                <RichText
-                                    text={t(`landing.persona.${key}.body`)}
-                                />
-                            </p>
-                            {persona.softLaunch ? (
-                                <p className="mt-4 max-w-[48ch] rounded-panel bg-peach/80 px-4 py-3 text-sm font-semibold">
-                                    {t("landing.persona.softNote")}
+                    <section className="bg-brand text-ink">
+                        <div className="mx-auto grid max-w-[980px] items-center gap-10 px-6 py-14 sm:py-16 lg:grid-cols-[1.1fr_0.9fr]">
+                            <div>
+                                <p className="text-sm font-semibold uppercase tracking-wide opacity-80">
+                                    {t(`landing.who.${key}.template`)}
                                 </p>
-                            ) : null}
-                            <div className="mt-8 flex flex-wrap gap-3">
-                                <a
-                                    href="/api/auth/login"
-                                    className="inline-flex items-center rounded-full bg-maroon px-7 py-4 font-semibold text-white"
-                                >
-                                    {t("landing.persona.cta")}
-                                </a>
-                                <a
-                                    href="#how"
-                                    className="inline-flex items-center rounded-full bg-peach px-7 py-4 font-semibold text-ink"
-                                >
-                                    {t("landing.hero.cta2")}
-                                </a>
+                                <h1 className="mt-3 font-head text-[2.2rem] font-extrabold leading-[1.08] tracking-tight sm:text-[3.4rem]">
+                                    <RichText
+                                        text={t(`landing.persona.${key}.title1`)}
+                                    />
+                                </h1>
+                                <p className="mt-5 max-w-[48ch] text-lg leading-relaxed sm:text-xl">
+                                    <RichText
+                                        text={t(`landing.persona.${key}.body`)}
+                                    />
+                                </p>
+                                {persona.softLaunch ? (
+                                    <p className="mt-4 max-w-[48ch] rounded-panel bg-peach/80 px-4 py-3 text-sm font-semibold">
+                                        {t("landing.persona.softNote")}
+                                    </p>
+                                ) : null}
+                                <div className="mt-8 flex flex-wrap gap-3">
+                                    <a
+                                        href="/api/auth/login"
+                                        className="inline-flex items-center rounded-full bg-maroon px-7 py-4 font-semibold text-white"
+                                    >
+                                        {t("landing.persona.cta")}
+                                    </a>
+                                    <a
+                                        href="#how"
+                                        className="inline-flex items-center rounded-full bg-peach px-7 py-4 font-semibold text-ink"
+                                    >
+                                        {t("landing.hero.cta2")}
+                                    </a>
+                                </div>
+                                <div className="mt-7">
+                                    <GoogleIntegrations t={t} />
+                                </div>
                             </div>
-                            <div className="mt-8">
-                                <GoogleIntegrations t={t} />
+                            <div className="relative flex justify-center lg:justify-end">
+                                <DoodleArrow
+                                    variant="loop-point"
+                                    label={t("landing.doodle.try")}
+                                    className="absolute -left-1 top-2 z-10 hidden sm:flex"
+                                />
+                                <HeroPhone t={t} />
                             </div>
                         </div>
                     </section>

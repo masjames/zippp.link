@@ -6,8 +6,7 @@ import type { T } from "@/lib/t";
 import type { BusinessInfo } from "@/lib/business";
 
 /**
- * Links to legal pages, use cases, and vs-competitor pages (PhotoAI-style).
- * Email is not printed here; scrapers follow the contact page reveal instead.
+ * PhotoAI-style footer: legal row, then vertical Use cases / Compare columns.
  */
 export default function SiteFooter({
     t,
@@ -23,9 +22,10 @@ export default function SiteFooter({
     const resolvedRegion: Region =
         region ?? (lang === "id" ? "id" : "intl");
     const contact = legalHref("contact", lang);
+
     return (
-        <div className="mx-auto max-w-[980px] px-6 py-8 text-sm text-muted">
-            <nav className="flex flex-wrap items-center gap-x-5 gap-y-3">
+        <div className="mx-auto max-w-[980px] px-6 py-10 text-sm text-muted">
+            <nav className="flex flex-wrap gap-x-5 gap-y-2 border-b border-line pb-6">
                 {LEGAL_PAGES.map((id) => (
                     <a
                         key={id}
@@ -37,37 +37,44 @@ export default function SiteFooter({
                 ))}
             </nav>
 
-            <p className="mt-6 text-xs font-bold uppercase tracking-wide text-body">
-                {t("footer.useCases")}
-            </p>
-            <nav className="mt-2 flex flex-wrap gap-x-5 gap-y-2">
-                {PERSONAS.map((p) => (
-                    <a
-                        key={p.id}
-                        href={personaHref(p.id, resolvedRegion)}
-                        className="font-semibold hover:text-body"
-                    >
-                        {t(`landing.who.${p.whoKey}.title`)}
-                    </a>
-                ))}
-            </nav>
+            <div className="mt-8 grid gap-10 sm:grid-cols-2">
+                <div>
+                    <p className="text-xs font-bold uppercase tracking-wide text-body">
+                        {t("footer.useCases")}
+                    </p>
+                    <ul className="mt-3 flex flex-col gap-2">
+                        {PERSONAS.map((p) => (
+                            <li key={p.id}>
+                                <a
+                                    href={personaHref(p.id, resolvedRegion)}
+                                    className="font-semibold text-muted hover:text-body"
+                                >
+                                    {t(`landing.who.${p.whoKey}.title`)}
+                                </a>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+                <div>
+                    <p className="text-xs font-bold uppercase tracking-wide text-body">
+                        {t("footer.compare")}
+                    </p>
+                    <ul className="mt-3 flex flex-col gap-2">
+                        {COMPETITORS.map((c) => (
+                            <li key={c.id}>
+                                <a
+                                    href={competitorHref(c.id, resolvedRegion)}
+                                    className="font-semibold text-muted hover:text-body"
+                                >
+                                    zippp vs {c.shortName}
+                                </a>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            </div>
 
-            <p className="mt-6 text-xs font-bold uppercase tracking-wide text-body">
-                {t("footer.compare")}
-            </p>
-            <nav className="mt-2 flex flex-wrap gap-x-5 gap-y-2">
-                {COMPETITORS.map((c) => (
-                    <a
-                        key={c.id}
-                        href={competitorHref(c.id, resolvedRegion)}
-                        className="font-semibold hover:text-body"
-                    >
-                        zippp vs {c.shortName}
-                    </a>
-                ))}
-            </nav>
-
-            <p className="mt-6">
+            <p className="mt-10 border-t border-line pt-6">
                 {business.operator}
                 {business.address ? ` · ${business.address}` : ""}
                 {" · "}
