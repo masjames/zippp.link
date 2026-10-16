@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>zippp demo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800;900&family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --orange: #ee5329;
+      --ink: #1c0b09;
+      --maroon: #3e0f0c;
+      --peach: #f6d3c5;
+      --page: #e8e8e8;
+      --line: #e4b9a8;
+      --muted: #5e4640;
+      --green: #0F9D58;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      width: 1080px;
+      height: 1920px;
+      overflow: hidden;
+      background: var(--page);
+      color: var(--ink);
+      font-family: Inter, system-ui, sans-serif;
+    }
+    .stage {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      pointer-events: none;
+    }
+    .stage.on { opacity: 1; }
+    .brand {
+      font-family: Archivo, sans-serif;
+      font-weight: 900;
+      color: var(--orange);
+      letter-spacing: -0.04em;
+    }
+    .caption {
+      position: absolute;
+      left: 64px;
+      right: 64px;
+      bottom: 120px;
+      text-align: center;
+      font-family: Archivo, sans-serif;
+      font-weight: 800;
+      font-size: 48px;
+      line-height: 1.15;
+      letter-spacing: -0.03em;
+    }
+    .caption small {
+      display: block;
+      margin-top: 16px;
+      font-family: Inter, sans-serif;
+      font-weight: 600;
+      font-size: 28px;
+      color: var(--muted);
+    }
+    .phone {
+      position: absolute;
+      left: 50%;
+      top: 220px;
+      width: 720px;
+      height: 1280px;
+      transform: translateX(-50%);
+      background: #fff;
+      border-radius: 56px;
+      border: 6px solid var(--ink);
+      overflow: hidden;
+      box-shadow: 0 30px 80px rgba(28,11,9,0.25);
+    }
+    .phone-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--maroon);
+      color: #fff;
+      padding: 22px 28px;
+      font-weight: 700;
+      font-size: 26px;
+    }
+    .phone-body { padding: 28px; }
+    .pill {
+      display: inline-block;
+      background: var(--page);
+      border-radius: 999px;
+      padding: 10px 18px;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--muted);
+    }
+    .viewfinder {
+      margin-top: 24px;
+      height: 720px;
+      border-radius: 28px;
+      background: #2a1410;
+      position: relative;
+      overflow: hidden;
+    }
+    .guide {
+      position: absolute;
+      inset: 10%;
+      border: 4px dashed rgba(238,83,41,0.75);
+      border-radius: 20px;
+    }
+    .vf-label {
+      position: absolute;
+      left: 0; right: 0; bottom: 40px;
+      text-align: center;
+      color: #f6d3c5;
+      font-weight: 700;
+      font-size: 28px;
+    }
+    .shutter {
+      position: absolute;
+      left: 50%;
+      bottom: 120px;
+      width: 96px;
+      height: 96px;
+      margin-left: -48px;
+      border-radius: 50%;
+      background: var(--maroon);
+      border: 8px solid rgba(255,255,255,0.85);
+      animation: pulse 1.4s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(0.92); }
+    }
+    .field {
+      margin-top: 18px;
+      border: 3px solid var(--line);
+      border-radius: 20px;
+      padding: 18px 22px;
+      background: #fff;
+    }
+    .field.amber { border-color: #f59e0b; background: #fffbeb; }
+    .field .k { font-size: 18px; color: var(--muted); font-weight: 700; }
+    .field .v { font-size: 32px; font-weight: 800; margin-top: 4px; }
+    .btn {
+      margin-top: 28px;
+      background: var(--maroon);
+      color: #fff;
+      border-radius: 999px;
+      text-align: center;
+      padding: 26px;
+      font-weight: 800;
+      font-size: 30px;
+    }
+    .sheet {
+      margin-top: 20px;
+      border: 3px solid var(--line);
+      border-radius: 20px;
+      overflow: hidden;
+      background: #f8f9fa;
+    }
+    .sheet-h {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      background: #fff;
+      padding: 18px 20px;
+      border-bottom: 2px solid var(--line);
+      font-weight: 700;
+      font-size: 22px;
+    }
+    .dot { width: 18px; height: 18px; border-radius: 50%; background: var(--green); }
+    table { width: 100%; border-collapse: collapse; font-size: 20px; }
+    th, td { border: 1px solid var(--line); padding: 12px 10px; text-align: left; white-space: nowrap; }
+    th { background: #f3f3f3; }
+    tr.new { background: rgba(238,83,41,0.15); font-weight: 700; }
+    .ok {
+      padding: 18px 20px;
+      background: #fff;
+      border-top: 2px solid var(--line);
+      color: var(--green);
+      font-weight: 800;
+      font-size: 24px;
+    }
+    .hero-title {
+      font-family: Archivo, sans-serif;
+      font-weight: 900;
+      font-size: 64px;
+      line-height: 1.05;
+      letter-spacing: -0.04em;
+      margin-top: 40px;
+    }
+    .hero-body {
+      margin-top: 28px;
+      font-size: 30px;
+      line-height: 1.4;
+      color: var(--muted);
+      max-width: 28ch;
+    }
+    .cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 14px;
+      margin-top: 40px;
+      background: #fff;
+      border: 3px solid var(--line);
+      border-radius: 999px;
+      padding: 22px 32px;
+      font-weight: 800;
+      font-size: 28px;
+    }
+    .g {
+      width: 36px; height: 36px; border-radius: 8px;
+      background: conic-gradient(#ea4335 0 25%, #fbbc05 0 50%, #34a853 0 75%, #4285f4 0);
+    }
+    .center-brand {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: aliceblue;
+    }
+    .center-brand .brand { font-size: 140px; }
+    .center-brand p {
+      margin-top: 24px;
+      font-family: Archivo, sans-serif;
+      font-weight: 800;
+      font-size: 44px;
+      text-align: center;
+      max-width: 16ch;
+      line-height: 1.15;
+    }
+    .end {
+      background: var(--maroon);
+      color: #fff;
+    }
+    .end .brand { color: var(--orange); font-size: 120px; }
+    .end p { color: #fff; margin-top: 28px; font-size: 40px; }
+    .end .url {
+      margin-top: 48px;
+      font-size: 36px;
+      font-weight: 700;
+      background: var(--orange);
+      color: var(--ink);
+      padding: 20px 36px;
+      border-radius: 999px;
+    }
+    .flash {
+      position: absolute;
+      inset: 0;
+      background: #fff;
+      opacity: 0;
+    }
+    .flash.go { animation: flash 0.35s ease-out; }
+    @keyframes flash {
+      0% { opacity: 0.9; }
+      100% { opacity: 0; }
+    }
+    .row-in { animation: rowIn 0.6s ease-out both; }
+    @keyframes rowIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: none; }
+    }
+  </style>
+</head>
+<body>
+  <!-- 0: open -->
+  <section class="stage on" data-t="0">
+    <div class="center-brand">
+      <div class="brand">zippp</div>
+      <p>Hari gini nyatet struk masih manual?</p>
+    </div>
+  </section>
+
+  <!-- 1: landing -->
+  <section class="stage" data-t="4500">
+    <div class="phone" style="background: aliceblue;">
+      <div class="phone-body" style="padding-top: 48px;">
+        <div class="brand" style="font-size: 56px;">zippp</div>
+        <div class="hero-title">Hari gini nyatet struk masih <span style="color:var(--orange);text-decoration:underline;text-decoration-thickness:6px;text-underline-offset:6px;">manual</span>?</div>
+        <div class="hero-body">Jepret struk — atau unggah foto/PDF. Baris masuk Google Sheet yang sudah kamu pakai.</div>
+        <div class="cta"><span class="g"></span> Masuk dengan Google</div>
+      </div>
+    </div>
+    <div class="caption">Mulai dari landing<br /><small>Sign in with Google · template siap pakai</small></div>
+  </section>
+
+  <!-- 2: snap -->
+  <section class="stage" data-t="12000">
+    <div class="phone" style="background:#e8e8e8;">
+      <div class="phone-bar"><span>zippp</span><span class="pill" style="background:rgba(255,255,255,.15);color:#fff;">[zippp] Expenses</span></div>
+      <div class="phone-body">
+        <div class="viewfinder">
+          <div class="guide"></div>
+          <div class="vf-label">Foto struknya</div>
+          <div class="shutter"></div>
+          <div class="flash" id="flash"></div>
+        </div>
+        <div style="margin-top:22px;display:flex;justify-content:space-between;font-weight:700;font-size:22px;">
+          <span style="text-decoration:underline;">Unggah foto atau PDF</span>
+          <span class="pill">Auto-snap</span>
+        </div>
+      </div>
+    </div>
+    <div class="caption">1. Foto / unggah<br /><small>Kamera atau file PDF dari WA</small></div>
+  </section>
+
+  <!-- 3: review -->
+  <section class="stage" data-t="22000">
+    <div class="phone">
+      <div class="phone-bar"><span>zippp</span><span>Review</span></div>
+      <div class="phone-body">
+        <div class="field amber"><div class="k">Toko</div><div class="v">Pasar Induk</div></div>
+        <div class="field"><div class="k">Tanggal</div><div class="v">2026-10-16</div></div>
+        <div class="field"><div class="k">Item</div><div class="v">Cabai · 2 kg</div></div>
+        <div class="field"><div class="k">Total</div><div class="v">Rp 115.000</div></div>
+        <div class="btn">Terima · 1 kredit</div>
+      </div>
+    </div>
+    <div class="caption">2. Review dulu<br /><small>Betulkan angka kalau perlu, baru kirim</small></div>
+  </section>
+
+  <!-- 4: sheet -->
+  <section class="stage" data-t="34000">
+    <div class="phone" style="background:#f8f9fa;">
+      <div class="phone-body" style="padding-top:40px;">
+        <div class="sheet">
+          <div class="sheet-h"><span class="dot"></span>[zippp] Expenses</div>
+          <table>
+            <thead>
+              <tr><th>Date</th><th>Merchant</th><th>Item</th><th>Amt</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>10-12</td><td>Indomaret</td><td>Air</td><td>12k</td></tr>
+              <tr class="new row-in"><td>10-16</td><td>Pasar</td><td>Cabai</td><td>115k</td></tr>
+            </tbody>
+          </table>
+          <div class="ok">✓ Tersimpan di Google Sheets</div>
+        </div>
+        <div class="btn" style="background:#e8f5e9;color:#188038;border:3px solid #34a853;">Buka Google Sheets</div>
+      </div>
+    </div>
+    <div class="caption">3. Otomatis tercatat<br /><small>Baris masuk sheet kamu — bukan brankas zippp</small></div>
+  </section>
+
+  <!-- 5: end -->
+  <section class="stage end" data-t="46000">
+    <div class="center-brand end">
+      <div class="brand">zippp</div>
+      <p>Hemat waktu mencatat strukmu</p>
+      <div class="url">zippp.link</div>
+    </div>
+  </section>
+
+  <script>
+    const scenes = [...document.querySelectorAll(".stage")];
+    const times = scenes.map((s) => Number(s.dataset.t || 0));
+    const flash = document.getElementById("flash");
+
+    function showAt(ms) {
+      let active = 0;
+      for (let i = 0; i < times.length; i++) {
+        if (ms >= times[i]) active = i;
+      }
+      scenes.forEach((s, i) => s.classList.toggle("on", i === active));
+      if (ms >= 16500 && ms < 17200) flash.classList.add("go");
+      else flash.classList.remove("go");
+    }
+
+    const start = performance.now();
+    function tick(now) {
+      showAt(now - start);
+      requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+
+    // Total runtime marker for the recorder
+    window.__DEMO_MS__ = 56000;
+  </script>
+</body>
+</html>

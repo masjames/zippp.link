@@ -1,0 +1,22 @@
+# zippp end-to-end demo video
+
+Animated product walkthrough (landing → snap/upload → review → Sheets).
+
+## Output
+
+- `demo/out/zippp-end-to-end-demo.mp4` — master file (1080×1920)
+- `public/zippp-demo.mp4` — same file, served at `https://zippp.link/zippp-demo.mp4`
+
+## Regenerate
+
+```bash
+npx playwright install chromium   # once
+node demo/record.mjs
+```
+
+Requires `ffmpeg` on PATH.
+
+## Note
+
+This is a branded storyboard demo (not a live OAuth session recording).
+Auth + real camera cannot be automated without credentials / device access.

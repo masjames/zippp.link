@@ -40,3 +40,6 @@ eval/images/*
 !eval/images/.gitkeep
 .env*
 !.env.example
+
+# Playwright raw recordings
+demo/out/raw/
