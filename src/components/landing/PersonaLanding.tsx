@@ -46,7 +46,7 @@ export default function PersonaLanding({
 
                     <section className="bg-[aliceblue] text-ink">
                         <div className="mx-auto grid max-w-[980px] items-center gap-10 px-6 py-14 sm:py-16 lg:grid-cols-[1.1fr_0.9fr]">
-                            <div>
+                            <div className="order-2 lg:order-1">
                                 <p className="text-sm font-semibold uppercase tracking-wide opacity-80">
                                     {t(`landing.who.${key}.template`)}
                                 </p>
@@ -69,7 +69,7 @@ export default function PersonaLanding({
                                     <GoogleSignInButton t={t} />
                                 </div>
                             </div>
-                            <div className="relative flex justify-center lg:justify-end">
+                            <div className="relative order-1 flex justify-center lg:order-2 lg:justify-end">
                                 <PersonaSheetHero
                                     kind={persona.id}
                                     t={t}

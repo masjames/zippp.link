@@ -41,7 +41,7 @@ export default function Landing({
 
                     <section className="bg-[aliceblue] text-ink">
                         <div className="mx-auto grid max-w-[980px] items-center gap-10 px-6 py-14 sm:py-16 lg:grid-cols-[1.1fr_0.9fr] lg:py-20">
-                            <div>
+                            <div className="order-2 lg:order-1">
                                 <h1 className="font-head text-[2.6rem] font-extrabold leading-[1.05] tracking-tight sm:text-[3.75rem]">
                                     <RichText text={t("landing.hero.title")} />
                                 </h1>
@@ -52,7 +52,7 @@ export default function Landing({
                                     <GoogleSignInButton t={t} />
                                 </div>
                             </div>
-                            <div className="relative flex justify-center lg:justify-end">
+                            <div className="relative order-1 flex justify-center lg:order-2 lg:justify-end">
                                 {assets.heroImage ? (
                                     <MediaPlaceholder
                                         label={t("landing.media.hero")}
