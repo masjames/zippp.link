@@ -139,6 +139,14 @@ Ajak teman
 Friend tops up — you get 20% back as credit.
 ## landing.referral.body.id
 Teman isi saldo, kamu dapat 20% kredit balik.
+## landing.referral.soonBody.en
+Invite friends for credit back — coming soon.
+## landing.referral.soonBody.id
+Ajak teman dapat kredit balik — segera hadir.
+## common.comingSoon.en
+Coming soon
+## common.comingSoon.id
+Segera hadir
 ## landing.showcase.title.en
 *Use your Google Sheet*
 ## landing.showcase.title.id
@@ -580,6 +588,10 @@ Ajak teman
 When they top up, you get 20% back in credit.
 ## app.referral.body.id
 Saat mereka isi saldo, Anda dapat 20% kembali dalam kredit.
+## app.referral.soonBody.en
+Invite friends for credit back — coming soon.
+## app.referral.soonBody.id
+Ajak teman dapat kredit balik — segera hadir.
 ## app.referral.link.en
 Your invite link
 ## app.referral.link.id
@@ -614,6 +626,14 @@ Isi saldo belum tersedia.
 Orders
 ## admin.title.id
 Pesanan
+## admin.referral.title.en
+Referral / invite a friend
+## admin.referral.title.id
+Referral / ajak teman
+## admin.referral.soonBody.en
+Referral rewards and invite links are not live yet.
+## admin.referral.soonBody.id
+Reward referral dan tautan ajak teman belum live.
 ## admin.grant.en
 Manual grant
 ## admin.grant.id

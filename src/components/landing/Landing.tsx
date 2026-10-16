@@ -1,6 +1,5 @@
 "use client";
 
-import AppFlowPreview from "./AppFlowPreview";
 import GoogleIntegrations from "./GoogleIntegrations";
 import GoogleSignInButton from "./GoogleSignInButton";
 import HeroSnapSheet from "./HeroSnapSheet";
@@ -77,18 +76,6 @@ export default function Landing({
                     </section>
 
                     <section
-                        id="how"
-                        className="mx-auto max-w-[980px] px-6 py-14"
-                    >
-                        <h2 className="font-head text-3xl font-extrabold tracking-tight sm:text-4xl">
-                            <RichText text={t("landing.how.title")} />
-                        </h2>
-                        <div className="mt-8">
-                            <AppFlowPreview t={t} />
-                        </div>
-                    </section>
-
-                    <section
                         id="product"
                         className="border-y border-line bg-[#e8e4e0]"
                     >
@@ -107,12 +94,17 @@ export default function Landing({
                     </section>
 
                     <section className="mx-auto max-w-[980px] px-6 py-10">
-                        <div className="rounded-panel bg-surface p-7">
-                            <h3 className="font-head text-2xl font-extrabold tracking-tight">
-                                {t("landing.referral.title")}
-                            </h3>
+                        <div className="rounded-panel bg-surface p-7 opacity-80">
+                            <div className="flex flex-wrap items-baseline gap-3">
+                                <h3 className="font-head text-2xl font-extrabold tracking-tight">
+                                    {t("landing.referral.title")}
+                                </h3>
+                                <span className="text-xs font-bold uppercase tracking-wide text-brand">
+                                    {t("common.comingSoon")}
+                                </span>
+                            </div>
                             <p className="mt-2 text-muted leading-relaxed">
-                                {t("landing.referral.body")}
+                                {t("landing.referral.soonBody")}
                             </p>
                         </div>
                     </section>
@@ -152,13 +144,14 @@ export default function Landing({
                             {t("landing.foot.cta")}
                         </a>
                     </footer>
-                    <SiteFooter
-                        t={t}
-                        lang={lang}
-                        business={business}
-                        region={region}
-                    />
                 </main>
+
+                <SiteFooter
+                    t={t}
+                    lang={lang}
+                    business={business}
+                    region={region}
+                />
             </div>
         </div>
     );

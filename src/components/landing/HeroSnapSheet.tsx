@@ -7,7 +7,7 @@ import type { T } from "@/lib/t";
 type Phase = "snap" | "check" | "sheet";
 
 const PHASES: Phase[] = ["snap", "check", "sheet"];
-const DWELL_MS = 2200;
+const DWELL_MS = 4200;
 
 /**
  * Hero visual: one full-size stage at a time — snap → check → Sheets.
@@ -22,38 +22,28 @@ export default function HeroSnapSheet({ t }: { t: T }) {
         return () => clearInterval(i);
     }, []);
 
+    const label =
+        phase === "snap"
+            ? t("landing.how.snap.title")
+            : phase === "check"
+              ? t("landing.how.check.title")
+              : t("landing.how.send.title");
+
     return (
         <div className="relative mx-auto w-full max-w-[300px] sm:max-w-[320px]">
-            <div className="mb-4 flex items-center justify-center gap-2">
-                {PHASES.map((p) => {
-                    const active = phase === p;
-                    const label =
-                        p === "snap"
-                            ? t("landing.how.snap.title")
-                            : p === "check"
-                              ? t("landing.how.check.title")
-                              : t("landing.how.send.title");
-                    return (
-                        <span
-                            key={p}
-                            className={`rounded-full px-3 py-1 text-xs font-semibold transition-all duration-300 ${
-                                active
-                                    ? "bg-maroon text-white"
-                                    : "bg-peach/70 text-maroon/50"
-                            }`}
-                        >
-                            {label}
-                        </span>
-                    );
-                })}
-            </div>
+            <p
+                key={phase}
+                className="mb-8 text-center font-head text-2xl font-extrabold tracking-tight text-ink hero-stage-label sm:text-3xl"
+            >
+                {label}
+            </p>
 
             <div className="relative min-h-[420px]">
                 <div
-                    className={`absolute inset-0 transition-all duration-500 ${
+                    className={`absolute inset-0 transition-opacity duration-[900ms] ease-in-out ${
                         phase === "snap"
-                            ? "z-10 translate-y-0 opacity-100"
-                            : "z-0 translate-y-3 opacity-0 pointer-events-none"
+                            ? "z-10 opacity-100"
+                            : "z-0 opacity-0 pointer-events-none"
                     }`}
                 >
                     <PhoneShell>
@@ -76,10 +66,10 @@ export default function HeroSnapSheet({ t }: { t: T }) {
                 </div>
 
                 <div
-                    className={`absolute inset-0 transition-all duration-500 ${
+                    className={`absolute inset-0 transition-opacity duration-[900ms] ease-in-out ${
                         phase === "check"
-                            ? "z-10 translate-y-0 opacity-100"
-                            : "z-0 translate-y-3 opacity-0 pointer-events-none"
+                            ? "z-10 opacity-100"
+                            : "z-0 opacity-0 pointer-events-none"
                     }`}
                 >
                     <PhoneShell>
@@ -116,10 +106,10 @@ export default function HeroSnapSheet({ t }: { t: T }) {
                 </div>
 
                 <div
-                    className={`absolute inset-0 transition-all duration-500 ${
+                    className={`absolute inset-0 transition-opacity duration-[900ms] ease-in-out ${
                         phase === "sheet"
-                            ? "z-10 translate-y-0 opacity-100"
-                            : "z-0 translate-y-3 opacity-0 pointer-events-none"
+                            ? "z-10 opacity-100"
+                            : "z-0 opacity-0 pointer-events-none"
                     }`}
                 >
                     <div className="overflow-hidden rounded-2xl border-[3px] border-line bg-[#f8f9fa] shadow-[0_18px_40px_rgba(28,11,9,0.2)]">

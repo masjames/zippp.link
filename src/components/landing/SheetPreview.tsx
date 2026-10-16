@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useRef } from "react";
 import {
     sheetPreviewFor,
     type PreviewKind,
@@ -5,7 +8,7 @@ import {
 import type { Lang } from "@/lib/region";
 import type { T } from "@/lib/t";
 
-/** Mock Google Sheet chrome with sample rows for landing proof. */
+/** Mock Google Sheet chrome with sample rows; table auto-scrolls slowly. */
 export default function SheetPreview({
     kind,
     t,
@@ -16,6 +19,53 @@ export default function SheetPreview({
     lang: Lang;
 }) {
     const data = sheetPreviewFor(kind, lang);
+    const scrollerRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const el = scrollerRef.current;
+        if (!el) return;
+
+        let raf = 0;
+        let last = performance.now();
+        let dir = 1;
+        const speed = 18; // px/sec — slow, no jank
+        let paused = false;
+
+        const onEnter = () => {
+            paused = true;
+        };
+        const onLeave = () => {
+            paused = false;
+            last = performance.now();
+        };
+        el.addEventListener("pointerenter", onEnter);
+        el.addEventListener("pointerleave", onLeave);
+
+        const tick = (now: number) => {
+            const dt = Math.min(0.05, (now - last) / 1000);
+            last = now;
+            const max = el.scrollWidth - el.clientWidth;
+            if (!paused && max > 4) {
+                let next = el.scrollLeft + dir * speed * dt;
+                if (next >= max) {
+                    next = max;
+                    dir = -1;
+                } else if (next <= 0) {
+                    next = 0;
+                    dir = 1;
+                }
+                el.scrollLeft = next;
+            }
+            raf = requestAnimationFrame(tick);
+        };
+        raf = requestAnimationFrame(tick);
+
+        return () => {
+            cancelAnimationFrame(raf);
+            el.removeEventListener("pointerenter", onEnter);
+            el.removeEventListener("pointerleave", onLeave);
+        };
+    }, [kind]);
 
     return (
         <div className="overflow-hidden rounded-panel border-2 border-line bg-[#f8f9fa] shadow-sm">
@@ -42,7 +92,11 @@ export default function SheetPreview({
                     </span>
                 ))}
             </div>
-            <div className="overflow-x-auto">
+            <div
+                ref={scrollerRef}
+                className="overflow-x-auto scrollbar-none"
+                style={{ scrollbarWidth: "none" }}
+            >
                 <table className="min-w-full border-collapse text-left text-[11px] sm:text-xs">
                     <thead>
                         <tr className="bg-[#f3f3f3]">

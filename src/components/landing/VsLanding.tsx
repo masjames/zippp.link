@@ -144,8 +144,14 @@ export default function VsLanding({
                             {t("landing.foot.cta")}
                         </a>
                     </footer>
-                    <SiteFooter t={t} lang={lang} business={business} region={region} />
                 </main>
+
+                <SiteFooter
+                    t={t}
+                    lang={lang}
+                    business={business}
+                    region={region}
+                />
             </div>
         </div>
     );

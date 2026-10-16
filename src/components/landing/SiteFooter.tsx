@@ -24,8 +24,8 @@ export default function SiteFooter({
     const contact = legalHref("contact", lang);
 
     return (
-        <div className="mx-auto max-w-[980px] px-6 py-10 text-sm text-muted">
-            <nav className="flex flex-wrap gap-x-5 gap-y-2 border-b border-line pb-6">
+        <div className="mx-auto max-w-[980px] px-6 py-12 text-sm text-muted">
+            <nav className="flex flex-wrap gap-x-5 gap-y-2 pb-8">
                 {LEGAL_PAGES.map((id) => (
                     <a
                         key={id}
@@ -37,7 +37,7 @@ export default function SiteFooter({
                 ))}
             </nav>
 
-            <div className="mt-8 grid gap-10 sm:grid-cols-2">
+            <div className="grid gap-10 sm:grid-cols-2">
                 <div>
                     <p className="text-xs font-bold uppercase tracking-wide text-body">
                         {t("footer.useCases")}
@@ -74,7 +74,7 @@ export default function SiteFooter({
                 </div>
             </div>
 
-            <p className="mt-10 border-t border-line pt-6">
+            <p className="mt-10 pt-6">
                 {business.operator}
                 {business.address ? ` · ${business.address}` : ""}
                 {" · "}

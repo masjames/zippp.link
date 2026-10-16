@@ -17,11 +17,6 @@ export default function SettingsPage() {
               )
             : null;
 
-    const refLink =
-        balance?.refCode != null
-            ? `https://zippp.link/?ref=${balance.refCode}`
-            : null;
-
     return (
         <PhoneShell>
             <h2 className="mt-2 font-head text-3xl font-extrabold leading-none">
@@ -59,20 +54,15 @@ export default function SettingsPage() {
                 </div>
             </div>
 
-            {refLink ? (
-                <div className="rounded-2xl bg-card p-4 text-sm">
+            <div className="rounded-2xl bg-card p-4 text-sm opacity-80">
+                <div className="flex flex-wrap items-baseline gap-2">
                     <p className="font-semibold">{t("app.referral.title")}</p>
-                    <p className="text-muted">{t("app.referral.body")}</p>
-                    <p className="mt-2 break-all font-mono text-xs">
-                        {t("app.referral.link")}: {refLink}
-                    </p>
-                    <p className="mt-1 text-muted">
-                        {fill(t("app.referral.earned"), {
-                            count: balance?.referralEarned ?? 0,
-                        })}
-                    </p>
+                    <span className="text-xs font-bold uppercase tracking-wide text-brand">
+                        {t("common.comingSoon")}
+                    </span>
                 </div>
-            ) : null}
+                <p className="mt-1 text-muted">{t("app.referral.soonBody")}</p>
+            </div>
 
             <div className="mt-auto grid gap-3">
                 {balance?.admin ? (

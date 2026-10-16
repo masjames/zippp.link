@@ -2,7 +2,7 @@
 
 import type { T } from "@/lib/t";
 
-/** Sonny, Adit, Bagas — seamless infinite marquee. */
+/** Sonny, Adit, Bagas — one-row seamless infinite marquee. */
 const QUOTES = [1, 2, 3] as const;
 
 export default function ImpactProof({ t }: { t: T }) {
@@ -12,23 +12,12 @@ export default function ImpactProof({ t }: { t: T }) {
                 {t("landing.stories.title")}
             </h2>
 
-            <div className="space-y-3">
-                <MarqueeRow t={t} duration="28s" />
-                <MarqueeRow t={t} duration="36s" reverse />
-            </div>
+            <MarqueeRow t={t} duration="48s" />
         </div>
     );
 }
 
-function MarqueeRow({
-    t,
-    duration,
-    reverse = false,
-}: {
-    t: T;
-    duration: string;
-    reverse?: boolean;
-}) {
+function MarqueeRow({ t, duration }: { t: T; duration: string }) {
     // Exactly two identical halves so translateX(-50%) loops without a jump.
     const half = QUOTES.map((n) => (
         <TestimonialCard key={`a-${n}`} n={n} t={t} />
@@ -40,11 +29,7 @@ function MarqueeRow({
     return (
         <div className="testimonials-fade relative overflow-hidden">
             <div
-                className={`flex w-max gap-4 ${
-                    reverse
-                        ? "testimonials-slide-rtl"
-                        : "testimonials-slide-ltr"
-                }`}
+                className="testimonials-slide-rtl flex w-max gap-4"
                 style={{ animationDuration: duration }}
             >
                 {half}

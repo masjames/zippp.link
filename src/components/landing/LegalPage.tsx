@@ -110,8 +110,9 @@ export default function LegalPage({
                         ) : null}
                     </article>
 
-                    <SiteFooter t={t} lang={lang} business={business} />
                 </main>
+
+                <SiteFooter t={t} lang={lang} business={business} />
             </div>
         </div>
     );

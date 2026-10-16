@@ -168,6 +168,20 @@ export default function AdminClient({ wording }: { wording: Wording }) {
                 {t("admin.grant")}
             </button>
             {msg ? <p className="mt-2 text-sm font-medium">{msg}</p> : null}
+
+            <div className="mt-10 rounded-2xl border-2 border-dashed border-line bg-surface/60 p-5 opacity-80">
+                <div className="flex flex-wrap items-baseline gap-2">
+                    <h2 className="font-head text-xl font-extrabold">
+                        {t("admin.referral.title")}
+                    </h2>
+                    <span className="text-xs font-bold uppercase tracking-wide text-brand">
+                        {t("common.comingSoon")}
+                    </span>
+                </div>
+                <p className="mt-2 text-sm text-muted">
+                    {t("admin.referral.soonBody")}
+                </p>
+            </div>
         </div>
     );
 }

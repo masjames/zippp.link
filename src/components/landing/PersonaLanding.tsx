@@ -1,6 +1,5 @@
 "use client";
 
-import AppFlowPreview from "./AppFlowPreview";
 import GoogleIntegrations from "./GoogleIntegrations";
 import GoogleSignInButton from "./GoogleSignInButton";
 import ImpactProof from "./ImpactProof";
@@ -87,15 +86,6 @@ export default function PersonaLanding({
                         <ImpactProof t={t} />
                     </section>
 
-                    <section id="how" className="mx-auto max-w-[980px] px-6 py-14">
-                        <h2 className="font-head text-3xl font-extrabold tracking-tight sm:text-4xl">
-                            <RichText text={t("landing.how.title")} />
-                        </h2>
-                        <div className="mt-8">
-                            <AppFlowPreview t={t} />
-                        </div>
-                    </section>
-
                     <section className="mx-auto max-w-[980px] px-6 py-14">
                         <h2 className="font-head text-2xl font-extrabold tracking-tight sm:text-3xl">
                             {t("landing.persona.otherTitle")}
@@ -131,13 +121,14 @@ export default function PersonaLanding({
                             {t("landing.foot.cta")}
                         </a>
                     </footer>
-                    <SiteFooter
-                        t={t}
-                        lang={lang}
-                        business={business}
-                        region={region}
-                    />
                 </main>
+
+                <SiteFooter
+                    t={t}
+                    lang={lang}
+                    business={business}
+                    region={region}
+                />
             </div>
         </div>
     );
