@@ -112,63 +112,73 @@ export default function AppShell({ children }: { children: ReactNode }) {
     return (
         <div className="flex min-h-screen flex-col bg-page sm:py-8">
             {signedIn ? (
-                <div className="mx-auto flex w-full max-w-[430px] items-center justify-between gap-3 px-4 pb-1 pt-3">
-                    {pathname !== "/app/snap" && workspace ? (
-                        <button
-                            type="button"
-                            onClick={() => router.push("/app/snap")}
-                            className="flex items-center gap-2 text-sm font-semibold text-muted hover:text-body"
-                        >
-                            <HomeIcon />
-                            {t("app.nav.home")}
-                        </button>
-                    ) : (
-                        <span />
-                    )}
+                <div className="mx-auto flex w-full max-w-[430px] items-center justify-between gap-3 px-4 pb-5 pt-4">
+                    <button
+                        type="button"
+                        onClick={() =>
+                            router.push(workspace ? "/app/snap" : "/app/settings/sheet")
+                        }
+                        className="font-head text-2xl font-black tracking-tight text-brand"
+                        aria-label="zippp"
+                    >
+                        zippp
+                    </button>
                     <div className="flex items-center gap-3">
-                    {balance?.configured ? (
-                        <button
-                            type="button"
-                            onClick={() => router.push("/app/topup")}
-                            aria-label={fill(t("app.credits.pillAria"), {
-                                count: balance.credits,
-                            })}
-                            title={
-                                balance.credits < LOW_CREDITS_WARN
-                                    ? t("app.credits.low")
-                                    : undefined
-                            }
-                            className={`flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold ${
-                                balance.credits <= 0
-                                    ? "bg-card text-danger"
-                                    : balance.credits < LOW_CREDITS_WARN
-                                      ? "bg-amber-100 text-amber-900"
-                                      : "bg-mist text-ink"
-                            }`}
-                        >
-                            <BoltIcon />
-                            {fill(t("app.credits.pill"), { count: balance.credits })}
-                        </button>
-                    ) : null}
-                    {!pathname.startsWith("/app/settings") ? (
-                        <button
-                            type="button"
-                            onClick={() => router.push("/app/settings")}
-                            className="flex items-center gap-2 text-sm font-semibold text-muted hover:text-body"
-                        >
-                            <GearIcon />
-                            {t("app.settings.title")}
-                        </button>
-                    ) : null}
-                    {balance?.admin ? (
-                        <button
-                            type="button"
-                            onClick={() => router.push("/admin")}
-                            className="rounded-full bg-brand px-3 py-1 text-xs font-semibold text-ink"
-                        >
-                            {t("app.settings.admin")}
-                        </button>
-                    ) : null}
+                        {pathname !== "/app/snap" && workspace ? (
+                            <button
+                                type="button"
+                                onClick={() => router.push("/app/snap")}
+                                className="flex items-center gap-2 text-sm font-semibold text-muted hover:text-body"
+                            >
+                                <HomeIcon />
+                                {t("app.nav.home")}
+                            </button>
+                        ) : null}
+                        {balance?.configured ? (
+                            <button
+                                type="button"
+                                onClick={() => router.push("/app/topup")}
+                                aria-label={fill(t("app.credits.pillAria"), {
+                                    count: balance.credits,
+                                })}
+                                title={
+                                    balance.credits < LOW_CREDITS_WARN
+                                        ? t("app.credits.low")
+                                        : undefined
+                                }
+                                className={`flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold ${
+                                    balance.credits <= 0
+                                        ? "bg-card text-danger"
+                                        : balance.credits < LOW_CREDITS_WARN
+                                          ? "bg-amber-100 text-amber-900"
+                                          : "bg-mist text-ink"
+                                }`}
+                            >
+                                <BoltIcon />
+                                {fill(t("app.credits.pill"), {
+                                    count: balance.credits,
+                                })}
+                            </button>
+                        ) : null}
+                        {!pathname.startsWith("/app/settings") ? (
+                            <button
+                                type="button"
+                                onClick={() => router.push("/app/settings")}
+                                className="flex items-center gap-2 text-sm font-semibold text-muted hover:text-body"
+                            >
+                                <GearIcon />
+                                {t("app.settings.title")}
+                            </button>
+                        ) : null}
+                        {balance?.admin ? (
+                            <button
+                                type="button"
+                                onClick={() => router.push("/admin")}
+                                className="rounded-full bg-brand px-3 py-1 text-xs font-semibold text-ink"
+                            >
+                                {t("app.settings.admin")}
+                            </button>
+                        ) : null}
                     </div>
                 </div>
             ) : null}

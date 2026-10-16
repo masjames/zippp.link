@@ -28,21 +28,18 @@ export default function PhoneShell({
 
     return (
         <div
-            className={`mx-auto flex min-h-[calc(100vh-3rem)] w-full max-w-[430px] flex-1 flex-col overflow-hidden sm:min-h-[720px] sm:rounded-phone sm:border-2 sm:border-line ${
+            className={`mx-auto flex min-h-[calc(100vh-5rem)] w-full max-w-[430px] flex-1 flex-col overflow-hidden sm:min-h-[720px] sm:rounded-phone sm:border-0 ${
                 brand ? "bg-brand text-ink" : "bg-card text-body"
             }`}
         >
-            <div className="flex items-center justify-between px-6 pb-2 pt-3">
-                <span
-                    className={`font-head text-2xl font-black tracking-tight ${
-                        brand ? "text-ink" : "text-brand"
-                    }`}
-                >
-                    zippp
-                </span>
-                {pill ? (
-                    pillAction ? (
-                        <button type="button" onClick={pillAction} className={pillClass}>
+            {pill ? (
+                <div className="flex items-center justify-end px-6 pb-2 pt-3">
+                    {pillAction ? (
+                        <button
+                            type="button"
+                            onClick={pillAction}
+                            className={pillClass}
+                        >
                             <span className="truncate">{pill}</span>
                             <svg
                                 viewBox="0 0 24 24"
@@ -59,12 +56,10 @@ export default function PhoneShell({
                         </button>
                     ) : (
                         <span className={pillClass}>{pill}</span>
-                    )
-                ) : (
-                    <span />
-                )}
-            </div>
-            <div className="flex flex-1 flex-col gap-4 px-6 pb-12 pt-2">
+                    )}
+                </div>
+            ) : null}
+            <div className="flex flex-1 flex-col gap-4 px-6 pb-12 pt-4">
                 {children}
             </div>
         </div>
