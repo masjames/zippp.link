@@ -48,8 +48,8 @@ export async function generateMetadata(): Promise<Metadata> {
                     height: 630,
                     alt:
                         lang === "id"
-                            ? "zippp — Untuk yang masih merekap manual"
-                            : "zippp — For people who still recap manually",
+                            ? "zippp — Hari gini nyatet struk masih manual?"
+                            : "zippp — You still do manual recap?",
                 },
             ],
         },

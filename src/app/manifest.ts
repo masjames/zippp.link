@@ -5,7 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
         name: "zippp",
         short_name: "zippp",
         description:
-            "For people who still recap manually. Photograph the paper; rows land in your Google Sheet.",
+            "You still do manual recap? Photograph the paper; rows land in your Google Sheet.",
         start_url: "/",
         display: "standalone",
         background_color: "#f3ede9",

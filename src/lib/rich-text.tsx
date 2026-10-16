@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 
 /**
  * Render wording with *emphasis* — bold + cuanlagi-style wavy underline.
- * Example: "Untuk yang masih *merekap manual*"
+ * Example: "Hari gini nyatet struk masih *manual*?"
  */
 export function RichText({
     text,
