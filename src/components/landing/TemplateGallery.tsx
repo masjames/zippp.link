@@ -36,6 +36,7 @@ export default function TemplateGallery({
     );
     const [paused, setPaused] = useState(false);
     const pillRefs = useRef<Record<string, HTMLButtonElement | null>>({});
+    const pillsTrackRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         if (paused) return;
@@ -48,12 +49,16 @@ export default function TemplateGallery({
         return () => window.clearInterval(i);
     }, [paused]);
 
+    // Horizontal-only — never scroll the page window.
     useEffect(() => {
         const el = pillRefs.current[active];
-        el?.scrollIntoView({
+        const track = pillsTrackRef.current;
+        if (!el || !track) return;
+        const left =
+            el.offsetLeft - track.clientWidth / 2 + el.clientWidth / 2;
+        track.scrollTo({
+            left: Math.max(0, left),
             behavior: "smooth",
-            inline: "center",
-            block: "nearest",
         });
     }, [active]);
 
@@ -70,7 +75,10 @@ export default function TemplateGallery({
                 }
             }}
         >
-            <div className="template-pills -mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
+            <div
+                ref={pillsTrackRef}
+                className="template-pills -mx-1 flex gap-2 overflow-x-auto px-1 pb-1"
+            >
                 {ORDER.map((id) => {
                     const p = PERSONAS.find((x) => x.id === id)!;
                     const selected = active === id;
