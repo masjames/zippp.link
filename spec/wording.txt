@@ -331,6 +331,26 @@ Terima
 Saved
 ## app.review.saved.id
 Tersimpan
+## app.review.allDone.en
+All reviewed — open your sheet
+## app.review.allDone.id
+Semua dicek — buka sheet kamu
+## app.review.prev.en
+Previous receipt
+## app.review.prev.id
+Resi sebelumnya
+## app.review.next.en
+Next receipt
+## app.review.next.id
+Resi berikutnya
+## app.review.minimize.en
+Scan more
+## app.review.minimize.id
+Foto lagi
+## app.review.openCard.en
+Review
+## app.review.openCard.id
+Periksa
 ## app.review.edit.en
 Edit
 ## app.review.edit.id

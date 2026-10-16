@@ -6,7 +6,7 @@ import type { ReactNode } from "react";
  * Args:
  *     pill: Optional status pill shown next to the logo.
  *     pillAction: When set, the pill is a button (a quick sheet selector).
- *     tone: "brand" paints the orange screen (Intro, Capture).
+ *     tone: "brand" = orange; "page" = #e8e8e8 snap chrome; default = white card.
  */
 export default function PhoneShell({
     pill,
@@ -16,21 +16,25 @@ export default function PhoneShell({
 }: {
     pill?: ReactNode;
     pillAction?: () => void;
-    tone?: "default" | "brand";
+    tone?: "default" | "brand" | "page";
     children: ReactNode;
 }) {
     const brand = tone === "brand";
+    const shellBg =
+        tone === "brand"
+            ? "bg-brand text-ink"
+            : tone === "page"
+              ? "bg-[#e8e8e8] text-body"
+              : "bg-card text-body";
     const pillClass = pillAction
         ? "flex max-w-[190px] items-center gap-1 rounded-lg border-2 border-line bg-card px-2.5 py-1 text-xs font-semibold text-body"
         : `rounded-full px-3 py-1 text-xs font-semibold ${
-              brand ? "bg-peach text-ink" : "bg-surface text-body"
+              brand ? "bg-peach text-ink" : "bg-card text-body shadow-sm"
           }`;
 
     return (
         <div
-            className={`mx-auto flex min-h-[calc(100vh-5rem)] w-full max-w-[430px] flex-1 flex-col overflow-hidden sm:min-h-[720px] sm:rounded-phone sm:border-0 ${
-                brand ? "bg-brand text-ink" : "bg-card text-body"
-            }`}
+            className={`mx-auto flex min-h-[calc(100vh-5rem)] w-full max-w-[430px] flex-1 flex-col overflow-hidden sm:min-h-[720px] sm:rounded-phone sm:border-0 ${shellBg}`}
         >
             {pill ? (
                 <div className="flex items-center justify-end px-6 pb-2 pt-3">

@@ -88,54 +88,101 @@ export default function SnapScreen() {
     const [torchSupported, setTorchSupported] = useState(false);
     const [torchOn, setTorchOn] = useState(false);
 
-    // The review overlay opens on a new capture and can be dismissed to snap more.
-    const [dismissed, setDismissed] = useState(false);
-    // White flash shown on a tap, right before the camera stops.
+    // Expanded bottom-sheet review; minimized card keeps the camera free.
+    const [reviewExpanded, setReviewExpanded] = useState(false);
+    const [reviewIndex, setReviewIndex] = useState(0);
+    const pendingMinimize = useRef(false);
+    // White flash on shutter.
     const [flash, setFlash] = useState(false);
     const flashTimer = useRef<number | null>(null);
     // Quick sheet selector, opened from the sheet-name pill.
     const [sheetPicker, setSheetPicker] = useState(false);
     const [sheetChoices, setSheetChoices] = useState<SheetCandidate[]>([]);
     const [sheetPickerBusy, setSheetPickerBusy] = useState(false);
-    // Soft "saved" toast after a successful append.
-    const [toast, setToast] = useState(false);
+    // Soft toasts + Sheets glow when the queue is clear.
+    const [toast, setToast] = useState<string | null>(null);
     const toastTimer = useRef<number | null>(null);
-    const prevCount = useRef(0);
+    const [sheetsShine, setSheetsShine] = useState(false);
+    const shineTimer = useRef<number | null>(null);
+    const prevUnacceptedLen = useRef(0);
+    const cameraBooted = useRef(false);
 
     // Accepted and in-flight items are hidden from the review queue.
     const unaccepted = batch.filter(
         (item) => item.status !== "accepted" && item.status !== "sending"
     );
-    const current = unaccepted[0] ?? null;
-    const overlayOpen = unaccepted.length > 0 && !dismissed;
+    const safeIndex = Math.min(
+        reviewIndex,
+        Math.max(0, unaccepted.length - 1)
+    );
+    const current = unaccepted[safeIndex] ?? null;
+    const reviewBlocking = reviewExpanded && Boolean(current);
     const framing = mode === "live" || flash;
     const outOfCredits = balance?.configured === true && balance.credits <= 0;
 
-    const detection = useReceiptDetector(videoRef, mode === "live" && !overlayOpen);
+    const detection = useReceiptDetector(
+        videoRef,
+        mode === "live" && !reviewBlocking
+    );
 
     useEffect(() => {
-        if (batch.length > prevCount.current) setDismissed(false);
-        prevCount.current = batch.length;
-    }, [batch.length]);
+        if (reviewIndex !== safeIndex) setReviewIndex(safeIndex);
+    }, [safeIndex, reviewIndex]);
 
-    /** A review card is open: stop the viewfinder until the user captures more. */
+    /** Reading → expand; once draft lands, minimize so the user can snap again. */
     useEffect(() => {
-        if (!overlayOpen) return;
-        stopCamera();
-        setMode("idle");
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [overlayOpen]);
+        if (!current) {
+            setReviewExpanded(false);
+            pendingMinimize.current = false;
+            return;
+        }
+        const stillReading = !current.draft && current.status !== "failed";
+        if (stillReading) {
+            setReviewExpanded(true);
+            pendingMinimize.current = true;
+            return;
+        }
+        if (
+            pendingMinimize.current &&
+            (current.draft || current.status === "failed")
+        ) {
+            const id = window.setTimeout(() => {
+                setReviewExpanded(false);
+                pendingMinimize.current = false;
+            }, 650);
+            return () => window.clearTimeout(id);
+        }
+    }, [current?.id, current?.draft, current?.status]);
 
     /** Soft "saved" toast whenever an append succeeds. */
     useEffect(() => {
         if (savedTick === 0) return;
-        setToast(true);
+        setToast(t("app.review.saved"));
         if (toastTimer.current) window.clearTimeout(toastTimer.current);
         toastTimer.current = window.setTimeout(() => {
-            setToast(false);
+            setToast(null);
             toastTimer.current = null;
         }, 1800);
-    }, [savedTick]);
+    }, [savedTick, t]);
+
+    /** Queue emptied → soft notif + Sheets button shines. */
+    useEffect(() => {
+        if (prevUnacceptedLen.current > 0 && unaccepted.length === 0) {
+            setToast(t("app.review.allDone"));
+            setSheetsShine(true);
+            if (toastTimer.current) window.clearTimeout(toastTimer.current);
+            toastTimer.current = window.setTimeout(() => {
+                setToast(null);
+                toastTimer.current = null;
+            }, 2600);
+            if (shineTimer.current) window.clearTimeout(shineTimer.current);
+            shineTimer.current = window.setTimeout(() => {
+                setSheetsShine(false);
+                shineTimer.current = null;
+            }, 4200);
+        }
+        prevUnacceptedLen.current = unaccepted.length;
+    }, [unaccepted.length, t]);
 
     function stopCamera() {
         streamRef.current?.getTracks().forEach((track) => track.stop());
@@ -167,10 +214,19 @@ export default function SnapScreen() {
         () => () => {
             if (flashTimer.current) window.clearTimeout(flashTimer.current);
             if (toastTimer.current) window.clearTimeout(toastTimer.current);
+            if (shineTimer.current) window.clearTimeout(shineTimer.current);
             stopCamera();
         },
         []
     );
+
+    /** Open the camera as soon as Snap loads. */
+    useEffect(() => {
+        if (cameraBooted.current) return;
+        cameraBooted.current = true;
+        void openCamera();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     async function openCamera() {
         if (typeof navigator === "undefined" || !navigator.mediaDevices?.getUserMedia) {
@@ -221,9 +277,7 @@ export default function SnapScreen() {
         // grabbed a full-sensor frame that then had to be decoded and resized.
         ctx.drawImage(video, 0, 0, width, height);
 
-        // The frame is grabbed. Drop the live view right away.
-        stopCamera();
-        setMode("idle");
+        // Keep the live stream — user should be able to snap the next receipt.
 
         // Thumbnail from the same canvas, so there is no second decode.
         const thumbSize = 96;
@@ -253,8 +307,7 @@ export default function SnapScreen() {
     }
 
     async function manualCapture() {
-        // Flash the viewfinder as feedback, then grab the frame. The camera is
-        // stopped when the review card opens (see the overlayOpen effect).
+        // Flash the viewfinder as feedback, then grab the frame.
         setFlash(true);
         if (flashTimer.current) window.clearTimeout(flashTimer.current);
         flashTimer.current = window.setTimeout(() => {
@@ -313,7 +366,8 @@ export default function SnapScreen() {
     }, [detection.steady]);
 
     useEffect(() => {
-        if (!autoSnap || mode !== "live" || outOfCredits || overlayOpen) return;
+        if (!autoSnap || mode !== "live" || outOfCredits || reviewBlocking)
+            return;
         const { steady, sharp } = detection;
         if (!steady || !sharp) return;
         if (!armed.current) return;
@@ -324,7 +378,28 @@ export default function SnapScreen() {
             if (shot) addBlob(shot.blob, shot.thumb, "auto");
         })();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [autoSnap, mode, detection, outOfCredits, autoCooldownUntil, overlayOpen]);
+    }, [
+        autoSnap,
+        mode,
+        detection,
+        outOfCredits,
+        autoCooldownUntil,
+        reviewBlocking,
+    ]);
+
+    function goReview(delta: number) {
+        setReviewIndex((i) => {
+            const next = i + delta;
+            if (next < 0 || next >= unaccepted.length) return i;
+            return next;
+        });
+    }
+
+    function handleAccept() {
+        if (!current) return;
+        acceptItem(current.id);
+        // Index stays; the next item slides into this slot.
+    }
 
     function pick(files: FileList | null, fallback: boolean) {
         const file = files?.[0];
@@ -332,9 +407,17 @@ export default function SnapScreen() {
         if (fallback) setMode("idle");
     }
 
+    const miniTitle =
+        current?.draft?.merchant?.trim() ||
+        (current && !current.draft && current.status !== "failed"
+            ? t("app.review.reading")
+            : current?.status === "failed"
+              ? t("app.queue.failed")
+              : t("app.review.openCard"));
+
     return (
         <PhoneShell
-            tone="brand"
+            tone="page"
             pill={workspace?.spreadsheet_title}
             pillAction={workspace ? () => void openSheetPicker() : undefined}
         >
@@ -356,11 +439,13 @@ export default function SnapScreen() {
                         }
                     }}
                     className={`absolute inset-0 h-full w-full object-contain transition-opacity duration-300 ${
-                        mode === "live" && !overlayOpen ? "opacity-100" : "opacity-25"
+                        mode === "live" && !reviewBlocking
+                            ? "opacity-100"
+                            : "opacity-40"
                     }`}
                 />
                 {mode === "live" ? <GuideFrame /> : null}
-                {mode === "live" ? (
+                {mode === "live" && !reviewBlocking ? (
                     <span className="pointer-events-none absolute inset-x-0 top-3 z-10 flex justify-center">
                         <span className="rounded-full bg-black/55 px-3 py-1 text-xs font-semibold text-white">
                             {t("app.capture.tapToShoot")}
@@ -368,7 +453,7 @@ export default function SnapScreen() {
                     </span>
                 ) : null}
                 {mode !== "live" ? (
-                    <span className="absolute inset-0 z-10 flex items-center justify-center text-sm">
+                    <span className="absolute inset-0 z-10 flex items-center justify-center text-sm text-peach">
                         {mode === "starting"
                             ? t("app.capture.starting")
                             : mode === "error"
@@ -380,16 +465,15 @@ export default function SnapScreen() {
                         {t("app.capture.holdSteady")}
                     </span>
                 ) : (
-                    <span className="absolute bottom-4 left-0 right-0 z-10 px-6 text-xs opacity-80">
+                    <span className="absolute bottom-4 left-0 right-0 z-10 px-6 text-xs text-white/80">
                         {t("app.capture.frame")}
                     </span>
                 )}
-                {/* The viewfinder is the shutter. */}
                 <button
                     type="button"
                     aria-label={t("app.capture.shutter")}
                     onClick={shutter}
-                    disabled={outOfCredits || mode === "starting"}
+                    disabled={outOfCredits || mode === "starting" || reviewBlocking}
                     className="absolute inset-0 z-20 cursor-pointer disabled:cursor-not-allowed"
                 />
                 {flash ? (
@@ -417,7 +501,7 @@ export default function SnapScreen() {
                             aria-pressed={torchOn}
                             onClick={toggleFlash}
                             className={`rounded-full px-3 py-1 font-semibold ${
-                                torchOn ? "bg-brand text-ink" : "bg-peach text-ink"
+                                torchOn ? "bg-brand text-ink" : "bg-card text-ink shadow-sm"
                             }`}
                         >
                             {t("app.capture.flash")}
@@ -425,7 +509,7 @@ export default function SnapScreen() {
                         </button>
                     ) : null}
                     <button type="button" aria-pressed={autoSnap} onClick={() => setAutoSnap(!autoSnap)}
-                        className={`rounded-full px-3 py-1 font-semibold ${autoSnap ? "bg-maroon text-white" : "bg-peach text-ink"}`}>
+                        className={`rounded-full px-3 py-1 font-semibold ${autoSnap ? "bg-maroon text-white" : "bg-card text-ink shadow-sm"}`}>
                         {t("app.capture.autoSnap")}
                         {autoSnap ? ` · ${t("app.capture.on")}` : ""}
                     </button>
@@ -433,7 +517,7 @@ export default function SnapScreen() {
             </div>
 
             {outOfCredits ? (
-                <div className="rounded-2xl bg-peach p-3 text-center text-sm">
+                <div className="rounded-2xl bg-card p-3 text-center text-sm shadow-sm">
                     <p className="font-semibold text-ink">{t("app.credits.none")}</p>
                     <button type="button" onClick={() => router.push("/app/topup")}
                         className="mt-2 rounded-full bg-maroon px-4 py-2 font-semibold text-white">
@@ -442,14 +526,52 @@ export default function SnapScreen() {
                 </div>
             ) : null}
 
-            {!overlayOpen && unaccepted.length > 0 ? (
-                <button
-                    type="button"
-                    onClick={() => setDismissed(false)}
-                    className="rounded-full bg-maroon px-4 py-2 text-sm font-semibold text-white"
-                >
-                    {fill(t("app.review.toReview"), { count: unaccepted.length })}
-                </button>
+            {current && !reviewExpanded ? (
+                <div className="review-card-in flex items-center gap-1 rounded-2xl border-2 border-line bg-card p-2 shadow-sm">
+                    <button
+                        type="button"
+                        aria-label={t("app.review.prev")}
+                        disabled={safeIndex <= 0}
+                        onClick={() => goReview(-1)}
+                        className="flex h-10 w-9 shrink-0 items-center justify-center rounded-xl text-xl font-bold text-ink disabled:opacity-30"
+                    >
+                        ‹
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => setReviewExpanded(true)}
+                        className="flex min-w-0 flex-1 items-center gap-3 rounded-xl px-1 py-1 text-left"
+                    >
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                            src={current.thumb}
+                            alt=""
+                            className="h-12 w-12 shrink-0 rounded-lg object-cover ring-1 ring-line"
+                        />
+                        <span className="min-w-0">
+                            <span className="block truncate text-sm font-bold text-ink">
+                                {miniTitle}
+                            </span>
+                            <span className="block text-xs text-muted">
+                                {fill(t("app.review.toReview"), {
+                                    count: unaccepted.length,
+                                })}
+                                {unaccepted.length > 1
+                                    ? ` · ${safeIndex + 1}/${unaccepted.length}`
+                                    : ""}
+                            </span>
+                        </span>
+                    </button>
+                    <button
+                        type="button"
+                        aria-label={t("app.review.next")}
+                        disabled={safeIndex >= unaccepted.length - 1}
+                        onClick={() => goReview(1)}
+                        className="flex h-10 w-9 shrink-0 items-center justify-center rounded-xl text-xl font-bold text-ink disabled:opacity-30"
+                    >
+                        ›
+                    </button>
+                </div>
             ) : null}
 
             {workspace ? (
@@ -457,26 +579,31 @@ export default function SnapScreen() {
                     href={`https://docs.google.com/spreadsheets/d/${workspace.spreadsheet_id}/edit`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-2 rounded-full bg-mist px-6 py-4 font-semibold text-ink"
+                    className={`flex items-center justify-center gap-2 rounded-full bg-mist px-6 py-4 font-semibold text-ink transition ${
+                        sheetsShine ? "sheets-shine" : ""
+                    }`}
                 >
                     <SheetsIcon />
                     {t("app.sheets.open")}
                 </a>
             ) : null}
 
-            {overlayOpen && current ? (
-                <ReviewOverlay
+            {reviewExpanded && current ? (
+                <ReviewSheet
                     t={t}
                     current={current}
                     stack={unaccepted}
+                    index={safeIndex}
+                    onPrev={() => goReview(-1)}
+                    onNext={() => goReview(1)}
                     onChange={(draft) => updateDraft(current.id, draft)}
-                    onAccept={() => acceptItem(current.id)}
+                    onAccept={handleAccept}
                     onRetry={() => retryItem(current.id)}
                     onContribute={() => contributeItem(current.id)}
                     onRemove={() => removeItem(current.id)}
-                    onCaptureMore={() => {
-                        setDismissed(true);
-                        // The camera stopped after the tap; bring it back.
+                    onMinimize={() => {
+                        pendingMinimize.current = false;
+                        setReviewExpanded(false);
                         if (mode !== "live") void openCamera();
                     }}
                 />
@@ -534,7 +661,7 @@ export default function SnapScreen() {
             {toast ? (
                 <div className="pointer-events-none fixed inset-x-0 bottom-28 z-[60] flex justify-center px-4">
                     <span className="rounded-full bg-ink px-4 py-2 text-sm font-semibold text-white shadow-lg">
-                        {t("app.review.saved")}
+                        {toast}
                     </span>
                 </div>
             ) : null}
@@ -542,77 +669,105 @@ export default function SnapScreen() {
     );
 }
 
-function ReviewOverlay({
+function ReviewSheet({
     t,
     current,
     stack,
+    index,
+    onPrev,
+    onNext,
     onChange,
     onAccept,
     onRetry,
     onContribute,
     onRemove,
-    onCaptureMore,
+    onMinimize,
 }: {
     t: T;
     current: BatchItem;
     stack: BatchItem[];
+    index: number;
+    onPrev: () => void;
+    onNext: () => void;
     onChange: (draft: Draft) => void;
     onAccept: () => void;
     onRetry: () => void;
     onContribute: () => void;
     onRemove: () => void;
-    onCaptureMore: () => void;
+    onMinimize: () => void;
 }) {
     return (
-        <div className="fixed inset-0 z-50 flex justify-center bg-black/70">
-            <div className="flex h-full w-full max-w-[430px] flex-col">
-                <div className="flex flex-none items-center justify-between gap-2 px-3 py-2 text-white">
+        <div className="fixed inset-0 z-50 flex justify-center">
+            <button
+                type="button"
+                aria-label={t("app.review.minimize")}
+                onClick={onMinimize}
+                className="absolute inset-0 bg-black/45"
+            />
+            <div className="review-sheet-up relative mt-auto flex max-h-[88vh] w-full max-w-[430px] flex-col rounded-t-3xl bg-card shadow-2xl">
+                <div className="flex flex-none items-center justify-between gap-2 border-b border-line px-3 py-2.5">
                     <button
                         type="button"
-                        onClick={onCaptureMore}
-                        className="rounded-full bg-white/15 px-3 py-1.5 text-xs font-semibold"
+                        onClick={onMinimize}
+                        className="rounded-full bg-mist px-3 py-1.5 text-xs font-semibold text-ink"
                     >
-                        ↓ {t("app.review.captureMore")}
+                        ↓ {t("app.review.minimize")}
                     </button>
-                    <span className="text-[11px]">
-                        {fill(t("app.review.toReview"), { count: stack.length })}
-                    </span>
+                    <div className="flex items-center gap-1">
+                        <button
+                            type="button"
+                            aria-label={t("app.review.prev")}
+                            disabled={index <= 0}
+                            onClick={onPrev}
+                            className="flex h-8 w-8 items-center justify-center rounded-full text-lg font-bold disabled:opacity-30"
+                        >
+                            ‹
+                        </button>
+                        <span className="min-w-[4.5rem] text-center text-[11px] font-semibold text-muted">
+                            {index + 1}/{stack.length}
+                        </span>
+                        <button
+                            type="button"
+                            aria-label={t("app.review.next")}
+                            disabled={index >= stack.length - 1}
+                            onClick={onNext}
+                            className="flex h-8 w-8 items-center justify-center rounded-full text-lg font-bold disabled:opacity-30"
+                        >
+                            ›
+                        </button>
+                    </div>
                 </div>
 
-                <div className="flex min-h-0 flex-1 px-3 pb-3">
-                    <div className="relative flex min-h-0 w-full flex-1 flex-col">
-                        {stack.length > 2 ? (
-                            <div className="absolute inset-x-6 -top-3 h-6 rounded-t-2xl bg-white/15" aria-hidden />
-                        ) : null}
-                        {stack.length > 1 ? (
-                            <div className="absolute inset-x-3 -top-1.5 h-6 rounded-t-2xl bg-white/25" aria-hidden />
-                        ) : null}
-                        <div className="relative flex min-h-0 w-full flex-1 flex-col overflow-hidden rounded-2xl bg-card shadow-2xl">
-                            {current.status === "failed" ? (
-                                <div className="min-h-0 flex-1 overflow-y-auto p-3">
-                                    <FailedCard
-                                        t={t}
-                                        item={current}
-                                        onRetry={onRetry}
-                                        onContribute={onContribute}
-                                        onRemove={onRemove}
-                                    />
-                                </div>
-                            ) : current.draft ? (
-                                <ConfirmCard
-                                    t={t}
-                                    item={current}
-                                    onChange={onChange}
-                                    onAccept={onAccept}
-                                    onRemove={onRemove}
-                                />
-                            ) : (
-                                <p className="py-8 text-center text-sm text-muted">
-                                    {t("app.review.reading")}
-                                </p>
-                            )}
+                <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+                    {current.status === "failed" ? (
+                        <div className="min-h-0 flex-1 overflow-y-auto p-3">
+                            <FailedCard
+                                t={t}
+                                item={current}
+                                onRetry={onRetry}
+                                onContribute={onContribute}
+                                onRemove={onRemove}
+                            />
                         </div>
-                    </div>
+                    ) : current.draft ? (
+                        <ConfirmCard
+                            t={t}
+                            item={current}
+                            onChange={onChange}
+                            onAccept={onAccept}
+                            onRemove={onRemove}
+                        />
+                    ) : (
+                        <div className="flex flex-1 flex-col items-center justify-center gap-3 py-12">
+                            <span
+                                className="h-8 w-8 animate-spin rounded-full border-4 border-line border-t-brand"
+                                aria-hidden
+                            />
+                            <p className="text-sm text-muted">
+                                {t("app.review.reading")}
+                            </p>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
