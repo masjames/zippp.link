@@ -4,17 +4,20 @@ import { useCallback, useEffect, useState } from "react";
 import { makeT, type Wording } from "@/lib/t";
 
 type Order = {
-    invoice: string;
+    id: string;
     email: string | null;
-    amount: number;
-    channel?: string;
+    baseIdr: number;
+    code: number;
+    payIdr: number;
     state: string;
     createdAt: number;
 };
 
 export default function AdminClient({ wording }: { wording: Wording }) {
     const t = makeT(wording, "en");
+    const [open, setOpen] = useState<Order[]>([]);
     const [recent, setRecent] = useState<Order[]>([]);
+    const [tab, setTab] = useState<"pending" | "recent">("pending");
     const [busy, setBusy] = useState(false);
     const [email, setEmail] = useState("");
     const [credits, setCredits] = useState(100);
@@ -24,12 +27,29 @@ export default function AdminClient({ wording }: { wording: Wording }) {
     const load = useCallback(async () => {
         const res = await fetch("/api/admin/orders", { cache: "no-store" });
         const data = await res.json();
-        if (data.ok) setRecent(data.recent as Order[]);
+        if (data.ok) {
+            setOpen((data.open as Order[]) ?? []);
+            setRecent((data.recent as Order[]) ?? []);
+        }
     }, []);
 
     useEffect(() => {
         void load();
     }, [load]);
+
+    async function act(id: string, action: "approve" | "reject") {
+        setBusy(true);
+        try {
+            await fetch(`/api/admin/orders/${id}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ action }),
+            });
+            await load();
+        } finally {
+            setBusy(false);
+        }
+    }
 
     async function doGrant() {
         setBusy(true);
@@ -48,6 +68,8 @@ export default function AdminClient({ wording }: { wording: Wording }) {
             setBusy(false);
         }
     }
+
+    const rows = tab === "pending" ? open : recent;
 
     return (
         <div className="mx-auto max-w-4xl px-5 py-10">
@@ -94,39 +116,88 @@ export default function AdminClient({ wording }: { wording: Wording }) {
             <h1 className="mt-2 font-head text-4xl font-extrabold tracking-tight">
                 {t("admin.title")}
             </h1>
+            <p className="mt-1 text-sm text-muted">{t("admin.gopay")}</p>
 
-            <h2 className="mt-6 font-head text-2xl font-extrabold">{t("admin.doku")}</h2>
-            <div className="mt-3 overflow-x-auto rounded-2xl border-2 border-line bg-card">
+            <div className="mt-6 flex gap-2">
+                {(["pending", "recent"] as const).map((value) => (
+                    <button
+                        key={value}
+                        type="button"
+                        onClick={() => setTab(value)}
+                        className={`rounded-full px-4 py-2 text-sm font-semibold ${
+                            tab === value
+                                ? "bg-btn text-btntext"
+                                : "bg-surface text-body"
+                        }`}
+                    >
+                        {value === "pending"
+                            ? t("admin.tab.pending")
+                            : t("admin.tab.recent")}
+                    </button>
+                ))}
+            </div>
+
+            <div className="mt-4 overflow-x-auto rounded-2xl border-2 border-line bg-card">
                 <table className="w-full text-sm">
                     <thead className="bg-surface text-left">
                         <tr>
-                            <th className="px-3 py-2">invoice</th>
+                            <th className="px-3 py-2">id</th>
                             <th className="px-3 py-2">email</th>
-                            <th className="px-3 py-2">amount</th>
-                            <th className="px-3 py-2">channel</th>
+                            <th className="px-3 py-2">base</th>
+                            <th className="px-3 py-2">code</th>
+                            <th className="px-3 py-2">pay</th>
                             <th className="px-3 py-2">state</th>
-                            <th className="px-3 py-2">created</th>
+                            <th className="px-3 py-2" />
                         </tr>
                     </thead>
                     <tbody>
-                        {recent.length === 0 ? (
+                        {rows.length === 0 ? (
                             <tr>
-                                <td colSpan={6} className="px-3 py-6 text-center text-muted">
+                                <td
+                                    colSpan={7}
+                                    className="px-3 py-6 text-center text-muted"
+                                >
                                     {t("admin.empty")}
                                 </td>
                             </tr>
                         ) : (
-                            recent.map((o) => (
-                                <tr key={o.invoice} className="border-t border-line">
-                                    <td className="px-3 py-2 font-mono text-xs">{o.invoice}</td>
-                                    <td className="px-3 py-2">{o.email ?? "-"}</td>
-                                    <td className="px-3 py-2 font-semibold">
-                                        {o.amount.toLocaleString("id-ID")}
+                            rows.map((o) => (
+                                <tr key={o.id} className="border-t border-line">
+                                    <td className="px-3 py-2 font-mono text-xs">
+                                        {o.id.slice(0, 8)}
                                     </td>
-                                    <td className="px-3 py-2">{o.channel ?? "-"}</td>
+                                    <td className="px-3 py-2">{o.email ?? "—"}</td>
+                                    <td className="px-3 py-2">
+                                        {o.baseIdr.toLocaleString("id-ID")}
+                                    </td>
+                                    <td className="px-3 py-2">{o.code}</td>
+                                    <td className="px-3 py-2 font-semibold">
+                                        {o.payIdr.toLocaleString("id-ID")}
+                                    </td>
                                     <td className="px-3 py-2">{o.state}</td>
-                                    <td className="px-3 py-2 text-xs text-muted">
-                                        {new Date(o.createdAt).toLocaleString("id-ID")}
+                                    <td className="px-3 py-2">
+                                        <div className="flex gap-2">
+                                            <button
+                                                type="button"
+                                                disabled={busy}
+                                                onClick={() =>
+                                                    void act(o.id, "approve")
+                                                }
+                                                className="rounded-full bg-brand px-3 py-1 text-xs font-semibold text-ink disabled:opacity-50"
+                                            >
+                                                {t("admin.approve")}
+                                            </button>
+                                            <button
+                                                type="button"
+                                                disabled={busy}
+                                                onClick={() =>
+                                                    void act(o.id, "reject")
+                                                }
+                                                className="rounded-full bg-mist px-3 py-1 text-xs font-semibold text-ink disabled:opacity-50"
+                                            >
+                                                {t("admin.reject")}
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                             ))
@@ -162,7 +233,7 @@ export default function AdminClient({ wording }: { wording: Wording }) {
             <button
                 type="button"
                 disabled={busy || !email}
-                onClick={doGrant}
+                onClick={() => void doGrant()}
                 className="mt-3 rounded-full bg-btn px-6 py-3 font-semibold text-btntext disabled:opacity-60"
             >
                 {t("admin.grant")}

@@ -34,20 +34,20 @@ export default function VsLanding({
     const others = COMPETITORS.filter((c) => c.id !== id);
 
     return (
-        <div className="min-h-screen bg-page">
-            <div className="mx-auto max-w-[1180px] px-5 pb-16 pt-8">
-                <main className="overflow-hidden rounded-phone border-0 bg-card">
+        <div className="min-h-screen overflow-x-clip bg-page">
+            <div className="mx-auto w-full max-w-[1180px] px-4 pb-16 pt-6 sm:px-5 sm:pt-8">
+                <main className="min-w-0 overflow-x-clip rounded-phone border-0 bg-card">
                     <LandingNav t={t} region={region} />
 
                     <section className="bg-[aliceblue] text-ink">
-                        <div className="mx-auto max-w-[980px] px-6 py-14 sm:py-20">
+                        <div className="mx-auto w-full min-w-0 max-w-[980px] px-4 py-12 sm:px-6 sm:py-20">
                             <p className="text-sm font-semibold uppercase tracking-wide opacity-80">
                                 {t("landing.vs.eyebrow")}
                             </p>
-                            <h1 className="mt-3 font-head text-[2.4rem] font-extrabold leading-[0.96] tracking-tight sm:text-[4rem]">
+                            <h1 className="mt-3 break-words font-head text-[2rem] font-extrabold leading-[1.05] tracking-tight sm:text-[4rem]">
                                 <RichText text={t(`landing.vs.${id}.title`)} />
                             </h1>
-                            <p className="mt-6 max-w-[52ch] text-lg sm:text-xl">
+                            <p className="mt-6 max-w-[52ch] text-base sm:text-xl">
                                 <RichText text={t(`landing.vs.${id}.body`)} />
                             </p>
                             <div className="mt-8">
@@ -57,12 +57,12 @@ export default function VsLanding({
                         <GoogleIntegrations t={t} />
                     </section>
 
-                    <section className="mx-auto max-w-[980px] px-6 pb-14 pt-16 sm:pt-20">
-                        <h2 className="font-head text-3xl font-extrabold tracking-tight">
+                    <section className="mx-auto w-full min-w-0 max-w-[980px] px-4 pb-14 pt-16 sm:px-6 sm:pt-20">
+                        <h2 className="break-words font-head text-3xl font-extrabold tracking-tight">
                             {t("landing.vs.tableTitle")}
                         </h2>
-                        <div className="mt-6 overflow-x-auto rounded-panel border-2 border-line">
-                            <table className="min-w-full text-left text-sm">
+                        <div className="mt-6 max-w-full overflow-x-auto overscroll-x-contain rounded-panel border-2 border-line">
+                            <table className="w-max min-w-full text-left text-sm">
                                 <thead>
                                     <tr className="bg-surface">
                                         <th className="px-4 py-3 font-semibold">
@@ -101,7 +101,7 @@ export default function VsLanding({
                         </p>
                     </section>
 
-                    <section className="mx-auto max-w-[980px] px-6 py-14">
+                    <section className="mx-auto w-full min-w-0 max-w-[980px] px-4 py-14 sm:px-6">
                         <h2 className="font-head text-2xl font-extrabold tracking-tight">
                             {t("landing.vs.whyTitle")}
                         </h2>
@@ -116,7 +116,7 @@ export default function VsLanding({
                         </ul>
                     </section>
 
-                    <section className="mx-auto max-w-[980px] px-6 pb-14">
+                    <section className="mx-auto w-full min-w-0 max-w-[980px] px-4 pb-14 sm:px-6">
                         <h2 className="font-head text-2xl font-extrabold tracking-tight">
                             {t("landing.vs.otherTitle")}
                         </h2>

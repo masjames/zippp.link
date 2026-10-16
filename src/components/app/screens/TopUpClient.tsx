@@ -1,68 +1,34 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import PhoneShell from "../PhoneShell";
 import { useApp } from "../AppProvider";
 import { fill } from "@/lib/t";
 import type { PaddleConfig } from "@/lib/billing/paddle";
-import { CREDIT_TTL_DAYS, IDR_TOPUP_PRESETS as PRESETS } from "@/lib/billing/config";
+import { IDR_TOPUP_PRESETS as PRESETS } from "@/lib/billing/config";
 
 type Props = {
     region: "id" | "intl";
     paddle: PaddleConfig & { configured: boolean };
-    /** DOKU hosted checkout is configured (Indonesia). */
-    doku: boolean;
+    /** Manual GoPay is configured (Indonesia). */
+    gopay: boolean;
     minIdr: number;
     idrPerCredit: number;
 };
 
-type DokuState = "pending" | "paid" | "failed" | "expired";
-
 export default function TopUpClient({
     region,
     paddle,
-    doku,
+    gopay,
     minIdr,
     idrPerCredit,
 }: Props) {
-    const { t, auth, balance, lang, refreshBalance } = useApp();
+    const { t, auth } = useApp();
     const router = useRouter();
-    const params = useSearchParams();
-    const returnedInvoice = params.get("doku");
     const [amount, setAmount] = useState(PRESETS[1]);
     const [error, setError] = useState<string | null>(null);
     const [busy, setBusy] = useState(false);
-    const [dokuState, setDokuState] = useState<DokuState | null>(null);
-    const [dokuAmount, setDokuAmount] = useState<number | null>(null);
-    const paidCredits =
-        dokuAmount != null ? Math.floor(dokuAmount / idrPerCredit) : null;
-
-    // Back from DOKU's page: poll until the notification has landed.
-    useEffect(() => {
-        if (!returnedInvoice) return;
-        let stop = false;
-        let tries = 0;
-        async function poll() {
-            const res = await fetch(`/api/topup/doku/${returnedInvoice}`, { cache: "no-store" });
-            const data = await res.json();
-            if (stop) return;
-            const state: DokuState | null = data.ok ? data.order.state : null;
-            if (data.ok && typeof data.order.amount === "number") {
-                setDokuAmount(data.order.amount);
-            }
-            setDokuState(state ?? "pending");
-            if (state === "paid") {
-                void refreshBalance();
-                return;
-            }
-            if (state === "pending" && tries++ < 24) setTimeout(poll, 5000);
-        }
-        void poll();
-        return () => {
-            stop = true;
-        };
-    }, [returnedInvoice, refreshBalance]);
 
     useEffect(() => {
         if (region !== "intl" || !paddle.clientToken) return;
@@ -80,25 +46,26 @@ export default function TopUpClient({
         };
     }, [region, paddle.clientToken, paddle.env]);
 
-    async function payWithDoku() {
+    async function createGoPayOrder() {
         setBusy(true);
         setError(null);
         try {
-            const res = await fetch("/api/topup/doku", {
+            const res = await fetch("/api/topup/orders", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ amountIdr: amount }),
+                body: JSON.stringify({ baseIdr: amount }),
             });
             const data = await res.json();
-            if (data.ok && data.order?.url) {
-                window.location.assign(data.order.url);
+            if (data.ok && data.order?.id) {
+                router.push(`/app/topup/order/${data.order.id}`);
                 return;
             }
             setError(data.error || t("app.error.failed"));
         } catch {
             setError(t("app.error.network"));
+        } finally {
+            setBusy(false);
         }
-        setBusy(false);
     }
 
     function buyPaddle() {
@@ -119,96 +86,26 @@ export default function TopUpClient({
                 {t("app.topup.title")}
             </h2>
 
-            {region === "id" && returnedInvoice ? (
-                <div
-                    className={`rounded-2xl px-4 py-3 text-sm font-medium ${
-                        dokuState === "paid"
-                            ? "bg-peach text-ink"
-                            : dokuState === "failed" || dokuState === "expired"
-                              ? "bg-card text-danger"
-                              : "bg-card text-muted"
-                    }`}
-                >
-                    <p>{t(`app.topup.doku.${dokuState ?? "pending"}`)}</p>
-                    {dokuState === "paid" && paidCredits != null ? (
-                        <>
-                            <p className="mt-1 font-head text-2xl font-extrabold">
-                                {fill(t("app.credits.balance"), {
-                                    count: paidCredits,
-                                })}
-                            </p>
-                            <p className="text-xs">
-                                {fill(t("app.credits.expires"), {
-                                    date: new Date(
-                                        Date.now() +
-                                            CREDIT_TTL_DAYS *
-                                                24 *
-                                                60 *
-                                                60 *
-                                                1000
-                                    ).toLocaleDateString(
-                                        lang === "id" ? "id-ID" : "en-US"
-                                    ),
-                                })}
-                            </p>
-                        </>
-                    ) : null}
-                </div>
-            ) : null}
-
-            {region === "id" && dokuState === "paid" ? (
-                <button
-                    type="button"
-                    onClick={() => router.push("/app/snap")}
-                    className="rounded-full bg-btn px-6 py-4 font-semibold text-btntext"
-                >
-                    {t("app.topup.backToCamera")}
-                </button>
-            ) : null}
-
             {region === "id" ? (
-                dokuState === "paid" ? null : (
                 <>
                     <p className="text-muted">{t("app.topup.choose")}</p>
+                    <p className="text-xs text-muted">{t("app.topup.gopay.methods")}</p>
                     <div className="grid grid-cols-2 gap-2">
                         {PRESETS.map((p) => (
                             <button
                                 key={p}
                                 type="button"
                                 onClick={() => setAmount(p)}
-                                className={`rounded-2xl px-4 py-3 text-left font-semibold ${
+                                className={`rounded-2xl px-4 py-3 font-semibold ${
                                     amount === p
                                         ? "bg-maroon text-white"
-                                        : "bg-peach text-ink"
+                                        : "bg-card text-ink shadow-sm"
                                 }`}
                             >
-                                <span className="block">
-                                    Rp {p.toLocaleString("id-ID")}
-                                </span>
-                                <span className="block text-xs font-medium opacity-80">
-                                    {fill(t("app.topup.scans"), {
-                                        count: Math.floor(p / idrPerCredit),
-                                    })}
-                                </span>
+                                Rp {p.toLocaleString("id-ID")}
                             </button>
                         ))}
                     </div>
-                    {balance?.configured ? (
-                        <p className="text-sm text-muted">
-                            {fill(t("app.topup.preview"), {
-                                current: balance.credits,
-                                after:
-                                    balance.credits +
-                                    Math.floor(amount / idrPerCredit),
-                                date: new Date(
-                                    Date.now() +
-                                        CREDIT_TTL_DAYS * 24 * 60 * 60 * 1000
-                                ).toLocaleDateString(
-                                    lang === "id" ? "id-ID" : "en-US"
-                                ),
-                            })}
-                        </p>
-                    ) : null}
                     <label className="grid gap-1.5">
                         <span className="text-sm font-semibold">
                             {t("app.topup.custom")}
@@ -232,17 +129,18 @@ export default function TopUpClient({
                     ) : null}
                     <button
                         type="button"
-                        disabled={busy || amount < minIdr || !doku}
-                        onClick={payWithDoku}
+                        disabled={busy || amount < minIdr || !gopay}
+                        onClick={createGoPayOrder}
                         className="mt-auto rounded-full bg-btn px-6 py-4 font-semibold text-btntext disabled:opacity-60"
                     >
-                        {t("app.topup.doku.pay")}
+                        {t("app.topup.create")}
                     </button>
-                    <p className="text-center text-xs text-muted">
-                        {t(doku ? "app.topup.doku.methods" : "app.topup.unavailable")}
-                    </p>
+                    {!gopay ? (
+                        <p className="text-center text-xs text-muted">
+                            {t("app.topup.unavailable")}
+                        </p>
+                    ) : null}
                 </>
-                )
             ) : (
                 <>
                     <p className="text-muted">

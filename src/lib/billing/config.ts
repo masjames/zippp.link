@@ -7,6 +7,8 @@ export const REFERRER_PCT = 20;
 export const REFERRED_BONUS_CREDITS = 20;
 /** Header credit pill turns amber below this count and red at zero. */
 export const LOW_CREDITS_WARN = 10;
+/** Manual GoPay order validity (minutes). */
+export const ORDER_TTL_MIN = 60;
 /** DOKU hosted checkout page validity (payment_due_date, minutes). */
 export const DOKU_ORDER_TTL_MIN = 60;
 export const INTL_PACK_CREDITS = 100;
@@ -15,13 +17,11 @@ export const INTL_PACK_USD = 9;
 export const IDR_TOPUP_PRESETS = [15_000, 30_000, 50_000, 100_000];
 
 /**
- * DOKU Checkout channels shown to the customer. Each one must have its
- * Notification URL set in the DOKU Back Office, otherwise payments on it
- * never reach /api/doku/notify. Values come from DOKU's supported payment
- * methods list. Add a channel here only after configuring it in the Back
- * Office.
+ * DOKU Checkout channels. QRIS is halted for now — Indonesia top-up uses
+ * manual GoPay (`orders.ts`) instead. Keep this list empty (or non-QRIS
+ * only) until QRIS notification URL + channel are ready again.
  */
-export const DOKU_PAYMENT_METHODS = ["QRIS", "CREDIT_CARD"] as const;
+export const DOKU_PAYMENT_METHODS = [] as const;
 
 export const UPSTASH_URL = process.env.UPSTASH_REDIS_REST_URL || "";
 export const UPSTASH_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN || "";
@@ -34,9 +34,16 @@ function csv(name: string): string[] {
 }
 
 export const ADMIN_EMAILS = csv("ADMIN_EMAILS");
+export const GOPAY_NUMBER = process.env.GOPAY_NUMBER || "";
+export const GOPAY_NAME = process.env.GOPAY_NAME || "";
+
 export function isAdmin(email: string | null | undefined): boolean {
   if (!email) return false;
   return ADMIN_EMAILS.includes(email.trim().toLowerCase());
+}
+
+export function gopayConfigured(): boolean {
+  return Boolean(GOPAY_NUMBER && GOPAY_NAME);
 }
 
 /** Credits granted by a base IDR amount (the unique code is not credited). */

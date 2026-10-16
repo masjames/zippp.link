@@ -629,6 +629,14 @@ Pilih jumlah
 Or enter an amount
 ## app.topup.custom.id
 Atau isi jumlah
+## app.topup.create.en
+Pay with GoPay
+## app.topup.create.id
+Bayar dengan GoPay
+## app.topup.gopay.methods.en
+Transfer the exact amount to our GoPay. QRIS checkout is paused for now.
+## app.topup.gopay.methods.id
+Transfer jumlah tepat ke GoPay kami. Checkout QRIS sementara dihentikan.
 ## app.topup.buy.en
 Buy {credits} credits
 ## app.topup.buy.id
@@ -642,10 +650,67 @@ Top up is not available yet.
 ## app.topup.unavailable.id
 Isi saldo belum tersedia.
 
+## app.order.payTo.en
+Pay to this GoPay number
+## app.order.payTo.id
+Bayar ke nomor GoPay ini
+## app.order.amount.en
+Exact amount
+## app.order.amount.id
+Jumlah tepat
+## app.order.expiresIn.en
+Expires in {time}
+## app.order.expiresIn.id
+Kedaluwarsa dalam {time}
+## app.order.paid.en
+I have paid
+## app.order.paid.id
+Saya sudah bayar
+## app.order.waiting.en
+Waiting for your payment.
+## app.order.waiting.id
+Menunggu pembayaran Anda.
+## app.order.claimed.en
+We are checking your payment.
+## app.order.claimed.id
+Kami sedang memeriksa pembayaran Anda.
+## app.order.approved.en
+Credits added.
+## app.order.approved.id
+Kredit ditambahkan.
+## app.order.rejected.en
+Order rejected.
+## app.order.rejected.id
+Pesanan ditolak.
+## app.order.expired.en
+This order expired.
+## app.order.expired.id
+Pesanan ini kedaluwarsa.
+
 ## admin.title.en
 Orders
 ## admin.title.id
 Pesanan
+## admin.gopay.en
+GoPay top-ups (manual). Approve after you see the transfer.
+## admin.gopay.id
+Top-up GoPay (manual). Setujui setelah transfer masuk.
+## admin.tab.pending.en
+Pending
+## admin.tab.pending.id
+Menunggu
+## admin.tab.recent.en
+Recent
+## admin.tab.recent.id
+Terbaru
+## admin.approve.en
+Approve
+## admin.approve.id
+Setujui
+## admin.reject.en
+Reject
+## admin.reject.id
+Tolak
 ## admin.referral.title.en
 Referral / invite a friend
 ## admin.referral.title.id

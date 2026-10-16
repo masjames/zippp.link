@@ -24,7 +24,7 @@ export default function SiteFooter({
     const contact = legalHref("contact", lang);
 
     return (
-        <div className="mx-auto max-w-[980px] px-6 py-12 text-sm text-muted">
+        <div className="mx-auto w-full min-w-0 max-w-[980px] px-4 py-12 text-sm text-muted sm:px-6">
             <nav className="flex flex-wrap gap-x-5 gap-y-2 pb-8">
                 {LEGAL_PAGES.map((id) => (
                     <a

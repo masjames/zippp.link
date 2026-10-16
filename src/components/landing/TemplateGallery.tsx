@@ -66,6 +66,7 @@ export default function TemplateGallery({
 
     return (
         <div
+            className="w-full min-w-0"
             onMouseEnter={() => setPaused(true)}
             onMouseLeave={() => setPaused(false)}
             onFocusCapture={() => setPaused(true)}

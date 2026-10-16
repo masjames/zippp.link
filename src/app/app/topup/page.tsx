@@ -1,7 +1,10 @@
 import { Suspense } from "react";
 import TopUpClient from "@/components/app/screens/TopUpClient";
-import { IDR_PER_CREDIT, MIN_TOPUP_IDR } from "@/lib/billing/config";
-import { dokuConfigured } from "@/lib/billing/doku";
+import {
+    gopayConfigured,
+    IDR_PER_CREDIT,
+    MIN_TOPUP_IDR,
+} from "@/lib/billing/config";
 import { paddleConfig, paddleConfigured } from "@/lib/billing/paddle";
 import { getLocale } from "@/lib/server-locale";
 
@@ -14,7 +17,7 @@ export default async function TopUpPage() {
             <TopUpClient
                 region={region}
                 paddle={paddle}
-                doku={dokuConfigured()}
+                gopay={gopayConfigured()}
                 minIdr={MIN_TOPUP_IDR}
                 idrPerCredit={IDR_PER_CREDIT}
             />

@@ -33,25 +33,25 @@ export default function Landing({
     const t = makeT(wording, lang);
 
     return (
-        <div className="min-h-screen bg-page">
-            <div className="mx-auto max-w-[1180px] px-5 pb-16 pt-8">
-                <main className="overflow-hidden rounded-phone border-0 bg-card">
+        <div className="min-h-screen overflow-x-clip bg-page">
+            <div className="mx-auto w-full max-w-[1180px] px-4 pb-16 pt-6 sm:px-5 sm:pt-8">
+                <main className="min-w-0 overflow-x-clip rounded-phone border-0 bg-card">
                     <LandingNav t={t} region={region} />
 
                     <section className="bg-[aliceblue] text-ink">
-                        <div className="mx-auto grid max-w-[980px] items-center gap-10 px-6 py-14 sm:py-16 lg:grid-cols-[1.1fr_0.9fr] lg:py-20">
-                            <div className="order-2 lg:order-1">
-                                <h1 className="font-head text-[2.6rem] font-extrabold leading-[1.05] tracking-tight sm:text-[3.75rem]">
+                        <div className="mx-auto grid w-full max-w-[980px] items-center gap-8 px-4 py-12 sm:gap-10 sm:px-6 sm:py-16 lg:grid-cols-[1.1fr_0.9fr] lg:py-20">
+                            <div className="order-2 min-w-0 lg:order-1">
+                                <h1 className="break-words font-head text-[2.2rem] font-extrabold leading-[1.08] tracking-tight sm:text-[3.75rem]">
                                     <RichText text={t("landing.hero.title")} />
                                 </h1>
-                                <p className="mt-5 max-w-[48ch] text-lg leading-relaxed sm:text-xl">
+                                <p className="mt-5 max-w-[48ch] text-base leading-relaxed sm:text-xl">
                                     <RichText text={t("landing.hero.body")} />
                                 </p>
                                 <div className="mt-8">
                                     <GoogleSignInButton t={t} />
                                 </div>
                             </div>
-                            <div className="relative order-1 flex justify-center lg:order-2 lg:justify-end">
+                            <div className="relative order-1 flex w-full min-w-0 justify-center lg:order-2 lg:justify-end">
                                 {assets.heroImage ? (
                                     <MediaPlaceholder
                                         label={t("landing.media.hero")}
@@ -70,7 +70,7 @@ export default function Landing({
                         id="testimonials"
                         className="border-y border-line bg-surface"
                     >
-                        <div className="mx-auto max-w-[980px] px-6 pb-14 pt-16 sm:pt-20">
+                        <div className="mx-auto w-full min-w-0 max-w-[980px] px-4 pb-14 pt-16 sm:px-6 sm:pt-20">
                             <ImpactProof t={t} />
                         </div>
                     </section>
@@ -79,11 +79,11 @@ export default function Landing({
                         id="product"
                         className="border-y border-line bg-[#e8e4e0]"
                     >
-                        <div className="mx-auto max-w-[980px] px-6 py-14">
-                            <h2 className="max-w-[36ch] font-head text-3xl font-extrabold tracking-tight sm:text-4xl">
+                        <div className="mx-auto w-full min-w-0 max-w-[980px] px-4 py-14 sm:px-6">
+                            <h2 className="max-w-[36ch] break-words font-head text-3xl font-extrabold tracking-tight sm:text-4xl">
                                 <RichText text={t("landing.showcase.title")} />
                             </h2>
-                            <div className="mt-8">
+                            <div className="mt-8 min-w-0">
                                 <TemplateGallery
                                     t={t}
                                     lang={lang}
@@ -93,8 +93,8 @@ export default function Landing({
                         </div>
                     </section>
 
-                    <section className="mx-auto max-w-[980px] px-6 py-10">
-                        <div className="rounded-panel bg-surface p-7 opacity-80">
+                    <section className="mx-auto w-full min-w-0 max-w-[980px] px-4 py-10 sm:px-6">
+                        <div className="rounded-panel bg-surface p-5 opacity-80 sm:p-7">
                             <div className="flex flex-wrap items-baseline gap-3">
                                 <h3 className="font-head text-2xl font-extrabold tracking-tight">
                                     {t("landing.referral.title")}
@@ -111,7 +111,7 @@ export default function Landing({
 
                     <section
                         id="questions"
-                        className="mx-auto max-w-[980px] px-6 py-14"
+                        className="mx-auto w-full min-w-0 max-w-[980px] px-4 py-14 sm:px-6"
                     >
                         <h2 className="font-head text-3xl font-extrabold tracking-tight sm:text-4xl">
                             {t("landing.faq.title")}

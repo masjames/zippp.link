@@ -30,10 +30,10 @@ export default function HeroSnapSheet({ t }: { t: T }) {
               : t("landing.how.send.title");
 
     return (
-        <div className="relative mx-auto w-full max-w-[300px] sm:max-w-[320px]">
+        <div className="relative mx-auto w-full min-w-0 max-w-[300px] sm:max-w-[320px]">
             <p
                 key={phase}
-                className="mb-8 text-center font-head text-2xl font-extrabold tracking-tight text-ink hero-stage-label sm:text-3xl"
+                className="hero-stage-label mb-8 break-words text-center font-head text-2xl font-extrabold tracking-tight text-ink sm:text-3xl"
             >
                 {label}
             </p>

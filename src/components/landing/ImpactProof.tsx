@@ -7,8 +7,8 @@ const QUOTES = [1, 2, 3] as const;
 
 export default function ImpactProof({ t }: { t: T }) {
     return (
-        <div className="space-y-8">
-            <h2 className="font-head text-3xl font-extrabold tracking-tight sm:text-4xl">
+        <div className="w-full min-w-0 space-y-8">
+            <h2 className="break-words font-head text-3xl font-extrabold tracking-tight sm:text-4xl">
                 {t("landing.stories.title")}
             </h2>
 

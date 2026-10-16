@@ -61,10 +61,10 @@ export default function LegalPage({
     const wa = whatsappLink(business.whatsapp);
 
     return (
-        <div className="min-h-screen bg-page">
-            <div className="mx-auto max-w-[1180px] px-5 pb-16 pt-8">
-                <main className="overflow-hidden rounded-phone border-0 bg-card">
-                    <nav className="mx-auto flex max-w-[980px] flex-wrap items-center justify-between gap-3 px-6 py-5">
+        <div className="min-h-screen overflow-x-clip bg-page">
+            <div className="mx-auto w-full max-w-[1180px] px-4 pb-16 pt-6 sm:px-5 sm:pt-8">
+                <main className="min-w-0 overflow-x-clip rounded-phone border-0 bg-card">
+                    <nav className="mx-auto flex w-full max-w-[980px] flex-wrap items-center justify-between gap-3 px-4 py-5 sm:px-6">
                         <a
                             href={home}
                             className="font-head text-3xl font-black leading-none tracking-tight text-brand"
@@ -73,8 +73,8 @@ export default function LegalPage({
                         </a>
                     </nav>
 
-                    <article className="mx-auto max-w-[760px] px-6 pb-14 pt-6">
-                        <h1 className="font-head text-4xl font-extrabold tracking-tight sm:text-5xl">
+                    <article className="mx-auto w-full min-w-0 max-w-[760px] px-4 pb-14 pt-6 sm:px-6">
+                        <h1 className="break-words font-head text-3xl font-extrabold tracking-tight sm:text-5xl">
                             {t(`legal.${id}.title`)}
                         </h1>
                         <p className="mt-3 text-sm text-muted">

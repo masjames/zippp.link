@@ -129,6 +129,15 @@ export default function SnapScreen() {
         if (reviewIndex !== safeIndex) setReviewIndex(safeIndex);
     }, [safeIndex, reviewIndex]);
 
+    /** New capture → jump to the newest item so reading UI shows. */
+    const prevQueueLen = useRef(0);
+    useEffect(() => {
+        if (unaccepted.length > prevQueueLen.current) {
+            setReviewIndex(unaccepted.length - 1);
+        }
+        prevQueueLen.current = unaccepted.length;
+    }, [unaccepted.length]);
+
     /** Reading → expand; once draft lands, minimize so the user can snap again. */
     useEffect(() => {
         if (!current) {
