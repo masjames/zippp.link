@@ -66,9 +66,9 @@ Hari gini nyatet struk masih *manual*?
 ## landing.hero.title2.id
 
 ## landing.hero.body.en
-Kitchen buys, personal spend, daily sales, reimbursement. Snap the paper. Rows land in the Google Sheet you already use.
+Kitchen buys, personal spend, daily sales, reimbursement. Snap the paper — or upload a photo or PDF. Rows land in the Google Sheet you already use.
 ## landing.hero.body.id
-Belanja dapur, pengeluaran pribadi, rekap penjualan, reimbursement. Jepret struknya. Barisnya masuk Google Sheet yang sudah kamu pakai.
+Belanja dapur, pengeluaran pribadi, rekap penjualan, reimbursement. Jepret struknya — atau unggah foto atau PDF. Barisnya masuk Google Sheet yang sudah kamu pakai.
 ## landing.hero.cta.en
 Get started
 ## landing.hero.cta.id
@@ -91,9 +91,9 @@ Photo
 ## landing.how.snap.title.id
 Foto
 ## landing.how.snap.body.en
-Point at the receipt, or upload one you already have.
+Point at the receipt, or upload a photo or PDF you already have.
 ## landing.how.snap.body.id
-Arahkan ke struk, atau unggah yang sudah ada di galeri.
+Arahkan ke struk, atau unggah foto atau PDF yang sudah ada.
 ## landing.how.check.title.en
 Review
 ## landing.how.check.title.id
@@ -288,9 +288,13 @@ Fit the whole receipt inside the corners
 ## app.capture.frame.id
 Pastikan seluruh resi masuk di dalam sudut
 ## app.capture.upload.en
-Upload a photo instead
+Upload photo or PDF
 ## app.capture.upload.id
-Unggah foto saja
+Unggah foto atau PDF
+## app.capture.pdfFailed.en
+Could not read that PDF. Try another file or a photo.
+## app.capture.pdfFailed.id
+PDF tidak terbaca. Coba file lain atau foto.
 ## app.capture.shutter.en
 Take photo
 ## app.capture.shutter.id
@@ -308,9 +312,9 @@ Tap to start the camera
 ## app.capture.tapStart.id
 Ketuk untuk menyalakan kamera
 ## app.capture.cameraError.en
-Camera unavailable or blocked. Use upload below.
+Camera unavailable or blocked. Upload a photo or PDF below.
 ## app.capture.cameraError.id
-Kamera tidak tersedia atau diblokir. Gunakan unggah di bawah.
+Kamera tidak tersedia atau diblokir. Unggah foto atau PDF di bawah.
 ## app.capture.autoSnap.en
 Auto-snap
 ## app.capture.autoSnap.id

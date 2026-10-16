@@ -495,8 +495,16 @@ export default function SnapScreen() {
 
             <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" className="hidden"
                 onChange={(e) => { pick(e.target.files, true); e.target.value = ""; }} />
-            <input ref={uploadInputRef} type="file" accept="image/*" className="hidden"
-                onChange={(e) => { pick(e.target.files, false); e.target.value = ""; }} />
+            <input
+                ref={uploadInputRef}
+                type="file"
+                accept="image/*,application/pdf,.pdf"
+                className="hidden"
+                onChange={(e) => {
+                    pick(e.target.files, false);
+                    e.target.value = "";
+                }}
+            />
 
             <div className="flex items-center justify-between text-xs">
                 <button type="button" onClick={() => uploadInputRef.current?.click()}

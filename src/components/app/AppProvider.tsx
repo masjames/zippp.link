@@ -20,7 +20,7 @@ import {
     type BatchItem,
     type CaptureSource,
 } from "@/lib/batch-db";
-import { prepareImage } from "@/lib/image";
+import { isPdfFile, isReceiptUpload, prepareImage } from "@/lib/image";
 import { captureDate, fromDraft, toDraft } from "./draft";
 import { buildCorrectionRecord } from "@/lib/correction-diff";
 
@@ -347,8 +347,26 @@ export default function AppProvider({
 
     function addFile(file: File, source: CaptureSource = "manual") {
         void (async () => {
-            const { blob, thumb } = await prepareImage(file);
-            addBlob(blob, thumb, source);
+            if (!isReceiptUpload(file)) return;
+            try {
+                const { blob, thumb } = await prepareImage(file);
+                if (isPdfFile(file) && (isPdfFile(blob) || !thumb)) {
+                    throw new Error("pdf failed");
+                }
+                addBlob(blob, thumb, source);
+            } catch {
+                const item: BatchItem = {
+                    id: crypto.randomUUID(),
+                    createdAt: Date.now(),
+                    blob: file,
+                    thumb: "",
+                    status: "failed",
+                    source,
+                    error: t("app.capture.pdfFailed"),
+                };
+                setBatch((items) => [item, ...items]);
+                void putItem(item);
+            }
         })();
     }
 
