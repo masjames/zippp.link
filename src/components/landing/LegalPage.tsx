@@ -63,7 +63,7 @@ export default function LegalPage({
     return (
         <div className="min-h-screen bg-page">
             <div className="mx-auto max-w-[1180px] px-5 pb-16 pt-8">
-                <main className="overflow-hidden rounded-phone border-2 border-line bg-card">
+                <main className="overflow-hidden rounded-phone border-0 bg-card">
                     <nav className="mx-auto flex max-w-[980px] flex-wrap items-center justify-between gap-3 px-6 py-5">
                         <a
                             href={home}

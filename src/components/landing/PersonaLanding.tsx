@@ -41,10 +41,10 @@ export default function PersonaLanding({
     return (
         <div className="min-h-screen bg-page">
             <div className="mx-auto max-w-[1180px] px-5 pb-16 pt-8">
-                <main className="overflow-hidden rounded-phone border-2 border-line bg-card">
+                <main className="overflow-hidden rounded-phone border-0 bg-card">
                     <LandingNav t={t} region={region} />
 
-                    <section className="bg-brand text-ink">
+                    <section className="bg-[aliceblue] text-ink">
                         <div className="mx-auto grid max-w-[980px] items-center gap-10 px-6 py-14 sm:py-16 lg:grid-cols-[1.1fr_0.9fr]">
                             <div>
                                 <p className="text-sm font-semibold uppercase tracking-wide opacity-80">
