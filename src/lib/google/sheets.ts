@@ -287,12 +287,17 @@ export async function createSpreadsheet(
 }
 
 /** Create a new sheet for any template, writing its headers as row 1. */
-export async function createTemplateSpreadsheet(templateId: TemplateId): Promise<{
+export async function createTemplateSpreadsheet(
+  templateId: TemplateId,
+  title?: string
+): Promise<{
   meta: SpreadsheetMeta;
   sheetTab: string;
   headers: string[];
 }> {
-  const meta = await createSpreadsheet(TEMPLATE_SHEET_TITLE[templateId]);
+  const meta = await createSpreadsheet(
+    title?.trim() || TEMPLATE_SHEET_TITLE[templateId]
+  );
   const sheetTab = meta.sheetTabs[0] || "Sheet1";
   const headers = [...TEMPLATE_HEADERS[templateId]];
   await writeHeaderRow(meta.spreadsheetId, sheetTab, headers);

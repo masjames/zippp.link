@@ -1,8 +1,10 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import PhoneShell from "@/components/app/PhoneShell";
 import { useApp, type SheetTemplateId } from "@/components/app/AppProvider";
+import { DEFAULT_SHEET_DISPLAY_NAME } from "@/lib/google/templates";
 import { fill } from "@/lib/t";
 
 const TEMPLATES: { id: SheetTemplateId; name: string; body: string }[] = [
@@ -49,15 +51,36 @@ export default function SheetPage() {
         cancelSheetChoice,
         pickSheet,
         recheckSheet,
+        beginNameSheet,
         createSheet,
         signOut,
     } = useApp();
     const router = useRouter();
+    const [sheetName, setSheetName] = useState(DEFAULT_SHEET_DISPLAY_NAME);
+    const nameInputRef = useRef<HTMLInputElement>(null);
+    const prevPhaseRef = useRef(sheetPhase);
 
     const templateLabel = (id: string | null) => {
         const found = TEMPLATES.find((x) => x.id === id);
         return found ? t(found.name) : "";
     };
+
+    useEffect(() => {
+        const prev = prevPhaseRef.current;
+        prevPhaseRef.current = sheetPhase;
+        if (sheetPhase !== "naming") return;
+        // Fresh name when arriving from wizard; keep typed name after duplicate.
+        if (prev !== "creating") {
+            setSheetName(DEFAULT_SHEET_DISPLAY_NAME);
+        }
+        const id = window.setTimeout(() => {
+            const el = nameInputRef.current;
+            if (!el) return;
+            el.focus();
+            el.select();
+        }, 0);
+        return () => window.clearTimeout(id);
+    }, [sheetPhase]);
 
     if (sheetPhase === "checking") {
         return (
@@ -151,7 +174,7 @@ export default function SheetPage() {
                             key={tpl.id}
                             type="button"
                             disabled={sheetBusy}
-                            onClick={() => void createSheet(tpl.id)}
+                            onClick={() => beginNameSheet(tpl.id)}
                             className="rounded-2xl border-2 border-line bg-card px-4 py-3 text-left disabled:opacity-60"
                         >
                             <span className="block font-semibold">{t(tpl.name)}</span>
@@ -166,6 +189,61 @@ export default function SheetPage() {
                 >
                     {t("app.sheets.cancel")}
                 </button>
+            </PhoneShell>
+        );
+    }
+
+    if (sheetPhase === "naming" && pendingTemplate) {
+        const trimmed = sheetName.trim();
+        const canCreate = trimmed.length > 0 && !sheetBusy;
+        return (
+            <PhoneShell>
+                <h2 className="mt-2 font-head text-3xl font-extrabold leading-none">
+                    {t("app.sheets.name.title")}
+                </h2>
+                <p className="text-muted">{t("app.sheets.name.body")}</p>
+                <p className="text-xs text-muted">
+                    {t("app.sheets.template")}: {templateLabel(pendingTemplate)}
+                </p>
+                <label className="mt-4 block text-left">
+                    <span className="text-sm font-semibold text-body">
+                        {t("app.sheets.name.label")}
+                    </span>
+                    <input
+                        ref={nameInputRef}
+                        type="text"
+                        value={sheetName}
+                        onChange={(e) => setSheetName(e.target.value)}
+                        onFocus={(e) => e.currentTarget.select()}
+                        maxLength={80}
+                        autoComplete="off"
+                        className="mt-2 w-full rounded-2xl border-2 border-line bg-card px-4 py-3 font-semibold text-ink outline-none focus:border-brand"
+                    />
+                </label>
+                {sheetError ? (
+                    <p className="mt-2 text-sm font-medium text-danger">
+                        {sheetError}
+                    </p>
+                ) : null}
+                <div className="mt-auto grid gap-3">
+                    <button
+                        type="button"
+                        disabled={!canCreate}
+                        onClick={() =>
+                            void createSheet(pendingTemplate, trimmed)
+                        }
+                        className="rounded-full bg-btn px-6 py-4 font-semibold text-btntext disabled:opacity-60"
+                    >
+                        {t("app.sheets.name.create")}
+                    </button>
+                    <button
+                        type="button"
+                        onClick={showWizard}
+                        className="rounded-full bg-mist px-6 py-4 font-semibold text-ink"
+                    >
+                        {t("app.sheets.name.back")}
+                    </button>
+                </div>
             </PhoneShell>
         );
     }

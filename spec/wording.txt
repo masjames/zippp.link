@@ -1258,6 +1258,34 @@ Pilih susunan kolom. Kolom bisa diubah nanti.
 This creates another sheet and switches zippp to it.
 ## app.sheets.wizard.warn.id
 Ini membuat sheet baru dan mengalihkan zippp ke sana.
+## app.sheets.name.title.en
+Name this sheet
+## app.sheets.name.title.id
+Beri nama sheet
+## app.sheets.name.body.en
+Each sheet needs its own name so you can tell them apart.
+## app.sheets.name.body.id
+Tiap sheet harus punya nama sendiri biar gampang dibedakan.
+## app.sheets.name.label.en
+Sheet name
+## app.sheets.name.label.id
+Nama sheet
+## app.sheets.name.create.en
+Create sheet
+## app.sheets.name.create.id
+Buat sheet
+## app.sheets.name.back.en
+Back
+## app.sheets.name.back.id
+Kembali
+## app.sheets.name.duplicate.en
+That name is already used. Pick another.
+## app.sheets.name.duplicate.id
+Nama itu sudah dipakai. Pilih nama lain.
+## app.sheets.name.required.en
+Give this sheet a name.
+## app.sheets.name.required.id
+Beri nama untuk sheet ini.
 ## app.sheets.tpl.resto.en
 I buy supplies for a kitchen or shop
 ## app.sheets.tpl.resto.id

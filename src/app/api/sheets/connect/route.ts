@@ -10,7 +10,10 @@ import {
   type DriveSpreadsheetHit,
 } from "@/lib/google/sheets";
 import { peekGoogleUserId, hasTokens } from "@/lib/google/token-store";
-import { buildDefaultMap } from "@/lib/google/templates";
+import {
+  buildDefaultMap,
+  buildZippSheetTitle,
+} from "@/lib/google/templates";
 import {
   saveWorkspace,
   workspacePublic,
@@ -30,6 +33,8 @@ type ConnectBody = {
   mode?: "find" | "create" | "list";
   /** Template for a newly created sheet (mode "create"). */
   templateId?: TemplateId;
+  /** Display name for a new sheet (required for mode "create"). */
+  sheetName?: string;
 };
 
 async function persistConnection(input: {
@@ -118,7 +123,7 @@ export async function POST(req: Request) {
       });
     }
 
-    // Force-create a new sheet for the chosen template.
+    // Force-create a new sheet for the chosen template + unique name.
     if (body.mode === "create") {
       const allowed: TemplateId[] = [
         "resto-inventory",
@@ -132,8 +137,33 @@ export async function POST(req: Request) {
       )
         ? (body.templateId as TemplateId)
         : "resto-inventory";
-      const { meta, sheetTab, headers } =
-        await createTemplateSpreadsheet(templateId);
+      const title = buildZippSheetTitle(
+        typeof body.sheetName === "string" ? body.sheetName : ""
+      );
+      if (!title) {
+        return NextResponse.json(
+          { ok: false, error: "Sheet name is required." },
+          { status: 400 }
+        );
+      }
+      const existing = await findZippSpreadsheets();
+      const taken = existing.some(
+        (h) => h.name.trim().toLowerCase() === title.toLowerCase()
+      );
+      if (taken) {
+        return NextResponse.json(
+          {
+            ok: false,
+            error: "A sheet with that name already exists. Pick another name.",
+            duplicateName: true,
+          },
+          { status: 409 }
+        );
+      }
+      const { meta, sheetTab, headers } = await createTemplateSpreadsheet(
+        templateId,
+        title
+      );
       const result = await persistConnection({
         googleUserId,
         spreadsheetId: meta.spreadsheetId,

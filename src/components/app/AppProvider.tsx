@@ -56,6 +56,7 @@ export type SheetPhase =
     | "choose-source"
     | "picking"
     | "wizard"
+    | "naming"
     | "creating"
     | "connected"
     | "error";
@@ -116,8 +117,13 @@ type Value = {
     recheckSheet: () => Promise<void>;
     /** List the `[zippp]` sheets for the quick selector. No phase change. */
     listSheetChoices: () => Promise<SheetCandidate[]>;
-    /** Create a new sheet for a template and connect it. */
-    createSheet: (templateId: SheetTemplateId) => Promise<void>;
+    /** After template pick: ask the user to name the sheet. */
+    beginNameSheet: (templateId: SheetTemplateId) => void;
+    /** Create a new sheet with a unique display name and connect it. */
+    createSheet: (
+        templateId: SheetTemplateId,
+        sheetName: string
+    ) => Promise<void>;
 };
 
 const Ctx = createContext<Value | null>(null);
@@ -634,7 +640,22 @@ export default function AppProvider({
         }
     }
 
-    async function createSheet(templateId: SheetTemplateId) {
+    function beginNameSheet(templateId: SheetTemplateId) {
+        setPendingTemplate(templateId);
+        setSheetError(null);
+        setSheetPhase("naming");
+    }
+
+    async function createSheet(
+        templateId: SheetTemplateId,
+        sheetName: string
+    ) {
+        if (!sheetName.trim()) {
+            setSheetError(t("app.sheets.name.required"));
+            setPendingTemplate(templateId);
+            setSheetPhase("naming");
+            return;
+        }
         setPendingTemplate(templateId);
         setSheetBusy(true);
         setSheetError(null);
@@ -645,7 +666,11 @@ export default function AppProvider({
             const res = await fetch("/api/sheets/connect", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ mode: "create", templateId }),
+                body: JSON.stringify({
+                    mode: "create",
+                    templateId,
+                    sheetName,
+                }),
             });
             if (res.status === 401) {
                 markAuthLost();
@@ -657,6 +682,10 @@ export default function AppProvider({
                 setWorkspace(data.workspace);
                 setSheetCreated(true);
                 setSheetPhase("connected");
+                setPendingTemplate(null);
+            } else if (data.duplicateName || res.status === 409) {
+                setSheetError(t("app.sheets.name.duplicate"));
+                setSheetPhase("naming");
             } else {
                 setSheetError(data.error ?? null);
                 setSheetPhase("error");
@@ -664,9 +693,9 @@ export default function AppProvider({
         } catch {
             setSheetError(null);
             setSheetPhase("error");
+            setPendingTemplate(null);
         } finally {
             setSheetBusy(false);
-            setPendingTemplate(null);
         }
     }
 
@@ -728,6 +757,7 @@ export default function AppProvider({
         pickSheet,
         recheckSheet,
         listSheetChoices,
+        beginNameSheet,
         createSheet,
     };
 

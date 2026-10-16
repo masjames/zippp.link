@@ -7,6 +7,22 @@ export const ZIPPP_RESTO_SHEET_TITLE = "[zippp] Resto inventory";
 /** Name marker used to find zippp-managed spreadsheets (case-insensitive). */
 export const ZIPPP_NAME_MARKER = "[zippp]";
 
+/** Prefill for the new-sheet name field (encourages renaming). */
+export const DEFAULT_SHEET_DISPLAY_NAME = "Default sheet";
+
+/**
+ * Build a Drive title `[zippp] {name}`. Strips a leading marker if the user
+ * typed one. Empty / whitespace-only names return null.
+ */
+export function buildZippSheetTitle(displayName: string): string | null {
+  const cleaned = displayName
+    .trim()
+    .replace(new RegExp(`^\\${ZIPPP_NAME_MARKER}\\s*`, "i"), "")
+    .trim();
+  if (!cleaned) return null;
+  return `${ZIPPP_NAME_MARKER} ${cleaned}`;
+}
+
 /** Row-1 headers for a new resto-inventory sheet (spec/TEMPLATES.md T1). */
 export const RESTO_INVENTORY_HEADERS = [
   "Date",
