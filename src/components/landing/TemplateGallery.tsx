@@ -103,6 +103,10 @@ export default function TemplateGallery({
             </div>
 
             <div className="mt-5">
+                <SheetPreview kind={active} t={t} lang={lang} />
+            </div>
+
+            <div className="mt-4">
                 <p className="max-w-[52ch] text-sm leading-relaxed text-muted">
                     {t(`landing.who.${persona.whoKey}.body`)}
                 </p>
@@ -113,10 +117,6 @@ export default function TemplateGallery({
                     {t(`landing.who.${persona.whoKey}.template`)}
                     {" →"}
                 </a>
-            </div>
-
-            <div className="mt-5">
-                <SheetPreview kind={active} t={t} lang={lang} />
             </div>
         </div>
     );
