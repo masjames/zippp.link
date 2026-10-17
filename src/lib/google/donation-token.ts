@@ -1,5 +1,6 @@
 import { decryptSecret, encryptSecret } from "./crypto";
 import { remoteTextStore } from "./kv";
+import { loadTokens } from "./token-store";
 
 /**
  * Dedicated refresh token for donation Drive uploads.
@@ -24,6 +25,18 @@ export async function saveDonationRefreshToken(
             updated_at: new Date().toISOString(),
         })
     );
+}
+
+/**
+ * Copy the signed-in admin's session refresh token if no donation token exists.
+ * Runs on the admin page, so a deploy does not require another sign-in.
+ */
+export async function ensureDonationTokenFromSession(): Promise<boolean> {
+    if (await loadDonationRefreshToken()) return true;
+    const tokens = await loadTokens();
+    if (!tokens?.refresh_token) return false;
+    await saveDonationRefreshToken(tokens.refresh_token);
+    return true;
 }
 
 export async function loadDonationRefreshToken(): Promise<string | null> {
