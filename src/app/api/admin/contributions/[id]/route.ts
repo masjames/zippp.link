@@ -1,6 +1,9 @@
 import { promises as fs } from "node:fs";
-import { get as blobGet } from "@vercel/blob";
 import { NextResponse } from "next/server";
+import {
+    donationDriveConfigured,
+    getDonationMedia,
+} from "@/lib/google/drive-donation";
 import { currentUser } from "@/lib/auth";
 import { getContribution } from "@/lib/contribute-store";
 
@@ -35,15 +38,17 @@ export async function GET(
         }
     }
 
-    if (!process.env.BLOB_READ_WRITE_TOKEN) {
-        return new NextResponse("Not found", { status: 404 });
+    if (record.pathname.startsWith("drive:")) {
+        if (!donationDriveConfigured()) {
+            return new NextResponse("Not found", { status: 404 });
+        }
+        const result = await getDonationMedia(
+            record.pathname.slice("drive:".length)
+        );
+        if (!result) {
+            return new NextResponse("Not found", { status: 404 });
+        }
+        return new NextResponse(result.body, { headers });
     }
-    const result = await blobGet(record.pathname, {
-        access: "private",
-        useCache: false,
-    });
-    if (!result || result.statusCode !== 200 || !result.stream) {
-        return new NextResponse("Not found", { status: 404 });
-    }
-    return new NextResponse(result.stream, { headers });
+    return new NextResponse("Not found", { status: 404 });
 }

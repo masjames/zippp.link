@@ -1,7 +1,11 @@
 import { randomUUID } from "node:crypto";
 import { promises as fs } from "node:fs";
 import path from "node:path";
-import { del, put } from "@vercel/blob";
+import {
+    deleteDonationFile,
+    donationDriveConfigured,
+    uploadDonation,
+} from "@/lib/google/drive-donation";
 import { readJsonArray, writeJsonArray } from "@/lib/json-store";
 
 /**
@@ -22,10 +26,6 @@ export type Contribution = {
 
 const KEY = "contributed/index.json";
 const MAX = 2000;
-
-function blobConfigured(): boolean {
-    return Boolean(process.env.BLOB_READ_WRITE_TOKEN);
-}
 
 function contributionDir(): string {
     return process.env.ZIPPP_DATA_DIR
@@ -58,8 +58,8 @@ export async function deleteContribution(id: string): Promise<boolean> {
     try {
         if (record.pathname.startsWith("local:")) {
             await fs.unlink(record.pathname.slice("local:".length));
-        } else if (blobConfigured()) {
-            await del(record.pathname);
+        } else if (record.pathname.startsWith("drive:")) {
+            await deleteDonationFile(record.pathname.slice("drive:".length));
         }
     } catch {
         /* best effort, remove the index entry regardless */
@@ -81,13 +81,13 @@ export async function saveContribution(
     const bytes = Buffer.from(await image.arrayBuffer());
 
     let pathname = "";
-    if (blobConfigured()) {
-        const result = await put(`contributed/${id}.${ext}`, bytes, {
-            access: "private",
-            addRandomSuffix: false,
-            contentType: type,
-        });
-        pathname = result.pathname;
+    if (donationDriveConfigured()) {
+        const uploaded = await uploadDonation(
+            bytes,
+            type,
+            `donation-${id}.${ext}`
+        );
+        pathname = `drive:${uploaded.id}`;
     } else {
         const file = localFile(id, ext);
         await fs.mkdir(path.dirname(file), { recursive: true });

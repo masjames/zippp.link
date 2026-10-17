@@ -73,20 +73,21 @@ photo → PP-OCRv6 (Baidu AI Studio) → indexed rows → DeepSeek Flash → ver
 
 ## Session & data stores
 
-Two small JSON records — Google tokens and the workspace config — behind one
+JSON records (Google tokens, workspace config, eval/telemetry) behind one
 abstraction (`src/lib/google/kv.ts`):
 
 ```
-private Vercel Blob  →  Upstash Redis REST  →  filesystem (.data / ZIPPP_DATA_DIR)
+Upstash Redis REST  →  Vercel Blob (legacy)  →  filesystem (.data / ZIPPP_DATA_DIR)
 ```
 
-- Selected from env: `BLOB_READ_WRITE_TOKEN`, else `UPSTASH_REDIS_REST_*`, else
-  the filesystem. On Vercel the filesystem is ephemeral (`/tmp`), so Blob is the
-  production path.
+- Selected from env: `UPSTASH_REDIS_REST_*` first, else `BLOB_READ_WRITE_TOKEN`,
+  else the filesystem. Upstash is preferred so a suspended Blob store cannot
+  break sessions. On Vercel the filesystem is ephemeral (`/tmp`).
 - The refresh token is encrypted at rest with `TOKEN_ENCRYPTION_KEY`
   (AES-256-GCM, `src/lib/google/crypto.ts`).
 - Remote read/write failures log `store.read.failed` / `store.write.failed` and
-  degrade to the filesystem instead of 500-ing.
+  throw when a remote store is configured. They never silently fall back to
+  `/tmp`, which would look like a logout and a 404 on admin routes.
 - OAuth `state` lives in a short-lived httpOnly cookie, not server memory.
 - **Per-browser session**: the OAuth callback sets `zippp_sid`, an encrypted
   (AES-256-GCM) httpOnly cookie holding the Google user id. Token and workspace
@@ -97,6 +98,16 @@ private Vercel Blob  →  Upstash Redis REST  →  filesystem (.data / ZIPPP_DAT
   asks `/api/auth/me` before rendering: a signed-in user lands in the app, a
   logged-out one is sent to the landing (`/` or `/id`) to sign in. This is why
   a reopen does not log you out.
+
+### Donated photos (Google Drive)
+
+Opt-in unreadable-receipt photos go to the operator's Google Drive, not Blob.
+A dedicated OAuth refresh token (`DONATION_GOOGLE_REFRESH_TOKEN`, scope
+`drive.file`) is generated once with `scripts/donation-drive-auth.mjs`. It is
+separate from the user session token because logout deletes that. The app
+creates and reuses `[zippp] donations` (or `DONATION_DRIVE_FOLDER_ID`). The
+contribution index (Upstash) stores `drive:<fileId>`; the admin viewer streams
+the image back through `/api/admin/contributions/[id]`.
 
 ---
 
@@ -235,7 +246,7 @@ Admin-only, guarded like `/admin` (server `currentUser().admin`, 404 otherwise).
 - `/admin/releases` (`/api/admin/releases`) is the version and improvement log,
   with a manual deploy backed by `VERCEL_DEPLOY_HOOK_URL`.
 - Feedback, lessons and releases persist through `src/lib/admin/eval-store.ts`,
-  using the session store backend (Vercel Blob or Upstash Redis, else `.data`).
+  using the session store backend (Upstash Redis, else Blob, else `.data`).
 - Scores and metrics come from `src/lib/eval-score.ts`, shared by the CLI harness
   (`scripts/eval.ts`) and the admin UI. The metric to drive to zero is wrong and
   unflagged.
@@ -268,7 +279,8 @@ Admin-only, guarded like `/admin` (server `currentUser().admin`, 404 otherwise).
 | `GEMINI_API_KEY` / `GEMINI_TIMEOUT_MS` | server |
 | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` / `GOOGLE_REDIRECT_URI` | server |
 | `TOKEN_ENCRYPTION_KEY` | server |
-| `BLOB_READ_WRITE_TOKEN` **or** `UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN` | server |
+| `UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN` (preferred) **or** `BLOB_READ_WRITE_TOKEN` (legacy) | server; JSON/session store |
+| `DONATION_GOOGLE_REFRESH_TOKEN` / `DONATION_DRIVE_FOLDER_ID` / `DONATION_DRIVE_FOLDER_NAME` | server; donated photos in the operator's Drive (`scripts/donation-drive-auth.mjs`) |
 | `DOKU_ENV` / `DOKU_CLIENT_ID` / `DOKU_SECRET_KEY` / `DOKU_NOTIFY_PATH` | server; DOKU Checkout (`src/lib/billing/doku.ts`) |
 | `ZIPPP_DATA_DIR` | server (local only) |
 | `BUSINESS_NAME` / `BUSINESS_OPERATOR` / `BUSINESS_ADDRESS` / `CONTACT_EMAIL` / `CONTACT_WA` | server; shown on the public info pages (`src/lib/business.ts`) |
@@ -296,4 +308,4 @@ Never `NEXT_PUBLIC_` for secrets.
 | Model structuring fails | Next attempt in the chain; all fail → error, no append |
 | Sheets 401 | Client returns to Sign in with a message |
 | Append error | Error shown; item stays ready to retry |
-| Store (Blob) error | Logged; degrade to filesystem |
+| Store error | Logged; request fails loudly (no silent `/tmp` fallback) |
