@@ -335,6 +335,30 @@ Terima
 Saved
 ## app.review.saved.id
 Tersimpan
+## app.notice.title.en
+A message from zippp
+## app.notice.title.id
+Pesan dari zippp
+## app.notice.credits.en
+{count} credits added
+## app.notice.credits.id
+{count} kredit ditambahkan
+## app.notice.ok.en
+Got it
+## app.notice.ok.id
+Mengerti
+## email.grant.subject.en
+You received {credits} zippp credits
+## email.grant.subject.id
+Anda menerima {credits} kredit zippp
+## email.grant.body.en
+{message}
+
+We added {credits} credits to your zippp account. Sign in to use them.
+## email.grant.body.id
+{message}
+
+Kami menambahkan {credits} kredit ke akun zippp Anda. Masuk untuk memakainya.
 ## app.review.allDone.en
 All reviewed — open your sheet
 ## app.review.allDone.id

@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { OAuth2Client } from "google-auth-library";
+import { loadDonationRefreshToken } from "./donation-token";
 
 /**
  * Donation photo storage in the operator's own Google Drive.
@@ -23,16 +24,15 @@ const FOLDER_NAME =
 
 let folderCache: string | null = null;
 
-export function donationDriveConfigured(): boolean {
-    return Boolean(
-        process.env.DONATION_GOOGLE_REFRESH_TOKEN &&
-            process.env.GOOGLE_CLIENT_ID &&
-            process.env.GOOGLE_CLIENT_SECRET
-    );
+export async function donationDriveConfigured(): Promise<boolean> {
+    if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
+        return false;
+    }
+    return Boolean(await loadDonationRefreshToken());
 }
 
 async function accessToken(): Promise<string> {
-    const refreshToken = process.env.DONATION_GOOGLE_REFRESH_TOKEN;
+    const refreshToken = await loadDonationRefreshToken();
     const clientId = process.env.GOOGLE_CLIENT_ID;
     const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
     if (!refreshToken || !clientId || !clientSecret) {

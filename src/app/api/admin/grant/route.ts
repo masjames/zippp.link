@@ -3,6 +3,8 @@ import { NextResponse } from "next/server";
 import { currentUser } from "@/lib/auth";
 import { grant } from "@/lib/billing/ledger";
 import { userIdForEmail } from "@/lib/billing/ledger";
+import { sendGrantEmail } from "@/lib/email";
+import { setNotice } from "@/lib/notices";
 
 export const runtime = "nodejs";
 
@@ -35,13 +37,20 @@ export async function POST(req: Request) {
         );
     }
 
+    const reason = (body.reason || "").trim();
     const granted = await grant({
         userId,
         credits,
         source: "admin_grant",
         idem: `admin:${randomUUID()}`,
-        note: body.reason || `grant by ${user.email ?? "admin"}`,
+        note: reason || `grant by ${user.email ?? "admin"}`,
     });
+
+    // Deliver the admin's message once in the app, and by email.
+    if (reason) {
+        await setNotice(userId, { message: reason, credits, at: Date.now() });
+        void sendGrantEmail({ to: email, message: reason, credits });
+    }
 
     return NextResponse.json({ ok: true, granted, userId });
 }

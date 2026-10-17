@@ -102,12 +102,14 @@ Upstash Redis REST  →  Vercel Blob (legacy)  →  filesystem (.data / ZIPPP_DA
 ### Donated photos (Google Drive)
 
 Opt-in unreadable-receipt photos go to the operator's Google Drive, not Blob.
-A dedicated OAuth refresh token (`DONATION_GOOGLE_REFRESH_TOKEN`, scope
-`drive.file`) is generated once with `scripts/donation-drive-auth.mjs`. It is
-separate from the user session token because logout deletes that. The app
-creates and reuses `[zippp] donations` (or `DONATION_DRIVE_FOLDER_ID`). The
-contribution index (Upstash) stores `drive:<fileId>`; the admin viewer streams
-the image back through `/api/admin/contributions/[id]`.
+The admin's OAuth login copies a dedicated refresh token into Upstash
+(`donation/refresh-token.json`, `src/lib/google/donation-token.ts`) so it
+survives logout; `DONATION_GOOGLE_REFRESH_TOKEN` can override it for a separate
+donation account, and `scripts/donation-drive-auth.mjs` remains an optional
+fallback. Scope is `drive.file`. The app creates and reuses `[zippp] donations`
+(or `DONATION_DRIVE_FOLDER_ID`). The contribution index (Upstash) stores
+`drive:<fileId>`; the admin viewer streams the image back through
+`/api/admin/contributions/[id]`.
 
 ---
 
@@ -122,6 +124,9 @@ Upstash the app runs unconfigured and does not enforce credits.
 - `GET /api/billing/balance` → `{ configured, credits, soonestExpiry, refCode }`.
 - Guard redirects to `/app/topup` at zero credits; Snap/Send are blocked.
 - `npm run grant -- <email> <credits>` writes an `admin_grant` lot.
+- A manual grant that includes a reason writes a one-off notice
+  (`src/lib/notices.ts`) shown once on Snap, and emails the reason through
+  Mailtrap (`src/lib/email.ts`). A mail failure never blocks the grant.
 - `GET /api/auth/me` creates the user record (ref code + referral lock) on load.
 
 Keys: `bill:acct:{id}`, `bill:ledger:{id}`, `bill:user:{id}`, `bill:ref:{code}`,
@@ -280,7 +285,8 @@ Admin-only, guarded like `/admin` (server `currentUser().admin`, 404 otherwise).
 | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` / `GOOGLE_REDIRECT_URI` | server |
 | `TOKEN_ENCRYPTION_KEY` | server |
 | `UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN` (preferred) **or** `BLOB_READ_WRITE_TOKEN` (legacy) | server; JSON/session store |
-| `DONATION_GOOGLE_REFRESH_TOKEN` / `DONATION_DRIVE_FOLDER_ID` / `DONATION_DRIVE_FOLDER_NAME` | server; donated photos in the operator's Drive (`scripts/donation-drive-auth.mjs`) |
+| `DONATION_GOOGLE_REFRESH_TOKEN` / `DONATION_DRIVE_FOLDER_ID` / `DONATION_DRIVE_FOLDER_NAME` | server; donated photos in the operator's Drive (`scripts/donation-drive-auth.mjs`); the admin login copies the token by default |
+| `MAILTRAP_API_TOKEN` / `MAILTRAP_FROM_EMAIL` / `MAILTRAP_FROM_NAME` / `MAILTRAP_INBOX_ID` | server; grant email (`src/lib/email.ts`) |
 | `DOKU_ENV` / `DOKU_CLIENT_ID` / `DOKU_SECRET_KEY` / `DOKU_NOTIFY_PATH` | server; DOKU Checkout (`src/lib/billing/doku.ts`) |
 | `ZIPPP_DATA_DIR` | server (local only) |
 | `BUSINESS_NAME` / `BUSINESS_OPERATOR` / `BUSINESS_ADDRESS` / `CONTACT_EMAIL` / `CONTACT_WA` | server; shown on the public info pages (`src/lib/business.ts`) |

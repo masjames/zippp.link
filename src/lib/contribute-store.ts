@@ -81,7 +81,7 @@ export async function saveContribution(
     const bytes = Buffer.from(await image.arrayBuffer());
 
     let pathname = "";
-    if (donationDriveConfigured()) {
+    if (await donationDriveConfigured()) {
         const uploaded = await uploadDonation(
             bytes,
             type,

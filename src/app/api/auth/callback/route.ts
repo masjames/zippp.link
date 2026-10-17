@@ -8,6 +8,7 @@ import {
 } from "@/lib/google/oauth";
 import { applySession } from "@/lib/google/session";
 import { saveTokens } from "@/lib/google/token-store";
+import { saveDonationRefreshToken } from "@/lib/google/donation-token";
 
 export const runtime = "nodejs";
 
@@ -74,6 +75,11 @@ export async function GET(req: Request) {
       access_token: tokens.access_token,
       expiry_date: tokens.expiry_date ?? null,
     });
+
+    // Keep a copy for donation uploads: the session token is deleted on logout.
+    if (isAdmin(user.email) && tokens.refresh_token) {
+      await saveDonationRefreshToken(tokens.refresh_token);
+    }
 
     // Bind this browser to the user so tokens/workspace/billing are per-user.
     // Admins land straight on the admin panel.

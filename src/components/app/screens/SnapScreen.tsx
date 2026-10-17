@@ -102,6 +102,11 @@ export default function SnapScreen() {
     // Soft toasts + Sheets glow when the queue is clear.
     const [toast, setToast] = useState<string | null>(null);
     const toastTimer = useRef<number | null>(null);
+    // One-off admin notice (manual grant), shown once per user.
+    const [notice, setNotice] = useState<{
+        message: string;
+        credits: number;
+    } | null>(null);
     const [sheetsShine, setSheetsShine] = useState(false);
     const shineTimer = useRef<number | null>(null);
     const prevUnacceptedLen = useRef(0);
@@ -192,6 +197,28 @@ export default function SnapScreen() {
         }
         prevUnacceptedLen.current = unaccepted.length;
     }, [unaccepted.length, t]);
+
+    /** Fetch the pending admin notice once, when Snap opens. */
+    useEffect(() => {
+        let alive = true;
+        void (async () => {
+            try {
+                const res = await fetch("/api/notices", { cache: "no-store" });
+                const data = await res.json();
+                if (alive && data.notice?.message) {
+                    setNotice({
+                        message: String(data.notice.message),
+                        credits: Number(data.notice.credits) || 0,
+                    });
+                }
+            } catch {
+                /* ignore */
+            }
+        })();
+        return () => {
+            alive = false;
+        };
+    }, []);
 
     function stopCamera() {
         streamRef.current?.getTracks().forEach((track) => track.stop());
@@ -680,6 +707,38 @@ export default function SnapScreen() {
                     <span className="rounded-full bg-ink px-4 py-2 text-sm font-semibold text-white shadow-lg">
                         {toast}
                     </span>
+                </div>
+            ) : null}
+
+            {notice ? (
+                <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/60 p-6">
+                    <div className="w-full max-w-[360px] rounded-3xl bg-card p-5 text-body shadow-2xl">
+                        <p className="font-head text-xl font-extrabold">
+                            {t("app.notice.title")}
+                        </p>
+                        <p className="mt-2 whitespace-pre-line text-sm">
+                            {notice.message}
+                        </p>
+                        {notice.credits > 0 ? (
+                            <p className="mt-3 text-sm font-semibold text-brand">
+                                {fill(t("app.notice.credits"), {
+                                    count: notice.credits,
+                                })}
+                            </p>
+                        ) : null}
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setNotice(null);
+                                void fetch("/api/notices/read", {
+                                    method: "POST",
+                                }).catch(() => undefined);
+                            }}
+                            className="mt-4 w-full rounded-full bg-btn px-6 py-3 font-semibold text-btntext"
+                        >
+                            {t("app.notice.ok")}
+                        </button>
+                    </div>
                 </div>
             ) : null}
         </PhoneShell>

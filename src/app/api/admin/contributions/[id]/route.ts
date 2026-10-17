@@ -39,7 +39,7 @@ export async function GET(
     }
 
     if (record.pathname.startsWith("drive:")) {
-        if (!donationDriveConfigured()) {
+        if (!(await donationDriveConfigured())) {
             return new NextResponse("Not found", { status: 404 });
         }
         const result = await getDonationMedia(
