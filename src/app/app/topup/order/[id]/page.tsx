@@ -29,6 +29,7 @@ export default function OrderPage() {
     const [order, setOrder] = useState<Order | null>(null);
     const [gopay, setGopay] = useState<{ number: string; name: string } | null>(null);
     const [busy, setBusy] = useState(false);
+    const [error, setError] = useState<string | null>(null);
     const [tick, setTick] = useState(0);
 
     const load = useCallback(async () => {
@@ -37,8 +38,11 @@ export default function OrderPage() {
         if (data.ok) {
             setOrder(data.order as Order);
             setGopay(data.gopay as { number: string; name: string });
+            setError(null);
+        } else {
+            setError(data.error || t("app.error.failed"));
         }
-    }, [id]);
+    }, [id, t]);
 
     useEffect(() => {
         void load();
@@ -149,6 +153,10 @@ export default function OrderPage() {
                         </button>
                     </div>
                 </>
+            ) : error ? (
+                <p className="mt-8 text-center text-sm font-medium text-danger">
+                    {error}
+                </p>
             ) : (
                 <p className="mt-8 text-center text-muted">…</p>
             )}

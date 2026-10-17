@@ -84,7 +84,9 @@ export default function AppShell({ children }: { children: ReactNode }) {
         }
         // No credits: send to Top up (settings stays reachable).
         const noCredits = balance?.configured === true && balance.credits <= 0;
-        const onTopup = pathname === "/app/topup";
+        // The order page lives under /app/topup/order/[id]; keep the whole
+        // top-up flow reachable while the user still has 0 credits.
+        const onTopup = pathname.startsWith("/app/topup");
         const inSettings = pathname.startsWith("/app/settings");
         if (noCredits && !onTopup && !inSettings) {
             router.replace("/app/topup");
