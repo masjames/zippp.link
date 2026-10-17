@@ -1,3 +1,4 @@
+import { decryptSecret, encryptSecret } from "./crypto";
 import { remoteTextStore } from "./kv";
 
 /**
@@ -19,7 +20,7 @@ export async function saveDonationRefreshToken(
     await remote.writeText(
         KEY,
         JSON.stringify({
-            refresh_token: refreshToken,
+            refresh_token: encryptSecret(refreshToken),
             updated_at: new Date().toISOString(),
         })
     );
@@ -34,7 +35,8 @@ export async function loadDonationRefreshToken(): Promise<string | null> {
         const raw = await remote.readText(KEY);
         if (!raw) return null;
         const parsed = JSON.parse(raw) as { refresh_token?: string };
-        return parsed.refresh_token || null;
+        if (!parsed.refresh_token) return null;
+        return decryptSecret(parsed.refresh_token);
     } catch {
         return null;
     }
