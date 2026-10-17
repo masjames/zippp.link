@@ -90,6 +90,19 @@ export async function recentOrders(limit = 30): Promise<Order[]> {
     return out;
 }
 
+/** Close an open order and free its code so a new amount can start. */
+export async function cancelOrder(
+    id: string,
+    userId: string
+): Promise<Order | null> {
+    const order = await getOrder(id);
+    if (!order || order.userId !== userId) return null;
+    if (order.state === "pending" || order.state === "claimed") {
+        return close(order, "expired");
+    }
+    return order;
+}
+
 export async function createOrder(input: {
     userId: string;
     email: string | null;
@@ -104,16 +117,17 @@ export async function createOrder(input: {
         throw new Error(`Amount must be at least ${min} in steps of 1000.`);
     }
 
+    // A second attempt is not an error: return the open order so the client
+    // lands on its page instead of showing a failure.
+    const open = await openOrders();
+    const existing = open.find((o) => o.userId === input.userId);
+    if (existing) return existing;
+
     const hour = Math.floor(Date.now() / (60 * 60 * 1000));
     const count = await command(["INCR", hourKey(input.userId, hour)]);
     await command(["EXPIRE", hourKey(input.userId, hour), 3600]);
     if (typeof count === "number" && count > 5) {
         throw new Error("Too many orders this hour. Try again later.");
-    }
-
-    const open = await openOrders();
-    if (open.some((o) => o.userId === input.userId)) {
-        throw new Error("You already have an open order.");
     }
 
     const code = await reserveCode();

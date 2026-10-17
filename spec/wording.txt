@@ -742,6 +742,10 @@ Kedaluwarsa dalam {time}
 I have paid
 ## app.order.paid.id
 Saya sudah bayar
+## app.order.cancel.en
+Cancel order
+## app.order.cancel.id
+Batalkan pesanan
 ## app.order.waiting.en
 Waiting for your payment.
 ## app.order.waiting.id

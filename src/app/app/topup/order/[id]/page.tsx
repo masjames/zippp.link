@@ -64,6 +64,16 @@ export default function OrderPage() {
         }
     }
 
+    async function cancel() {
+        setBusy(true);
+        try {
+            await fetch(`/api/topup/orders/${id}/cancel`, { method: "POST" });
+            router.push("/app/topup");
+        } finally {
+            setBusy(false);
+        }
+    }
+
     const statusText =
         order?.state === "approved"
             ? t("app.order.approved")
@@ -118,6 +128,16 @@ export default function OrderPage() {
                                 className="rounded-full bg-btn px-6 py-4 font-semibold text-btntext disabled:opacity-60"
                             >
                                 {t("app.order.paid")}
+                            </button>
+                        ) : null}
+                        {order.state === "pending" || order.state === "claimed" ? (
+                            <button
+                                type="button"
+                                disabled={busy}
+                                onClick={() => void cancel()}
+                                className="rounded-full border-2 border-line px-6 py-4 font-semibold text-danger disabled:opacity-60"
+                            >
+                                {t("app.order.cancel")}
                             </button>
                         ) : null}
                         <button
