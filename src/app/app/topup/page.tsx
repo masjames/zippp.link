@@ -42,7 +42,6 @@ export default async function TopUpPage() {
                 paddle={paddle}
                 gopay={gopayConfigured()}
                 minIdr={minIdr}
-                invited={claimed}
                 idrPerCredit={IDR_PER_CREDIT}
             />
         </Suspense>

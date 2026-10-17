@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { INVITE_MIN_TOPUP_IDR } from "./config";
-import { command } from "./redis";
+import { billingConfigured, command } from "./redis";
 
 /**
  * Exclusive invitations. The admin adds an email, the server mints a unique
@@ -114,6 +114,21 @@ export async function revokeInvite(code: string): Promise<Invite | null> {
     const next: Invite = { ...invite, status: "revoked" };
     await command(["SET", inviteKey(invite.code), JSON.stringify(next)]);
     return next;
+}
+
+/** Public view of an invite for the welcome page. No claim, no writer data. */
+export async function publicInviteForCode(
+    code: string | null | undefined
+): Promise<{ email: string; minTopupIdr: number } | null> {
+    const value = (code || "").trim();
+    if (!value || !billingConfigured()) return null;
+    try {
+        const invite = await getInvite(value);
+        if (!invite || invite.status === "revoked") return null;
+        return { email: invite.email, minTopupIdr: invite.minTopupIdr };
+    } catch {
+        return null;
+    }
 }
 
 /** The lowest accepted top-up for this user: invite min when claimed. */

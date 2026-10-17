@@ -81,6 +81,22 @@ Lihat studi kasus
 Sign in with Google
 ## landing.hero.ctaGoogle.id
 Masuk dengan Google
+## landing.invite.eyebrow.en
+Special invitation
+## landing.invite.eyebrow.id
+Undangan khusus
+## landing.invite.title.en
+Welcome, {email}!
+## landing.invite.title.id
+Selamat datang, {email}!
+## landing.invite.body.en
+Claim your special price: top up from Rp {min} instead of Rp {normal}.
+## landing.invite.body.id
+Klaim harga khusus Anda: isi saldo mulai Rp {min}, bukan Rp {normal}.
+## landing.invite.cta.en
+Continue with Google
+## landing.invite.cta.id
+Lanjut dengan Google
 
 ## landing.how.title.en
 Photo, review, and it's *logged automatically*
@@ -689,10 +705,14 @@ Bayar dengan GoPay
 Transfer the exact amount to our GoPay. QRIS checkout is paused for now.
 ## app.topup.gopay.methods.id
 Transfer jumlah tepat ke GoPay kami. Checkout QRIS sementara dihentikan.
-## app.topup.invite.en
-Invitation: top up from Rp {min} instead of Rp {normal}.
-## app.topup.invite.id
-Undangan: isi saldo mulai Rp {min}, bukan Rp {normal}.
+## app.invite.banner.en
+Special invitation price for {email}
+## app.invite.banner.id
+Harga undangan khusus untuk {email}
+## app.invite.price.en
+Top up from Rp {min} instead of Rp {normal}
+## app.invite.price.id
+Isi saldo mulai Rp {min}, bukan Rp {normal}
 ## app.topup.buy.en
 Buy {credits} credits
 ## app.topup.buy.id

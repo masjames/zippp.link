@@ -2,7 +2,7 @@
 
 import { useEffect, type ReactNode } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { LOW_CREDITS_WARN } from "@/lib/billing/config";
+import { LOW_CREDITS_WARN, MIN_TOPUP_IDR } from "@/lib/billing/config";
 import { fill } from "@/lib/t";
 import { useApp } from "./AppProvider";
 
@@ -179,6 +179,25 @@ export default function AppShell({ children }: { children: ReactNode }) {
                                 {t("app.settings.admin")}
                             </button>
                         ) : null}
+                    </div>
+                </div>
+            ) : null}
+            {signedIn && balance?.invite ? (
+                <div className="mx-auto w-full max-w-[430px] px-4 pb-2">
+                    <div className="rounded-xl bg-brand px-3 py-2 text-xs font-semibold text-ink">
+                        <p>
+                            {fill(t("app.invite.banner"), {
+                                email: balance.invite.email,
+                            })}
+                        </p>
+                        <p className="mt-0.5">
+                            {fill(t("app.invite.price"), {
+                                min: balance.invite.minTopupIdr.toLocaleString(
+                                    "id-ID"
+                                ),
+                                normal: MIN_TOPUP_IDR.toLocaleString("id-ID"),
+                            })}
+                        </p>
                     </div>
                 </div>
             ) : null}

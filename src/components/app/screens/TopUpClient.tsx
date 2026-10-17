@@ -6,10 +6,7 @@ import PhoneShell from "../PhoneShell";
 import { useApp } from "../AppProvider";
 import { fill } from "@/lib/t";
 import type { PaddleConfig } from "@/lib/billing/paddle";
-import {
-    IDR_TOPUP_PRESETS as PRESETS,
-    MIN_TOPUP_IDR,
-} from "@/lib/billing/config";
+import { IDR_TOPUP_PRESETS as PRESETS } from "@/lib/billing/config";
 
 type Props = {
     region: "id" | "intl";
@@ -17,8 +14,6 @@ type Props = {
     /** Manual GoPay is configured (Indonesia). */
     gopay: boolean;
     minIdr: number;
-    /** This account claimed an exclusive invitation. */
-    invited?: boolean;
     idrPerCredit: number;
 };
 
@@ -27,7 +22,6 @@ export default function TopUpClient({
     paddle,
     gopay,
     minIdr,
-    invited,
     idrPerCredit,
 }: Props) {
     const { t, auth } = useApp();
@@ -97,14 +91,6 @@ export default function TopUpClient({
 
             {region === "id" ? (
                 <>
-                    {invited ? (
-                        <p className="rounded-2xl bg-peach px-4 py-3 text-sm font-semibold text-ink">
-                            {fill(t("app.topup.invite"), {
-                                min: minIdr.toLocaleString("id-ID"),
-                                normal: MIN_TOPUP_IDR.toLocaleString("id-ID"),
-                            })}
-                        </p>
-                    ) : null}
                     <p className="text-muted">{t("app.topup.choose")}</p>
                     <p className="text-xs text-muted">{t("app.topup.gopay.methods")}</p>
                     <div className="grid grid-cols-2 gap-2">

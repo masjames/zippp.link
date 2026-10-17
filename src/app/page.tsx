@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Landing from "@/components/landing/Landing";
 import JsonLd from "@/components/seo/JsonLd";
 import { businessInfo } from "@/lib/business";
+import { publicInviteForCode } from "@/lib/billing/invites";
 import { loadWording } from "@/lib/content";
 import { landingAssets } from "@/lib/landing-assets";
 import { getLocale } from "@/lib/server-locale";
@@ -23,10 +24,16 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 /** International landing. */
-export default async function Home() {
+export default async function Home({
+    searchParams,
+}: {
+    searchParams?: Promise<{ invite?: string }>;
+}) {
     const wording = loadWording();
     const { region, lang } = await getLocale();
     const t = makeT(wording, lang);
+    const params = (await searchParams) ?? {};
+    const invite = await publicInviteForCode(params.invite);
     return (
         <>
             <JsonLd data={masterJsonLd(t, lang, region)} />
@@ -36,6 +43,7 @@ export default async function Home() {
                 region={region}
                 business={businessInfo()}
                 assets={landingAssets(lang)}
+                invite={invite}
             />
         </>
     );

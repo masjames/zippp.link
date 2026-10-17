@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { currentUser } from "@/lib/auth";
 import { balance, listLedger, loadUser } from "@/lib/billing/ledger";
+import { getUserInvite } from "@/lib/billing/invites";
 import { billingConfigured } from "@/lib/billing/redis";
 
 export const runtime = "nodejs";
@@ -23,10 +24,11 @@ export async function GET() {
     });
   }
 
-  const [b, record, entries] = await Promise.all([
+  const [b, record, entries, invite] = await Promise.all([
     balance(user.userId),
     loadUser(user.userId),
     listLedger(user.userId, 200),
+    getUserInvite(user.userId),
   ]);
   const referralEarned = entries
     .filter((e) => e.source === "referral_reward")
@@ -40,5 +42,9 @@ export async function GET() {
     refCode: record?.refCode ?? null,
     referralEarned,
     admin: user.admin,
+    invite:
+      invite?.status === "claimed" && !record?.firstTopupDone
+        ? { email: invite.email, minTopupIdr: invite.minTopupIdr }
+        : null,
   });
 }

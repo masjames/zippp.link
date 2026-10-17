@@ -68,6 +68,8 @@ export type BalanceState = {
     refCode: string | null;
     referralEarned?: number;
     admin?: boolean;
+    /** Claimed invitation, shown until the first successful top-up. */
+    invite?: { email: string; minTopupIdr: number } | null;
 };
 
 type Value = {

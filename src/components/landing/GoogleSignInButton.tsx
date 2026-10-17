@@ -4,9 +4,11 @@ import type { T } from "@/lib/t";
 export default function GoogleSignInButton({
     t,
     className = "",
+    label,
 }: {
     t: T;
     className?: string;
+    label?: string;
 }) {
     return (
         <a
@@ -14,7 +16,7 @@ export default function GoogleSignInButton({
             className={`inline-flex items-center gap-3 rounded-full border-2 border-line bg-white px-6 py-3.5 text-base font-semibold text-ink shadow-sm transition hover:border-mist hover:bg-page ${className}`}
         >
             <GoogleMark className="h-5 w-5 shrink-0" />
-            {t("landing.hero.ctaGoogle")}
+            {label ?? t("landing.hero.ctaGoogle")}
         </a>
     );
 }

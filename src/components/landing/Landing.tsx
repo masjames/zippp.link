@@ -10,8 +10,9 @@ import SiteFooter from "./SiteFooter";
 import TemplateGallery from "./TemplateGallery";
 import type { BusinessInfo } from "@/lib/business";
 import type { LandingAssets } from "@/lib/landing-assets";
+import { MIN_TOPUP_IDR } from "@/lib/billing/config";
 import { RichText } from "@/lib/rich-text";
-import { makeT, type Wording } from "@/lib/t";
+import { fill, makeT, type Wording } from "@/lib/t";
 import type { Lang, Region } from "@/lib/region";
 
 /**
@@ -23,12 +24,14 @@ export default function Landing({
     region,
     business,
     assets,
+    invite,
 }: {
     wording: Wording;
     lang: Lang;
     region: Region;
     business: BusinessInfo;
     assets: LandingAssets;
+    invite?: { email: string; minTopupIdr: number } | null;
 }) {
     const t = makeT(wording, lang);
 
@@ -37,6 +40,37 @@ export default function Landing({
             <div className="mx-auto w-full max-w-[1180px] px-4 pb-16 pt-6 sm:px-5 sm:pt-8">
                 <main className="min-w-0 overflow-x-clip rounded-phone border-0 bg-card">
                     <LandingNav t={t} region={region} />
+
+                    {invite ? (
+                        <section className="border-b border-line bg-brand px-4 py-8 text-ink sm:px-6">
+                            <div className="mx-auto max-w-[980px]">
+                                <p className="text-xs font-bold uppercase tracking-[0.2em] text-ink/70">
+                                    {t("landing.invite.eyebrow")}
+                                </p>
+                                <h2 className="mt-2 font-head text-3xl font-extrabold leading-tight sm:text-4xl">
+                                    {fill(t("landing.invite.title"), {
+                                        email: invite.email,
+                                    })}
+                                </h2>
+                                <p className="mt-2 max-w-[60ch] text-base">
+                                    {fill(t("landing.invite.body"), {
+                                        min: invite.minTopupIdr.toLocaleString(
+                                            "id-ID"
+                                        ),
+                                        normal: MIN_TOPUP_IDR.toLocaleString(
+                                            "id-ID"
+                                        ),
+                                    })}
+                                </p>
+                                <div className="mt-5">
+                                    <GoogleSignInButton
+                                        t={t}
+                                        label={t("landing.invite.cta")}
+                                    />
+                                </div>
+                            </div>
+                        </section>
+                    ) : null}
 
                     <section className="bg-[aliceblue] text-ink">
                         <div className="mx-auto grid w-full max-w-[980px] items-center gap-8 px-4 py-12 sm:gap-10 sm:px-6 sm:py-16 lg:grid-cols-[1.1fr_0.9fr] lg:py-20">
