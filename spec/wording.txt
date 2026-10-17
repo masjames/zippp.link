@@ -705,6 +705,10 @@ Bayar dengan GoPay
 Transfer the exact amount to our GoPay. QRIS checkout is paused for now.
 ## app.topup.gopay.methods.id
 Transfer jumlah tepat ke GoPay kami. Checkout QRIS sementara dihentikan.
+## app.invite.mismatch.en
+This invitation is for {email}. Sign out and sign in with that Google account to claim it.
+## app.invite.mismatch.id
+Undangan ini untuk {email}. Keluar dan masuk dengan akun Google itu untuk mengklaimnya.
 ## app.invite.banner.en
 Special invitation price for {email}
 ## app.invite.banner.id

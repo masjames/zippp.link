@@ -14,6 +14,8 @@ type Props = {
     /** Manual GoPay is configured (Indonesia). */
     gopay: boolean;
     minIdr: number;
+    /** The open invite belongs to another email. */
+    inviteMismatch?: string | null;
     idrPerCredit: number;
 };
 
@@ -22,6 +24,7 @@ export default function TopUpClient({
     paddle,
     gopay,
     minIdr,
+    inviteMismatch,
     idrPerCredit,
 }: Props) {
     const { t, auth } = useApp();
@@ -91,6 +94,13 @@ export default function TopUpClient({
 
             {region === "id" ? (
                 <>
+                    {inviteMismatch ? (
+                        <p className="rounded-2xl bg-peach px-4 py-3 text-sm font-semibold text-ink">
+                            {fill(t("app.invite.mismatch"), {
+                                email: inviteMismatch,
+                            })}
+                        </p>
+                    ) : null}
                     <p className="text-muted">{t("app.topup.choose")}</p>
                     <p className="text-xs text-muted">{t("app.topup.gopay.methods")}</p>
                     <div className="grid grid-cols-2 gap-2">

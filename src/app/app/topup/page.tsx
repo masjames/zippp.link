@@ -8,7 +8,12 @@ import {
 } from "@/lib/billing/config";
 import { paddleConfig, paddleConfigured } from "@/lib/billing/paddle";
 import { billingConfigured } from "@/lib/billing/redis";
-import { claimInvite, getUserInvite, type Invite } from "@/lib/billing/invites";
+import {
+    claimInvite,
+    getInvite,
+    getUserInvite,
+    type Invite,
+} from "@/lib/billing/invites";
 import { currentUser } from "@/lib/auth";
 import { getLocale } from "@/lib/server-locale";
 
@@ -17,6 +22,7 @@ export default async function TopUpPage() {
     const paddle = { ...paddleConfig(), configured: paddleConfigured() };
 
     let invite: Invite | null = null;
+    let inviteMismatch: string | null = null;
     if (billingConfigured()) {
         const user = await currentUser();
         if (user.signedIn && user.userId) {
@@ -27,6 +33,21 @@ export default async function TopUpPage() {
                     invite = await claimInvite(code, user.userId, user.email);
                 } catch {
                     /* ignore */
+                }
+                if (!invite && user.email) {
+                    try {
+                        const pending = await getInvite(code);
+                        if (
+                            pending &&
+                            pending.status !== "revoked" &&
+                            pending.email.toLowerCase() !==
+                                user.email.toLowerCase()
+                        ) {
+                            inviteMismatch = pending.email;
+                        }
+                    } catch {
+                        /* ignore */
+                    }
                 }
             }
             if (!invite) invite = await getUserInvite(user.userId);
@@ -42,6 +63,7 @@ export default async function TopUpPage() {
                 paddle={paddle}
                 gopay={gopayConfigured()}
                 minIdr={minIdr}
+                inviteMismatch={inviteMismatch}
                 idrPerCredit={IDR_PER_CREDIT}
             />
         </Suspense>
