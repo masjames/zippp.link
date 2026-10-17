@@ -1,13 +1,33 @@
+import { MailtrapClient } from "mailtrap";
 import { loadWording } from "@/lib/content";
 import { fill, makeT } from "@/lib/t";
 
 /**
- * Mailtrap transactional email.
+ * Mailtrap transactional email through the official Node SDK.
  *
- * Real delivery uses the Mailtrap Sending API. Set `MAILTRAP_INBOX_ID` to use a
- * sandbox inbox instead (nothing is delivered). A failure is logged and never
- * blocks the action that triggered the email.
+ * Production sending uses the Sending API. Set `MAILTRAP_USE_SANDBOX=true` and
+ * `MAILTRAP_INBOX_ID` to capture mail in a sandbox inbox instead (nothing is
+ * delivered). A failure is logged and never blocks the action that triggered
+ * the email. Check delivery at https://mailtrap.io/sending/email_logs
  */
+
+let cachedClient: MailtrapClient | null = null;
+let cachedKey = "";
+
+function clientFor(token: string): MailtrapClient {
+    const sandbox = process.env.MAILTRAP_USE_SANDBOX === "true";
+    const inboxId = Number(process.env.MAILTRAP_INBOX_ID) || undefined;
+    const key = `${token}:${sandbox}:${inboxId ?? ""}`;
+    if (!cachedClient || cachedKey !== key) {
+        cachedClient = new MailtrapClient({
+            token,
+            sandbox,
+            testInboxId: inboxId,
+        });
+        cachedKey = key;
+    }
+    return cachedClient;
+}
 
 export function mailtrapConfigured(): boolean {
     return Boolean(
@@ -23,42 +43,23 @@ export async function sendMail(input: {
     const token = process.env.MAILTRAP_API_TOKEN;
     const from = process.env.MAILTRAP_FROM_EMAIL;
     if (!token || !from) return false;
-    const inbox = process.env.MAILTRAP_INBOX_ID;
-    const url = inbox
-        ? `https://sandbox.api.mailtrap.io/api/send/${encodeURIComponent(inbox)}`
-        : "https://send.api.mailtrap.io/api/send";
+
     try {
-        const res = await fetch(url, {
-            method: "POST",
-            headers: {
-                Authorization: `Bearer ${token}`,
-                "Content-Type": "application/json",
+        await clientFor(token).send({
+            from: {
+                email: from,
+                name: process.env.MAILTRAP_FROM_NAME || "zippp",
             },
-            body: JSON.stringify({
-                from: {
-                    email: from,
-                    name: process.env.MAILTRAP_FROM_NAME || "zippp",
-                },
-                to: [{ email: input.to }],
-                subject: input.subject,
-                text: input.text,
-                category: "zippp",
-            }),
+            to: [{ email: input.to }],
+            subject: input.subject,
+            text: input.text,
+            category: "zippp",
         });
-        if (!res.ok) {
-            console.error(
-                JSON.stringify({
-                    event: "mailtrap.failed",
-                    status: res.status,
-                })
-            );
-            return false;
-        }
         return true;
     } catch (err) {
         console.error(
             JSON.stringify({
-                event: "mailtrap.error",
+                event: "mailtrap.failed",
                 error: err instanceof Error ? err.message : String(err),
             })
         );

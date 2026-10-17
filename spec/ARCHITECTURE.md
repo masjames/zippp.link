@@ -286,7 +286,7 @@ Admin-only, guarded like `/admin` (server `currentUser().admin`, 404 otherwise).
 | `TOKEN_ENCRYPTION_KEY` | server |
 | `UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN` (preferred) **or** `BLOB_READ_WRITE_TOKEN` (legacy) | server; JSON/session store |
 | `DONATION_GOOGLE_REFRESH_TOKEN` / `DONATION_DRIVE_FOLDER_ID` / `DONATION_DRIVE_FOLDER_NAME` | server; donated photos in the operator's Drive (`scripts/donation-drive-auth.mjs`); the admin login copies the token by default |
-| `MAILTRAP_API_TOKEN` / `MAILTRAP_FROM_EMAIL` / `MAILTRAP_FROM_NAME` / `MAILTRAP_INBOX_ID` | server; grant email (`src/lib/email.ts`) |
+| `MAILTRAP_API_TOKEN` / `MAILTRAP_FROM_EMAIL` / `MAILTRAP_FROM_NAME` / `MAILTRAP_USE_SANDBOX` / `MAILTRAP_INBOX_ID` | server; grant email via the `mailtrap` SDK (`src/lib/email.ts`) |
 | `DOKU_ENV` / `DOKU_CLIENT_ID` / `DOKU_SECRET_KEY` / `DOKU_NOTIFY_PATH` | server; DOKU Checkout (`src/lib/billing/doku.ts`) |
 | `ZIPPP_DATA_DIR` | server (local only) |
 | `BUSINESS_NAME` / `BUSINESS_OPERATOR` / `BUSINESS_ADDRESS` / `CONTACT_EMAIL` / `CONTACT_WA` | server; shown on the public info pages (`src/lib/business.ts`) |
