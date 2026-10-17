@@ -4,8 +4,8 @@ import { get as blobGet, put as blobPut } from "@vercel/blob";
  * Durable remote text storage for small JSON records (Google tokens,
  * workspace config). Selected from env, in priority order:
  *
- *   1. Vercel Blob        — BLOB_READ_WRITE_TOKEN set
- *   2. Upstash Redis REST — UPSTASH_REDIS_REST_URL + UPSTASH_REDIS_REST_TOKEN
+ *   1. Upstash Redis REST — UPSTASH_REDIS_REST_URL + UPSTASH_REDIS_REST_TOKEN
+ *   2. Vercel Blob        — BLOB_READ_WRITE_TOKEN set (legacy; not for sessions)
  *
  * remoteTextStore() returns null when neither is configured; callers then
  * keep their existing filesystem store (ZIPPP_DATA_DIR / <repo>/.data).
@@ -92,19 +92,20 @@ function upstashStore(restUrl: string, restToken: string): TextStore {
 let cached: TextStore | null | undefined;
 
 /**
- * Durable backend selected from env (Vercel Blob > Upstash Redis REST),
- * or null when neither is configured — callers then use the filesystem.
+ * Durable JSON backend. Upstash is preferred; Blob is a legacy fallback, so a
+ * suspended Blob store cannot take session, workspace, or eval records down.
+ * Returns null when neither is configured; callers then use the filesystem.
  */
 export function remoteTextStore(): TextStore | null {
   if (cached !== undefined) return cached;
-  if (envSet("BLOB_READ_WRITE_TOKEN")) {
-    cached = blobStore;
-    return cached;
-  }
   const restUrl = process.env.UPSTASH_REDIS_REST_URL;
   const restToken = process.env.UPSTASH_REDIS_REST_TOKEN;
   if (envSet("UPSTASH_REDIS_REST_URL") && envSet("UPSTASH_REDIS_REST_TOKEN")) {
     cached = upstashStore(restUrl as string, restToken as string);
+    return cached;
+  }
+  if (envSet("BLOB_READ_WRITE_TOKEN")) {
+    cached = blobStore;
     return cached;
   }
   cached = null;

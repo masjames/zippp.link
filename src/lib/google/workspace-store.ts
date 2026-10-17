@@ -81,7 +81,10 @@ async function readFile(userId: string): Promise<FileShape> {
         try {
             return parseShape(await remote.readText(key));
         } catch (err) {
+            // Never fall back to the per-invocation filesystem when a remote
+            // store is configured: that turns an outage into a silent logout.
             storeError("store.read.failed", err, remote.backend, key);
+            throw err;
         }
     }
     try {
@@ -103,6 +106,7 @@ async function writeFile(userId: string, data: FileShape): Promise<void> {
             return;
         } catch (err) {
             storeError("store.write.failed", err, remote.backend, key);
+            throw err;
         }
     }
     await ensureDir();
