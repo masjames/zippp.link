@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { COOKIE_MAX_AGE, REGION_COOKIE } from "@/lib/region";
 
 const REF_COOKIE = "zippp_ref";
+const INVITE_COOKIE = "zippp_invite";
 
 /**
  * Region and referral.
@@ -17,6 +18,7 @@ export function middleware(request: NextRequest) {
     const path = nextUrl.pathname;
     const existing = request.cookies.get(REGION_COOKIE)?.value;
     const ref = nextUrl.searchParams.get("ref");
+    const invite = nextUrl.searchParams.get("invite");
 
     // Keep the URL and the region in sync. A visitor already in the Indonesian
     // region who lands on the worldwide route goes to `/id`. The geo case with
@@ -28,6 +30,13 @@ export function middleware(request: NextRequest) {
         res.cookies.set(REGION_COOKIE, "id", { path: "/", maxAge: COOKIE_MAX_AGE, sameSite: "lax" });
         if (ref) {
             res.cookies.set(REF_COOKIE, ref, { path: "/", maxAge: COOKIE_MAX_AGE, sameSite: "lax" });
+        }
+        if (invite) {
+            res.cookies.set(INVITE_COOKIE, invite, {
+                path: "/",
+                maxAge: COOKIE_MAX_AGE,
+                sameSite: "lax",
+            });
         }
         return res;
     }
@@ -59,6 +68,13 @@ export function middleware(request: NextRequest) {
     }
     if (ref) {
         response.cookies.set(REF_COOKIE, ref, { path: "/", maxAge: COOKIE_MAX_AGE, sameSite: "lax" });
+    }
+    if (invite) {
+        response.cookies.set(INVITE_COOKIE, invite, {
+            path: "/",
+            maxAge: COOKIE_MAX_AGE,
+            sameSite: "lax",
+        });
     }
     return response;
 }

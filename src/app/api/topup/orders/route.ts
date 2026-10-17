@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { currentUser } from "@/lib/auth";
 import { createOrder } from "@/lib/billing/orders";
+import { MIN_TOPUP_IDR } from "@/lib/billing/config";
+import { minTopupForUser } from "@/lib/billing/invites";
 import { billingConfigured } from "@/lib/billing/redis";
 
 export const runtime = "nodejs";
@@ -25,10 +27,12 @@ export async function POST(req: Request) {
     }
 
     try {
+        const minIdr = await minTopupForUser(user.userId, MIN_TOPUP_IDR);
         const order = await createOrder({
             userId: user.userId,
             email: user.email,
             baseIdr: Number(body.baseIdr),
+            minIdr,
         });
         return NextResponse.json({
             ok: true,

@@ -9,6 +9,7 @@ import {
 import { applySession } from "@/lib/google/session";
 import { saveTokens } from "@/lib/google/token-store";
 import { saveDonationRefreshToken } from "@/lib/google/donation-token";
+import { claimInvite } from "@/lib/billing/invites";
 
 export const runtime = "nodejs";
 
@@ -79,6 +80,16 @@ export async function GET(req: Request) {
     // Keep a copy for donation uploads: the session token is deleted on logout.
     if (isAdmin(user.email) && tokens.refresh_token) {
       await saveDonationRefreshToken(tokens.refresh_token);
+    }
+
+    // Exclusive invitation captured from ?invite= before sign-in.
+    const inviteCode = jar.get("zippp_invite")?.value;
+    if (inviteCode) {
+      try {
+        await claimInvite(inviteCode, user.id, user.email);
+      } catch {
+        /* billing may be unconfigured; never block sign-in */
+      }
     }
 
     // Bind this browser to the user so tokens/workspace/billing are per-user.

@@ -124,6 +124,11 @@ Upstash the app runs unconfigured and does not enforce credits.
 - `GET /api/billing/balance` → `{ configured, credits, soonestExpiry, refCode }`.
 - Guard redirects to `/app/topup` at zero credits; Snap/Send are blocked.
 - `npm run grant -- <email> <credits>` writes an `admin_grant` lot.
+- **Exclusive invitations** (`src/lib/billing/invites.ts`): the admin adds an
+  email, the server mints a unique link (`/?invite=<code>`), and that account can
+  top up from Rp 10.000 instead of Rp 15.000. The link is claimed once by the
+  matching Google account; `minTopupForUser` enforces the lower minimum in the
+  GoPay order and DOKU checkout. Admin API: `/api/admin/invites`.
 - A manual grant that includes a reason writes a one-off notice
   (`src/lib/notices.ts`) shown once on Snap, and emails the reason through
   Mailtrap (`src/lib/email.ts`). A mail failure never blocks the grant.

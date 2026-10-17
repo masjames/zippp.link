@@ -83,3 +83,22 @@ export async function sendGrantEmail(input: {
         }),
     });
 }
+
+/** Exclusive invitation with a unique signup link and the lower minimum. */
+export async function sendInviteEmail(input: {
+    to: string;
+    link: string;
+    minIdr: number;
+    normalIdr: number;
+}): Promise<boolean> {
+    const t = makeT(loadWording(), "en");
+    return sendMail({
+        to: input.to,
+        subject: t("email.invite.subject"),
+        text: fill(t("email.invite.body"), {
+            link: input.link,
+            min: input.minIdr.toLocaleString("id-ID"),
+            normal: input.normalIdr.toLocaleString("id-ID"),
+        }),
+    });
+}

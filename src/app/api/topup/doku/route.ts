@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { currentUser } from "@/lib/auth";
 import { createDokuCheckout, dokuConfigured } from "@/lib/billing/doku";
+import { MIN_TOPUP_IDR } from "@/lib/billing/config";
+import { minTopupForUser } from "@/lib/billing/invites";
+import { billingConfigured } from "@/lib/billing/redis";
 import { getAppLocale } from "@/lib/server-locale";
 
 export const runtime = "nodejs";
@@ -29,6 +32,9 @@ export async function POST(req: Request) {
     const origin = `${proto}://${host}`;
 
     try {
+        const minIdr = billingConfigured()
+            ? await minTopupForUser(user.userId, MIN_TOPUP_IDR)
+            : MIN_TOPUP_IDR;
         const order = await createDokuCheckout({
             userId: user.userId,
             email: user.email,
@@ -36,6 +42,7 @@ export async function POST(req: Request) {
             amountIdr: Number(body.amountIdr),
             lang,
             origin,
+            minIdr,
         });
         return NextResponse.json({
             ok: true,

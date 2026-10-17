@@ -355,10 +355,30 @@ Anda menerima {credits} kredit zippp
 {message}
 
 We've given you {credits} free credits. Sign in to zippp to use them.
+
+Sincerely, Zippp team
 ## email.grant.body.id
 {message}
 
 Kami memberi Anda {credits} kredit gratis. Masuk ke zippp untuk memakainya.
+
+Hormat kami, Tim Zippp
+## email.invite.subject.en
+You're invited to zippp
+## email.invite.subject.id
+Anda diundang ke zippp
+## email.invite.body.en
+You're invited to zippp. Top up from Rp {min} instead of Rp {normal}.
+
+Sign in with Google: {link}
+
+Sincerely, Zippp team
+## email.invite.body.id
+Anda diundang ke zippp. Isi saldo mulai Rp {min}, bukan Rp {normal}.
+
+Masuk dengan Google: {link}
+
+Hormat kami, Tim Zippp
 ## app.review.allDone.en
 All reviewed — open your sheet
 ## app.review.allDone.id
@@ -665,6 +685,10 @@ Bayar dengan GoPay
 Transfer the exact amount to our GoPay. QRIS checkout is paused for now.
 ## app.topup.gopay.methods.id
 Transfer jumlah tepat ke GoPay kami. Checkout QRIS sementara dihentikan.
+## app.topup.invite.en
+Invitation: top up from Rp {min} instead of Rp {normal}.
+## app.topup.invite.id
+Undangan: isi saldo mulai Rp {min}, bukan Rp {normal}.
 ## app.topup.buy.en
 Buy {credits} credits
 ## app.topup.buy.id
@@ -763,6 +787,42 @@ Kredit
 Reason
 ## admin.reason.id
 Alasan
+## admin.invite.title.en
+Exclusive invitations
+## admin.invite.title.id
+Undangan khusus
+## admin.invite.body.en
+Add an email. They get a unique signup link with a Rp 10.000 minimum top-up instead of Rp 15.000.
+## admin.invite.body.id
+Tambahkan email. Mereka mendapat tautan pendaftaran unik dengan isi saldo minimal Rp 10.000, bukan Rp 15.000.
+## admin.invite.create.en
+Create invite
+## admin.invite.create.id
+Buat undangan
+## admin.invite.copy.en
+Copy link
+## admin.invite.copy.id
+Salin tautan
+## admin.invite.copied.en
+Copied
+## admin.invite.copied.id
+Tersalin
+## admin.invite.revoke.en
+Revoke
+## admin.invite.revoke.id
+Cabut
+## admin.invite.emailHeader.en
+email
+## admin.invite.emailHeader.id
+email
+## admin.invite.statusHeader.en
+status
+## admin.invite.statusHeader.id
+status
+## admin.invite.linkHeader.en
+link
+## admin.invite.linkHeader.id
+tautan
 ## admin.eval.link.en
 Eval
 ## admin.eval.link.id

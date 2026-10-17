@@ -161,11 +161,14 @@ export async function createDokuCheckout(input: {
     lang: "id" | "en";
     /** Absolute origin of this deployment, e.g. https://zippp.link */
     origin: string;
+    /** Invited accounts may have a lower minimum than MIN_TOPUP_IDR. */
+    minIdr?: number;
 }): Promise<DokuOrder> {
     if (!dokuConfigured()) throw new Error("DOKU is not configured.");
     const amount = Math.floor(input.amountIdr);
-    if (!Number.isFinite(amount) || amount < MIN_TOPUP_IDR || amount % 1000 !== 0) {
-        throw new Error(`Amount must be at least ${MIN_TOPUP_IDR} in steps of 1000.`);
+    const min = input.minIdr ?? MIN_TOPUP_IDR;
+    if (!Number.isFinite(amount) || amount < min || amount % 1000 !== 0) {
+        throw new Error(`Amount must be at least ${min} in steps of 1000.`);
     }
 
     const cfg = dokuConfig();

@@ -94,11 +94,14 @@ export async function createOrder(input: {
     userId: string;
     email: string | null;
     baseIdr: number;
+    /** Invited accounts may have a lower minimum than MIN_TOPUP_IDR. */
+    minIdr?: number;
 }): Promise<Order> {
     assertConfigured();
     const amount = Math.floor(input.baseIdr);
-    if (!Number.isFinite(amount) || amount < MIN_TOPUP_IDR || amount % 1000 !== 0) {
-        throw new Error(`Amount must be at least ${MIN_TOPUP_IDR} in steps of 1000.`);
+    const min = input.minIdr ?? MIN_TOPUP_IDR;
+    if (!Number.isFinite(amount) || amount < min || amount % 1000 !== 0) {
+        throw new Error(`Amount must be at least ${min} in steps of 1000.`);
     }
 
     const hour = Math.floor(Date.now() / (60 * 60 * 1000));

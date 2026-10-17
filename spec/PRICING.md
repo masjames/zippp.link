@@ -17,6 +17,8 @@ Updated: 2026-10-13. **Credits, not plans.** Revision 2 entry pack for ID.
 - Minimum top-up **Rp 15.000 = 100 scans** (the entry preset).
 - Presets: **Rp 15.000 / 30.000 / 50.000 / 100.000** → 100 / 200 / 333 / 666
   scans, plus a custom amount ≥ Rp 15.000.
+- **Exclusive invite** (admin-issued link): the invited account may top up from
+  **Rp 10.000** instead of Rp 15.000. The Rp 150 per credit rate is unchanged.
 - **DOKU Checkout**: QRIS, virtual account, e-wallet, card on DOKU's hosted
   page. Credits land on DOKU's notification. DOKU's fee is on us (see COGS).
   Page expires in 60 minutes.

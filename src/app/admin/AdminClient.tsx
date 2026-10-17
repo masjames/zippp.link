@@ -13,6 +13,14 @@ type Order = {
     createdAt: number;
 };
 
+type Invite = {
+    code: string;
+    email: string;
+    minTopupIdr: number;
+    status: string;
+    createdAt: number;
+};
+
 export default function AdminClient({ wording }: { wording: Wording }) {
     const t = makeT(wording, "en");
     const [open, setOpen] = useState<Order[]>([]);
@@ -23,6 +31,10 @@ export default function AdminClient({ wording }: { wording: Wording }) {
     const [credits, setCredits] = useState(100);
     const [reason, setReason] = useState("");
     const [msg, setMsg] = useState<string | null>(null);
+    const [invites, setInvites] = useState<Invite[]>([]);
+    const [inviteEmail, setInviteEmail] = useState("");
+    const [inviteMsg, setInviteMsg] = useState<string | null>(null);
+    const [copied, setCopied] = useState<string | null>(null);
 
     const load = useCallback(async () => {
         const res = await fetch("/api/admin/orders", { cache: "no-store" });
@@ -33,9 +45,16 @@ export default function AdminClient({ wording }: { wording: Wording }) {
         }
     }, []);
 
+    const loadInvites = useCallback(async () => {
+        const res = await fetch("/api/admin/invites", { cache: "no-store" });
+        const data = await res.json();
+        if (data.ok) setInvites((data.invites as Invite[]) ?? []);
+    }, []);
+
     useEffect(() => {
         void load();
-    }, [load]);
+        void loadInvites();
+    }, [load, loadInvites]);
 
     async function act(id: string, action: "approve" | "reject") {
         setBusy(true);
@@ -66,6 +85,55 @@ export default function AdminClient({ wording }: { wording: Wording }) {
             setMsg("Failed.");
         } finally {
             setBusy(false);
+        }
+    }
+
+    async function doInvite() {
+        setBusy(true);
+        setInviteMsg(null);
+        try {
+            const res = await fetch("/api/admin/invites", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email: inviteEmail }),
+            });
+            const data = await res.json();
+            if (data.ok) {
+                setInviteMsg(`Invited ${data.invite.email}.`);
+                setInviteEmail("");
+                await loadInvites();
+            } else {
+                setInviteMsg(data.error || "Failed.");
+            }
+        } catch {
+            setInviteMsg("Failed.");
+        } finally {
+            setBusy(false);
+        }
+    }
+
+    async function revokeInvite(code: string) {
+        setBusy(true);
+        try {
+            await fetch("/api/admin/invites", {
+                method: "DELETE",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ code }),
+            });
+            await loadInvites();
+        } finally {
+            setBusy(false);
+        }
+    }
+
+    async function copyInvite(code: string) {
+        try {
+            await navigator.clipboard.writeText(
+                `${window.location.origin}/?invite=${code}`
+            );
+            setCopied(code);
+        } catch {
+            /* ignore */
         }
     }
 
@@ -239,6 +307,81 @@ export default function AdminClient({ wording }: { wording: Wording }) {
                 {t("admin.grant")}
             </button>
             {msg ? <p className="mt-2 text-sm font-medium">{msg}</p> : null}
+
+            <h2 className="mt-10 font-head text-2xl font-extrabold">
+                {t("admin.invite.title")}
+            </h2>
+            <p className="mt-1 text-sm text-muted">{t("admin.invite.body")}</p>
+            <div className="mt-3 flex flex-wrap gap-2">
+                <input
+                    value={inviteEmail}
+                    onChange={(e) => setInviteEmail(e.target.value)}
+                    placeholder={t("admin.email")}
+                    className="min-w-[240px] flex-1 rounded-xl border-2 border-line bg-card px-3 py-2"
+                />
+                <button
+                    type="button"
+                    disabled={busy || !inviteEmail}
+                    onClick={() => void doInvite()}
+                    className="rounded-full bg-btn px-6 py-3 font-semibold text-btntext disabled:opacity-60"
+                >
+                    {t("admin.invite.create")}
+                </button>
+            </div>
+            {inviteMsg ? (
+                <p className="mt-2 text-sm font-medium">{inviteMsg}</p>
+            ) : null}
+            <div className="mt-4 overflow-x-auto rounded-2xl border-2 border-line">
+                <table className="w-full text-left text-sm">
+                    <thead className="bg-surface/60">
+                        <tr>
+                            <th className="px-3 py-2">{t("admin.invite.emailHeader")}</th>
+                            <th className="px-3 py-2">{t("admin.invite.statusHeader")}</th>
+                            <th className="px-3 py-2">{t("admin.invite.linkHeader")}</th>
+                            <th className="px-3 py-2" />
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {invites.length === 0 ? (
+                            <tr>
+                                <td className="px-3 py-3 text-muted" colSpan={4}>
+                                    {t("admin.empty")}
+                                </td>
+                            </tr>
+                        ) : (
+                            invites.map((inv) => (
+                                <tr key={inv.code} className="border-t border-line">
+                                    <td className="px-3 py-2">{inv.email}</td>
+                                    <td className="px-3 py-2">{inv.status}</td>
+                                    <td className="px-3 py-2">
+                                        <button
+                                            type="button"
+                                            onClick={() => void copyInvite(inv.code)}
+                                            className="text-xs font-semibold text-brand underline"
+                                        >
+                                            {copied === inv.code
+                                                ? t("admin.invite.copied")
+                                                : t("admin.invite.copy")}
+                                        </button>
+                                    </td>
+                                    <td className="px-3 py-2 text-right">
+                                        {inv.status !== "revoked" ? (
+                                            <button
+                                                type="button"
+                                                disabled={busy}
+                                                onClick={() => void revokeInvite(inv.code)}
+                                                className="rounded-full bg-mist px-3 py-1 text-xs font-semibold text-ink disabled:opacity-50"
+                                            >
+                                                {t("admin.invite.revoke")}
+                                            </button>
+                                        ) : null}
+                                    </td>
+                                </tr>
+                            ))
+                        )}
+                    </tbody>
+                </table>
+            </div>
 
             <div className="mt-10 rounded-2xl border-2 border-dashed border-line bg-surface/60 p-5 opacity-80">
                 <div className="flex flex-wrap items-baseline gap-2">
