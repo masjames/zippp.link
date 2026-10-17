@@ -340,9 +340,9 @@ A message from zippp
 ## app.notice.title.id
 Pesan dari zippp
 ## app.notice.credits.en
-{count} credits added
+We've given you {count} free credits
 ## app.notice.credits.id
-{count} kredit ditambahkan
+Kami memberi Anda {count} kredit gratis
 ## app.notice.ok.en
 Got it
 ## app.notice.ok.id
@@ -354,11 +354,11 @@ Anda menerima {credits} kredit zippp
 ## email.grant.body.en
 {message}
 
-We added {credits} credits to your zippp account. Sign in to use them.
+We've given you {credits} free credits. Sign in to zippp to use them.
 ## email.grant.body.id
 {message}
 
-Kami menambahkan {credits} kredit ke akun zippp Anda. Masuk untuk memakainya.
+Kami memberi Anda {credits} kredit gratis. Masuk ke zippp untuk memakainya.
 ## app.review.allDone.en
 All reviewed — open your sheet
 ## app.review.allDone.id
