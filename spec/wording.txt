@@ -355,14 +355,10 @@ Anda menerima {credits} kredit zippp
 {message}
 
 We've given you {credits} free credits. Sign in to zippp to use them.
-
-Sincerely, Zippp team
 ## email.grant.body.id
 {message}
 
 Kami memberi Anda {credits} kredit gratis. Masuk ke zippp untuk memakainya.
-
-Hormat kami, Tim Zippp
 ## email.invite.subject.en
 You're invited to zippp
 ## email.invite.subject.id
@@ -371,14 +367,22 @@ Anda diundang ke zippp
 You're invited to zippp. Top up from Rp {min} instead of Rp {normal}.
 
 Sign in with Google: {link}
-
-Sincerely, Zippp team
 ## email.invite.body.id
 Anda diundang ke zippp. Isi saldo mulai Rp {min}, bukan Rp {normal}.
 
 Masuk dengan Google: {link}
-
+## email.footer.en
+Sincerely, Zippp team
+## email.footer.id
 Hormat kami, Tim Zippp
+## email.cta.open.en
+Open zippp
+## email.cta.open.id
+Buka zippp
+## email.cta.accept.en
+Accept invitation
+## email.cta.accept.id
+Terima undangan
 ## app.review.allDone.en
 All reviewed — open your sheet
 ## app.review.allDone.id
