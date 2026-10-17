@@ -19,9 +19,11 @@ Updated: 2026-10-13. **Credits, not plans.** Revision 2 entry pack for ID.
   scans, plus a custom amount ≥ Rp 15.000.
 - **Exclusive invite** (admin-issued link): the invited account may top up from
   **Rp 10.000** instead of Rp 15.000. The Rp 150 per credit rate is unchanged.
-- **DOKU Checkout**: QRIS, virtual account, e-wallet, card on DOKU's hosted
-  page. Credits land on DOKU's notification. DOKU's fee is on us (see COGS).
-  Page expires in 60 minutes.
+- **QRIS (Kasera Pay)**: one QRIS code, paid from any e-wallet or mobile bank.
+  Credits land on Kasera's signed `payment.paid` webhook. Kasera's fee is 0.7% +
+  Rp 250 (a Rp 500 minimum was observed), taken from the merchant net (see
+  COGS). The payment page expires in 60 minutes. Manual GoPay stays as a
+  fallback.
 
 ## International (`/`, Paddle)
 

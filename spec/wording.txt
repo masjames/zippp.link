@@ -705,6 +705,42 @@ Bayar dengan GoPay
 Transfer the exact amount to our GoPay. QRIS checkout is paused for now.
 ## app.topup.gopay.methods.id
 Transfer jumlah tepat ke GoPay kami. Checkout QRIS sementara dihentikan.
+## app.topup.qris.pay.en
+Pay with QRIS
+## app.topup.qris.pay.id
+Bayar dengan QRIS
+## app.topup.qris.methods.en
+QRIS: GoPay, OVO, DANA, ShopeePay, or mobile banking.
+## app.topup.qris.methods.id
+QRIS: GoPay, OVO, DANA, ShopeePay, atau mobile banking.
+## app.qris.waiting.en
+Waiting for payment
+## app.qris.waiting.id
+Menunggu pembayaran
+## app.qris.paid.en
+Payment received
+## app.qris.paid.id
+Pembayaran diterima
+## app.qris.expired.en
+This payment expired or failed.
+## app.qris.expired.id
+Pembayaran ini kedaluwarsa atau gagal.
+## app.qris.open.en
+Open payment page
+## app.qris.open.id
+Buka halaman pembayaran
+## app.qris.credits.en
+{count} credits added
+## app.qris.credits.id
+{count} kredit ditambahkan
+## app.qris.backTopup.en
+Back to top up
+## app.qris.backTopup.id
+Kembali ke isi saldo
+## app.qris.backSnap.en
+Back to Snap
+## app.qris.backSnap.id
+Kembali ke Snap
 ## app.invite.mismatch.en
 This invitation is for {email}. Sign out and sign in with that Google account to claim it.
 ## app.invite.mismatch.id

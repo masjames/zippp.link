@@ -13,7 +13,10 @@ type Props = {
     paddle: PaddleConfig & { configured: boolean };
     /** Manual GoPay is configured (Indonesia). */
     gopay: boolean;
+    /** Kasera QRIS is configured (Indonesia). */
+    qris: boolean;
     minIdr: number;
+    maxIdr: number;
     /** The open invite belongs to another email. */
     inviteMismatch?: string | null;
     idrPerCredit: number;
@@ -23,7 +26,9 @@ export default function TopUpClient({
     region,
     paddle,
     gopay,
+    qris,
     minIdr,
+    maxIdr,
     inviteMismatch,
     idrPerCredit,
 }: Props) {
@@ -74,6 +79,28 @@ export default function TopUpClient({
         }
     }
 
+    async function createQrisOrder() {
+        setBusy(true);
+        setError(null);
+        try {
+            const res = await fetch("/api/topup/qris", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ amountIdr: amount }),
+            });
+            const data = await res.json();
+            if (data.ok && data.order?.checkoutUrl) {
+                window.location.assign(data.order.checkoutUrl);
+                return;
+            }
+            setError(data.error || t("app.error.failed"));
+        } catch {
+            setError(t("app.error.network"));
+        } finally {
+            setBusy(false);
+        }
+    }
+
     function buyPaddle() {
         const P = (window as unknown as { Paddle?: any }).Paddle;
         if (!P) {
@@ -102,7 +129,11 @@ export default function TopUpClient({
                         </p>
                     ) : null}
                     <p className="text-muted">{t("app.topup.choose")}</p>
-                    <p className="text-xs text-muted">{t("app.topup.gopay.methods")}</p>
+                    <p className="text-xs text-muted">
+                        {qris
+                            ? t("app.topup.qris.methods")
+                            : t("app.topup.gopay.methods")}
+                    </p>
                     <div className="grid grid-cols-2 gap-2">
                         {presets.map((p) => (
                             <button
@@ -126,6 +157,7 @@ export default function TopUpClient({
                         <input
                             type="number"
                             min={minIdr}
+                            max={maxIdr}
                             step={1000}
                             value={amount}
                             onChange={(e) => setAmount(Number(e.target.value))}
@@ -142,13 +174,20 @@ export default function TopUpClient({
                     ) : null}
                     <button
                         type="button"
-                        disabled={busy || amount < minIdr || !gopay}
-                        onClick={createGoPayOrder}
+                        disabled={
+                            busy ||
+                            amount < minIdr ||
+                            amount > maxIdr ||
+                            (!qris && !gopay)
+                        }
+                        onClick={qris ? createQrisOrder : createGoPayOrder}
                         className="mt-auto rounded-full bg-btn px-6 py-4 font-semibold text-btntext disabled:opacity-60"
                     >
-                        {t("app.topup.create")}
+                        {qris
+                            ? t("app.topup.qris.pay")
+                            : t("app.topup.create")}
                     </button>
-                    {!gopay ? (
+                    {!qris && !gopay ? (
                         <p className="text-center text-xs text-muted">
                             {t("app.topup.unavailable")}
                         </p>

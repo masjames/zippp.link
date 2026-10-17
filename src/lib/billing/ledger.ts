@@ -7,6 +7,7 @@ export type LedgerSource =
     | "topup_gopay"
     | "topup_paddle"
     | "topup_doku"
+    | "topup_qris"
     | "referral_reward"
     | "referral_bonus"
     | "admin_grant"

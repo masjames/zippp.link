@@ -4,8 +4,10 @@ import TopUpClient from "@/components/app/screens/TopUpClient";
 import {
     gopayConfigured,
     IDR_PER_CREDIT,
+    MAX_TOPUP_IDR,
     MIN_TOPUP_IDR,
 } from "@/lib/billing/config";
+import { kaseraConfigured } from "@/lib/billing/kasera";
 import { paddleConfig, paddleConfigured } from "@/lib/billing/paddle";
 import { billingConfigured } from "@/lib/billing/redis";
 import {
@@ -62,7 +64,9 @@ export default async function TopUpPage() {
                 region={region}
                 paddle={paddle}
                 gopay={gopayConfigured()}
+                qris={kaseraConfigured()}
                 minIdr={minIdr}
+                maxIdr={MAX_TOPUP_IDR}
                 inviteMismatch={inviteMismatch}
                 idrPerCredit={IDR_PER_CREDIT}
             />

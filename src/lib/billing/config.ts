@@ -4,6 +4,8 @@ export const IDR_PER_CREDIT = 150;
 export const MIN_TOPUP_IDR = 15_000;
 /** Invited accounts may top up from this lower amount (special invite). */
 export const INVITE_MIN_TOPUP_IDR = 10_000;
+/** QRIS per-payment maximum (Kasera / national QRIS limit). */
+export const MAX_TOPUP_IDR = 10_000_000;
 export const CREDIT_TTL_DAYS = 30;
 export const REFERRER_PCT = 20;
 export const REFERRED_BONUS_CREDITS = 20;

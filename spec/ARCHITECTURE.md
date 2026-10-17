@@ -136,31 +136,35 @@ Upstash the app runs unconfigured and does not enforce credits.
 
 Keys: `bill:acct:{id}`, `bill:ledger:{id}`, `bill:user:{id}`, `bill:ref:{code}`,
 `bill:email:{email}`, `bill:idem:{key}`, `bill:doku:{invoice}`,
-`bill:doku:recent`. (`bill:order:*`, `bill:orders:*`, `bill:codes` are
-leftovers from the retired GoPay flow and can be deleted.)
+`bill:doku:recent`, `bill:kasera:{id}`, `bill:kasera:tx:{txId}`,
+`bill:kasera:user:{userId}`. (`bill:order:*`, `bill:orders:*`, `bill:codes`
+back the manual GoPay fallback.)
 
 ### Top-up and admin
 
-- **Indonesia** (`/id`): DOKU Checkout (hosted page). `POST
-  /api/topup/doku` signs a `/checkout/v1/payment` request (HMAC-SHA256 over
-  Client-Id, Request-Id, Request-Timestamp, Request-Target, Digest), stores
-  `bill:doku:{invoice}` and redirects to DOKU's URL. Invoice numbers are
-  alphanumeric, under 30 chars. The request sends
-  `payment.payment_method_types` from `DOKU_PAYMENT_METHODS` in
-  `src/lib/billing/config.ts`, so the checkout only offers channels whose
-  Notification URL is configured in the DOKU Back Office. DOKU POSTs to `/api/doku/notify`; the route
-  verifies the signature against its own path, checks the amount, and grants
-  once (idempotent on `doku:{invoice}`). The customer returns to
-  `/app/topup?doku={invoice}`, which polls `GET /api/topup/doku/[invoice]`.
-  States: `pending -> paid | failed | expired`. Sandbox and production are
-  selected by `DOKU_ENV`. Presets: Rp 15.000 / 30.000 / 50.000 / 100.000
-  (`IDR_TOPUP_PRESETS`, Rp 150/credit → 100 / 200 / 333 / 666 scans). Manual
-  GoPay was retired; old ledger entries keep `topup_gopay` as their source.
+- **Indonesia** (`/id`): **QRIS via Kasera Pay** (primary). `POST
+  /api/topup/qris` creates `POST /v1/transactions` with
+  `payment_methods: ["qris"]`, `external_id` = our order id, and
+  `return_url` = `/app/topup/qris/{id}`. It stores `bill:kasera:{id}`,
+  `bill:kasera:tx:{txId}`, `bill:kasera:user:{userId}` and redirects to the
+  hosted `checkout_url`. Kasera POSTs `payment.paid` to
+  `/api/kasera/webhook`; the route verifies `Kasera-Signature-V1`
+  (HMAC-SHA256 over `t + "." + rawBody`, 5 minute window, multiple `v1`
+  entries after rotation) and grants once (idempotent on `kasera:{txId}`). The
+  return page `/app/topup/qris/{id}` polls and also refreshes from
+  `GET /v1/transactions/{txId}`, so a delayed webhook still settles. States:
+  `pending -> succeeded | failed | expired`. Fee 0.7% + Rp 250 (a Rp 500
+  minimum was observed), deducted from the merchant net. Presets: Rp 15.000 /
+  30.000 / 50.000 / 100.000 (`IDR_TOPUP_PRESETS`, Rp 150/credit); invited
+  accounts may start at Rp 10.000. Env: `KASERA_API_KEY`,
+  `KASERA_WEBHOOK_SECRET`, `KASERA_BASE_URL`. If Kasera is not configured, the
+  manual GoPay order flow (`/api/topup/orders`, admin approve) remains as the
+  fallback. DOKU is halted.
 - **International**: Paddle.js checkout (`PADDLE_CLIENT_TOKEN`,
   `PADDLE_PACK_PRICE_ID`); `POST /api/paddle/webhook` verifies the signature and
   grants on `transaction.completed` (idempotent on the transaction id).
-- **Admin** (`/admin`, `ADMIN_EMAILS`): recent DOKU payments (read-only) and
-  manual grant.
+- **Admin** (`/admin`, `ADMIN_EMAILS`): QRIS and manual GoPay orders, manual
+  grant, and exclusive invitations.
   Every admin route checks the email server-side and returns 404 otherwise.
 - **Telegram** (`TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`): paid and
   amount-mismatch alerts; a failure never blocks the payment.
@@ -292,7 +296,8 @@ Admin-only, guarded like `/admin` (server `currentUser().admin`, 404 otherwise).
 | `UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN` (preferred) **or** `BLOB_READ_WRITE_TOKEN` (legacy) | server; JSON/session store |
 | `DONATION_GOOGLE_REFRESH_TOKEN` / `DONATION_DRIVE_FOLDER_ID` / `DONATION_DRIVE_FOLDER_NAME` | server; donated photos in the operator's Drive (`scripts/donation-drive-auth.mjs`); the admin login copies the token by default |
 | `MAILTRAP_API_TOKEN` / `MAILTRAP_FROM_EMAIL` / `MAILTRAP_FROM_NAME` / `MAILTRAP_USE_SANDBOX` / `MAILTRAP_INBOX_ID` | server; grant email via the `mailtrap` SDK (`src/lib/email.ts`) |
-| `DOKU_ENV` / `DOKU_CLIENT_ID` / `DOKU_SECRET_KEY` / `DOKU_NOTIFY_PATH` | server; DOKU Checkout (`src/lib/billing/doku.ts`) |
+| `KASERA_API_KEY` / `KASERA_WEBHOOK_SECRET` / `KASERA_BASE_URL` | server; QRIS via Kasera Pay (`src/lib/billing/kasera.ts`) |
+| `DOKU_ENV` / `DOKU_CLIENT_ID` / `DOKU_SECRET_KEY` / `DOKU_NOTIFY_PATH` | server; DOKU Checkout (halted) (`src/lib/billing/doku.ts`) |
 | `ZIPPP_DATA_DIR` | server (local only) |
 | `BUSINESS_NAME` / `BUSINESS_OPERATOR` / `BUSINESS_ADDRESS` / `CONTACT_EMAIL` / `CONTACT_WA` | server; shown on the public info pages (`src/lib/business.ts`) |
 | `CONTACT_REVEAL_SECRET` | server; signs the contact-page email reveal challenge (`/api/contact/reveal`). Falls back to `TOKEN_ENCRYPTION_KEY` |

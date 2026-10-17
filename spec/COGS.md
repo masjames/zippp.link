@@ -24,6 +24,13 @@ Gemini is a rarely-used last resort, not the default.
 | DeepSeek Flash vision (fallback) | ~750 total, ~1.5s |
 | Gemini 2.5 Flash (fallback) | ~1.6–5s |
 
+## Payment fee (Indonesia)
+
+- **Kasera Pay QRIS**: 0.7% + Rp 250 per payment. A Rp 1.000 test charged a
+  Rp 500 fee, so treat Rp 500 as the practical minimum. The fee is deducted
+  from the merchant net, not added to the buyer. On a Rp 10.000 top-up the net
+  is about Rp 9.500 for 66 credits.
+
 ## Rates (per 1M tokens)
 
 **DeepSeek Flash** — source: `api-docs.deepseek.com/quick_start/pricing`.
