@@ -86,9 +86,9 @@ Special invitation
 ## landing.invite.eyebrow.id
 Undangan khusus
 ## landing.invite.title.en
-Welcome, {email}!
+Welcome, {email}! 😄
 ## landing.invite.title.id
-Selamat datang, {email}!
+Selamat datang, {email}! 😄
 ## landing.invite.body.en
 Claim your special price: top up from Rp {min} instead of Rp {normal}.
 ## landing.invite.body.id
@@ -380,11 +380,11 @@ You're invited to zippp
 ## email.invite.subject.id
 Anda diundang ke zippp
 ## email.invite.body.en
-You're invited to zippp. Top up from Rp {min} instead of Rp {normal}.
+You're invited to zippp 😄. Top up from Rp {min} instead of Rp {normal}.
 
 Sign in with Google: {link}
 ## email.invite.body.id
-Anda diundang ke zippp. Isi saldo mulai Rp {min}, bukan Rp {normal}.
+Anda diundang ke zippp 😄. Isi saldo mulai Rp {min}, bukan Rp {normal}.
 
 Masuk dengan Google: {link}
 ## email.footer.en
