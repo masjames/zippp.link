@@ -162,17 +162,9 @@ Paddle: `PADDLE_*`. DOKU halted: `DOKU_*`. Manual GoPay: `GOPAY_NUMBER`,
 > top-up. Grants write a one-time in-app notice and send a Mailtrap HTML+text
 > email. Vercel Analytics and PostHog are connected.
 >
-> First verify, then pick one task:
-> 1. Pay a real QRIS top-up end to end and confirm the webhook grants once
->    (check Kasera webhook logs and `/admin`).
-> 2. Sign in as the admin and confirm `/admin` works now that sessions are on
->    Upstash. If not, check `/api/auth/me` and the deployment logs.
-> 3. Add the required Staff and Outlet fields to the review card (SPEC says the
->    card must edit them; currently missing).
-> 4. Optional: humanize `spec/wording.txt` using
->    `scripts/humanize-wording.mjs` (sequential, rate-limit aware).
-> 5. Optional: remove stale GoPay/DOKU text in archived docs and delete the
->    stale `continuation-vercel-doku.md`.
+> No tasks are queued. Wait for the user's next instruction; do not invent
+> work. When asked to verify something, use the live site, Vercel logs, and the
+> owning spec.
 >
 > Rules: specs are the source of truth; update the owning spec in the same
 > change. Every user-visible string lives in `spec/wording.txt`. No em dashes.
