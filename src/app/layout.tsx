@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 import { Analytics } from "@vercel/analytics/next";
-import PostHogAnalytics from "@/components/analytics/PostHog";
+import AppPostHogProvider from "@/components/analytics/PostHogProvider";
 import { loadWording } from "@/lib/content";
 import { getLocale } from "@/lib/server-locale";
 import { SITE_URL } from "@/lib/site";
@@ -93,9 +93,8 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
                 />
             </head>
             <body className="font-body">
-                {children}
+                <AppPostHogProvider>{children}</AppPostHogProvider>
                 <Analytics />
-                <PostHogAnalytics />
             </body>
         </html>
     );
