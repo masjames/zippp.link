@@ -21,8 +21,9 @@ Do not quote Rp and $ as if they match.
 ## What we sell now
 
 - **Credits.** 1 credit = 1 scan. Spent on **Accept**, never on read.
-- **Indonesia** (`/id`): DOKU Checkout, from **Rp 15.000 for 100 scans**
-  (Rp 150 per credit). Presets 15k / 30k / 50k / 100k.
+- **Indonesia** (`/id`): **QRIS via Kasera Pay**, from **Rp 15.000 for 100
+  scans** (Rp 150 per credit). Presets 15k / 30k / 50k / 100k; invited accounts
+  start at Rp 10.000. Manual GoPay remains as a fallback.
 - **International** (`/`): Paddle, **100 credits for $9**, one-time.
 - **Referral**: referrer 20% of each referred top-up; referred gets 20 credits
   after first approved top-up. Only free credit. No trial, no free tier.
@@ -35,7 +36,8 @@ Do not quote Rp and $ as if they match.
 - COGS is fractions of a cent per scan (`COGS.md`); we sell trusted rows, not
   tokens.
 - A Rp 15.000 first top-up is a low-risk door; the sheet is where value lands.
-- One ledger, two channels (DOKU local, Paddle international), referrals on top.
+- One ledger, two channels (Kasera QRIS local, Paddle international), referrals
+  and admin invitations on top.
 
 ## Privacy
 
@@ -53,7 +55,7 @@ stack in days.
 
 1. Sign in at `zippp.link` (Google).
 2. Pick a template (kitchen, spending, sales, reimbursement, or own sheet).
-3. Top up credits (DOKU in Indonesia, card via Paddle elsewhere).
+3. Top up credits (QRIS in Indonesia, card via Paddle elsewhere).
 4. Photograph notas; **Accept** spends one credit; rows land in the month tab.
 5. Rows trusted → quote the custom install via WhatsApp.
 

@@ -71,7 +71,7 @@ Linked from the site footer. Helpers: `src/lib/competitors.ts`,
 
 ## Public information pages
 
-Required by payment gateway review (DOKU, Paddle) and Google OAuth
+Required by payment gateway review (Kasera, Paddle) and Google OAuth
 verification. Static, bilingual, copy in `wording.txt` under `legal.*`.
 
 | Page | `/` (en) | `/id` |
@@ -101,10 +101,12 @@ plus a small playable game. Copy lives under `notfound.*` in `wording.txt`.
 | `/for-*` · `/id/for-*` | Use-case landings (see above) | everyone |
 | `/app` | guard → `/app/snap` | everyone |
 | `/app/snap` | Camera + batch review (home) | signed in, sheet OK, credits |
-| `/app/topup` | DOKU (id) or Paddle (intl); `?doku=INVOICE` return status | signed in |
+| `/app/topup` | QRIS via Kasera (id) or Paddle (intl); manual GoPay fallback | signed in |
+| `/app/topup/qris/[id]` | QRIS return page, polls until paid | signed in |
+| `/app/topup/order/[id]` | Manual GoPay order (fallback) | signed in |
 | `/app/settings` | balance, language, invite, sheet, staff/outlets, photo toggle, sign out | signed in |
 | `/app/settings/sheet` | sheet status, create/choose, template wizard | signed in |
-| `/admin` | Recent DOKU payments, manual grant | admin emails only |
+| `/admin` | QRIS and manual GoPay orders, manual grant, invitations | admin emails only |
 
 ### Guard (server decides; stop at first failure)
 
@@ -205,11 +207,15 @@ camera (auto-snap on) → queued → extract → review card → Accept
 
 1. Credits pill or guard → `/app/topup`.
 2. Indonesia: presets Rp 15.000 / 30.000 / 50.000 / 100.000 (100 / 200 / 333 /
-   666 scans) or custom ≥ Rp 15.000. Preview: now → after → expires.
-3. Pay on DOKU hosted page. Return `?doku=INVOICE` → poll until paid. The
-   paid state shows the credits from this top-up and their expiry.
-4. **Back to camera** → `/app/snap`.
-5. International: Paddle pack 100 credits / $9.
+   666 scans) or custom ≥ Rp 15.000. Invited accounts start at Rp 10.000.
+3. **QRIS via Kasera** (primary): `POST /api/topup/qris` → redirect to the hosted
+   checkout → signed `payment.paid` webhook grants credits once → return page
+   `/app/topup/qris/[id]` confirms. If Kasera is not configured, the manual
+   GoPay order flow (`/app/topup/order/[id]`, admin approve) is the fallback.
+4. The paid state shows the credits from this top-up and their expiry; the
+   invite banner disappears after the first successful top-up.
+5. **Back to camera** → `/app/snap`.
+6. International: Paddle pack 100 credits / $9.
 
 ---
 
