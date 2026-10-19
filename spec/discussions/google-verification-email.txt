@@ -1,0 +1,54 @@
+Subject: Re: [Action Needed] OAuth Verification Request Acknowledgement
+
+To: api-oauth-dev-verification-reply+3pcc0zhfosv6d1d@google.com
+
+Replace <LINK> with the unlisted YouTube link to the 3:04 video.
+Replace <NAME> with your name.
+
+---
+
+Hello Third-Party Data Safety Team,
+
+Thank you for the review. We are choosing Option 2 for the AI integration:
+complete data segregation, with no Google user data ever sent to the AI
+provider.
+
+1. Privacy policy. Rewritten at https://www.zippp.link/privacy (Indonesian:
+   https://www.zippp.link/id/privasi). It now states:
+
+   - how zippp uses Google user data, listed per scope, including what is read
+     and what is written. zippp reads the header row of the one sheet the user
+     connects and never the data rows.
+   - with whom data is shared or disclosed, with each processor and its purpose.
+     We do not sell Google user data, and we do not use it for advertising or to
+     train AI models.
+   - the data protection mechanisms: TLS, AES-256-GCM encryption of OAuth tokens
+     at rest with a server-only key, least privilege scopes, and server-side
+     admin checks.
+   - the Google API Services User Data Policy Limited Use statement, including
+     the Limited Use requirements.
+
+2. Data segregation. zippp reads a receipt photo the user takes with the camera.
+   That photo is not Google user data. The AI step receives only that one image
+   or the text read from it. It never receives Google account data, a
+   spreadsheet id, sheet contents, or a Drive file, and the extraction code path
+   does not load a Google token. We added an automated test to our build that
+   fails if the photo path imports a Google data module, if the extraction
+   endpoint accepts any field other than the image, or if the sheet endpoint
+   imports an AI module. We also turned off analytics autocapture and session
+   recording, and OAuth access tokens are now encrypted at rest as well.
+
+3. Demo video. <LINK>. It shows the consent flow with the email scope, then the
+   Drive file and Spreadsheets scopes checked and expanded. It shows zippp
+   creating the spreadsheet in Google Drive, the write of an accepted receipt,
+   the resulting rows in the user's own Google Sheet, the extraction debug
+   panel, and the account settings.
+
+The requested scopes are unchanged and match the Cloud Console: spreadsheets,
+drive.file, userinfo.email.
+
+We can record a shorter demonstration of any single scope if that helps.
+
+Sincerely,
+<NAME>
+zippp
