@@ -120,7 +120,9 @@ Purpose: handoff. Read this first, then the owning spec files.
   if `/api/sheets/append` imports an AI module.
 - Reviewer package, including the video shot list and the reply text:
   `spec/discussions/google-verification-reply.md`.
-- Pending: deploy, record the video, send the reply.
+- Deployed to production on 19 Oct 2026. Pending: record the video and send
+  the reply. The shot list, narration script, console checklist, and reply text
+  are in the same file.
 
 ## Current runtime map
 
@@ -163,8 +165,9 @@ Paddle: `PADDLE_*`. DOKU halted: `DOKU_*`. Manual GoPay: `GOPAY_NUMBER`,
    artifact.
 7. Some `spec/archived/*` docs still say `wording.md`; active specs say
    `wording.txt`.
-8. The privacy rewrite and the analytics/token changes are committed locally but
-   not deployed. The live policy is still the old one until the next deploy.
+8. The privacy rewrite, the analytics change, and the token encryption are live
+   since the 19 Oct 2026 production deploy. The demo video for Google is still
+   to be recorded.
 
 ## Continuation prompt
 

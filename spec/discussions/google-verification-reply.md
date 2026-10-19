@@ -31,8 +31,8 @@ test `src/lib/data-boundary.test.ts`.
 
 ## Before resubmitting
 
-- Deploy, then open `/privacy` on www.zippp.link in a logged-out browser and
-  confirm the new sections render.
+- Deployed 19 Oct 2026. Open `/privacy` on www.zippp.link in a logged-out
+  browser and confirm the new sections render.
 - In Cloud Console, confirm the consent screen lists exactly
   `.../auth/spreadsheets`, `.../auth/drive.file`, `.../auth/userinfo.email`,
   and that "App homepage" and "Privacy policy" point at `https://www.zippp.link`
@@ -41,6 +41,73 @@ test `src/lib/data-boundary.test.ts`.
   "In Production".
 - Record the video on the live app with a real Google account that owns a test
   sheet.
+
+## Console and email checklist
+
+Cloud Console, then the reply. Do both in this order, because the reviewer
+checks the console state against what the email claims.
+
+1. APIs and Services, then OAuth consent screen: App homepage
+   `https://www.zippp.link`, Privacy policy
+   `https://www.zippp.link/privacy`, authorized domain `zippp.link`.
+2. Verification Center (or the pending request): replace the demo video link and
+   the privacy policy link. Paste the scope justification below if the form asks
+   for it.
+3. Reply in the same thread, from the account on the project, subject unchanged.
+   No attachments, links only.
+
+Scope justification to paste if asked:
+
+```
+spreadsheets: read the header row of the one sheet the user connects, and write
+one row per accepted receipt line. zippp never reads data rows.
+drive.file: find or create the [zippp] spreadsheet by name, so the user does not
+paste a link. Only files created by this app or picked by the user are visible.
+userinfo.email: identify the account, keep sessions separate, send account
+emails the user asks for, and check admin access on the server.
+```
+
+What the reply must contain, and nothing more:
+
+- Which option: Option 2, keep the AI provider, complete data segregation.
+- The three privacy sections, with the live URL, named by heading.
+- One short paragraph on how segregation works, in terms the reviewer can test:
+  the AI step gets one camera photo and nothing else; no Google token, sheet id,
+  sheets rows, or Drive file; the read path does not load a Google token; plus
+  the automated test and the analytics and encryption changes.
+- The new video link, unlisted but viewable without sign-in.
+- Confirmation that the requested scopes are unchanged and match the console.
+- A closing offer to demonstrate any single scope separately.
+
+Do not include pricing, COGS, model comparisons, or an argument about Baidu. The
+reviewer asked one question, answer that question.
+
+## Narration script
+
+Read this while recording. Short sentences, no filler.
+
+1. "zippp turns a receipt photo into rows in the user's Google Sheet. I will show
+   each permission in use."
+2. "This is the consent screen. I am clicking Show all services so every scope
+   is visible. Spreadsheets lets zippp read the header row and write accepted
+   rows. Drive file lets it find or create its own spreadsheet. Email identifies
+   the account."
+3. "Here zippp finds the sheet it created earlier. That lookup is the Drive file
+   permission. zippp cannot see any other file in this Drive."
+4. "Now I create a new sheet from a template. zippp creates the file, and here it
+   is in Google Drive."
+5. "I photograph one receipt, check what was read, correct one field, and press
+   Accept. Accept writes the row and spends one credit."
+6. "This is the user's own Google Sheet. The header row and the new rows are
+   here. zippp wrote them and does not read the data rows."
+7. "This is the account email zippp uses for the session and the credits."
+8. "The extraction request carries the photo only. The photo goes to the OCR and
+   structuring providers. No Google account data, no sheet id, no sheet
+   contents, and no Drive file is ever sent with it. The read code path never
+   loads the Google token."
+9. "Signing out deletes the stored token and the sheet setup from zippp's
+   servers. The user can also remove access in their Google account. The sheet
+   stays theirs."
 
 ## Demo video shot list
 
