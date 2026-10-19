@@ -147,11 +147,13 @@ theirs."
 
 ## After recording
 
-1. If you used QuickTime, upload the file to YouTube as **Unlisted**. The link
-   must open without signing in.
-2. Send me the link. I will put it in the reply email.
-3. If you used the built-in recorder, the file is already
-   `demo/out/zippp-google-verification-demo.mp4`. Upload that one.
+1. Save the file as `demo/in/zippp-demo.mov` (that folder is gitignored).
+2. Tell me the file name. I will add the captions from the "Say" lines, cut the
+   dead time at the start and end, and return a 1080p MP4 with no editing app
+   needed on your side.
+3. I will send you three still frames to approve before you upload.
+4. Upload the final MP4 to YouTube as **Unlisted**. The link must open without
+   signing in, and send it to me for the reply email.
 
 ## Problems
 
