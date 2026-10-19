@@ -43,3 +43,7 @@ eval/images/*
 
 # Playwright raw recordings
 demo/out/raw/
+demo/out/raw-live/
+demo/out/zippp-google-verification-demo.mp4
+.demo-profile/
+demo/in/

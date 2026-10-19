@@ -20,3 +20,9 @@ Requires `ffmpeg` on PATH.
 
 This is a branded storyboard demo (not a live OAuth session recording).
 Auth + real camera cannot be automated without credentials / device access.
+
+## Live verification recording
+
+For the Google OAuth verification video, see `RECORDING.md`. Run
+`npm run demo:live` for a clean page-only recording with a persistent Chrome
+profile.

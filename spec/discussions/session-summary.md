@@ -122,7 +122,8 @@ Purpose: handoff. Read this first, then the owning spec files.
   `spec/discussions/google-verification-reply.md`.
 - Deployed to production on 19 Oct 2026. Pending: record the video and send
   the reply. The shot list, narration script, console checklist, and reply text
-  are in the same file.
+  are in the same file. Recording harness: `npm run demo:live`
+  (`demo/record-live.mjs`); step-by-step guide: `demo/RECORDING.md`.
 
 ## Current runtime map
 
