@@ -174,3 +174,50 @@ You do not need any editing app.
   keep it inside.
 - Do not press Sign out at the end. Show it, hover it, stop.
 - Do not claim photo proof. That feature is not built.
+
+---
+
+# Take 2: fix the consent screen
+
+Only needed if the consent take did not show all scopes expanded in one view.
+Costs about 3 minutes. The rest of a good take is reused, so you do not need to
+record the receipt again.
+
+## Why
+
+Google rejected the previous video for one reason: the permission screen did not
+show every requested scope fully expanded and readable. A take that clicks into
+one scope's detail modal, while another scope stays on the page behind it, reads
+as incomplete. Revoking access first also removes the old `profile` grant, which
+otherwise appears as a fourth scope and breaks scope matching.
+
+## Steps
+
+1. In zippp: Settings, scroll down, **Keluar** (sign out).
+2. Open `https://myaccount.google.com/permissions`, find zippp, **Remove access**.
+   This is the step that makes the next consent a first-time grant.
+3. Clean up: one Chrome tab on the landing page, bookmarks hidden, Do Not
+   Disturb on, zoom Cmd+0.
+4. Start the recorder: Cmd+Shift+5, Record Selected Portion, tight around Chrome,
+   Options (Microphone None, Show Mouse Clicks on, Save to Desktop), Record.
+5. Landing page, 3 seconds. Click **Sign in with Google**. Pick the account.
+6. The consent screen appears. Without clicking anything else, first click the
+   blue box **"Lihat N layanan yang dapat diakses oleh zippp"** (Show all
+   services). Expand every service in the list so all scopes are readable, then
+   scroll slowly through them. Hold 5 seconds.
+7. Close the list, hold the main page 3 seconds, then click **Lanjutkan**
+   (Continue / Allow).
+8. App loads. Gear, Settings, Sheet, pick the existing `[zippp]` sheet so the
+   Drive lookup is visible. Return to Snap.
+9. Stop the recording. Save to the Desktop and tell me the file name.
+
+The new file only needs to reach the Snap screen. I splice it in front of the
+receipt, sheet, debug, and sign-out scenes from the first take.
+
+## What I look for in the new file
+
+- All three scopes in one list, readable: `spreadsheets`, `drive.file`,
+  `userinfo.email`.
+- No fourth scope such as profile. If profile still appears after revoking,
+  stop and tell me. That would be a code bug, not a recording problem.
+- No password typing. You are already signed in to Google.
