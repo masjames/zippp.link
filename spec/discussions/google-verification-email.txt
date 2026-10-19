@@ -2,52 +2,86 @@ Subject: Re: [Action Needed] OAuth Verification Request Acknowledgement
 
 To: api-oauth-dev-verification-reply+3pcc0zhfosv6d1d@google.com
 
-Replace <LINK> with the unlisted YouTube link to the 3:04 video.
-Replace <NAME> with your name.
+Video: https://youtu.be/uUestW2elyY (unlisted, 3:05, plays without sign-in)
+Replace <NAME> before sending.
 
 ---
 
 Hello Third-Party Data Safety Team,
 
-Thank you for the review. We are choosing Option 2 for the AI integration:
-complete data segregation, with no Google user data ever sent to the AI
-provider.
+Thank you for the review. We have addressed every item in your letter. Each
+requirement is listed below with what we changed and where to verify it. For the
+AI integration we are choosing Option 2: complete data segregation.
 
-1. Privacy policy. Rewritten at https://www.zippp.link/privacy (Indonesian:
-   https://www.zippp.link/id/privasi). It now states:
+1. Privacy policy: use, sharing, and protection
 
-   - how zippp uses Google user data, listed per scope, including what is read
-     and what is written. zippp reads the header row of the one sheet the user
-     connects and never the data rows.
-   - with whom data is shared or disclosed, with each processor and its purpose.
-     We do not sell Google user data, and we do not use it for advertising or to
-     train AI models.
-   - the data protection mechanisms: TLS, AES-256-GCM encryption of OAuth tokens
-     at rest with a server-only key, least privilege scopes, and server-side
-     admin checks.
-   - the Google API Services User Data Policy Limited Use statement, including
-     the Limited Use requirements.
+The policy is live and public, in English and Indonesian:
+https://www.zippp.link/privacy
+https://www.zippp.link/id/privasi
 
-2. Data segregation. zippp reads a receipt photo the user takes with the camera.
-   That photo is not Google user data. The AI step receives only that one image
-   or the text read from it. It never receives Google account data, a
-   spreadsheet id, sheet contents, or a Drive file, and the extraction code path
-   does not load a Google token. We added an automated test to our build that
-   fails if the photo path imports a Google data module, if the extraction
-   endpoint accepts any field other than the image, or if the sheet endpoint
-   imports an AI module. We also turned off analytics autocapture and session
-   recording, and OAuth access tokens are now encrypted at rest as well.
+It now states, under these headings:
 
-3. Demo video. <LINK>. It shows the consent flow with the email scope, then the
-   Drive file and Spreadsheets scopes checked and expanded. It shows zippp
-   creating the spreadsheet in Google Drive, the write of an accepted receipt,
-   the resulting rows in the user's own Google Sheet, the extraction debug
-   panel, and the account settings.
+- "Google user data we receive" and "How we use it, per permission": how zippp
+  uses Google user data, per scope. spreadsheets reads the header row and tab
+  names of the one sheet the user connects and writes the rows the user accepts.
+  zippp never reads the data rows. drive.file finds or creates the zippp
+  spreadsheet, and only files zippp created or the user picked are visible.
+  userinfo.email identifies the account, sends account email, and checks admin
+  access on the server.
+- "Who we share data with": with whom zippp shares, transfers, or discloses
+  Google user data, with each processor and its purpose. We do not sell it, and
+  we do not use it for advertising or to train AI models.
+- "How we protect it": the data protection mechanisms, including TLS in transit,
+  AES-256-GCM encryption of OAuth tokens at rest with a key held only in server
+  environment variables, least privilege scopes, and server-side admin checks.
+- "Limited Use": the Google API Services User Data Policy statement, including
+  the Limited Use requirements.
 
-The requested scopes are unchanged and match the Cloud Console: spreadsheets,
-drive.file, userinfo.email.
+2. Demo video: every requirement in your letter
 
-We can record a shorter demonstration of any single scope if that helps.
+https://youtu.be/uUestW2elyY (unlisted, plays without signing in, 3:05)
+
+- Full functionality of every requested scope:
+  - 0:29 email scope, on the consent screen.
+  - 1:03 to 1:38 Drive file and Spreadsheets, both selected, with the access
+    details expanded for each.
+  - 1:45 to 2:05 zippp creates the spreadsheet in Google Drive and shows it in
+    Google Sheets.
+  - 2:15 to 2:33 the receipt review card, the extraction debug panel, and Accept.
+- Source account impact:
+  - 2:35 to 2:39 the accepted receipt rows are shown in the user's own Google
+    Sheet, written by the app.
+- Consent screen:
+  - Every requested scope is visible and expanded in the flow. No scope is
+    collapsed, hidden, or replaced by a summary.
+- Scope matching:
+  - The app requests exactly https://www.googleapis.com/auth/spreadsheets,
+    https://www.googleapis.com/auth/drive.file, and
+    https://www.googleapis.com/auth/userinfo.email, matching the Cloud Console.
+    No scope was added or removed for this submission.
+- Live app:
+  - Publishing status remains In Production. No new scope was deployed to
+    production traffic. The requested scope set is unchanged.
+
+We have updated the verification request with the privacy policy URL and the
+video link above.
+
+3. AI integration: Option 2, complete data segregation
+
+- The AI step receives only the receipt photo the user takes with the camera, or
+  text read from that photo. The photo is not Google user data.
+- It never receives Google account data, a spreadsheet id, sheet contents, or a
+  Drive file.
+- The extraction code path does not load a Google token, and the sheet code path
+  does not import an AI module.
+- An automated test in our build fails if the photo path imports a Google data
+  module, if the extraction endpoint accepts any field other than the image, or
+  if the sheet endpoint imports an AI module.
+- Analytics autocapture and session recording are disabled. OAuth refresh and
+  access tokens are encrypted at rest.
+- The video shows the extraction payload at 2:20: OCR text only, no Google data.
+
+Please let us know if any item needs a shorter or more specific demonstration.
 
 Sincerely,
 <NAME>

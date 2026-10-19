@@ -120,10 +120,11 @@ Purpose: handoff. Read this first, then the owning spec files.
   if `/api/sheets/append` imports an AI module.
 - Reviewer package, including the video shot list and the reply text:
   `spec/discussions/google-verification-reply.md`.
-- Deployed to production on 19 Oct 2026. Pending: record the video and send
-  the reply. The shot list, narration script, console checklist, and reply text
-  are in the same file. Recording harness: `npm run demo:live`
-  (`demo/record-live.mjs`); step-by-step guide: `demo/RECORDING.md`.
+- Deployed to production on 19 Oct 2026. Video uploaded 19 Oct 2026. Pending:
+  update the Cloud Console request and send the reply. Video is recorded, cut, and uploaded: https://youtu.be/uUestW2elyY
+  (unlisted, 3:05, regular video). Final reply text:
+  `spec/discussions/google-verification-email.txt`. Recording guide:
+  `demo/RECORDING.md`; build script: `demo/build_verification_demo.py`.
 
 ## Current runtime map
 
