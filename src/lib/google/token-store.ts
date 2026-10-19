@@ -38,6 +38,19 @@ async function ensureDir(): Promise<void> {
     await fs.mkdir(dataDir(), { recursive: true });
 }
 
+/**
+ * Access tokens written before the encryption change have no `v1:`/`plain:`
+ * prefix. They are short-lived and get rewritten encrypted on the next
+ * refresh, so legacy values are returned as they are.
+ */
+function decryptMaybe(value: string | null): string | null {
+    if (value == null) return null;
+    if (value.startsWith("v1:") || value.startsWith("plain:")) {
+        return decryptSecret(value);
+    }
+    return value;
+}
+
 function parseShape(raw: string | null): FileShape {
     if (raw == null) return { version: 1, tokens: null };
     const parsed = JSON.parse(raw) as FileShape;
@@ -113,7 +126,7 @@ export async function saveTokens(input: {
         google_user_id: input.google_user_id,
         email: input.email ?? null,
         refresh_token: encryptSecret(input.refresh_token),
-        access_token: input.access_token ?? null,
+        access_token: input.access_token ? encryptSecret(input.access_token) : null,
         expiry_date: input.expiry_date ?? null,
         updated_at: new Date().toISOString(),
     };
@@ -128,6 +141,7 @@ export async function loadTokens(): Promise<StoredGoogleTokens | null> {
     return {
         ...file.tokens,
         refresh_token: decryptSecret(file.tokens.refresh_token),
+        access_token: decryptMaybe(file.tokens.access_token),
     };
 }
 

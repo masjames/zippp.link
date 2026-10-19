@@ -6,7 +6,7 @@
     "build": "next build",
     "start": "next start",
     "logs": "python3 scripts/watch-logs.py",
-    "test": "node --experimental-transform-types --loader ./scripts/ts-loader.mjs --test src/lib/verify-receipt.test.ts src/lib/eval-score.test.ts src/lib/correction-diff.test.ts",
+    "test": "node --experimental-transform-types --loader ./scripts/ts-loader.mjs --test src/lib/verify-receipt.test.ts src/lib/eval-score.test.ts src/lib/correction-diff.test.ts src/lib/data-boundary.test.ts",
     "eval": "node --experimental-transform-types --loader ./scripts/ts-loader.mjs scripts/eval.ts",
     "grant": "node --env-file=.env.local scripts/grant.mjs"
   },

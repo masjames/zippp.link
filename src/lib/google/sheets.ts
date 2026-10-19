@@ -69,6 +69,9 @@ export async function getAuthenticatedClient(): Promise<OAuth2Client> {
   ) {
     await saveTokens({
       google_user_id: stored.google_user_id,
+      // A token refresh must not drop the account email: admin checks and
+      // credit grants by email read it from this record.
+      email: stored.email,
       refresh_token: newRefresh,
       access_token: newAccess,
       expiry_date: newExpiry,

@@ -120,10 +120,21 @@ visible when signed in.
 
 - Photo → Baidu AI Studio (PP-OCRv6) for OCR → DeepSeek for structuring → Gemini
   only as last-resort fallback. Disclosed in FAQ and sign-in copy.
+- **AI boundary**: the extraction path receives one image and nothing else. No
+  Google token, sheet id, sheet contents or Drive file ever reaches OCR,
+  DeepSeek, or Gemini. Enforced by `src/lib/data-boundary.test.ts`.
+- Google user data: account id and email, OAuth tokens, the connected
+  spreadsheet id, tab names and header row. zippp never reads data rows. The
+  full disclosure (use per scope, sharing, protection, Limited Use) is the
+  privacy page, `legal.privacy.body.*` in `wording.txt`.
 - When photo proof is on, the JPEG is uploaded to the user's Google Drive under
   `[zippp] Receipts/`. zippp does not keep a copy.
-- OAuth tokens and workspace config are server-side only. Never `NEXT_PUBLIC`
-  for secrets. Disconnect revokes tokens; the sheet remains theirs.
+- OAuth tokens and workspace config are server-side only, encrypted at rest
+  (AES-256-GCM). Never `NEXT_PUBLIC` for secrets. Sign out deletes the token and
+  sheet setup from our store; Google access is removed by the user at
+  `myaccount.google.com/permissions` (the sheet remains theirs).
+- Analytics record page views only: PostHog autocapture and session recording
+  are off, so review-card values are never sent.
 
 ---
 

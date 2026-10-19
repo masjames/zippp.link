@@ -233,9 +233,9 @@ Who sees my receipt?
 ## landing.faq.q4.id
 Siapa yang melihat resi saya?
 ## landing.faq.a4.en
-The photo goes to Baidu AI Studio (PaddleOCR) to read text, then DeepSeek to structure it. Gemini is the backup if those fail. The photo is not kept after the read.
+The photo goes to Baidu AI Studio (PaddleOCR) to read text, then DeepSeek to structure it. Gemini is the backup if those fail. None of them see your Google account or your sheet. The photo is not kept after the read.
 ## landing.faq.a4.id
-Fotonya ke Baidu AI Studio (PaddleOCR) buat dibaca, lalu DeepSeek buat disusun. Gemini cadangan kalau dua itu gagal. Setelah dibaca, fotonya nggak disimpan.
+Fotonya ke Baidu AI Studio (PaddleOCR) buat dibaca, lalu DeepSeek buat disusun. Gemini cadangan kalau dua itu gagal. Mereka nggak melihat akun Google atau sheet Anda. Setelah dibaca, fotonya nggak disimpan.
 ## landing.foot.title.en
 Save time logging your receipts!
 ## landing.foot.title.id
@@ -1646,9 +1646,9 @@ See full pricing
 Lihat rincian harga
 
 ## legal.updated.en
-13 October 2026
+19 October 2026
 ## legal.updated.id
-13 Oktober 2026
+19 Oktober 2026
 ## legal.updatedLine.en
 Last updated {updated}. Operated by {operator}.
 ## legal.updatedLine.id
@@ -1764,7 +1764,7 @@ zippp is provided as is. To the extent allowed by law, our liability to you is l
 
 # Ending the service
 
-You can stop at any time: disconnect Google in Settings and your tokens are deleted. We can end or change the service with notice on this page. Unused credits in a lot that is still valid will be refunded if we shut down.
+You can stop at any time: sign out in Settings and your tokens are deleted from our servers. We can end or change the service with notice on this page. Unused credits in a lot that is still valid will be refunded if we shut down.
 
 # Law
 
@@ -1810,7 +1810,7 @@ zippp disediakan apa adanya. Sejauh diizinkan hukum, tanggung jawab kami kepada 
 
 # Mengakhiri layanan
 
-Anda bisa berhenti kapan saja: putuskan Google di Pengaturan dan token Anda dihapus. Kami bisa mengakhiri atau mengubah layanan dengan pemberitahuan di halaman ini. Kredit yang belum terpakai dan masih berlaku akan dikembalikan jika kami tutup.
+Anda bisa berhenti kapan saja: keluar di Pengaturan dan token Anda dihapus dari server kami. Kami bisa mengakhiri atau mengubah layanan dengan pemberitahuan di halaman ini. Kredit yang belum terpakai dan masih berlaku akan dikembalikan jika kami tutup.
 
 # Hukum
 
@@ -1829,39 +1829,81 @@ Privacy policy
 ## legal.privacy.title.id
 Kebijakan privasi
 ## legal.privacy.body.en
-This page says what zippp collects, where it goes, and how to delete it. Short version: the photo is read and dropped, the rows go to your sheet, and we keep only what is needed to run your account and your credits.
+Short version: we read the photo you take, we write the rows you accept to your Google Sheet, and we keep only what running your account and credits needs. We do not sell your data, we do not use it for ads, and we do not use it to train AI models.
+
+# Google user data we receive
+
+- Your Google account id and email address. We use them to identify your account, to send the emails you ask for, and to check admin access on our server.
+- A Google OAuth refresh token. It is the key that lets zippp write to the sheet you connect, and it is encrypted on our servers.
+- The spreadsheet id and tab names of the sheet you connect, plus its first row. We read the first row to map your columns.
+- With the Drive file permission, only files zippp created or you picked here: we read the file id and name to find your [zippp] sheet.
+
+We do not read your data rows and we do not browse your Drive.
+
+# How we use it, per permission
+
+- spreadsheets: write the rows you accept, and the header row when zippp creates the sheet. Read the first row and the tab names only.
+- drive.file: find or create your [zippp] spreadsheet, so you do not have to paste a link.
+- userinfo.email: identify you, keep sessions separate, send account emails, and decide admin access on the server.
+
+We do not use Google user data for advertising or profiling, and we do not use it to train AI models.
+
+# What never goes to an AI provider
+
+The photo you take is not Google user data, and the two paths stay apart in code:
+
+- The photo goes to Baidu AI Studio (PaddleOCR) to read text, then to DeepSeek to structure it. Gemini is the backup if those fail.
+- Those providers receive only that one photo, or the text read from it. They never receive your Google account data, your sheet contents, your spreadsheet id, or your Drive files.
+- The read path does not load your Google token at all.
+
+# Who we share data with
+
+We do not sell your data, and we do not share it with advertisers or data brokers. We share it only with the providers that run zippp, and only as far as each one needs it:
+
+- Google. The Sheets and Drive calls described above.
+- Vercel. Hosting and server logs.
+- Upstash. Encrypted storage for your account record, token, sheet setup, and credit ledger.
+- Mailtrap. Sends the emails you ask for, to the address on your account.
+- Telegram. Admin alerts with order number, email, and amount. No sheet contents.
+- Paddle and Kasera Pay. Payments. They do not receive Google user data.
+
+If the law requires disclosure, we disclose and we tell you unless we are barred from telling you. If zippp changes operator through a sale or merger, records move with it under this policy.
+
+# How we protect it
+
+- TLS for every request and every API call.
+- OAuth tokens are encrypted at rest with AES-256-GCM, using a key held only in server environment variables. Tokens never reach your browser.
+- Least privilege: three permissions, spreadsheets, drive.file, and your email address. No Gmail, no full Drive, no contacts.
+- Admin pages check the signed-in email on the server and return 404 for anyone else.
+- Analytics record page views and basic device information. Text you type, receipt values, and sheet contents are not sent.
+- Production records are reachable only by the operator.
+
+# Limited Use
+
+zippp's use and transfer to any other app of information received from Google APIs will adhere to the Google API Services User Data Policy, including the Limited Use requirements.
 
 # What we store
 
-- Your Google user id and email, to identify your account.
-- A Google OAuth refresh token, encrypted at rest, so zippp can append to your sheet. Scopes: spreadsheets and drive.file. zippp cannot see files it did not create or you did not pick.
-- Your sheet setup: spreadsheet id, tab name, column map, staff names, outlets.
-- Your credit ledger: top-ups, spends, refunds, referral rewards, and payment order records.
-- Technical logs for each read: timings, which provider answered, and verification flags. No receipt values and no images.
-- Anonymous correction counts when you accept a card: which fields you edited and whether they were flagged. No values, no images.
+- Your Google account id and email.
+- Your Google OAuth tokens, encrypted at rest. The permissions above say what each one allows.
+- Your sheet setup: spreadsheet id, tab names, column map, staff names, outlets.
+- Your credit ledger: top ups, spends, refunds, referral rewards, and payment order records.
+- Extraction logs: timings and which provider answered. No receipt values and no images.
+- Correction counts when you accept a card: a short one-way hash of your user id, which fields you edited, and whether they were flagged. No values and no images.
 
 # What we do not store
 
-- Receipt photos. The image is processed and discarded. It is held in your browser only until the rows are sent.
+- Receipt photos. The image is processed and dropped. It lives in your browser only until the rows are sent.
 - Receipt rows. They go to your Google Sheet and nowhere else.
 - Card numbers or wallet credentials. Payments are handled by the payment provider.
 
-# Who processes your photo
-
-- Baidu AI Studio (PaddleOCR) reads the text in the image.
-- DeepSeek structures that text into rows.
-- Google Gemini is used only if the first two fail.
-- Google Sheets receives the rows you approve.
-
-These providers process the data to return a result and are bound by their own terms. We do not use the free tier of any provider for your receipts except where stated on the pricing page.
-
 # Optional photo donation
 
-If a photo cannot be read, zippp may offer to save it to help improve reading. This happens only if you tap yes. Only the image and the failure reason are kept, with no link to your account or sheet. You can ask us to delete it.
+If a photo cannot be read, zippp may offer to save it to help improve reading. This happens only if you tap yes. The image and the failure reason are stored in the operator's Google Drive, in the folder [zippp] donations, with no link to your account or your sheet. You can ask us to delete it.
 
-# Hosting and storage
+# Hosting and payments
 
-zippp runs on Vercel. Account records are stored in Vercel Blob or Upstash Redis. Payments go through Paddle (international) and DOKU (Indonesia). Neither we nor our servers see your card or account details. Admin alerts go through Telegram and contain invoice number, email, and amount.
+zippp runs on Vercel. Account records are stored in Upstash Redis. Indonesian top ups go through Kasera Pay (QRIS), with a manual GoPay transfer as a fallback. International top ups go through Paddle. Payments reach neither our servers nor our database as card or account numbers. Admin alerts go through Telegram and contain order number, email, and amount. Vercel Analytics and PostHog record page views and basic device information.
 
 # Cookies
 
@@ -1869,7 +1911,7 @@ A session cookie keeps you signed in. A region cookie remembers which language a
 
 # Deleting your data
 
-Disconnect Google in Settings: the refresh token and sheet setup are deleted at once. To delete your account record and ledger, email us from the Google address on the account (see the contact page). Rows in your sheet are yours and are never deleted by zippp.
+Sign out in Settings: the stored token and your sheet setup are deleted from our servers at once. To remove zippp's access at Google as well, remove it at [Google permissions](https://myaccount.google.com/permissions). To delete your account record and the credit ledger, email us from the Google address on the account (see the contact page). Rows in your sheet are yours and are never deleted by zippp.
 
 # Changes
 
@@ -1878,17 +1920,69 @@ We update this page when something changes and show the date at the top.
 # Contact
 
 {operator}. See [contact]({contactHref}).
+
 ## legal.privacy.body.id
-Halaman ini menjelaskan apa yang dikumpulkan zippp, ke mana datanya pergi, dan cara menghapusnya. Singkatnya: foto dibaca lalu dibuang, baris masuk ke sheet Anda, dan kami hanya menyimpan yang diperlukan untuk menjalankan akun dan kredit Anda.
+Versi singkat: kami membaca foto yang Anda ambil, menulis baris yang Anda setujui ke Google Sheet Anda, dan hanya menyimpan yang diperlukan untuk akun dan kredit Anda. Kami tidak menjual data Anda, tidak memakainya untuk iklan, dan tidak memakainya untuk melatih model AI.
+
+# Data pengguna Google yang kami terima
+
+- Id akun Google dan alamat email Anda. Kami memakainya untuk mengenali akun, mengirim email yang Anda minta, dan memeriksa akses admin di server kami.
+- Refresh token OAuth Google. Ini kunci agar zippp bisa menulis ke sheet yang Anda hubungkan, dan disimpan terenkripsi di server kami.
+- Id spreadsheet dan nama tab sheet yang Anda hubungkan, ditambah baris pertamanya. Baris pertama kami baca untuk memetakan kolom Anda.
+- Dengan izin file Drive, hanya file yang dibuat zippp atau yang Anda pilih di sini: kami membaca id dan nama file untuk menemukan sheet [zippp] Anda.
+
+Kami tidak membaca baris data Anda dan tidak menjelajahi Drive Anda.
+
+# Cara kami memakainya, per izin
+
+- spreadsheets: menulis baris yang Anda setujui, dan baris header saat zippp membuat sheet. Membaca baris pertama dan nama tab saja.
+- drive.file: menemukan atau membuat spreadsheet [zippp] Anda, jadi Anda tidak perlu menempel tautan.
+- userinfo.email: mengenali Anda, memisahkan sesi, mengirim email akun, dan menentukan akses admin di server.
+
+Kami tidak memakai data pengguna Google untuk iklan atau profiling, dan tidak memakainya untuk melatih model AI.
+
+# Yang tidak pernah masuk ke penyedia AI
+
+Foto yang Anda ambil bukan data pengguna Google, dan kedua jalur tetap terpisah di kode:
+
+- Foto dikirim ke Baidu AI Studio (PaddleOCR) untuk dibaca, lalu ke DeepSeek untuk disusun. Gemini cadangan kalau dua itu gagal.
+- Penyedia itu hanya menerima satu foto tersebut, atau teks hasil bacaannya. Mereka tidak pernah menerima data akun Google Anda, isi sheet, id spreadsheet, atau file Drive Anda.
+- Jalur pembacaan tidak memuat token Google Anda sama sekali.
+
+# Dengan siapa data dibagikan
+
+Kami tidak menjual data Anda, dan tidak membagikannya ke pengiklan atau broker data. Kami hanya membagikannya ke penyedia yang menjalankan zippp, sebatas yang mereka perlukan:
+
+- Google. Panggilan Sheets dan Drive di atas.
+- Vercel. Hosting dan log server.
+- Upstash. Penyimpanan terenkripsi untuk catatan akun, token, pengaturan sheet, dan buku kredit.
+- Mailtrap. Mengirim email yang Anda minta, ke alamat akun Anda.
+- Telegram. Notifikasi admin berisi nomor pesanan, email, dan nominal. Tanpa isi sheet.
+- Paddle dan Kasera Pay. Pembayaran. Mereka tidak menerima data pengguna Google.
+
+Jika hukum mewajibkan pengungkapan, kami mengungkapkan dan memberi tahu Anda kecuali dilarang. Jika zippp berganti pengelola karena penjualan atau penggabungan, catatan berpindah bersama kebijakan ini.
+
+# Cara kami melindunginya
+
+- TLS untuk setiap permintaan dan setiap panggilan API.
+- Token OAuth dienkripsi saat disimpan dengan AES-256-GCM, kuncinya hanya ada di variabel lingkungan server. Token tidak pernah sampai ke browser Anda.
+- Hak minimum: tiga izin, spreadsheets, drive.file, dan alamat email Anda. Tanpa Gmail, tanpa Drive penuh, tanpa kontak.
+- Halaman admin memeriksa email yang masuk di server dan mengembalikan 404 untuk yang lain.
+- Analitik mencatat tampilan halaman dan informasi perangkat dasar. Teks yang Anda ketik, nilai resi, dan isi sheet tidak dikirim.
+- Catatan produksi hanya bisa diakses pengelola.
+
+# Limited Use
+
+Penggunaan dan pengalihan informasi yang diterima zippp dari Google API ke aplikasi lain mengikuti Google API Services User Data Policy, termasuk persyaratan Limited Use.
 
 # Yang kami simpan
 
-- Id pengguna Google dan email Anda, untuk mengenali akun.
-- Refresh token OAuth Google, dienkripsi saat disimpan, agar zippp bisa menambah baris ke sheet Anda. Cakupan: spreadsheets dan drive.file. zippp tidak bisa melihat file yang tidak dibuatnya atau tidak Anda pilih.
+- Id akun Google dan email Anda.
+- Token OAuth Google Anda, terenkripsi saat disimpan. Izin di atas menjelaskan kegunaan masing-masing.
 - Pengaturan sheet: id spreadsheet, nama tab, peta kolom, nama staf, outlet.
 - Buku kredit Anda: isi saldo, pemakaian, refund, bonus referal, dan catatan pesanan pembayaran.
-- Log teknis tiap pembacaan: durasi, penyedia yang menjawab, dan tanda verifikasi. Tanpa nilai resi dan tanpa gambar.
-- Hitungan koreksi anonim saat Anda menekan Terima: kolom mana yang diubah dan apakah ditandai. Tanpa nilai, tanpa gambar.
+- Log pembacaan: durasi dan penyedia yang menjawab. Tanpa nilai resi dan tanpa gambar.
+- Hitungan koreksi saat Anda menekan Terima: hash satu arah pendek dari id pengguna Anda, kolom mana yang diubah, dan apakah ditandai. Tanpa nilai dan tanpa gambar.
 
 # Yang tidak kami simpan
 
@@ -1896,22 +1990,13 @@ Halaman ini menjelaskan apa yang dikumpulkan zippp, ke mana datanya pergi, dan c
 - Baris resi. Semua masuk ke Google Sheet Anda, tidak ke tempat lain.
 - Nomor kartu atau kredensial dompet. Pembayaran ditangani penyedia pembayaran.
 
-# Siapa yang memproses foto Anda
-
-- Baidu AI Studio (PaddleOCR) membaca teks di gambar.
-- DeepSeek menyusun teks itu menjadi baris.
-- Google Gemini hanya dipakai jika dua yang pertama gagal.
-- Google Sheets menerima baris yang Anda setujui.
-
-Penyedia ini memproses data untuk mengembalikan hasil dan terikat syarat mereka sendiri.
-
 # Donasi foto (opsional)
 
-Jika foto tidak terbaca, zippp bisa menawarkan untuk menyimpannya demi memperbaiki pembacaan. Ini hanya terjadi jika Anda menekan ya. Hanya gambar dan alasan kegagalan yang disimpan, tanpa kaitan ke akun atau sheet Anda. Anda bisa minta kami menghapusnya.
+Jika foto tidak terbaca, zippp bisa menawarkan untuk menyimpannya demi memperbaiki pembacaan. Ini hanya terjadi jika Anda menekan ya. Gambar dan alasan kegagalan disimpan di Google Drive pengelola, di folder [zippp] donations, tanpa kaitan ke akun atau sheet Anda. Anda bisa minta kami menghapusnya.
 
-# Hosting dan penyimpanan
+# Hosting dan pembayaran
 
-zippp berjalan di Vercel. Catatan akun disimpan di Vercel Blob atau Upstash Redis. Pembayaran lewat Paddle (internasional) dan DOKU (Indonesia). Kami dan server kami tidak melihat data kartu atau rekening Anda. Notifikasi admin lewat Telegram berisi nomor invoice, email, dan nominal.
+zippp berjalan di Vercel. Catatan akun disimpan di Upstash Redis. Isi saldo dari Indonesia lewat Kasera Pay (QRIS), dengan transfer GoPay manual sebagai cadangan. Isi saldo internasional lewat Paddle. Pembayaran tidak pernah sampai ke server atau basis data kami sebagai nomor kartu atau nomor rekening. Notifikasi admin lewat Telegram berisi nomor pesanan, email, dan nominal. Vercel Analytics dan PostHog mencatat tampilan halaman dan informasi perangkat dasar.
 
 # Cookie
 
@@ -1919,7 +2004,7 @@ Cookie sesi menjaga Anda tetap masuk. Cookie wilayah mengingat bahasa dan mata u
 
 # Menghapus data Anda
 
-Putuskan Google di Pengaturan: refresh token dan pengaturan sheet langsung dihapus. Untuk menghapus catatan akun dan buku kredit, kirim email dari alamat Google yang dipakai di akun Anda (lihat halaman kontak). Baris di sheet Anda adalah milik Anda dan tidak pernah dihapus zippp.
+Keluar di Pengaturan: token yang tersimpan dan pengaturan sheet langsung dihapus dari server kami. Untuk mencabut akses zippp di Google juga, cabut di [izin Google](https://myaccount.google.com/permissions). Untuk menghapus catatan akun dan buku kredit, kirim email dari alamat Google yang dipakai di akun Anda (lihat halaman kontak). Baris di sheet Anda adalah milik Anda dan tidak pernah dihapus zippp.
 
 # Perubahan
 

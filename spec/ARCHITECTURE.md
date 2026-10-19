@@ -83,8 +83,9 @@ Upstash Redis REST  →  Vercel Blob (legacy)  →  filesystem (.data / ZIPPP_DA
 - Selected from env: `UPSTASH_REDIS_REST_*` first, else `BLOB_READ_WRITE_TOKEN`,
   else the filesystem. Upstash is preferred so a suspended Blob store cannot
   break sessions. On Vercel the filesystem is ephemeral (`/tmp`).
-- The refresh token is encrypted at rest with `TOKEN_ENCRYPTION_KEY`
-  (AES-256-GCM, `src/lib/google/crypto.ts`).
+- The refresh token and the access token are encrypted at rest with
+  `TOKEN_ENCRYPTION_KEY` (AES-256-GCM, `src/lib/google/crypto.ts`). A refresh
+  keeps the stored email, which admin checks and credit grants read.
 - Remote read/write failures log `store.read.failed` / `store.write.failed` and
   throw when a remote store is configured. They never silently fall back to
   `/tmp`, which would look like a logout and a 404 on admin routes.
@@ -219,6 +220,10 @@ Daily formula block on each month tab. Tabs older than 12 months hidden.
 
 ## Data flow
 
+Two paths meet only in the browser. Google API data and the receipt photo never
+enter the same server code path, which is what makes the Limited Use claim
+checkable (`src/lib/data-boundary.test.ts`).
+
 ```
 Staff phone
   → photo
@@ -234,6 +239,11 @@ Staff phone
   → { ok, rows_written, sheet_tab, photo? }
   On any throw after spend: refund (+ trash uploaded file if any)
 ```
+
+The photo path (`/api/extract` → `extract-pipeline` → OCR, DeepSeek, Gemini)
+imports no Google module and accepts only the `image` form field. The sheet path
+(`/api/sheets/append`) imports no AI module. Both rules are asserted in
+`src/lib/data-boundary.test.ts`, so a later refactor cannot quietly join them.
 
 ---
 
@@ -277,9 +287,13 @@ Admin-only, guarded like `/admin` (server `currentUser().admin`, 404 otherwise).
 ## OAuth
 
 - Web client in Google Cloud; redirect to zippp.
-- Scopes: `spreadsheets` + `drive.file` (find/create `[zippp]` sheets). Not Gmail.
+- Scopes: `spreadsheets` + `drive.file` (find/create `[zippp]` sheets) +
+  `userinfo.email` (identity, admin, credits by email). Not Gmail.
 - `access_type=offline`, `prompt=consent`; the refresh token is required.
-- Disconnect deletes tokens and workspace config.
+- Sign out deletes tokens and workspace config from the store. It does not call
+  Google's revoke endpoint, because the donation token is a copy of the admin's
+  grant; the privacy page points users at `myaccount.google.com/permissions`
+  instead.
 
 ---
 

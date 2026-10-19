@@ -104,6 +104,24 @@ Purpose: handoff. Read this first, then the owning spec files.
   Vercel tracing updated). `AGENTS.md` was already updated to `.txt`.
 - Legal pages and contact email reveal exist from an earlier change.
 
+## Google OAuth verification (19 Oct 2026)
+
+- Google's letter asked for three privacy disclosures (use, sharing, protection),
+  a new demo video, and a fix for the DeepSeek finding. Answered with Option 2:
+  keep DeepSeek, prove segregation.
+- Privacy page (`/privacy`, `/id/privasi`) rewritten EN + ID: Google data per
+  scope, who it is shared with, protection mechanisms, and the Limited Use
+  sentence. Stale Blob and DOKU facts removed; donation destination added.
+  Date is now 19 October 2026.
+- PostHog autocapture and session recording are off. Access tokens are encrypted
+  at rest with the refresh token. A token refresh now keeps the stored email.
+- `src/lib/data-boundary.test.ts` runs in `npm test` and fails the build if the
+  photo path imports Google data, if `/api/extract` reads a second form field, or
+  if `/api/sheets/append` imports an AI module.
+- Reviewer package, including the video shot list and the reply text:
+  `spec/discussions/google-verification-reply.md`.
+- Pending: deploy, record the video, send the reply.
+
 ## Current runtime map
 
 ```
@@ -145,6 +163,8 @@ Paddle: `PADDLE_*`. DOKU halted: `DOKU_*`. Manual GoPay: `GOPAY_NUMBER`,
    artifact.
 7. Some `spec/archived/*` docs still say `wording.md`; active specs say
    `wording.txt`.
+8. The privacy rewrite and the analytics/token changes are committed locally but
+   not deployed. The live policy is still the old one until the next deploy.
 
 ## Continuation prompt
 

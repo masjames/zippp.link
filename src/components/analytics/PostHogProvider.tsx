@@ -24,6 +24,12 @@ export default function AppPostHogProvider({
                     process.env.NEXT_PUBLIC_POSTHOG_HOST ||
                     "https://us.i.posthog.com",
                 defaults: "2026-05-30",
+                // Page views only. Autocapture would ship the text of the
+                // review card (merchant, amounts) and session replay would
+                // record it. Neither is worth a privacy claim we cannot keep.
+                autocapture: false,
+                capture_pageview: true,
+                disable_session_recording: true,
             }}
         >
             {children}
