@@ -1,175 +1,176 @@
-# Record the Google verification demo
+# Record the demo with the Mac recorder
 
-One recording, about 5 minutes, no editing. Google wants to see the real app
-with a real Google account, so this is a live walkthrough, not a slideshow.
+One take, about 5 minutes, no editing. I add the captions afterwards.
 
-## Before you start
+You need: a Mac, Chrome, a Google account with credits, one receipt photo (or a
+paper receipt), and 10 quiet minutes.
 
-Do these first. They prevent 90% of the mistakes.
+---
 
-- [ ] Use a Google account that **has credits**. After sign-in, look at the
-      credit pill. If it shows 0, stop. Ask for a grant first.
-- [ ] Have two receipt photos ready (JPG, PNG, or PDF). One is enough, two is
-      safer if the first read fails.
-- [ ] In zippp: Settings, scroll down, **Sign out**. Stay signed in to Google
-      itself. The demo needs to show the consent screen, which only appears when
-      zippp is signed out.
-- [ ] Close other tabs. Hide the bookmarks bar (Cmd+Shift+B).
-- [ ] Turn on Do Not Disturb (Control Center). No notifications in the video.
-- [ ] Make the Chrome window large but not full screen. About 1440 wide is good.
+## 1. Prepare, before you record
 
-## Pick one way to record
+Do all of this first. It is what makes the take work on the first try.
 
-**A. The built-in recorder (cleanest).** In a terminal:
+- [ ] **Check credits.** Open zippp, sign in if needed, look at the credit pill.
+      It must show more than 0. If it shows 0, stop and ask me for a grant.
+- [ ] **Sign out of zippp.** Settings, scroll to the bottom, Sign out.
+      Stay signed in to Google itself. Do not sign out of Google.
+      Why: the consent screen only appears when zippp is signed out.
+- [ ] **Put the receipt on the Desktop.** A JPG or PDF. Name it `receipt.jpg`.
+      Keep a second one nearby in case the first read fails.
+- [ ] **Clean the browser.** Close every tab except the zippp landing page.
+      Hide the bookmarks bar: Cmd+Shift+B. Reset zoom: Cmd+0.
+- [ ] **Silence the Mac.** Control Center, Do Not Disturb on. No notifications.
+- [ ] **Window size.** One Chrome window, not full screen. Leave the Dock and the
+      menu bar visible. About 1440 pixels wide is good.
+- [ ] **Scroll to the top** of the landing page. The take starts there.
 
-```
-npm run demo:live
-```
+---
 
-A Chrome window opens and starts recording immediately. It records the page
-only, no toolbar, and it forces English. Do the steps below, then close the
-window. The MP4 is written to `demo/out/zippp-google-verification-demo.mp4`.
+## 2. Start recording, 30 seconds
 
-The recorder keeps the Google session in a dedicated Chrome profile, and clears
-only the zippp session on each start. That means the consent screen appears every
-time, and after the first sign-in no password is shown again. The first run does
-ask for the password; either complete it quickly or run it once to warm the
-profile, close, and run again.
+1. Press **Cmd + Shift + 5**. The screenshot toolbar appears.
+2. In the toolbar, choose **Record Selected Portion**.
+3. Drag a rectangle tight around the **Chrome window**. Leave out the menu bar,
+   the Dock, and the desktop.
+4. Click **Options** and set:
+   - **Microphone: None** (captions carry the words)
+   - **Show Mouse Clicks: on** (so the reviewer sees every click)
+   - **Timer: None**
+   - **Save to: Desktop**
+5. Click **Record**.
+6. Click once inside the Chrome window so it has focus.
 
-**B. QuickTime.** Open QuickTime, File, New Screen Recording, click the arrow
-next to the record button and choose the Chrome window, then Start. Record the
-same steps. This captures the toolbar too, which is fine, but makes the file
-bigger and noisier.
+A stop button appears in the menu bar. Leave it alone until the end.
 
-If you narrate live, a microphone is good. If not, captions are not needed:
-Google's reviewers read the flow, and the narration script below is optional.
-Text captions are optional but help.
+---
 
-## The steps
+## 3. The eight scenes
 
-Move slowly. Pause about two seconds after every click. Total target: 5 minutes.
+Move slowly. After every click, count one, two in your head before the next one.
+Total target: 5 minutes.
 
-### 1. Landing page (15 seconds)
+### Scene 1. Landing page (15 seconds)
 
-Do nothing for a moment. The camera card animates. Then move the mouse slowly to
-"Sign in with Google".
+Do nothing. Let the camera card animate once. Then move the mouse slowly toward
+the sign-in button.
 
-**Say:** "zippp turns a receipt photo into rows in the user's Google Sheet. I
-will show each permission in use."
+> **Caption:** Receipt photos become rows in your Google Sheet.
 
-### 2. Sign in and consent (1 minute)
+### Scene 2. Sign in and consent (60 seconds)
 
-Click "Sign in with Google". Pick the account you are already signed in with.
+Click **Sign in with Google**. Pick your account.
 
-On the consent screen:
+The Google consent screen appears. This is the most important shot.
 
-1. If you see **Show all services**, click it. All three scopes must be readable.
-2. Pause. Let the reviewer read the scopes.
-3. Click Allow.
+1. Click **Show all services** if it is there. The three permissions must be
+   readable.
+2. Hold still for 4 seconds. Let the reviewer read them.
+3. Click **Allow**.
 
-**Say:** "Spreadsheets lets zippp read the header row and write accepted rows.
-Drive file lets it find or create its own spreadsheet. Email identifies the
-account."
+> **Caption:** Spreadsheets: write accepted rows. Drive file: only the sheet
+> zippp creates. Email: identify the account.
 
-If Google asks for a password or 2FA, complete it. The field is masked. If it
-says "This browser or app may not be secure", stop, and record with QuickTime in
-your normal Chrome instead.
+If Google asks for a password, type it. The field shows dots only. If Google
+says "This browser or app may not be secure", stop the recording and tell me.
 
-### 3. Connect a sheet (1 minute)
+### Scene 3. Connect the sheet (60 seconds)
 
-You land on Snap. Open the gear, then Settings, then Sheet.
+You land on Snap. Click the **gear** in the header, then **Settings**, then
+**Sheet**.
 
-- If zippp finds the old `[zippp]` sheet, show the list briefly, then pick it.
-- If there is no sheet, choose "Create a new sheet", pick the "Purchasing and
-  inventory" template, and confirm.
+- If zippp lists an old `[zippp]` sheet, look at the list for 3 seconds, then
+  click it.
+- If it does not, click **Create a new sheet**, choose **Purchasing and
+  inventory**, and confirm.
 
-If the app opens Google Sheets after connecting, press Back to return to zippp.
+If Google Sheets opens by itself, press **Back** to return to zippp.
 
-**Say:** "This lookup is the Drive file permission. zippp sees only the sheet it
-creates or the user picks. It cannot see any other file."
+> **Caption:** Drive file permission: zippp finds only its own sheet, not the
+> rest of your Drive.
 
-### 4. One receipt (2 minutes)
+### Scene 4. One receipt (120 seconds)
 
-Go to Snap. Click **Upload** and choose the receipt. Ignore the camera prompt if
-one appears.
+Click **Snap**, then the **Upload** link. Choose `receipt.jpg` from the Desktop.
+Ignore the camera prompt if it appears.
 
 Wait for the card. Then:
 
-1. Pause on the card so the values are readable.
-2. Change one field, for example one line amount or the total, then tap outside
-   the field. This shows the check step.
-3. Click **Accept**.
-4. If a "donate this photo" offer appears, click No.
+1. Hold still on the card for 4 seconds so the values are readable.
+2. Change one field (for example one line amount), then click outside the field.
+3. Hold 2 seconds.
+4. Click **Accept**.
+5. If a "donate this photo" offer appears, click **No**.
 
-**Say:** "I check what was read, correct one field, and press Accept. Accept
-writes the row and spends one credit."
+> **Caption:** One receipt. Check the card, fix one field, Accept.
 
-### 5. Show the sheet (1 minute)
+### Scene 5. Show the sheet (60 seconds)
 
-After Accept, the **Open Google Sheets** link appears at the bottom. Click it.
-It opens in the same tab.
+After Accept, an **Open Google Sheets** link appears at the bottom. Click it.
 
-1. Let the sheet load.
-2. Show the header row and the new rows.
-3. Scroll once, slowly.
-4. Press Back to return to zippp.
+1. Wait for the sheet to load.
+2. Show the header row and the new rows: move the mouse over them slowly.
+3. Scroll once, slowly, to show the days and totals.
+4. Press **Back** to return to zippp.
 
-**Say:** "This is the user's own Google Sheet. The new rows are here. zippp wrote
-them and does not read the data rows."
+> **Caption:** The row is in the user's own Google Sheet. zippp wrote it and never
+> reads your rows.
 
-### 6. The AI boundary (30 seconds)
+### Scene 6. The AI boundary (30 seconds)
 
 Back on Snap, find the collapsed **Debug** panel under the last card. It says
-"Debug" and a provider name. Click it to expand. Hold for a few seconds so the
-OCR text and the payload are visible.
+"Debug" and a provider name. Click it to open. Hold 4 seconds so the OCR text and
+the payload are visible. Click it again to close.
 
-**Say:** "The extraction request carries the photo only. The AI step receives
-that photo or the text read from it. No Google account data, no sheet id, no
-sheet contents, and no Drive file is ever sent with it."
+> **Caption:** The AI step receives the photo only. No Google data, no sheet id,
+> no Drive file.
 
-Collapse it again.
+### Scene 7. Account and sign out (30 seconds)
 
-### 7. Account and sign out (30 seconds)
+Open **Settings**. Show:
 
-Open Settings. Show the account email and the credit balance. Scroll to
-**Sign out** and hover it.
+1. The account email.
+2. The credit balance.
+3. Scroll to **Sign out** and hover it. Do not click it.
 
-**Say:** "Signing out deletes the stored token and the sheet setup from zippp's
-servers. The user can also remove access in their Google account. The sheet stays
-theirs."
+> **Caption:** Sign out deletes the stored token and sheet setup. The sheet stays
+> yours.
 
-**Do not click Sign out.**
+### Scene 8. Stop
 
-### 8. Stop
+1. Click the **stop button** in the menu bar.
+2. The file saves to the Desktop as `Screen Recording ....mov`.
+3. Wait for the thumbnail to appear, then tell me the file name.
 
-- Recorder A: close the Chrome window. Wait for "OK" in the terminal.
-- QuickTime: click the stop button in the menu bar, then File, Save.
+---
 
-## After recording
+## 4. What I do next
 
-1. Save the file as `demo/in/zippp-demo.mov` (that folder is gitignored).
-2. Tell me the file name. I will add the captions from the "Say" lines, cut the
-   dead time at the start and end, and return a 1080p MP4 with no editing app
-   needed on your side.
-3. I will send you three still frames to approve before you upload.
-4. Upload the final MP4 to YouTube as **Unlisted**. The link must open without
-   signing in, and send it to me for the reply email.
+1. I trim the dead start and end and normalize to 1080p MP4.
+2. I add the captions above, timed to your clicks.
+3. I send you three still frames to approve.
+4. You upload the MP4 to YouTube as **Unlisted** and send me the link.
 
-## Problems
+You do not need any editing app.
 
-| What happened | What to do |
+---
+
+## 5. If something goes wrong
+
+| Problem | Fix |
 |---|---|
-| Credit pill shows 0 | Stop. Ask for a credit grant, then record again. |
-| "Could not read" on the card | Click Delete, upload the second receipt. |
-| Google blocks sign-in | Stop. Record with QuickTime in your normal Chrome. |
-| Sheet does not open | Go to Settings, Sheet, and use "Open in Google Sheets". |
-| You made a small mistake | Keep going. A small detour is fine. |
-| You made a big mistake | Close and start again. The recorder keeps you signed in to Google. |
+| Credit pill shows 0 | Stop. Ask me for a grant. Record again. |
+| "Could not read" on the card | Click Delete, then Upload the second receipt. |
+| Google blocks the sign-in | Stop. Tell me. We use a different approach. |
+| The sheet does not open | Settings, Sheet, then the Open in Google Sheets link. |
+| You clicked something wrong | Keep going if it is small. A small detour is fine. |
+| The take is broken | Stop and start again. You will already be signed in to Google. |
 
-## What not to show
+## 6. Do not
 
-- Your Google password or 2FA codes. Complete them fast, or record with the
-  built-in recorder after a first sign-in so no password appears.
-- Other tabs, other apps, notifications.
-- The Sign out button being pressed.
-- Any claim about photo proof. That feature is not built yet.
+- Do not type a password while the recorder is on if you can avoid it. Sign in to
+  Google before you start, so only the account picker and consent appear.
+- Do not open other tabs or switch apps. The mouse can leave the rectangle, but
+  keep it inside.
+- Do not press Sign out at the end. Show it, hover it, stop.
+- Do not claim photo proof. That feature is not built.

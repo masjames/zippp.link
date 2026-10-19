@@ -23,11 +23,14 @@ Auth + real camera cannot be automated without credentials / device access.
 
 ## Live verification recording
 
-For the Google OAuth verification video, see `RECORDING.md`. Run
-`npm run demo:live` for a clean page-only recording with a persistent Chrome
-profile.
+For the Google OAuth verification video, follow `RECORDING.md` and record with
+the macOS recorder (Cmd+Shift+5). That is the primary path: a real session, real
+clicks, no automation.
 
-Captions for that recording are burned in locally:
+`npm run demo:live` (Playwright, page-only capture) exists as a fallback for a
+re-record when the Mac path is unavailable. It needs a human to sign in.
+
+Captions are burned in locally with Pillow and ffmpeg (no libass needed):
 
 ```
 python3 demo/burn_captions.py --input demo/in/zippp-demo.mov \
