@@ -1,0 +1,18 @@
+Evaluating Twilio WhatsApp vs Meta Cloud API direct for zippp (zippp.link).
+
+PRODUCT: User sends receipt photo/short expense text on WA → we extract → review with 3 buttons (Accept/Edit/Discard) → on Accept append 1 Google Sheet row + spend 1 credit. Sheet=SoR. No auto-write. ID market, invite-only MVP ~400 Accepts/mo. Stack: Next.js/Vercel, Upstash, Sheets API. Meta signup slow; we have a browser mock already.
+
+FLOW WE WANT ON TWILIO: link phone once → inbound image/text webhook → our server OCR/LLM → outbound interactive review (3 buttons) → button webhook → credit+Sheet → outbound “saved”+link. Hard rule ≤2 outbound msgs per Accept. Soft cap ~800 outbound/mo. No marketing templates; user-initiated/session only. Our Next.js owns logic (not Studio as SoR).
+
+ASK (concrete):
+1) Fastest path to first test WA message today—accounts, clicks, ETA if new to Meta BM.
+2) Do I still need Meta Business verification/WABA via Twilio? What Twilio owns vs Meta?
+3) Minimal Twilio products for: inbound image/text, quick-reply/list buttons, button payload back (Messaging vs Conversations vs Content API).
+4) Indonesia pricing: map 1 inbound image + 2 outbound session/service msgs → cost per Accept (Twilio + WA fees). Markup vs Meta direct?
+5) Trial credits before card charge?
+6) Sandbox sender → own number later; constraints if number already on WA.
+7) Sample webhook shapes (image + button) + REST send for 3 buttons.
+8) Tradeoffs vs Meta direct at our volume: time-to-ship, cost, lock-in, templates, 24h window.
+9) Top gotchas (display name, opt-in, ID).
+
+Start: Can we send the first test WhatsApp message today, and exact clicks/accounts needed? Structured checklist + cost table. Flag anything that still blocks on Meta.

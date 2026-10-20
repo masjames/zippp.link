@@ -4,8 +4,10 @@ import { absoluteUrl } from "@/lib/site";
 import {
     waChannelEnabled,
     waConfigured,
+    waDisplayNumber,
     waMockMode,
     waPhoneNumberId,
+    waProvider,
     waUiEnabled,
 } from "@/lib/wa/config";
 import {
@@ -17,7 +19,7 @@ import {
 export const runtime = "nodejs";
 
 function waMeLink(token: string): string {
-    const display = process.env.META_WA_DISPLAY_NUMBER?.replace(/\D/g, "");
+    const display = waDisplayNumber();
     const text = encodeURIComponent(`zippp link ${token}`);
     if (display) {
         return `https://wa.me/${display}?text=${text}`;
@@ -40,7 +42,11 @@ export async function GET() {
         mock: waMockMode(),
         live: waChannelEnabled() && waConfigured(),
         configured: waConfigured(),
-        phoneNumberId: waConfigured() ? waPhoneNumberId() : null,
+        provider: waProvider(),
+        phoneNumberId:
+            waConfigured() && waProvider() === "meta"
+                ? waPhoneNumberId()
+                : null,
         mockUrl: waMockMode() ? "/app/wa-mock" : null,
         linked: link
             ? { phone: link.phone, linkedAt: link.linkedAt }

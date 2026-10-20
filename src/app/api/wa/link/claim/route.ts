@@ -1,13 +1,16 @@
 import { NextResponse } from "next/server";
 import { absoluteUrl } from "@/lib/site";
-import { waChannelEnabled, waConfigured } from "@/lib/wa/config";
+import {
+    waChannelEnabled,
+    waConfigured,
+    waDisplayNumber,
+} from "@/lib/wa/config";
 
 export const runtime = "nodejs";
 
 /**
- * Browser fallback when META_WA_DISPLAY_NUMBER is unset: shows the code
- * the user must paste into WhatsApp. Binding happens when they message
- * that code to the business number (see wa/handler).
+ * Browser fallback when display number unset: shows the code the user must
+ * paste into WhatsApp. Binding happens when they message that code (see handler).
  */
 export async function GET(req: Request) {
     if (!waChannelEnabled() || !waConfigured()) {
@@ -17,7 +20,7 @@ export async function GET(req: Request) {
     if (!/^[a-f0-9]{32}$/.test(token)) {
         return NextResponse.redirect(absoluteUrl("/app/settings"));
     }
-    const display = process.env.META_WA_DISPLAY_NUMBER?.replace(/\D/g, "");
+    const display = waDisplayNumber();
     const text = encodeURIComponent(`zippp link ${token}`);
     if (display) {
         return NextResponse.redirect(`https://wa.me/${display}?text=${text}`);

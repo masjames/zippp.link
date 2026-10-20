@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>zippp — WA screen + data + cost</title>
+  <style>
+    :root {
+      --ink: #111;
+      --mute: #555;
+      --line: #111;
+      --bg: #fff;
+      --wash: #f4f4f4;
+      --dash: #999;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font: 14px/1.45 "IBM Plex Mono", "SF Mono", Menlo, Consolas, monospace;
+      color: var(--ink);
+      background: var(--bg);
+    }
+    header {
+      border-bottom: 2px solid var(--ink);
+      padding: 20px 24px;
+    }
+    header h1 {
+      margin: 0 0 6px;
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+    header p { margin: 0; color: var(--mute); font-size: 12px; max-width: 72ch; }
+    nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 16px;
+      padding: 12px 24px;
+      border-bottom: 1px solid var(--ink);
+      font-size: 12px;
+    }
+    nav a { color: var(--ink); }
+    main { padding: 24px; max-width: 1100px; }
+    section { margin-bottom: 48px; }
+    h2 {
+      margin: 0 0 8px;
+      font-size: 15px;
+      border-bottom: 1px solid var(--ink);
+      padding-bottom: 6px;
+    }
+    .note { color: var(--mute); font-size: 12px; margin: 0 0 16px; max-width: 80ch; }
+
+    /* phones row */
+    .screens {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      align-items: flex-start;
+    }
+    .phone {
+      width: 200px;
+      border: 2px solid var(--ink);
+      background: var(--bg);
+    }
+    .phone .bar {
+      border-bottom: 1px solid var(--ink);
+      padding: 6px 8px;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .phone .body { padding: 10px 8px; min-height: 220px; }
+    .bubble {
+      border: 1px solid var(--ink);
+      padding: 6px 8px;
+      margin: 0 0 8px;
+      font-size: 11px;
+      max-width: 92%;
+    }
+    .bubble.in { margin-right: auto; background: var(--wash); }
+    .bubble.out { margin-left: auto; background: var(--bg); }
+    .btns { display: flex; flex-direction: column; gap: 4px; margin-top: 6px; }
+    .btns span {
+      border: 1px solid var(--ink);
+      text-align: center;
+      padding: 4px;
+      font-size: 10px;
+    }
+    .tag {
+      display: inline-block;
+      border: 1px solid var(--ink);
+      padding: 1px 5px;
+      font-size: 9px;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+    }
+    .tag.cost { background: var(--ink); color: var(--bg); }
+    .tag.free { background: var(--bg); }
+    .cap {
+      width: 100%;
+      text-align: center;
+      font-size: 10px;
+      color: var(--mute);
+      margin-top: 4px;
+    }
+    .arrow {
+      align-self: center;
+      font-size: 18px;
+      color: var(--mute);
+      padding: 0 2px;
+    }
+
+    /* data flow */
+    .flow {
+      border: 2px solid var(--ink);
+      padding: 16px;
+      overflow-x: auto;
+    }
+    .flow pre {
+      margin: 0;
+      font: inherit;
+      font-size: 11px;
+      line-height: 1.35;
+      white-space: pre;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+    th, td {
+      border: 1px solid var(--ink);
+      padding: 8px 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { background: var(--wash); font-weight: 700; }
+    td.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+    .grid2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    @media (max-width: 720px) {
+      .grid2 { grid-template-columns: 1fr; }
+      .arrow { display: none; }
+    }
+
+    .box {
+      border: 1px solid var(--ink);
+      padding: 12px;
+    }
+    .box h3 { margin: 0 0 8px; font-size: 12px; text-transform: uppercase; }
+    .box ul { margin: 0; padding-left: 18px; }
+    .box li { margin-bottom: 4px; }
+
+    /* prompt */
+    .prompt-wrap { position: relative; }
+    .prompt-wrap textarea {
+      width: 100%;
+      min-height: 420px;
+      border: 2px solid var(--ink);
+      padding: 12px;
+      font: inherit;
+      font-size: 12px;
+      line-height: 1.4;
+      resize: vertical;
+      background: var(--wash);
+    }
+    .actions { margin: 8px 0 0; display: flex; gap: 8px; flex-wrap: wrap; }
+    button {
+      border: 2px solid var(--ink);
+      background: var(--bg);
+      color: var(--ink);
+      font: inherit;
+      font-size: 12px;
+      padding: 8px 14px;
+      cursor: pointer;
+    }
+    button:active { background: var(--ink); color: var(--bg); }
+    #copy-status { font-size: 11px; color: var(--mute); align-self: center; }
+
+    footer {
+      border-top: 1px solid var(--ink);
+      padding: 16px 24px;
+      font-size: 11px;
+      color: var(--mute);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>zippp — WhatsApp screen flow · data · cost</h1>
+    <p>
+      B/W wireframe for family/personal cash notes via Meta Cloud API (direct).
+      Sheet = source of truth. Check before Accept. 1 credit = 1 Accept.
+      Indonesia Service rate Rp356.65 / business-sent msg (Meta sheet, 1 Oct 2026).
+    </p>
+  </header>
+
+  <nav>
+    <a href="#screens">1. Screens</a>
+    <a href="#data">2. Data flow</a>
+    <a href="#api">3. API + cost</a>
+    <a href="#calc">4. Calculator</a>
+    <a href="#twilio">5. Twilio prompt</a>
+  </nav>
+
+  <main>
+    <!-- SCREENS -->
+    <section id="screens">
+      <h2>1. Screen flow (user-visible)</h2>
+      <p class="note">
+        Five beats. Only steps with a black COST tag hit Meta WhatsApp Cloud API as a billable outbound Service message.
+      </p>
+
+      <div class="screens">
+        <div>
+          <div class="phone">
+            <div class="bar">A · Link (web)</div>
+            <div class="body">
+              <div class="tag free">no WA API</div>
+              <div class="bubble in">Settings → Link WhatsApp</div>
+              <div class="bubble out">Scan / open claim link<br/>OTP or mock playground</div>
+              <div class="bubble in">Phone linked ✓</div>
+            </div>
+          </div>
+          <div class="cap">once · web or /app/wa-mock</div>
+        </div>
+
+        <div class="arrow">→</div>
+
+        <div>
+          <div class="phone">
+            <div class="bar">B · Capture</div>
+            <div class="body">
+              <div class="tag free">inbound Rp0</div>
+              <div class="bubble in">[foto nota]<br/>atau “kopi 25rb”</div>
+              <div class="bubble out" style="border-style:dashed;color:#555">webhook receives<br/>no charge yet</div>
+            </div>
+          </div>
+          <div class="cap">user → Meta → our /api/wa/webhook</div>
+        </div>
+
+        <div class="arrow">→</div>
+
+        <div>
+          <div class="phone">
+            <div class="bar">C · Review</div>
+            <div class="body">
+              <div class="tag cost">outbound #1 · Service</div>
+              <div class="bubble out">
+                Warung · Rp25.000<br/>
+                Makanan · hari ini
+                <div class="btns">
+                  <span>Terima</span>
+                  <span>Ubah</span>
+                  <span>Buang</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="cap">Rp356.65 after free tier</div>
+        </div>
+
+        <div class="arrow">→</div>
+
+        <div>
+          <div class="phone">
+            <div class="bar">D · Accept</div>
+            <div class="body">
+              <div class="tag free">button tap · Rp0</div>
+              <div class="bubble in">[Terima]</div>
+              <div class="bubble out" style="border-style:dashed;color:#555">
+                1 credit −<br/>
+                append Google Sheet<br/>
+                (not Meta charge)
+              </div>
+            </div>
+          </div>
+          <div class="cap">zippp credit · Sheet SoR</div>
+        </div>
+
+        <div class="arrow">→</div>
+
+        <div>
+          <div class="phone">
+            <div class="bar">E · Saved</div>
+            <div class="body">
+              <div class="tag cost">outbound #2 · Service</div>
+              <div class="bubble out">
+                Tersimpan ✓<br/>
+                Buka Sheet →
+              </div>
+            </div>
+          </div>
+          <div class="cap">Rp356.65 after free tier</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- DATA -->
+    <section id="data">
+      <h2>2. Data flow</h2>
+      <p class="note">Who holds what. Dashed edges = Meta WA API. Solid = our stack.</p>
+      <div class="flow">
+<pre>
+ +-------------+  foto/text   +------------------+  webhook JSON  +--------------------+
+ | User phone  | -----------> | Meta Cloud API   | -------------> | zippp /api/wa/     |
+ | WhatsApp    |              | WABA + number    |  inbound Rp0   | webhook            |
+ +------^------+              +---------^--------+                +---------*----------+
+        |                               |                                   |
+        |                               | send Service msg                  v
+        |                               | interactive / text       +--------------------+
+        |                               | Rp356.65 after free      | FSM + draft store  |
+        |                      +--------*-------+                  | Upstash Redis      |
+        |  outbound #1 review  | Graph API      |<-- POST msgs ----| ready / reviewing  |
+        |  outbound #2 saved   | /{phone-id}/   |                  +---------*----------+
+        |                      | messages       |                            | on Terima
+        +----------------------+----------------+                            v
+                                                                  +--------------------+
+                                                                  | Credits ledger     |
+                                                                  | -1 on append ok    |
+                                                                  +---------*----------+
+                                                                            v
+                                                                  +--------------------+
+                                                                  | Google Sheets API  |
+                                                                  | append 1 row (SoR) |
+                                                                  +--------------------+
+
+ Parallel (extract, not Meta):
+   foto -> OCR / DeepSeek (~Rp3-6) -> field map -> review payload -> outbound #1
+
+ Soft-cap:
+   Redis wa:out:{yyyy-mm} += 1 per outbound
+   if >= 800 -> blocked_quota, stop new extracts
+</pre>
+      </div>
+    </section>
+
+    <!-- API COST -->
+    <section id="api">
+      <h2>3. When WhatsApp API is used · cost</h2>
+      <p class="note">Indonesia · Service category · Meta rate card effective 1 Oct 2026. Inbound never billed.</p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Step</th>
+            <th>System call</th>
+            <th>WA Cloud API?</th>
+            <th>Category</th>
+            <th>IDR</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>A Link phone</td>
+            <td>Our link/claim + Meta embedded signup (setup)</td>
+            <td>Setup only</td>
+            <td>—</td>
+            <td class="num">0 / Accept</td>
+          </tr>
+          <tr>
+            <td>B User sends foto/text</td>
+            <td>Meta → POST /api/wa/webhook</td>
+            <td>Inbound webhook</td>
+            <td>—</td>
+            <td class="num">0</td>
+          </tr>
+          <tr>
+            <td>B→C Extract</td>
+            <td>OCR / LLM</td>
+            <td>No</td>
+            <td>—</td>
+            <td class="num">~3–6</td>
+          </tr>
+          <tr>
+            <td>C Review + buttons</td>
+            <td>POST graph…/{phone_number_id}/messages</td>
+            <td><strong>Yes · outbound #1</strong></td>
+            <td>Service</td>
+            <td class="num">356.65*</td>
+          </tr>
+          <tr>
+            <td>D Tap Terima</td>
+            <td>Webhook button payload</td>
+            <td>Inbound</td>
+            <td>—</td>
+            <td class="num">0</td>
+          </tr>
+          <tr>
+            <td>D Append</td>
+            <td>Google Sheets + credit debit</td>
+            <td>No</td>
+            <td>—</td>
+            <td class="num">1 credit</td>
+          </tr>
+          <tr>
+            <td>E Tersimpan + link</td>
+            <td>POST …/messages</td>
+            <td><strong>Yes · outbound #2</strong></td>
+            <td>Service</td>
+            <td class="num">356.65*</td>
+          </tr>
+          <tr>
+            <td colspan="4"><strong>Meta total / Accept (after free tier)</strong></td>
+            <td class="num"><strong>713.30</strong></td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="note">* Rp0 while inside Meta ~1,000 free Service msgs/mo. We soft-stop at 800 outbound (~400 Accepts).</p>
+
+      <div class="grid2" style="margin-top:16px">
+        <div class="box">
+          <h3>We send (billable)</h3>
+          <ul>
+            <li>Interactive reply (review + 3 buttons)</li>
+            <li>Text “Tersimpan” + Sheet URL</li>
+            <li>Rare error / quota CTA (minimize)</li>
+          </ul>
+        </div>
+        <div class="box">
+          <h3>We never send (cost control)</h3>
+          <ul>
+            <li>Marketing templates (Rp586.33)</li>
+            <li>“Sedang dibaca” / progress spam</li>
+            <li>Reminders, digests, cold outreach</li>
+            <li>Auth / Meta Business Agent</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- CALC -->
+    <section id="calc">
+      <h2>4. Calculator</h2>
+      <div class="flow">
+<pre>
+A = WA Accepts / month
+O = outbound Service msgs ≈ 2A
+F = 1000 free Service msgs (confirm in Business Manager)
+
+META_IDR = max(0, O − F) × 356.65
+         = max(0, 2A − 1000) × 356.65
+
+A_free_max  = 500 Accepts   (1000/2)
+A_soft_max  = 400 Accepts   (our 800 cap)  → aim META = 0
+
+Examples:
+  100 Accepts → O=200  → META = 0
+  400 Accepts → O=800  → META = 0  (soft-cap)
+  600 Accepts → O=1200 → META = 200 × 356.65 = Rp71,330
+ 1000 Accepts → O=2000 → META = 1000 × 356.65 = Rp356,650
+</pre>
+      </div>
+    </section>
+
+    <!-- TWILIO -->
+    <section id="twilio">
+      <h2>5. Ready-to-paste · Twilio AI customer support</h2>
+      <p class="note">
+        Paste into Kendall (Twilio AI). Hard limit 2000 chars — this version fits. Click Copy, then send.
+      </p>
+      <div class="prompt-wrap">
+        <textarea id="twilio-prompt" readonly>Evaluating Twilio WhatsApp vs Meta Cloud API direct for zippp (zippp.link).
+
+PRODUCT: User sends receipt photo/short expense text on WA → we extract → review with 3 buttons (Accept/Edit/Discard) → on Accept append 1 Google Sheet row + spend 1 credit. Sheet=SoR. No auto-write. ID market, invite-only MVP ~400 Accepts/mo. Stack: Next.js/Vercel, Upstash, Sheets API. Meta signup slow; we have a browser mock already.
+
+FLOW WE WANT ON TWILIO: link phone once → inbound image/text webhook → our server OCR/LLM → outbound interactive review (3 buttons) → button webhook → credit+Sheet → outbound “saved”+link. Hard rule ≤2 outbound msgs per Accept. Soft cap ~800 outbound/mo. No marketing templates; user-initiated/session only. Our Next.js owns logic (not Studio as SoR).
+
+ASK (concrete):
+1) Fastest path to first test WA message today—accounts, clicks, ETA if new to Meta BM.
+2) Do I still need Meta Business verification/WABA via Twilio? What Twilio owns vs Meta?
+3) Minimal Twilio products for: inbound image/text, quick-reply/list buttons, button payload back (Messaging vs Conversations vs Content API).
+4) Indonesia pricing: map 1 inbound image + 2 outbound session/service msgs → cost per Accept (Twilio + WA fees). Markup vs Meta direct?
+5) Trial credits before card charge?
+6) Sandbox sender → own number later; constraints if number already on WA.
+7) Sample webhook shapes (image + button) + REST send for 3 buttons.
+8) Tradeoffs vs Meta direct at our volume: time-to-ship, cost, lock-in, templates, 24h window.
+9) Top gotchas (display name, opt-in, ID).
+
+Start: Can we send the first test WhatsApp message today, and exact clicks/accounts needed? Structured checklist + cost table. Flag anything that still blocks on Meta.</textarea>
+        <div class="actions">
+          <button type="button" id="copy-btn">Copy prompt</button>
+          <span id="copy-status"></span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    zippp · spec/plans/wa-flow-cost.html · Preview mock stays Meta-free · Production WA flag off until proven
+  </footer>
+
+  <script>
+    const btn = document.getElementById("copy-btn");
+    const ta = document.getElementById("twilio-prompt");
+    const status = document.getElementById("copy-status");
+    btn.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(ta.value);
+        status.textContent = "Copied.";
+      } catch {
+        ta.select();
+        document.execCommand("copy");
+        status.textContent = "Copied (fallback).";
+      }
+    });
+  </script>
+</body>
+</html>

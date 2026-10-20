@@ -169,14 +169,26 @@ User taps Ubah → CTA to `/app/snap` or future review deep link
 
 ```
 WA_CHANNEL_ENABLED=true|false
+WA_PROVIDER=meta|twilio|mock
+WA_TWILIO_ENABLED=true|false   # alt to WA_PROVIDER=twilio
+WA_MOCK=true|false
 META_WA_ACCESS_TOKEN
 META_WA_PHONE_NUMBER_ID
 META_WA_VERIFY_TOKEN
 META_WA_APP_SECRET
+TWILIO_ACCOUNT_SID
+TWILIO_AUTH_TOKEN
+TWILIO_WHATSAPP_FROM
+TWILIO_CONTENT_SID_REVIEW      # optional
 WA_SERVICE_MSG_SOFT_CAP=800
 ```
 
 Never `NEXT_PUBLIC_` for secrets.
+
+### Twilio Sandbox (Preview only)
+
+See `spec/plans/twilio-wa-handoff.md` § Sandbox setup. Webhook:  
+`POST https://<preview-host>/api/wa/webhook`. Do not flip Production Vercel env.
 
 ### Release / non-disruption
 

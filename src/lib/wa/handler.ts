@@ -15,19 +15,20 @@ import type { Receipt } from "@/types/receipt";
 import {
     waChannelEnabled,
     waConfigured,
+    waProvider,
     waServiceMsgSoftCap,
 } from "./config";
+import { parseInbound, type InboundMessage } from "./meta";
 import {
     downloadMedia,
-    parseInbound,
     sendCtaUrl,
     sendReviewButtons,
     sendText,
-    type InboundMessage,
-} from "./meta";
+} from "./transport";
 import {
     bumpOutbound,
     deleteDraft,
+    getLastDraftScanId,
     getLinkByWaId,
     loadDraft,
     newScanId,
@@ -50,8 +51,10 @@ async function noteOutbound(): Promise<void> {
     await bumpOutbound(1);
 }
 
+/** Meta Cloud API JSON webhook body. */
 export async function handleWaWebhookBody(rawBody: string): Promise<void> {
     if (!waChannelEnabled() || !waConfigured()) return;
+    if (waProvider() !== "meta") return;
     let payload: unknown;
     try {
         payload = JSON.parse(rawBody);
@@ -59,6 +62,14 @@ export async function handleWaWebhookBody(rawBody: string): Promise<void> {
         return;
     }
     const messages = parseInbound(payload);
+    await handleInboundMessages(messages);
+}
+
+/** Provider-agnostic entry (Twilio adapter maps form → InboundMessage). */
+export async function handleInboundMessages(
+    messages: InboundMessage[]
+): Promise<void> {
+    if (!waChannelEnabled() || !waConfigured()) return;
     for (const msg of messages) {
         try {
             await handleOne(msg);
@@ -67,11 +78,21 @@ export async function handleWaWebhookBody(rawBody: string): Promise<void> {
                 JSON.stringify({
                     event: "wa.handle.error",
                     waId: msg.waId,
+                    provider: waProvider(),
                     error: err instanceof Error ? err.message : String(err),
                 })
             );
         }
     }
+}
+
+/** Map freeform review replies (Sandbox / no quick-reply template). */
+function parseReviewTextAction(text: string): "accept" | "edit" | "discard" | null {
+    const t = text.trim().toLowerCase();
+    if (/^(terima|accept|a|1)$/i.test(t)) return "accept";
+    if (/^(ubah|edit|e|2)$/i.test(t)) return "edit";
+    if (/^(buang|discard|d|3)$/i.test(t)) return "discard";
+    return null;
 }
 
 async function handleOne(msg: InboundMessage): Promise<void> {
@@ -124,7 +145,15 @@ async function handleOne(msg: InboundMessage): Promise<void> {
         return;
     }
 
-    if (msg.type === "text") {
+    if (msg.type === "text" && msg.text) {
+        const action = parseReviewTextAction(msg.text);
+        if (action) {
+            const scanId = await getLastDraftScanId(msg.waId);
+            if (scanId) {
+                await handleButton(msg.waId, link.googleUserId, `${action}:${scanId}`);
+                return;
+            }
+        }
         await sendText(
             msg.waId,
             "Kirim foto struk, atau ketuk tombol di pesan review."

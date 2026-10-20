@@ -35,6 +35,9 @@ function pendingKey(token: string) {
 function draftKey(scanId: string) {
     return `wa:draft:${scanId}`;
 }
+function lastDraftKey(waId: string) {
+    return `wa:last:${waId}`;
+}
 function outKey(ym: string) {
     return `wa:out:${ym}`;
 }
@@ -123,6 +126,11 @@ export async function consumeLinkToken(
 
 export async function saveDraft(draft: WaDraft): Promise<void> {
     await setRaw(draftKey(draft.scanId), JSON.stringify(draft), 60 * 60);
+    await setRaw(lastDraftKey(draft.waId), draft.scanId, 60 * 60);
+}
+
+export async function getLastDraftScanId(waId: string): Promise<string | null> {
+    return getRaw(lastDraftKey(waId));
 }
 
 export async function loadDraft(scanId: string): Promise<WaDraft | null> {
