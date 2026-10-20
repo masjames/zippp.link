@@ -1512,9 +1512,13 @@ New sheet
 ## app.sheets.wizard.title.id
 Sheet baru
 ## app.sheets.wizard.body.en
-Choose a layout. You can change the columns later.
+Pick a type. Preview updates below.
 ## app.sheets.wizard.body.id
-Pilih susunan kolom. Kolom bisa diubah nanti.
+Pilih jenis. Pratinjau sheet di bawah.
+## app.sheets.wizard.continue.en
+Continue
+## app.sheets.wizard.continue.id
+Lanjut
 ## app.sheets.wizard.warn.en
 This creates another sheet and switches zippp to it.
 ## app.sheets.wizard.warn.id
@@ -1548,45 +1552,186 @@ Give this sheet a name.
 ## app.sheets.name.required.id
 Beri nama untuk sheet ini.
 ## app.sheets.tpl.resto.en
-I buy supplies for a kitchen or shop
+Kitchen buys
 ## app.sheets.tpl.resto.id
-Saya belanja bahan untuk dapur atau toko
+Dapur / toko
 ## app.sheets.tpl.restoBody.en
 Supplier, item, staff, outlet
 ## app.sheets.tpl.restoBody.id
 Pemasok, item, staf, outlet
 ## app.sheets.tpl.expense.en
-I track my own spending
+My spending
 ## app.sheets.tpl.expense.id
-Saya catat pengeluaran sendiri
+Pengeluaran
 ## app.sheets.tpl.expenseBody.en
 Merchant, amount, category
 ## app.sheets.tpl.expenseBody.id
 Toko, nominal, kategori
 ## app.sheets.tpl.sales.en
-I recap my daily sales
+Daily sales
 ## app.sheets.tpl.sales.id
-Saya rekap penjualan harian
+Penjualan
 ## app.sheets.tpl.salesBody.en
 Item, qty, nota total, daily total
 ## app.sheets.tpl.salesBody.id
 Item, jumlah, total struk, total harian
 ## app.sheets.tpl.reimburse.en
-I claim money back from my company
+Claims
 ## app.sheets.tpl.reimburse.id
-Saya klaim reimbursement dari kantor
+Klaim
 ## app.sheets.tpl.reimburseBody.en
 Merchant, total, purpose, photo
 ## app.sheets.tpl.reimburseBody.id
 Toko, total, keperluan, foto
 ## app.sheets.tpl.custom.en
-My own sheet
+My sheet
 ## app.sheets.tpl.custom.id
-Sheet saya sendiri
+Sheet sendiri
 ## app.sheets.tpl.customBody.en
 Row 1 of your tab is the schema
 ## app.sheets.tpl.customBody.id
 Baris 1 tab Anda adalah skemanya
+## app.wa.link.title.en
+WhatsApp
+## app.wa.link.title.id
+WhatsApp
+## app.wa.link.body.en
+Send receipt photos in WhatsApp. Rows still land in your Google Sheet.
+## app.wa.link.body.id
+Kirim foto struk lewat WhatsApp. Baris tetap masuk Google Sheet kamu.
+## app.wa.link.button.en
+Link WhatsApp
+## app.wa.link.button.id
+Hubungkan WhatsApp
+## app.wa.link.linked.en
+Linked: {phone}
+## app.wa.link.linked.id
+Terhubung: {phone}
+## app.wa.link.unlink.en
+Unlink
+## app.wa.link.unlink.id
+Putuskan
+## app.wa.link.open.en
+Open chat to finish linking
+## app.wa.link.open.id
+Buka chat untuk menyelesaikan
+## app.wa.needLink.en
+Link your zippp account first: {url}
+## app.wa.needLink.id
+Hubungkan akun zippp dulu: {url}
+## app.wa.needSheet.en
+Connect a Google Sheet in zippp first: {url}
+## app.wa.needSheet.id
+Sambungkan Google Sheet di zippp dulu: {url}
+## app.wa.needCredits.en
+Top up credits first: {url}
+## app.wa.needCredits.id
+Isi kredit dulu: {url}
+## app.wa.quota.en
+Monthly WhatsApp quota is full. Use the app for now: {url}
+## app.wa.quota.id
+Kuota WhatsApp bulan ini penuh. Pakai aplikasi dulu: {url}
+## app.wa.review.en
+{merchant}
+Total {total}
+{lines} line(s). Check, then Accept.
+## app.wa.review.id
+{merchant}
+Total {total}
+{lines} baris. Cek, lalu Terima.
+## app.wa.accept.en
+Accept
+## app.wa.accept.id
+Terima
+## app.wa.edit.en
+Edit
+## app.wa.edit.id
+Ubah
+## app.wa.discard.en
+Discard
+## app.wa.discard.id
+Buang
+## app.wa.saved.en
+Saved to your sheet.
+## app.wa.saved.id
+Tersimpan ke sheet kamu.
+## app.wa.unreadable.en
+Could not read that. Send a clearer photo of a receipt.
+## app.wa.unreadable.id
+Tidak terbaca. Kirim foto struk yang lebih jelas.
+## app.wa.disabled.en
+WhatsApp intake is off right now.
+## app.wa.disabled.id
+Penerimaan WhatsApp sedang mati.
+## app.wa.customPeek.en
+Your headers
+## app.wa.customPeek.id
+Header kamu
+## app.wa.mock.badge.en
+Mock
+## app.wa.mock.badge.id
+Mock
+## app.wa.mock.panelBody.en
+Try the WhatsApp flow here. No Meta account needed. Live WhatsApp stays off.
+## app.wa.mock.panelBody.id
+Coba alur WhatsApp di sini. Tanpa akun Meta. WhatsApp live tetap mati.
+## app.wa.mock.open.en
+Open mock WhatsApp
+## app.wa.mock.open.id
+Buka mock WhatsApp
+## app.wa.mock.title.en
+Mock WhatsApp
+## app.wa.mock.title.id
+Mock WhatsApp
+## app.wa.mock.body.en
+Same steps as the real channel: photo → check → Accept. Uses your sheet when connected.
+## app.wa.mock.body.id
+Langkah sama seperti channel asli: foto → cek → Terima. Pakai sheet kamu kalau sudah tersambung.
+## app.wa.mock.intro.en
+This is a zippp mock chat. Not real WhatsApp.
+## app.wa.mock.intro.id
+Ini chat mock zippp. Bukan WhatsApp asli.
+## app.wa.mock.ready.en
+Send a receipt photo, or use the demo receipt.
+## app.wa.mock.ready.id
+Kirim foto struk, atau pakai struk demo.
+## app.wa.mock.reading.en
+Reading…
+## app.wa.mock.reading.id
+Sedang dibaca…
+## app.wa.mock.sendPhoto.en
+Send photo
+## app.wa.mock.sendPhoto.id
+Kirim foto
+## app.wa.mock.useFixture.en
+Use demo receipt
+## app.wa.mock.useFixture.id
+Pakai struk demo
+## app.wa.mock.demoPhoto.en
+📷 demo-receipt.jpg
+## app.wa.mock.demoPhoto.id
+📷 demo-receipt.jpg
+## app.wa.mock.fixtureNote.en
+Demo numbers — not from a real photo.
+## app.wa.mock.fixtureNote.id
+Angka demo — bukan dari foto asli.
+## app.wa.mock.discarded.en
+Discarded. Send another photo when ready.
+## app.wa.mock.discarded.id
+Dibuang. Kirim foto lain kalau siap.
+## app.wa.mock.editHint.en
+Opening the app editor…
+## app.wa.mock.editHint.id
+Membuka editor di aplikasi…
+## app.wa.mock.needCredits.en
+No credits. Top up in the app, then Accept again.
+## app.wa.mock.needCredits.id
+Kredit habis. Isi di aplikasi, lalu Terima lagi.
+## app.wa.mock.appendFail.en
+Could not save. Connect a sheet in Settings first.
+## app.wa.mock.appendFail.id
+Gagal simpan. Sambungkan sheet di Settings dulu.
+
 ## app.debug.title.en
 Debug trace
 ## app.debug.title.id

@@ -19,6 +19,7 @@ built; `archived/` holds superseded material. Revision 2 brief:
 | [`LATER.md`](./LATER.md) | Parked ideas, out of scope for Revision 2 |
 | [`wording.txt`](./wording.txt) | **Every user-visible string** (EN/ID). Parsed at runtime — edit values only. |
 | [`zippp-ship-plan.md`](./zippp-ship-plan.md) | Older Phase 1 task log; Revision 2 tasks live in the audit §10 |
+| [`./plans/tonight-family-wa.md`](./plans/tonight-family-wa.md) | Family-finance ICP + visual wizard + WhatsApp MVP build brief |
 | [`./discussions/zippp-overview.md`](./discussions/zippp-overview.md) | External review brief (extraction / eval) |
 
 ## Archived (inactive)

@@ -88,7 +88,8 @@ export default function AppShell({ children }: { children: ReactNode }) {
         // top-up flow reachable while the user still has 0 credits.
         const onTopup = pathname.startsWith("/app/topup");
         const inSettings = pathname.startsWith("/app/settings");
-        if (noCredits && !onTopup && !inSettings) {
+        const onWaMock = pathname.startsWith("/app/wa-mock");
+        if (noCredits && !onTopup && !inSettings && !onWaMock) {
             router.replace("/app/topup");
             return;
         }

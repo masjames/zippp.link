@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import PhoneShell from "@/components/app/PhoneShell";
+import WaLinkPanel from "@/components/app/WaLinkPanel";
 import { useApp } from "@/components/app/AppProvider";
 import LangSelect from "@/components/LangSelect";
 import { fill } from "@/lib/t";
@@ -53,6 +54,8 @@ export default function SettingsPage() {
                     />
                 </div>
             </div>
+
+            <WaLinkPanel t={t} />
 
             <div className="rounded-2xl bg-card p-4 text-sm opacity-80">
                 <div className="flex flex-wrap items-baseline gap-2">

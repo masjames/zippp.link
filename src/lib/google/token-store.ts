@@ -133,16 +133,27 @@ export async function saveTokens(input: {
     await writeFile(input.google_user_id, { version: 1, tokens: record });
 }
 
+function decryptRecord(tokens: StoredGoogleTokens): StoredGoogleTokens {
+    return {
+        ...tokens,
+        refresh_token: decryptSecret(tokens.refresh_token),
+        access_token: decryptMaybe(tokens.access_token),
+    };
+}
+
 export async function loadTokens(): Promise<StoredGoogleTokens | null> {
     const userId = await sessionUserId();
     if (!userId) return null;
+    return loadTokensForUser(userId);
+}
+
+/** Load tokens for a known Google user id (WhatsApp channel, scripts). */
+export async function loadTokensForUser(
+    userId: string
+): Promise<StoredGoogleTokens | null> {
     const file = await readFile(userId);
     if (!file.tokens) return null;
-    return {
-        ...file.tokens,
-        refresh_token: decryptSecret(file.tokens.refresh_token),
-        access_token: decryptMaybe(file.tokens.access_token),
-    };
+    return decryptRecord(file.tokens);
 }
 
 export async function hasTokens(): Promise<boolean> {

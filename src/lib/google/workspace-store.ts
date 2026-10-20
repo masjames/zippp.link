@@ -133,6 +133,13 @@ export async function saveWorkspace(
 export async function loadWorkspace(): Promise<WorkspaceConfig | null> {
     const userId = await sessionUserId();
     if (!userId) return null;
+    return loadWorkspaceForUser(userId);
+}
+
+/** Load workspace for a known Google user id (WhatsApp channel). */
+export async function loadWorkspaceForUser(
+    userId: string
+): Promise<WorkspaceConfig | null> {
     const file = await readFile(userId);
     return file.workspace;
 }

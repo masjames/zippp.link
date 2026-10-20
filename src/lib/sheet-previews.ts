@@ -3,6 +3,24 @@ import type { Lang } from "@/lib/region";
 
 export type PreviewKind = PersonaId | "master";
 
+/** Map sheet template id → landing preview sample. */
+export function previewKindForTemplate(
+    templateId: string
+): PreviewKind {
+    switch (templateId) {
+        case "resto-inventory":
+            return "purchasing";
+        case "personal-expense":
+            return "expenses";
+        case "sales-recap":
+            return "sales";
+        case "reimbursement":
+            return "reimbursement";
+        default:
+            return "expenses";
+    }
+}
+
 export type SheetPreviewData = {
     title: string;
     titleId?: string;

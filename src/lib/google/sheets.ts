@@ -1,6 +1,6 @@
 import type { OAuth2Client } from "google-auth-library";
 import { createOAuthClient } from "./oauth";
-import { loadTokens, saveTokens } from "./token-store";
+import { loadTokens, loadTokensForUser, saveTokens } from "./token-store";
 import {
   TEMPLATE_HEADERS,
   TEMPLATE_SHEET_TITLE,
@@ -36,9 +36,14 @@ export function headerRange(sheetTab: string): string {
 /**
  * OAuth2 client with stored tokens; refreshes access token and
  * persists updates back to the token store.
+ * Pass `userId` to act as that Google user (WhatsApp channel).
  */
-export async function getAuthenticatedClient(): Promise<OAuth2Client> {
-  const stored = await loadTokens();
+export async function getAuthenticatedClient(
+  userId?: string
+): Promise<OAuth2Client> {
+  const stored = userId
+    ? await loadTokensForUser(userId)
+    : await loadTokens();
   if (!stored) {
     throw new SheetsAuthError("Not signed in with Google.");
   }
@@ -81,8 +86,8 @@ export async function getAuthenticatedClient(): Promise<OAuth2Client> {
   return client;
 }
 
-async function accessToken(): Promise<string> {
-  const client = await getAuthenticatedClient();
+async function accessToken(userId?: string): Promise<string> {
+  const client = await getAuthenticatedClient(userId);
   const token = client.credentials.access_token;
   if (!token) {
     throw new SheetsAuthError("Missing Google access token.");
@@ -131,15 +136,16 @@ function mapHttpError(res: Response, body: GoogleErrorBody): Error {
 
 async function googleFetch<T>(
   url: string,
-  init?: RequestInit
+  init?: RequestInit & { userId?: string }
 ): Promise<T> {
-  const token = await accessToken();
+  const token = await accessToken(init?.userId);
   const headers = new Headers(init?.headers);
   headers.set("Authorization", `Bearer ${token}`);
   if (init?.body && !headers.has("Content-Type")) {
     headers.set("Content-Type", "application/json");
   }
-  const res = await fetch(url, { ...init, headers });
+  const { userId: _uid, ...rest } = init ?? {};
+  const res = await fetch(url, { ...rest, headers });
   const body = (await res.json().catch(() => ({}))) as GoogleErrorBody & T;
   if (!res.ok) {
     throw mapHttpError(res, body);
@@ -332,7 +338,8 @@ export function pickBestZippSheet(
 export async function appendRows(
   spreadsheetId: string,
   sheetTab: string,
-  rows: (string | number | boolean)[][]
+  rows: (string | number | boolean)[][],
+  userId?: string
 ): Promise<{ updatedRows: number; updatedRange: string | null }> {
   if (rows.length === 0) {
     return { updatedRows: 0, updatedRange: null };
@@ -360,6 +367,7 @@ export async function appendRows(
         majorDimension: "ROWS",
         values: rows,
       }),
+      userId,
     }
   );
 

@@ -3,13 +3,19 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import PhoneShell from "@/components/app/PhoneShell";
+import TemplateCarousel from "@/components/app/TemplateCarousel";
+import {
+    TemplateChip,
+    TemplatePeek,
+} from "@/components/app/TemplatePickCard";
 import { useApp, type SheetTemplateId } from "@/components/app/AppProvider";
 import { DEFAULT_SHEET_DISPLAY_NAME } from "@/lib/google/templates";
 import { fill } from "@/lib/t";
 
+/** Personal expense first (Bayu ICP). Short titles in wording.txt. */
 const TEMPLATES: { id: SheetTemplateId; name: string; body: string }[] = [
-    { id: "resto-inventory", name: "app.sheets.tpl.resto", body: "app.sheets.tpl.restoBody" },
     { id: "personal-expense", name: "app.sheets.tpl.expense", body: "app.sheets.tpl.expenseBody" },
+    { id: "resto-inventory", name: "app.sheets.tpl.resto", body: "app.sheets.tpl.restoBody" },
     { id: "sales-recap", name: "app.sheets.tpl.sales", body: "app.sheets.tpl.salesBody" },
     { id: "reimbursement", name: "app.sheets.tpl.reimburse", body: "app.sheets.tpl.reimburseBody" },
     { id: "custom", name: "app.sheets.tpl.custom", body: "app.sheets.tpl.customBody" },
@@ -38,6 +44,7 @@ function Spinner() {
 export default function SheetPage() {
     const {
         t,
+        lang,
         workspace,
         sheetPhase,
         sheetBusy,
@@ -57,6 +64,9 @@ export default function SheetPage() {
     } = useApp();
     const router = useRouter();
     const [sheetName, setSheetName] = useState(DEFAULT_SHEET_DISPLAY_NAME);
+    const [wizardPick, setWizardPick] = useState<SheetTemplateId>(
+        "personal-expense"
+    );
     const nameInputRef = useRef<HTMLInputElement>(null);
     const prevPhaseRef = useRef(sheetPhase);
 
@@ -157,6 +167,7 @@ export default function SheetPage() {
     }
 
     if (sheetPhase === "wizard") {
+        const picked = TEMPLATES.find((x) => x.id === wizardPick) ?? TEMPLATES[0];
         return (
             <PhoneShell>
                 <h2 className="mt-2 font-head text-3xl font-extrabold leading-none">
@@ -168,27 +179,51 @@ export default function SheetPage() {
                         {t("app.sheets.wizard.warn")}
                     </p>
                 ) : null}
-                <div className="mt-2 grid gap-2">
-                    {TEMPLATES.map((tpl) => (
-                        <button
-                            key={tpl.id}
-                            type="button"
-                            disabled={sheetBusy}
-                            onClick={() => beginNameSheet(tpl.id)}
-                            className="rounded-2xl border-2 border-line bg-card px-4 py-3 text-left disabled:opacity-60"
-                        >
-                            <span className="block font-semibold">{t(tpl.name)}</span>
-                            <span className="block text-xs text-muted">{t(tpl.body)}</span>
-                        </button>
-                    ))}
+
+                <div className="-mx-6">
+                    <TemplateCarousel label={t("app.sheets.wizard.title")}>
+                        {TEMPLATES.map((tpl) => (
+                            <TemplateChip
+                                key={tpl.id}
+                                id={tpl.id}
+                                title={t(tpl.name)}
+                                disabled={sheetBusy}
+                                selected={wizardPick === tpl.id}
+                                onPick={() => setWizardPick(tpl.id)}
+                            />
+                        ))}
+                    </TemplateCarousel>
                 </div>
-                <button
-                    type="button"
-                    onClick={cancelSheetChoice}
-                    className="mt-auto rounded-full bg-mist px-6 py-4 font-semibold text-ink"
-                >
-                    {t("app.sheets.cancel")}
-                </button>
+
+                <div className="space-y-1.5">
+                    <p className="font-head text-lg font-extrabold leading-tight">
+                        {t(picked.name)}
+                    </p>
+                    <p className="text-xs text-muted">{t(picked.body)}</p>
+                    <TemplatePeek
+                        templateId={wizardPick}
+                        lang={lang}
+                        customLabel={t("app.wa.customPeek")}
+                    />
+                </div>
+
+                <div className="mt-auto grid gap-3 pt-2">
+                    <button
+                        type="button"
+                        disabled={sheetBusy}
+                        onClick={() => beginNameSheet(wizardPick)}
+                        className="rounded-full bg-btn px-6 py-4 font-semibold text-btntext disabled:opacity-60"
+                    >
+                        {t("app.sheets.wizard.continue")}
+                    </button>
+                    <button
+                        type="button"
+                        onClick={cancelSheetChoice}
+                        className="rounded-full bg-mist px-6 py-4 font-semibold text-ink"
+                    >
+                        {t("app.sheets.cancel")}
+                    </button>
+                </div>
             </PhoneShell>
         );
     }

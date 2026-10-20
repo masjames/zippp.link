@@ -19,7 +19,8 @@ import type { Wording } from "./t";
 let cache: Wording | null = null;
 
 export function loadWording(): Wording {
-    if (cache) return cache;
+    // Dev: always re-read so new keys in wording.txt show without restart.
+    if (cache && process.env.NODE_ENV === "production") return cache;
 
     const file = path.join(process.cwd(), "spec", "wording.txt");
     const raw = readFileSync(file, "utf8");
