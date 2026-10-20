@@ -84,9 +84,18 @@ User obtains from Twilio Console (Sandbox first):
    TWILIO_WHATSAPP_FROM=whatsapp:+14155238886
    ```
    Keep `WA_MOCK=true` if you still want the browser playground.
-4. Sandbox → “When a message comes in” →  
-   `https://<preview-host>/api/wa/webhook` (HTTP POST).
+4. Sandbox → “When a message comes in” → HTTP POST.  
+   Preview has Vercel SSO (`all_except_custom_domains`). Append automation
+   bypass (Project Settings → Deployment Protection → Protection Bypass), e.g.  
+   `https://zippp-link-git-feat-wa-twilio-sandbox-masjames-projects.vercel.app/api/wa/webhook?x-vercel-protection-bypass=<SECRET>`  
+   Signature validation includes the query string (`webhookPublicUrl`).
 5. Phone: join Sandbox (`join <code>`), then Settings → Hubungkan WhatsApp →  
    send `zippp link <token>` (or wa.me deep link) → photo → Balas Terima/Ubah/Buang.
 
 Webhook path (both providers): **`/api/wa/webhook`**.
+
+### Preview env gap (as of handoff agent)
+
+Set **Preview only** (not Production): `WA_CHANNEL_ENABLED=true`,
+`WA_PROVIDER=twilio`, `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`,
+`TWILIO_WHATSAPP_FROM`. `WA_MOCK=true` may stay for the browser playground.

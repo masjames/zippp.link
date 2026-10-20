@@ -77,7 +77,10 @@ async function handleTwilioPost(req: Request): Promise<Response> {
     return new NextResponse(null, { status: 200 });
 }
 
-/** Exact public URL Twilio signed (respects reverse-proxy host headers). */
+/**
+ * Exact public URL Twilio signed (host + path + query).
+ * Query must be included when using Vercel protection-bypass on Preview.
+ */
 function webhookPublicUrl(req: Request): string {
     const proto =
         req.headers.get("x-forwarded-proto")?.split(",")[0]?.trim() || "https";
@@ -85,6 +88,6 @@ function webhookPublicUrl(req: Request): string {
         req.headers.get("x-forwarded-host")?.split(",")[0]?.trim() ||
         req.headers.get("host") ||
         new URL(req.url).host;
-    const path = new URL(req.url).pathname;
-    return `${proto}://${host}${path}`;
+    const { pathname, search } = new URL(req.url);
+    return `${proto}://${host}${pathname}${search}`;
 }
