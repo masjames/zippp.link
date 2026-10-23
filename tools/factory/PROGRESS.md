@@ -16,7 +16,7 @@
 - [x] M4 Eraser renderer
 - [x] M5 Verifier
 - [x] M6 Terminal bridge
-- [ ] M7 Self-test and handover
+- [x] M7 Self-test and handover
 
 ## Gate log
 
@@ -27,3 +27,4 @@ M3: pass. `FACTORY CHECK OK`. Root `tsc` and 43 tests match baseline. Commit bc3
 M4: pass. `FACTORY CHECK OK`. Local SVG ERD renderer. Native packages 404. Commit a4b1d83.
 M5: pass. `DAEMON OK`. Static, model, test, prod, queue, reports, and race tests pass. Commit 939d6d5.
 M6: pass. `DAEMON OK`. nvim remote bridge, focus command, and path guard tests pass. Commit 95777b9.
+M7: pass. `FACTORY CHECK OK`. Root tsc pass, 43 tests, build pass. Live FEAT-900 reached done and was restored to todo. Commit eeb2a3a.
