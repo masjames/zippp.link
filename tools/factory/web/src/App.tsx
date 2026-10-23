@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import type { MouseEvent } from 'react'
 import { DebugPanel } from './components/DebugPanel'
 import { DetailPane } from './components/DetailPane'
 import { DesignView } from './components/DesignView'
@@ -16,7 +17,7 @@ export function App() {
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [tab, setTab] = useState<Tab>('tasks')
   const [detailTab, setDetailTab] = useState<DetailTab>('spec')
-  const [detailVisible, setDetailVisible] = useState(true)
+  const [detailVisible, setDetailVisible] = useState(false)
   const [detailExpanded, setDetailExpanded] = useState(false)
   const [search, setSearch] = useState('')
 
@@ -52,6 +53,15 @@ export function App() {
     setSelectedId(id)
     setDetailTab(nextTab)
     setDetailVisible(true)
+  }
+
+  function handleMainClick(event: MouseEvent<HTMLElement>) {
+    const target = event.target
+    if (!(target instanceof Element)) return
+    if (target.closest('[data-task-card]')) return
+    setSelectedId(null)
+    setDetailVisible(false)
+    setDetailExpanded(false)
   }
 
   const detailFull = detailVisible && detailExpanded
@@ -92,7 +102,7 @@ export function App() {
         }`}
       >
         {!detailFull && (
-          <main className="min-h-0 overflow-auto p-3">
+          <main className="min-h-0 overflow-auto p-3" onClick={handleMainClick}>
           <div role="tablist" className="tabs tabs-boxed mb-3 w-fit">
             <button
               role="tab"
@@ -176,7 +186,7 @@ export function App() {
 
       {!detailVisible && (
         <button
-          className="fixed right-0 top-1/2 z-40 -translate-y-1/2 rounded-l-box border border-r-0 border-base-300 bg-base-100 px-1 py-2 text-base shadow"
+          className="fixed right-0 top-1/2 z-40 -translate-y-1/2 rounded-l-lg border border-r-0 border-base-300 bg-base-100 px-1 py-2 text-base shadow"
           title="Show details"
           aria-label="Show details"
           onClick={() => setDetailVisible(true)}

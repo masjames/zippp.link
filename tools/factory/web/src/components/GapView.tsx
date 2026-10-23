@@ -58,6 +58,7 @@ export function GapView({ entities, state, onSelect }: Props) {
               return (
                 <tr
                   key={entity.id}
+                  data-task-card
                   className="cursor-pointer hover:bg-base-200"
                   onClick={() => onSelect(entity.id)}
                 >

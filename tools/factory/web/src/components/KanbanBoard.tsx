@@ -28,6 +28,7 @@ export function KanbanBoard({ entities, state, selectedId, onSelect }: Props) {
                 .map((entity) => (
                   <button
                     key={entity.id}
+                    data-task-card
                     className={`w-full rounded-box border p-2 text-left ${
                       selectedId === entity.id
                         ? 'border-primary bg-base-200'

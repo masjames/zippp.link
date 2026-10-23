@@ -20,3 +20,4 @@ One line per decision. Contracts live in the Pi brief.
 - Post-M7 diagrams: added Mermaid as a web dependency. DIAG-001, ERD-001, and FLOW-001 now use Mermaid live and planned blocks. All 15 cards pass spec grooming.
 - Post-M7 UI: the detail pane can expand to full width and collapse. Every diagram frame has a Full screen toggle, with Escape to close.
 - Post-M7 UI: detail controls moved to a left arrow rail. Fullscreen diagrams scale to fit the viewport and do not scroll.
+- Post-M7 UI: the detail pane starts collapsed. Clicking outside a task card clears the selection and collapses the pane. Task cards and Gap rows keep the selection.
