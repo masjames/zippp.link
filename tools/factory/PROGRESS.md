@@ -30,3 +30,4 @@ M6: pass. `DAEMON OK`. nvim remote bridge, focus command, and path guard tests p
 M7: pass. `FACTORY CHECK OK`. Root tsc pass, 43 tests, build pass. Live FEAT-900 reached done and was restored to todo. Commit eeb2a3a.
 
 Post-M7: debug panel. FACTORY CHECK OK. Web tests 27 pass. Root tsc pass, 43 tests pass. Commit 7f0023d.
+Post-M7 fix: index only entity subdirs. FACTORY CHECK OK. Root tsc pass, 43 tests pass. Commit 38fb761.
