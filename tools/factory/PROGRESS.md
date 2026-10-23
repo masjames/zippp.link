@@ -14,7 +14,7 @@
 - [x] M2 Spec index
 - [x] M3 Web UI
 - [x] M4 Eraser renderer
-- [ ] M5 Verifier
+- [x] M5 Verifier
 - [ ] M6 Terminal bridge
 - [ ] M7 Self-test and handover
 
@@ -25,3 +25,4 @@ M1: pass. `DAEMON OK`. Health 200, bad Host 403, bad Origin 403. Commit 7d75fa0.
 M2: pass. `DAEMON OK`. Parse, store, diff, rewrite, and WebSocket lifecycle tests pass. Commit 4df56a5.
 M3: pass. `FACTORY CHECK OK`. Root `tsc` and 43 tests match baseline. Commit bc37517.
 M4: pass. `FACTORY CHECK OK`. Local SVG ERD renderer. Native packages 404. Commit a4b1d83.
+M5: pass. `DAEMON OK`. Static, model, test, prod, queue, reports, and race tests pass. Commit 939d6d5.
