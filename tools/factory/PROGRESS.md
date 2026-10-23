@@ -10,7 +10,7 @@
 ## Milestones
 
 - [x] M0 Preflight
-- [ ] M1 Daemon skeleton
+- [x] M1 Daemon skeleton
 - [ ] M2 Spec index
 - [ ] M3 Web UI
 - [ ] M4 Eraser renderer
@@ -21,3 +21,4 @@
 ## Gate log
 
 M0: pass. Baseline recorded. Root `tsc` matches baseline. Commit f3f08ee.
+M1: pass. `DAEMON OK`. Health 200, bad Host 403, bad Origin 403. Commit 7d75fa0.
