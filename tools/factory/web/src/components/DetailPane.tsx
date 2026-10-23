@@ -26,6 +26,9 @@ type Props = {
   onTab: (tab: DetailTab) => void
   onSelect: (id: string) => void
   onVerify: () => void
+  expanded: boolean
+  onToggleExpand: () => void
+  onHide: () => void
 }
 
 const statusClass: Record<EntityStatus, string> = {
@@ -44,13 +47,17 @@ const gapClass: Record<GapSeverity, string> = {
 }
 
 export function DetailPane(props: Props) {
-  const { entity, entities, result, running, tab, onTab, onSelect, onVerify } = props
+  const { entity, entities, result, running, tab, onTab, onSelect, onVerify, expanded, onToggleExpand, onHide } = props
+  const asideClass = `flex min-h-0 flex-col bg-base-100 ${expanded ? '' : 'border-l border-base-300'}`
   if (!entity) {
     return (
-      <aside className="min-h-0 overflow-auto border-l border-base-300 bg-base-100 p-4">
-        <p className="text-sm text-base-content/60">
-          Select a task to inspect its spec, diagram, grooming, and gap.
-        </p>
+      <aside className={asideClass}>
+        <DetailToolbar expanded={expanded} onToggleExpand={onToggleExpand} onHide={onHide} />
+        <div className="min-h-0 flex-1 overflow-auto p-4">
+          <p className="text-sm text-base-content/60">
+            Select a task to inspect its spec, diagram, grooming, and gap.
+          </p>
+        </div>
       </aside>
     )
   }
@@ -62,7 +69,8 @@ export function DetailPane(props: Props) {
   ]
 
   return (
-    <aside className="flex min-h-0 flex-col border-l border-base-300 bg-base-100">
+    <aside className={asideClass}>
+      <DetailToolbar expanded={expanded} onToggleExpand={onToggleExpand} onHide={onHide} />
       <header className="space-y-1 border-b border-base-300 p-3">
         <div className="flex items-center justify-between gap-2">
           <span className="font-mono text-xs text-base-content/60">{entity.id}</span>
@@ -119,6 +127,26 @@ export function DetailPane(props: Props) {
         )}
       </div>
     </aside>
+  )
+}
+
+function DetailToolbar(props: {
+  expanded: boolean
+  onToggleExpand: () => void
+  onHide: () => void
+}) {
+  return (
+    <div className="flex items-center justify-between gap-2 border-b border-base-300 px-2 py-1">
+      <span className="text-xs font-semibold text-base-content/70">Details</span>
+      <div className="flex gap-1">
+        <button className="btn btn-xs" onClick={props.onToggleExpand}>
+          {props.expanded ? 'Split' : 'Expand'}
+        </button>
+        <button className="btn btn-xs btn-ghost" onClick={props.onHide}>
+          Hide
+        </button>
+      </div>
+    </div>
   )
 }
 

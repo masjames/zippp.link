@@ -1,5 +1,6 @@
 import { useEffect, useId, useState } from 'react'
 import mermaid from 'mermaid'
+import { DiagramFrame } from './DiagramFrame'
 
 let initialized = false
 
@@ -56,9 +57,8 @@ export function MermaidBlock({ source }: { source: string }) {
     return <div className="rounded-box bg-base-200 p-2 text-xs text-base-content/60">Rendering diagram...</div>
   }
   return (
-    <div
-      className="overflow-auto rounded-box bg-base-100 p-2"
-      dangerouslySetInnerHTML={{ __html: svg }}
-    />
+    <DiagramFrame title="Mermaid diagram">
+      <div className="rounded-box bg-base-100 p-2" dangerouslySetInnerHTML={{ __html: svg }} />
+    </DiagramFrame>
   )
 }

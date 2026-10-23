@@ -1,4 +1,5 @@
 import { layoutErd, parseEraser } from '../lib/eraser'
+import { DiagramFrame } from './DiagramFrame'
 
 export function EraserBlock({ source }: { source: string }) {
   const model = parseEraser(source)
@@ -7,8 +8,9 @@ export function EraserBlock({ source }: { source: string }) {
   }
   const layout = layoutErd(model)
   return (
-    <div className="overflow-auto rounded-box bg-base-200">
-      <svg
+    <DiagramFrame title="ER diagram">
+      <div className="rounded-box bg-base-200">
+        <svg
         width={layout.width}
         height={layout.height}
         viewBox={`0 0 ${layout.width} ${layout.height}`}
@@ -86,7 +88,8 @@ export function EraserBlock({ source }: { source: string }) {
           </g>
         ))}
       </g>
-      </svg>
-    </div>
+        </svg>
+      </div>
+    </DiagramFrame>
   )
 }

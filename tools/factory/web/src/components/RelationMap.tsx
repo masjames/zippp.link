@@ -1,5 +1,6 @@
 import type { Entity, EntityStatus } from '../types'
 import { buildRelationMap } from '../lib/relation-map'
+import { DiagramFrame } from './DiagramFrame'
 
 const statusColor: Record<EntityStatus, string> = {
   todo: '#9ca3af',
@@ -36,8 +37,9 @@ export function RelationMap({ entity, entities, onSelect }: Props) {
   })
 
   return (
-    <div className="space-y-1">
-      <svg
+    <DiagramFrame title="Relation map">
+      <div className="space-y-1">
+        <svg
         viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
         className="w-full rounded-box bg-base-200"
         role="img"
@@ -113,8 +115,9 @@ export function RelationMap({ entity, entities, onSelect }: Props) {
             No related tasks.
           </text>
         )}
-      </svg>
-      <p className="text-xs text-base-content/50">Relation map. Click a node to inspect it.</p>
-    </div>
+        </svg>
+        <p className="text-xs text-base-content/50">Relation map. Click a node to inspect it.</p>
+      </div>
+    </DiagramFrame>
   )
 }

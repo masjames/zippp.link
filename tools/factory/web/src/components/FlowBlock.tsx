@@ -1,5 +1,6 @@
 import { useId } from 'react'
 import { layoutFlow, parseFlow } from '../lib/flow'
+import { DiagramFrame } from './DiagramFrame'
 
 export function FlowBlock({ source }: { source: string }) {
   const markerId = useId().replace(/:/g, '')
@@ -9,8 +10,9 @@ export function FlowBlock({ source }: { source: string }) {
   }
   const layout = layoutFlow(model)
   return (
-    <div className="overflow-auto rounded-box bg-base-200">
-      <svg
+    <DiagramFrame title="Flow diagram">
+      <div className="rounded-box bg-base-200">
+        <svg
         width={layout.width}
         height={layout.height}
         viewBox={`0 0 ${layout.width} ${layout.height}`}
@@ -81,7 +83,8 @@ export function FlowBlock({ source }: { source: string }) {
           </text>
         </g>
       ))}
-      </svg>
-    </div>
+        </svg>
+      </div>
+    </DiagramFrame>
   )
 }

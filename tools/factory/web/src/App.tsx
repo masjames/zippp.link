@@ -16,6 +16,8 @@ export function App() {
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [tab, setTab] = useState<Tab>('tasks')
   const [detailTab, setDetailTab] = useState<DetailTab>('spec')
+  const [detailVisible, setDetailVisible] = useState(true)
+  const [detailExpanded, setDetailExpanded] = useState(false)
   const [search, setSearch] = useState('')
 
   useEffect(() => {
@@ -49,7 +51,11 @@ export function App() {
   function selectTask(id: string, nextTab: DetailTab = 'spec') {
     setSelectedId(id)
     setDetailTab(nextTab)
+    setDetailVisible(true)
   }
+
+  const detailFull = detailVisible && detailExpanded
+  const detailSplit = detailVisible && !detailExpanded
 
   return (
     <div className="flex h-screen flex-col bg-base-200 text-base-content">
@@ -57,6 +63,19 @@ export function App() {
         <h1 className="text-sm font-semibold tracking-wide">Zippp Factory</h1>
         <div className="flex items-center gap-3">
           <StatusBar state={state} />
+          <button
+            className="btn btn-xs btn-ghost"
+            onClick={() => {
+              if (detailVisible) {
+                setDetailVisible(false)
+                setDetailExpanded(false)
+              } else {
+                setDetailVisible(true)
+              }
+            }}
+          >
+            {detailVisible ? 'Hide details' : 'Show details'}
+          </button>
           <DebugPanel
             state={state}
             selected={selected}
@@ -80,8 +99,13 @@ export function App() {
         </div>
       )}
 
-      <div className="grid min-h-0 flex-1 grid-cols-[minmax(0,1fr)_460px]">
-        <main className="min-h-0 overflow-auto p-3">
+      <div
+        className={`grid min-h-0 flex-1 ${
+          detailSplit ? 'grid-cols-[minmax(0,1fr)_460px]' : 'grid-cols-1'
+        }`}
+      >
+        {!detailFull && (
+          <main className="min-h-0 overflow-auto p-3">
           <div role="tablist" className="tabs tabs-boxed mb-3 w-fit">
             <button
               role="tab"
@@ -140,18 +164,27 @@ export function App() {
               onSelect={(id) => selectTask(id, 'gap')}
             />
           )}
-        </main>
+          </main>
+        )}
 
-        <DetailPane
-          entity={selected}
-          entities={state.entities}
-          result={selectedResult}
-          running={selectedRunning}
-          tab={detailTab}
-          onTab={setDetailTab}
-          onSelect={(id) => selectTask(id)}
-          onVerify={() => selectedId && send({ type: 'verify', id: selectedId })}
-        />
+        {detailVisible && (
+          <DetailPane
+            entity={selected}
+            entities={state.entities}
+            result={selectedResult}
+            running={selectedRunning}
+            tab={detailTab}
+            onTab={setDetailTab}
+            onSelect={(id) => selectTask(id)}
+            onVerify={() => selectedId && send({ type: 'verify', id: selectedId })}
+            expanded={detailExpanded}
+            onToggleExpand={() => setDetailExpanded((value) => !value)}
+            onHide={() => {
+              setDetailVisible(false)
+              setDetailExpanded(false)
+            }}
+          />
+        )}
       </div>
     </div>
   )
