@@ -12,7 +12,7 @@
 - [x] M0 Preflight
 - [x] M1 Daemon skeleton
 - [x] M2 Spec index
-- [ ] M3 Web UI
+- [x] M3 Web UI
 - [ ] M4 Eraser renderer
 - [ ] M5 Verifier
 - [ ] M6 Terminal bridge
@@ -23,3 +23,4 @@
 M0: pass. Baseline recorded. Root `tsc` matches baseline. Commit f3f08ee.
 M1: pass. `DAEMON OK`. Health 200, bad Host 403, bad Origin 403. Commit 7d75fa0.
 M2: pass. `DAEMON OK`. Parse, store, diff, rewrite, and WebSocket lifecycle tests pass. Commit 4df56a5.
+M3: pass. `FACTORY CHECK OK`. Root `tsc` and 43 tests match baseline. Commit bc37517.
