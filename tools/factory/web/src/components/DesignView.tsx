@@ -4,6 +4,7 @@ import { parseDesign } from '../lib/design'
 import { EraserBlock } from './EraserBlock'
 import { ErrorBoundary } from './ErrorBoundary'
 import { FlowBlock } from './FlowBlock'
+import { MermaidBlock } from './MermaidBlock'
 
 type Kind = 'system' | 'erd' | 'flow'
 type Mode = 'live' | 'planned'
@@ -20,7 +21,7 @@ export function DesignView({ entities }: { entities: Entity[] }) {
   const config = KINDS.find((item) => item.key === kind) ?? KINDS[0]
   const entity = entities.find((item) => item.id.startsWith(config.prefix))
   const design = entity ? parseDesign(entity.body) : null
-  const blocks = design ? design[mode] : { eraser: [], flow: [] }
+  const blocks = design ? design[mode] : { eraser: [], flow: [], mermaid: [] }
 
   return (
     <div className="space-y-3">
@@ -91,7 +92,15 @@ export function DesignView({ entities }: { entities: Entity[] }) {
                 <FlowBlock source={source} />
               </ErrorBoundary>
             ))}
-            {blocks.eraser.length === 0 && blocks.flow.length === 0 && (
+            {blocks.mermaid.map((source, index) => (
+              <ErrorBoundary
+                key={`${entity.id}-${mode}-mermaid-${index}`}
+                fallback={<pre className="overflow-auto rounded-box bg-base-200 p-2 text-xs">{source}</pre>}
+              >
+                <MermaidBlock source={source} />
+              </ErrorBoundary>
+            ))}
+            {blocks.eraser.length === 0 && blocks.flow.length === 0 && blocks.mermaid.length === 0 && (
               <p className="text-sm text-base-content/60">
                 No {mode} diagram in {entity.id}.
               </p>

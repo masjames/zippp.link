@@ -3,6 +3,7 @@ import { entityGap } from '../lib/gap'
 import type { GapSeverity } from '../lib/gap'
 import { extractEraserBlocks } from '../lib/eraser'
 import { extractFlowBlocks } from '../lib/flow'
+import { extractMermaidBlocks } from '../lib/mermaid'
 import { groomEntity } from '../lib/grooming'
 import type { GroomItem } from '../lib/grooming'
 import { parseAcceptance } from '../lib/spec'
@@ -10,6 +11,7 @@ import { EraserBlock } from './EraserBlock'
 import { ErrorBoundary } from './ErrorBoundary'
 import { FlowBlock } from './FlowBlock'
 import { MarkdownView } from './MarkdownView'
+import { MermaidBlock } from './MermaidBlock'
 import { RelationMap } from './RelationMap'
 import { VerifyPanel } from './VerifyPanel'
 
@@ -207,11 +209,12 @@ function DiagramTab(props: {
 }) {
   const eraser = extractEraserBlocks(props.entity.body)
   const flow = extractFlowBlocks(props.entity.body)
+  const mermaid = extractMermaidBlocks(props.entity.body)
   return (
     <>
       <section className="space-y-2">
         <h3 className="text-sm font-semibold">Diagram</h3>
-        {eraser.length === 0 && flow.length === 0 && (
+        {eraser.length === 0 && flow.length === 0 && mermaid.length === 0 && (
           <p className="text-sm text-base-content/60">
             No diagram in this spec. Add a fenced `eraser` or `flow` block to the markdown body.
           </p>
@@ -230,6 +233,14 @@ function DiagramTab(props: {
             fallback={<pre className="overflow-auto rounded-box bg-base-200 p-2 text-xs">{block}</pre>}
           >
             <FlowBlock source={block} />
+          </ErrorBoundary>
+        ))}
+        {mermaid.map((block, index) => (
+          <ErrorBoundary
+            key={`${props.entity.id}-mermaid-${index}`}
+            fallback={<pre className="overflow-auto rounded-box bg-base-200 p-2 text-xs">{block}</pre>}
+          >
+            <MermaidBlock source={block} />
           </ErrorBoundary>
         ))}
       </section>

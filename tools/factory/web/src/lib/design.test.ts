@@ -19,12 +19,17 @@ b {
 \`\`\`flow
 A -> B
 \`\`\`
+\`\`\`mermaid
+flowchart LR
+  C --> D
+\`\`\`
 `
     const design = parseDesign(body)
     expect(design.live.eraser).toHaveLength(1)
     expect(design.live.eraser[0]).toContain('a {')
     expect(design.planned.eraser[0]).toContain('b {')
     expect(design.planned.flow[0]).toContain('A -> B')
+    expect(design.planned.mermaid[0]).toContain('C --> D')
   })
 
   it('ignores blocks outside live and planned', () => {

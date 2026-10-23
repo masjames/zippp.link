@@ -25,7 +25,7 @@ function hasHeading(body: string, pattern: RegExp): boolean {
 }
 
 function hasDiagram(body: string): boolean {
-  return /```(eraser|flow)\b/i.test(body)
+  return /```(eraser|flow|mermaid)\b/i.test(body)
 }
 
 function hasManualVerification(body: string): boolean {
@@ -77,7 +77,7 @@ export function groomEntity(entity: Entity): GroomResult {
       ok: diagram ? hasDiagram(entity.body) : hasTargets ? hasTest || manual : manual,
       required: true,
       detail: diagram
-        ? 'Add an eraser or flow diagram block.'
+        ? 'Add an eraser, flow, or mermaid diagram block.'
         : 'Add target files and a test command, or a manual verification plan.',
     },
     {
@@ -106,7 +106,7 @@ export function groomEntity(entity: Entity): GroomResult {
       label: 'Diagram',
       ok: hasDiagram(entity.body),
       required: diagram,
-      detail: 'Add an eraser or flow diagram block.',
+      detail: 'Add an eraser, flow, or mermaid diagram block.',
     },
   ]
 

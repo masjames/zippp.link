@@ -24,136 +24,62 @@ Make the gap between the current system and the planned system visible in one pl
 
 # Live (as is)
 
-```eraser
-web [client] {
-  auth
-  sheet_setup
-  billing
-  devices
-  telegram_link
-}
-android [client] {
-  pairing
-  camera
-  review_partial
-  terima
-  ubah
-  buang
-}
-api [nextjs] {
-  extract
-  append
-  auth
-  billing
-  telegram_webhook
-  app_version
-}
-extract [pipeline] {
-  paddleocr
-  deepseek
-  gemini_fallback
-  verifier
-}
-sheets [google] {
-  append_single_tab
-}
-redis [upstash] {
-  sessions
-  credits
-  devices
-  pairing
-  telegram
-}
-telegram [channel] {
-  link
-  saldo
-  bantuan
-  alerts
-}
-web - api
-android - api
-api - extract
-api - sheets
-api - redis
-api - telegram
+```mermaid
+flowchart LR
+  subgraph Clients
+    Web["Web portal<br/>auth, sheet setup, billing, devices, Telegram link"]
+    Android["Android companion<br/>pairing, camera, partial review, Terima, Ubah, Buang"]
+  end
+  subgraph Backend
+    API["Next.js API<br/>extract, append, auth, billing, Telegram webhook, app version"]
+    Extract["Extract pipeline<br/>PP-OCRv6, DeepSeek, Gemini fallback, verifier"]
+  end
+  subgraph Data
+    Sheets["Google Sheets<br/>single tab append"]
+    Redis["Upstash Redis<br/>sessions, credits, devices, pairing, Telegram"]
+  end
+  subgraph Channels
+    Telegram["Telegram bot<br/>link, saldo, bantuan, alerts"]
+  end
+  Web --> API
+  Android --> API
+  API --> Extract
+  API --> Sheets
+  API --> Redis
+  API --> Telegram
 ```
 
 # Planned (as per spec)
 
-```eraser
-web [client] {
-  auth
-  sheet_setup
-  billing
-  devices
-  telegram_link
-  month_view
-}
-android [client] {
-  pairing
-  qr_scan
-  camera
-  steady_detection
-  review_full
-  terima
-  ubah
-  buang
-  offline_queue
-  exif_strip
-}
-api [nextjs] {
-  extract
-  append
-  auth
-  billing
-  telegram_webhook
-  app_version
-  corrections
-}
-extract [pipeline] {
-  paddleocr
-  deepseek
-  gemini_fallback
-  verifier
-}
-sheets [google] {
-  month_tabs
-  summary
-  daily_block
-  photo_link
-}
-drive [google] {
-  receipt_folder
-  photo_proof
-}
-redis [upstash] {
-  sessions
-  credits
-  devices
-  pairing
-  telegram
-  scans
-}
-telegram [channel] {
-  link
-  saldo
-  bantuan
-  alerts
-}
-factory [local] {
-  entities
-  watcher
-  websocket
-  verifier
-}
-web - api
-android - api
-api - extract
-api - sheets
-api - drive
-api - redis
-api - telegram
-factory - api
+```mermaid
+flowchart LR
+  subgraph Clients
+    Web["Web portal<br/>auth, sheet setup, billing, devices, Telegram link, month view"]
+    Android["Android companion<br/>QR pairing, steady capture, full review, offline queue, EXIF strip"]
+  end
+  subgraph Backend
+    API["Next.js API<br/>extract, append, corrections, app version, Telegram webhook"]
+    Extract["Extract pipeline<br/>PP-OCRv6, DeepSeek, Gemini fallback, verifier"]
+  end
+  subgraph Data
+    Sheets["Google Sheets<br/>month tabs, summary, daily block, photo link"]
+    Drive["Google Drive<br/>receipt folder, photo proof"]
+    Redis["Upstash Redis<br/>sessions, credits, devices, pairing, scans, Telegram"]
+  end
+  subgraph Channels
+    Telegram["Telegram bot<br/>link, saldo, bantuan, alerts"]
+  end
+  subgraph Local
+    Factory["Software Factory<br/>entities, watcher, websocket, verifier"]
+  end
+  Web --> API
+  Android --> API
+  API --> Extract
+  API --> Sheets
+  API --> Drive
+  API --> Redis
+  API --> Telegram
+  Factory -.->|verifies| API
 ```
 
 # Notes

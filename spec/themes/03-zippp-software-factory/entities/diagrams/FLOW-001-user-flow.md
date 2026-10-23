@@ -24,54 +24,56 @@ Show where a person enters, what they do, and where the work lands in the Sheet.
 
 # Live (as is)
 
-```flow
-WebLanding -> WebSignIn
-WebSignIn -> WebSheetSetup
-WebSheetSetup -> WebSnap
-WebSnap -> WebExtract
-WebExtract -> WebCheck
-WebCheck -> WebAccept
-WebAccept -> SheetRows
-WebAccept -> WebTopUp
-AndroidPair -> AndroidCapture
-AndroidCapture -> AndroidExtract
-AndroidExtract -> AndroidReview
-AndroidReview -> AndroidAccept
-AndroidReview -> AndroidDiscard
-AndroidAccept -> SheetRows
-TelegramLink -> TelegramSaldo
-TelegramLink -> TelegramHelp
-FactoryTask -> FactoryVerify
-FactoryVerify -> FactoryDone
+```mermaid
+flowchart TD
+  WebLanding["Landing"] --> WebSignIn["Sign in"]
+  WebSignIn --> WebSheetSetup["Sheet setup"]
+  WebSheetSetup --> WebSnap["Snap"]
+  WebSnap --> WebExtract["Extract"]
+  WebExtract --> WebCheck["Check"]
+  WebCheck --> WebAccept["Accept"]
+  WebAccept --> SheetRows["Sheet rows"]
+  WebAccept --> WebTopUp["Top up"]
+  AndroidPair["Pair"] --> AndroidCapture["Capture"]
+  AndroidCapture --> AndroidExtract["Extract"]
+  AndroidExtract --> AndroidReview["Review"]
+  AndroidReview --> AndroidAccept["Terima"]
+  AndroidReview --> AndroidDiscard["Buang"]
+  AndroidAccept --> SheetRows
+  TelegramLink["Telegram link"] --> TelegramSaldo["Saldo"]
+  TelegramLink --> TelegramHelp["Bantuan"]
+  FactoryTask["Factory task"] --> FactoryVerify["Verify"]
+  FactoryVerify --> FactoryDone["Done"]
 ```
 
 # Planned (as per spec)
 
-```flow
-WebLanding -> WebSignIn
-WebSignIn -> WebSheetSetup
-WebSheetSetup -> WebTemplate
-WebTemplate -> WebSnap
-WebSnap -> WebExtract
-WebExtract -> WebCheck
-WebCheck -> WebOps
-WebOps -> WebAccept
-WebAccept -> SheetMonthTab
-WebAccept -> DriveProof
-WebAccept -> WebTopUp
-AndroidPair -> AndroidQr
-AndroidQr -> AndroidCamera
-AndroidCamera -> AndroidExtract
-AndroidExtract -> AndroidReview
-AndroidReview -> AndroidAccept
-AndroidReview -> AndroidEdit
-AndroidReview -> AndroidDiscard
-AndroidAccept -> SheetMonthTab
-AndroidAccept -> DriveProof
-TelegramLink -> TelegramSaldo
-TelegramLink -> TelegramHelp
-FactoryTask -> FactoryVerify
-FactoryVerify -> FactoryDone
+```mermaid
+flowchart TD
+  WebLanding["Landing"] --> WebSignIn["Sign in"]
+  WebSignIn --> WebSheetSetup["Sheet setup"]
+  WebSheetSetup --> WebTemplate["Template"]
+  WebTemplate --> WebSnap["Snap"]
+  WebSnap --> WebExtract["Extract"]
+  WebExtract --> WebCheck["Check"]
+  WebCheck --> WebOps["Ops"]
+  WebOps --> WebAccept["Accept"]
+  WebAccept --> SheetMonthTab["Month tab"]
+  WebAccept --> DriveProof["Drive proof"]
+  WebAccept --> WebTopUp["Top up"]
+  AndroidPair["Pair"] --> AndroidQr["QR scan"]
+  AndroidQr --> AndroidCamera["Capture"]
+  AndroidCamera --> AndroidExtract["Extract"]
+  AndroidExtract --> AndroidReview["Review"]
+  AndroidReview --> AndroidAccept["Terima"]
+  AndroidReview --> AndroidEdit["Ubah"]
+  AndroidReview --> AndroidDiscard["Buang"]
+  AndroidAccept --> SheetMonthTab
+  AndroidAccept --> DriveProof
+  TelegramLink["Telegram link"] --> TelegramSaldo["Saldo"]
+  TelegramLink --> TelegramHelp["Bantuan"]
+  FactoryTask["Factory task"] --> FactoryVerify["Verify"]
+  FactoryVerify --> FactoryDone["Done"]
 ```
 
 # Notes

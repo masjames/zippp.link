@@ -74,4 +74,11 @@ describe('groomEntity', () => {
     const result = groomEntity(entity(body, 'diagram'))
     expect(result.ready).toBe(true)
   })
+
+  it('accepts a mermaid diagram entity', () => {
+    const body =
+      '# What it is\nA map.\n\n# Goal\nShow it.\n\n```mermaid\nflowchart LR\n  A --> B\n```\n'
+    const result = groomEntity(entity(body, 'diagram'))
+    expect(result.ready).toBe(true)
+  })
 })
