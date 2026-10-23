@@ -57,7 +57,7 @@ export function MermaidBlock({ source }: { source: string }) {
   }
   return (
     <div
-      className="max-h-[75vh] overflow-auto rounded-box bg-base-100 p-2"
+      className="overflow-auto rounded-box bg-base-100 p-2"
       dangerouslySetInnerHTML={{ __html: svg }}
     />
   )

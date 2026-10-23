@@ -7,7 +7,7 @@ export function EraserBlock({ source }: { source: string }) {
   }
   const layout = layoutErd(model)
   return (
-    <div className="max-h-[70vh] overflow-auto rounded-box bg-base-200">
+    <div className="overflow-auto rounded-box bg-base-200">
       <svg
         width={layout.width}
         height={layout.height}

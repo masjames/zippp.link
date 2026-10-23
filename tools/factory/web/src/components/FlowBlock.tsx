@@ -9,7 +9,7 @@ export function FlowBlock({ source }: { source: string }) {
   }
   const layout = layoutFlow(model)
   return (
-    <div className="max-h-[70vh] overflow-auto rounded-box bg-base-200">
+    <div className="overflow-auto rounded-box bg-base-200">
       <svg
         width={layout.width}
         height={layout.height}
