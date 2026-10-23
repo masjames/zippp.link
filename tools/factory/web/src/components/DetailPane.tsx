@@ -410,12 +410,13 @@ function GroomTab(props: {
 
       <details className="rounded-box bg-base-200 p-2">
         <summary className="cursor-pointer text-sm font-semibold">
-          Spec readiness {groom.ready ? 'ready' : 'not ready'} · {groom.score}%
+          Spec readiness {groom.ready ? 'ready' : 'not ready'} · {groom.score}% required
         </summary>
         <div className="mt-2 space-y-2">
           <progress className="progress progress-success w-full" value={groom.score} max={100} />
           <p className="text-xs text-base-content/60">
-            Required items {groom.requiredOk}/{groom.requiredTotal}.
+            Required {groom.requiredOk}/{groom.requiredTotal}. Recommended{' '}
+            {groom.recommendedOk}/{groom.recommendedTotal}. Overall {groom.overallScore}%.
           </p>
           <ul className="space-y-2">
             {groom.items.map((item) => (

@@ -12,9 +12,12 @@ export type GroomItem = {
 export type GroomResult = {
   items: GroomItem[]
   score: number
+  overallScore: number
   ready: boolean
   requiredOk: number
   requiredTotal: number
+  recommendedOk: number
+  recommendedTotal: number
 }
 
 function hasHeading(body: string, pattern: RegExp): boolean {
@@ -111,13 +114,20 @@ export function groomEntity(entity: Entity): GroomResult {
   ]
 
   const requiredItems = items.filter((item) => item.required)
+  const recommendedItems = items.filter((item) => !item.required)
   const requiredOk = requiredItems.filter((item) => item.ok).length
-  const score = Math.round((items.filter((item) => item.ok).length / items.length) * 100)
+  const recommendedOk = recommendedItems.filter((item) => item.ok).length
+  const score =
+    requiredItems.length === 0 ? 100 : Math.round((requiredOk / requiredItems.length) * 100)
+  const overallScore = Math.round((items.filter((item) => item.ok).length / items.length) * 100)
   return {
     items,
     score,
+    overallScore,
     ready: requiredOk === requiredItems.length,
     requiredOk,
     requiredTotal: requiredItems.length,
+    recommendedOk,
+    recommendedTotal: recommendedItems.length,
   }
 }

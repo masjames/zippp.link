@@ -48,7 +48,10 @@ describe('groomEntity', () => {
   it('marks a complete spec ready', () => {
     const result = groomEntity(entity(complete, 'feature', ['src/a.ts']))
     expect(result.ready).toBe(true)
-    expect(result.requiredOk).toBe(result.requiredTotal)
+    expect(result.score).toBe(100)
+    expect(result.overallScore).toBeLessThan(100)
+    expect(result.recommendedOk).toBe(1)
+    expect(result.recommendedTotal).toBe(2)
   })
 
   it('requires a goal', () => {
