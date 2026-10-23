@@ -40,3 +40,4 @@ Post-M7 UI: left arrow rail for detail controls. Fullscreen diagrams fit the vie
 Post-M7 UI: detail pane starts collapsed. Clicking outside a task card clears the selection and collapses the pane. FACTORY CHECK OK. Web tests 52 pass. Root tsc pass, 43 tests pass. Commit 6d05e28.
 Post-M7: grooming assistant thread, FEAT-112 Android full app and auth, and the local LLM key slot. FACTORY CHECK OK. Web tests 53 pass. Root tsc pass, 43 tests pass. Commit 023d36a.
 Post-M7: one-button Groom chat thread with user/assistant/decision bubbles. LLM key configured locally. First FEAT-112 grooming question recorded. FACTORY CHECK OK. Web tests 55 pass. Root tsc pass, 43 tests pass. Commit 52f4ca1.
+FEAT-111: verified to done by the factory verifier. `go -C tools/factory/daemon test ./...` passed. Commit e2dc051.
