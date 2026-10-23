@@ -2,7 +2,7 @@
 id: FEAT-111
 type: feature
 title: Software Factory
-status: in-progress
+status: done
 assignee: adit
 relations:
   blocks: []
