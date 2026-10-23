@@ -54,6 +54,20 @@ Make the Android review path match the web review contract so a person can accep
 
 A paired device can review a real receipt with all template ops, edit every line item, see the assumed date pill, and send correction telemetry without opening the web app.
 
+# Diagram
+
+```mermaid
+flowchart LR
+  Android["Android review"] --> Extract["POST /api/extract"]
+  Extract --> Review["Review card<br/>ops, line items, hard flags"]
+  Review -->|Terima| Append["POST /api/sheets/append"]
+  Review -->|Ubah| Edit["Edit fields and line items"]
+  Edit --> Review
+  Review -->|Buang| Discard["Buang, 0 credits"]
+  Review -->|correction| Corrections["POST /api/corrections"]
+  Append --> Sheet["Google Sheet"]
+```
+
 # Notes
 
 The current Android review edits merchant and total only. Template ops, telemetry, assumed date, and line-item edits are missing.

@@ -25,3 +25,4 @@ One line per decision. Contracts live in the Pi brief.
 - Post-M7: Groom is one header button. The Groom tab is a chat thread with user, assistant, and decision bubbles. The assistant must not write placeholder decisions. The initial FEAT-112 thread is committed.
 - Post-M7 Kanban: blocked cards moved to a separate section above the flow. The flow columns are todo, groomed, in-progress, verify, done. The groomed column contains todo cards that pass spec grooming.
 - Post-M7 grooming score: the primary percentage is required readiness. The overall percentage includes recommended items, so a ready card can show 100% required and under 100% overall.
+- Post-M7: FEAT-102 has a Mermaid review flow diagram, so it now scores 100% overall. The Groom button is shown only for un-groomed cards; groomed cards show a groomed badge instead. The Groom tab chat remains available for follow-up questions.

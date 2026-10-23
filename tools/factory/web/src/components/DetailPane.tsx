@@ -75,6 +75,7 @@ export function DetailPane(props: Props) {
     )
   }
 
+  const groom = groomEntity(entity)
   const relations: Array<{ label: string; ids: string[] }> = [
     { label: 'blocks', ids: entity.relations.blocks ?? [] },
     { label: 'implements', ids: entity.relations.implements ?? [] },
@@ -94,13 +95,17 @@ export function DetailPane(props: Props) {
           <div className="flex items-center gap-2">
             <span className="badge badge-ghost badge-sm">{entity.type}</span>
             <span className="text-xs text-base-content/60">{entity.assignee || 'unassigned'}</span>
-            <button
-              className="btn btn-xs btn-primary ml-auto"
-              onClick={onGroomStart}
-              disabled={chatBusy}
-            >
-              Groom
-            </button>
+            {groom.ready ? (
+              <span className="badge badge-success badge-xs ml-auto">groomed</span>
+            ) : (
+              <button
+                className="btn btn-xs btn-primary ml-auto"
+                onClick={onGroomStart}
+                disabled={chatBusy}
+              >
+                Groom
+              </button>
+            )}
           </div>
         </header>
 
