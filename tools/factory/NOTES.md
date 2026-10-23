@@ -23,3 +23,4 @@ One line per decision. Contracts live in the Pi brief.
 - Post-M7 UI: the detail pane starts collapsed. Clicking outside a task card clears the selection and collapses the pane. Task cards and Gap rows keep the selection.
 - Post-M7 grooming assistant: local LLM chat in the Groom tab. Threads persist at entities/threads/<ID>.md. Lines starting with DECISION: become decision blocks. The key is read from tools/factory/.factory-key or ZIPPP_FACTORY_LLM_API_KEY. The key file is ignored. Fixed a React StrictMode socket ref race.
 - Post-M7: Groom is one header button. The Groom tab is a chat thread with user, assistant, and decision bubbles. The assistant must not write placeholder decisions. The initial FEAT-112 thread is committed.
+- Post-M7 Kanban: blocked cards moved to a separate section above the flow. The flow columns are todo, groomed, in-progress, verify, done. The groomed column contains todo cards that pass spec grooming.
