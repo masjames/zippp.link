@@ -35,3 +35,4 @@ Post-M7 UI: task-first Kanban with search, Spec/Diagram/Gap detail tabs, system 
 Post-M7 design: live/planned system, ERD, and user flow entities. Design view, Spec/Diagram/Groom/Gap tabs, flow renderer, and enriched task specs. FACTORY CHECK OK. Web tests 49 pass. Root tsc pass, 43 tests pass. Commit 3d353d2.
 Post-M7: removed the Neovim terminal bridge and editor config. Markdown is read inline. FACTORY CHECK OK. Web tests 49 pass. Root tsc pass, 43 tests pass. Commit 3bcd509.
 Post-M7 diagrams: Mermaid live/planned system, ERD, and user flow. All 15 cards pass grooming. FACTORY CHECK OK. Web tests 52 pass. Root tsc pass, 43 tests pass. Commit 8084c9d.
+Post-M7 UI: collapsible and full-width detail pane. Full screen toggle on every diagram. FACTORY CHECK OK. Web tests 52 pass. Root tsc pass, 43 tests pass. Commit c9857de.
