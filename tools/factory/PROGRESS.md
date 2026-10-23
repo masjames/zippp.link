@@ -28,3 +28,5 @@ M4: pass. `FACTORY CHECK OK`. Local SVG ERD renderer. Native packages 404. Commi
 M5: pass. `DAEMON OK`. Static, model, test, prod, queue, reports, and race tests pass. Commit 939d6d5.
 M6: pass. `DAEMON OK`. nvim remote bridge, focus command, and path guard tests pass. Commit 95777b9.
 M7: pass. `FACTORY CHECK OK`. Root tsc pass, 43 tests, build pass. Live FEAT-900 reached done and was restored to todo. Commit eeb2a3a.
+
+Post-M7: debug panel. FACTORY CHECK OK. Web tests 27 pass. Root tsc pass, 43 tests pass. Commit 7f0023d.
