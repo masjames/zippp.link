@@ -15,7 +15,7 @@
 - [x] M3 Web UI
 - [x] M4 Eraser renderer
 - [x] M5 Verifier
-- [ ] M6 Terminal bridge
+- [x] M6 Terminal bridge
 - [ ] M7 Self-test and handover
 
 ## Gate log
@@ -26,3 +26,4 @@ M2: pass. `DAEMON OK`. Parse, store, diff, rewrite, and WebSocket lifecycle test
 M3: pass. `FACTORY CHECK OK`. Root `tsc` and 43 tests match baseline. Commit bc37517.
 M4: pass. `FACTORY CHECK OK`. Local SVG ERD renderer. Native packages 404. Commit a4b1d83.
 M5: pass. `DAEMON OK`. Static, model, test, prod, queue, reports, and race tests pass. Commit 939d6d5.
+M6: pass. `DAEMON OK`. nvim remote bridge, focus command, and path guard tests pass. Commit 95777b9.
