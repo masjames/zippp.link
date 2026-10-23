@@ -42,3 +42,4 @@ Post-M7: grooming assistant thread, FEAT-112 Android full app and auth, and the 
 Post-M7: one-button Groom chat thread with user/assistant/decision bubbles. LLM key configured locally. First FEAT-112 grooming question recorded. FACTORY CHECK OK. Web tests 55 pass. Root tsc pass, 43 tests pass. Commit 52f4ca1.
 FEAT-111: verified to done by the factory verifier. `go -C tools/factory/daemon test ./...` passed. Commit e2dc051.
 Post-M7 Kanban: blocked cards separated above the flow. New groomed column for ready todo cards. FACTORY CHECK OK. Web tests 59 pass. Root tsc pass, 43 tests pass. Commit 4990f48.
+Post-M7 grooming score: primary percentage is required readiness. Overall includes recommended items. FACTORY CHECK OK. Web tests 59 pass. Root tsc pass, 43 tests pass. Commit 326a93a.
