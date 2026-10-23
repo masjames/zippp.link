@@ -172,3 +172,22 @@ func TestStoreResults(t *testing.T) {
 		t.Fatal("snapshot result missing")
 	}
 }
+
+func TestStoreIndexesOnlyEntitySubdirs(t *testing.T) {
+	cfg := writeTestConfig(t, nil)
+	store := NewStore(cfg)
+	writeRepoFile(t, cfg, "entities/README.md", "prose only\n")
+	writeRepoFile(t, cfg, "entities/notes/note.md", "prose only\n")
+	writeEntityFile(t, cfg.EntitiesRoot, "features/FEAT-1.md", "FEAT-1", "todo", "One")
+
+	diff, _ := store.Rescan()
+	if len(diff.Upserts) != 1 || diff.Upserts[0].ID != "FEAT-1" {
+		t.Fatalf("upserts = %+v", diff.Upserts)
+	}
+	if len(diff.Errors) != 0 {
+		t.Fatalf("errors = %+v", diff.Errors)
+	}
+	if store.Count() != 1 {
+		t.Fatalf("count = %d", store.Count())
+	}
+}

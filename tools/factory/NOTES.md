@@ -13,3 +13,4 @@ One line per decision. Contracts live in the Pi brief.
 - M4: the native Eraser probe returned 404 for both `@eraserlabs/eraser-diagrams` and `eraser-diagrams`. Ship the local SVG renderer only.
 - M7: a read timeout corrupts a gorilla WebSocket connection. The e2e reconnects after the 2 second no-retrigger window before sending the manual verify message.
 - Post-M7: added a Debug panel with copy report, resync, reconnect, clear log, WebSocket event log, and window error capture.
+- Post-M7: the indexer now only reads features, bugs, stories, and diagrams. `entities/README.md` and other prose files are not parsed as entities.

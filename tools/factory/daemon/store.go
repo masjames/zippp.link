@@ -52,6 +52,10 @@ func (s *Store) Rescan() (Diff, []string) {
 			}
 			return nil
 		}
+		rel, relErr := filepath.Rel(s.cfg.EntitiesRoot, path)
+		if relErr != nil || !isEntityPath(rel) {
+			return nil
+		}
 		if strings.HasSuffix(d.Name(), ".md") {
 			files = append(files, path)
 		}
@@ -198,4 +202,16 @@ func (s *Store) Count() int {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	return len(s.entities)
+}
+
+func isEntityPath(rel string) bool {
+	parts := strings.Split(filepath.ToSlash(rel), "/")
+	if len(parts) < 2 {
+		return false
+	}
+	switch parts[0] {
+	case "features", "bugs", "stories", "diagrams":
+		return true
+	}
+	return false
 }
