@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"log"
 	"sync"
 	"time"
 )
@@ -10,6 +11,7 @@ import (
 type App struct {
 	cfg       *Config
 	store     *Store
+	verifier  *Verifier
 	hub       *Hub
 	watcher   *Watcher
 	rescanCh  chan struct{}
@@ -28,6 +30,8 @@ func NewApp(cfg *Config) (*App, error) {
 	_, _ = a.store.Rescan()
 
 	a.hub = NewHub(a.store.Snapshot, cfg.AllowedOrigins)
+	a.verifier = NewVerifier(cfg, a.store, a.hub.Broadcast)
+	a.hub.OnVerify = a.verifier.Enqueue
 	onChange := func() {
 		select {
 		case a.rescanCh <- struct{}{}:
@@ -36,6 +40,7 @@ func NewApp(cfg *Config) (*App, error) {
 	}
 	watcher, err := NewWatcher(cfg.EntitiesRoot, 150*time.Millisecond, onChange)
 	if err != nil {
+		a.verifier.Close()
 		a.hub.Close()
 		return nil, err
 	}
@@ -45,6 +50,7 @@ func NewApp(cfg *Config) (*App, error) {
 
 func (a *App) Start(ctx context.Context) {
 	a.startOnce.Do(func() {
+		go a.verifier.Run(ctx)
 		go func() {
 			for {
 				select {
@@ -54,13 +60,18 @@ func (a *App) Start(ctx context.Context) {
 				case <-a.done:
 					return
 				case <-a.rescanCh:
-					diff, _ := a.store.Rescan()
+					diff, became := a.store.Rescan()
 					if diff.Changed {
 						a.hub.Broadcast("diff", map[string]any{
 							"upserts": diff.Upserts,
 							"removed": diff.Removed,
 							"errors":  diff.Errors,
 						})
+					}
+					for _, id := range became {
+						if err := a.verifier.Enqueue(id); err != nil {
+							log.Printf("verify enqueue %s: %v", id, err)
+						}
 					}
 				}
 			}
@@ -73,6 +84,9 @@ func (a *App) Close() {
 		close(a.done)
 		if a.watcher != nil {
 			a.watcher.Close()
+		}
+		if a.verifier != nil {
+			a.verifier.Close()
 		}
 		if a.hub != nil {
 			a.hub.Close()

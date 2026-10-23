@@ -148,3 +148,41 @@ Body for %s
 	}
 	return path
 }
+
+func writeRepoFile(t *testing.T, cfg *Config, rel, content string) string {
+	t.Helper()
+	path := filepath.Join(cfg.RepoRoot, filepath.FromSlash(rel))
+	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	return path
+}
+
+func writeRawEntityFile(t *testing.T, cfg *Config, rel, id, status, verification, body string) string {
+	t.Helper()
+	path := filepath.Join(cfg.EntitiesRoot, filepath.FromSlash(rel))
+	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	raw := fmt.Sprintf(`---
+id: %s
+type: feature
+title: Test entity
+status: %s
+assignee: adit
+relations:
+  blocks: []
+  implements: []
+  depends_on: []
+verification:
+%s
+---
+%s`, id, status, verification, body)
+	if err := os.WriteFile(path, []byte(raw), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	return path
+}
