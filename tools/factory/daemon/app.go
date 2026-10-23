@@ -6,56 +6,33 @@ import (
 	"time"
 )
 
-// App wires the config, hub, and watcher. Milestone 2 adds the store.
+// App wires the config, store, hub, and watcher.
 type App struct {
-	cfg           *Config
-	hub           *Hub
-	watcher       *Watcher
-	entityCountFn func() int
-	startOnce     sync.Once
-	closeOnce     sync.Once
+	cfg       *Config
+	store     *Store
+	hub       *Hub
+	watcher   *Watcher
+	rescanCh  chan struct{}
+	done      chan struct{}
+	startOnce sync.Once
+	closeOnce sync.Once
 }
 
 func NewApp(cfg *Config) (*App, error) {
-	a := &App{cfg: cfg}
-	a.entityCountFn = func() int { return 1 }
-
-	snapshotFn := func() map[string]any {
-		return map[string]any{
-			"entities": []map[string]any{
-				{
-					"id":       "FEAT-000",
-					"type":     "feature",
-					"title":    "Hello factory",
-					"status":   "todo",
-					"assignee": "",
-					"relations": map[string]any{
-						"blocks":     []string{},
-						"implements": []string{},
-						"depends_on": []string{},
-					},
-					"verification": map[string]any{
-						"target_files":  []string{},
-						"test_command":  "",
-						"prod_endpoint": "",
-					},
-					"path": "",
-					"body": "",
-					"hash": "",
-				},
-			},
-			"errors":        []any{},
-			"verifications": map[string]any{},
-		}
+	a := &App{
+		cfg:      cfg,
+		store:    NewStore(cfg),
+		rescanCh: make(chan struct{}, 1),
+		done:     make(chan struct{}),
 	}
+	_, _ = a.store.Rescan()
 
-	a.hub = NewHub(snapshotFn, cfg.AllowedOrigins)
+	a.hub = NewHub(a.store.Snapshot, cfg.AllowedOrigins)
 	onChange := func() {
-		a.hub.Broadcast("diff", map[string]any{
-			"upserts": []any{},
-			"removed": []string{},
-			"errors":  []any{},
-		})
+		select {
+		case a.rescanCh <- struct{}{}:
+		default:
+		}
 	}
 	watcher, err := NewWatcher(cfg.EntitiesRoot, 150*time.Millisecond, onChange)
 	if err != nil {
@@ -69,14 +46,31 @@ func NewApp(cfg *Config) (*App, error) {
 func (a *App) Start(ctx context.Context) {
 	a.startOnce.Do(func() {
 		go func() {
-			<-ctx.Done()
-			a.Close()
+			for {
+				select {
+				case <-ctx.Done():
+					a.Close()
+					return
+				case <-a.done:
+					return
+				case <-a.rescanCh:
+					diff, _ := a.store.Rescan()
+					if diff.Changed {
+						a.hub.Broadcast("diff", map[string]any{
+							"upserts": diff.Upserts,
+							"removed": diff.Removed,
+							"errors":  diff.Errors,
+						})
+					}
+				}
+			}
 		}()
 	})
 }
 
 func (a *App) Close() {
 	a.closeOnce.Do(func() {
+		close(a.done)
 		if a.watcher != nil {
 			a.watcher.Close()
 		}
@@ -87,8 +81,8 @@ func (a *App) Close() {
 }
 
 func (a *App) EntityCount() int {
-	if a.entityCountFn == nil {
+	if a.store == nil {
 		return 0
 	}
-	return a.entityCountFn()
+	return a.store.Count()
 }

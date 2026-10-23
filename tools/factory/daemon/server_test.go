@@ -24,7 +24,7 @@ func TestHealthz(t *testing.T) {
 	if err := json.NewDecoder(resp.Body).Decode(&body); err != nil {
 		t.Fatal(err)
 	}
-	if !body.OK || body.Entities != 1 || body.Seq < 1 {
+	if !body.OK || body.Entities != 0 || body.Seq < 1 {
 		t.Fatalf("unexpected health body: %+v", body)
 	}
 }
@@ -60,7 +60,7 @@ func TestSnapshotRoute(t *testing.T) {
 	if err := json.NewDecoder(resp.Body).Decode(&body); err != nil {
 		t.Fatal(err)
 	}
-	if len(body.Entities) != 1 || body.Entities[0]["id"] != "FEAT-000" || body.Seq < 1 {
+	if len(body.Entities) != 0 || body.Seq < 1 {
 		t.Fatalf("unexpected snapshot: %+v", body)
 	}
 }

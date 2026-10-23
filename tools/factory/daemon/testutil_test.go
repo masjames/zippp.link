@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -117,4 +118,33 @@ func emptyDiff() map[string]any {
 		"removed": []string{},
 		"errors":  []any{},
 	}
+}
+
+func writeEntityFile(t *testing.T, root, rel, id, status, title string) string {
+	t.Helper()
+	path := filepath.Join(root, filepath.FromSlash(rel))
+	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	raw := fmt.Sprintf(`---
+id: %s
+type: feature
+title: %s
+status: %s
+assignee: adit
+relations:
+  blocks: []
+  implements: []
+  depends_on: []
+verification:
+  target_files: []
+  test_command: ""
+  prod_endpoint: ""
+---
+Body for %s
+`, id, title, status, id)
+	if err := os.WriteFile(path, []byte(raw), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	return path
 }

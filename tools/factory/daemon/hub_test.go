@@ -18,7 +18,7 @@ func TestHubSnapshotResyncAndUnknown(t *testing.T) {
 	if first.Seq < 1 {
 		t.Fatalf("snapshot seq = %d", first.Seq)
 	}
-	if len(first.Entities) != 1 || first.Entities[0]["id"] != "FEAT-000" {
+	if len(first.Entities) != 0 {
 		t.Fatalf("unexpected entities: %+v", first.Entities)
 	}
 
