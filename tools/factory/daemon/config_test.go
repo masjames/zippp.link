@@ -17,8 +17,7 @@ func TestLoadConfigResolvesRelativePaths(t *testing.T) {
 		"entities_root": "entities",
 		"listen": "127.0.0.1:8080",
 		"reports_dir": "reports",
-		"verify": {},
-		"editor": {}
+		"verify": {}
 	}`
 	path := filepath.Join(cfgDir, "factory.config.json")
 	if err := os.WriteFile(path, []byte(raw), 0o644); err != nil {

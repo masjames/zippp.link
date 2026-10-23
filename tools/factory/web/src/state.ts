@@ -53,7 +53,7 @@ export function reducer(state: FactoryState, action: Action): FactoryState {
       needResync: false,
     }
   }
-  if (message.type === 'editor_result' || message.type === 'error') {
+  if (message.type === 'error') {
     return state
   }
 

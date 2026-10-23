@@ -68,10 +68,8 @@ export type ServerMsg =
     }
   | { type: 'verification_started'; seq: number; id: string }
   | { type: 'verification'; seq: number; result: Result }
-  | { type: 'editor_result'; ok: boolean; message: string }
   | { type: 'error'; message: string }
 
 export type ClientMsg =
   | { type: 'resync' }
   | { type: 'verify'; id: string }
-  | { type: 'edit'; id: string }

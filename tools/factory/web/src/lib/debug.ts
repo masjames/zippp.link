@@ -50,8 +50,6 @@ export function summarizeServerMessage(message: ServerMsg): DebugEvent {
           .map((check) => `${check.name}:${check.status}`)
           .join(',')}`,
       }
-    case 'editor_result':
-      return { ...base, summary: `ok=${message.ok} ${message.message}` }
     case 'error':
       return { ...base, message: message.message, summary: message.message }
   }

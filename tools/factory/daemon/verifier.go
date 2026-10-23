@@ -19,8 +19,6 @@ import (
 	"time"
 )
 
-type Runner func(ctx context.Context, name string, args ...string) ([]byte, error)
-
 type Verifier struct {
 	cfg       *Config
 	store     *Store

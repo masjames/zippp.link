@@ -39,7 +39,6 @@ type Hub struct {
 	closeOnce  sync.Once
 
 	OnVerify func(id string) error
-	OnEdit   func(id string) (string, error)
 }
 
 func NewHub(snapshotFn func() map[string]any, allowedOrigins []string) *Hub {
@@ -235,10 +234,6 @@ func (h *Hub) sendError(c *client, message string) {
 	h.sendToClient(c, map[string]any{"type": "error", "message": message})
 }
 
-func (h *Hub) sendEditorResult(c *client, ok bool, message string) {
-	h.sendToClient(c, map[string]any{"type": "editor_result", "ok": ok, "message": message})
-}
-
 func (h *Hub) Close() {
 	h.closeOnce.Do(func() {
 		close(h.done)
@@ -287,17 +282,6 @@ func (c *client) readPump() {
 			if err := c.hub.OnVerify(in.ID); err != nil {
 				c.hub.sendError(c, err.Error())
 			}
-		case "edit":
-			if c.hub.OnEdit == nil {
-				c.hub.sendError(c, "edit handler not configured")
-				continue
-			}
-			message, err := c.hub.OnEdit(in.ID)
-			if err != nil {
-				c.hub.sendError(c, err.Error())
-				continue
-			}
-			c.hub.sendEditorResult(c, true, message)
 		default:
 			c.hub.sendError(c, "unknown message type")
 		}

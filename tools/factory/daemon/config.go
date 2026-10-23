@@ -17,7 +17,6 @@ type Config struct {
 	Listen         string       `json:"listen"`
 	AllowedOrigins []string     `json:"allowed_origins"`
 	Verify         VerifyConfig `json:"verify"`
-	Editor         EditorConfig `json:"editor"`
 	ReportsDir     string       `json:"reports_dir"`
 }
 
@@ -26,11 +25,6 @@ type VerifyConfig struct {
 	HTTPTimeoutSeconds int      `json:"http_timeout_seconds"`
 	MaxOutputBytes     int      `json:"max_output_bytes"`
 	AllowedCommands    []string `json:"allowed_commands"`
-}
-
-type EditorConfig struct {
-	NvimServer   string   `json:"nvim_server"`
-	FocusCommand []string `json:"focus_command"`
 }
 
 func LoadConfig(path string) (*Config, error) {
@@ -76,9 +70,6 @@ func LoadConfig(path string) (*Config, error) {
 	}
 	if cfg.Verify.AllowedCommands == nil {
 		cfg.Verify.AllowedCommands = []string{}
-	}
-	if cfg.Editor.FocusCommand == nil {
-		cfg.Editor.FocusCommand = []string{}
 	}
 	for _, dir := range []string{"features", "bugs", "stories", "diagrams"} {
 		if err := os.MkdirAll(filepath.Join(cfg.EntitiesRoot, dir), 0o755); err != nil {

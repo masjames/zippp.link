@@ -2,25 +2,22 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
-	"path/filepath"
 	"sync"
 	"time"
 )
 
 // App wires the config, store, hub, and watcher.
 type App struct {
-	cfg          *Config
-	store        *Store
-	verifier     *Verifier
-	editorRunner Runner
-	hub          *Hub
-	watcher      *Watcher
-	rescanCh     chan struct{}
-	done         chan struct{}
-	startOnce    sync.Once
-	closeOnce    sync.Once
+	cfg       *Config
+	store     *Store
+	verifier  *Verifier
+	hub       *Hub
+	watcher   *Watcher
+	rescanCh  chan struct{}
+	done      chan struct{}
+	startOnce sync.Once
+	closeOnce sync.Once
 }
 
 func NewApp(cfg *Config) (*App, error) {
@@ -35,15 +32,6 @@ func NewApp(cfg *Config) (*App, error) {
 	a.hub = NewHub(a.store.Snapshot, cfg.AllowedOrigins)
 	a.verifier = NewVerifier(cfg, a.store, a.hub.Broadcast)
 	a.hub.OnVerify = a.verifier.Enqueue
-	a.editorRunner = execRunner
-	a.hub.OnEdit = func(id string) (string, error) {
-		entity := a.store.Get(id)
-		if entity == nil {
-			return "", fmt.Errorf("unknown entity %s", id)
-		}
-		absPath := filepath.Join(cfg.RepoRoot, filepath.FromSlash(entity.Path))
-		return OpenInEditor(context.Background(), cfg, a.editorRunner, absPath)
-	}
 	onChange := func() {
 		select {
 		case a.rescanCh <- struct{}{}:

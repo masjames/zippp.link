@@ -43,10 +43,6 @@ func writeConfigFile(t *testing.T, mutate func(map[string]any)) string {
 			"max_output_bytes":     65536,
 			"allowed_commands":     []string{"node"},
 		},
-		"editor": map[string]any{
-			"nvim_server":   filepath.Join(root, "nvim.sock"),
-			"focus_command": []string{},
-		},
 		"reports_dir": "reports",
 	}
 	if mutate != nil {

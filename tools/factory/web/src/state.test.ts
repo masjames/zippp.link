@@ -118,7 +118,7 @@ describe('state reducer', () => {
     expect(state.verifications['FEAT-1'].passed).toBe(true)
   })
 
-  it('ignores editor and error messages without a sequence', () => {
+  it('ignores error messages without a sequence', () => {
     const state = reducer(initialState, { type: 'server', message: { type: 'error', message: 'boom' } })
     expect(state).toBe(initialState)
   })

@@ -89,10 +89,6 @@ export function useFactorySocket(onNotice?: (message: string) => void) {
           return
         }
         pushEvent(summarizeServerMessage(message))
-        if (message.type === 'editor_result') {
-          noticeRef.current?.(message.message || (message.ok ? 'Editor opened' : 'Editor failed'))
-          return
-        }
         if (message.type === 'error') {
           noticeRef.current?.(message.message)
           return
