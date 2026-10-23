@@ -8,6 +8,7 @@ import { GapView } from './components/GapView'
 import { KanbanBoard } from './components/KanbanBoard'
 import { StatusBar } from './components/StatusBar'
 import { useFactorySocket } from './useFactorySocket'
+import { hasThreadMessages } from './lib/thread'
 
 type Tab = 'tasks' | 'design' | 'gap'
 
@@ -181,6 +182,18 @@ export function App() {
             onSendThread={(message) =>
               selectedId && send({ type: 'groom_chat', id: selectedId, message })
             }
+            onGroomStart={() => {
+              if (!selectedId) return
+              setDetailTab('groom')
+              const thread = state.threads[selectedId] ?? ''
+              send({
+                type: 'groom_chat',
+                id: selectedId,
+                message: hasThreadMessages(thread)
+                  ? 'Continue grooming this card. Ask the next open decision.'
+                  : 'Groom this card. Ask me the open decisions one at a time.',
+              })
+            }}
             expanded={detailExpanded}
             onToggleExpand={() => setDetailExpanded((value) => !value)}
             onHide={() => {

@@ -8,6 +8,7 @@ import { extractMermaidBlocks } from '../lib/mermaid'
 import { groomEntity } from '../lib/grooming'
 import type { GroomItem } from '../lib/grooming'
 import { parseAcceptance } from '../lib/spec'
+import { parseThread } from '../lib/thread'
 import { EraserBlock } from './EraserBlock'
 import { ErrorBoundary } from './ErrorBoundary'
 import { FlowBlock } from './FlowBlock'
@@ -35,6 +36,7 @@ type Props = {
   chatError?: string
   onLoadThread: () => void
   onSendThread: (message: string) => void
+  onGroomStart: () => void
 }
 
 const statusClass: Record<EntityStatus, string> = {
@@ -55,7 +57,7 @@ const gapClass: Record<GapSeverity, string> = {
 export function DetailPane(props: Props) {
   const {
     entity, entities, result, running, tab, onTab, onSelect, onVerify, expanded, onToggleExpand, onHide,
-    thread, chatBusy, chatError, onLoadThread, onSendThread,
+    thread, chatBusy, chatError, onLoadThread, onSendThread, onGroomStart,
   } = props
   const asideClass = `flex min-h-0 bg-base-100 ${expanded ? '' : 'border-l border-base-300'}`
   if (!entity) {
@@ -92,6 +94,13 @@ export function DetailPane(props: Props) {
           <div className="flex items-center gap-2">
             <span className="badge badge-ghost badge-sm">{entity.type}</span>
             <span className="text-xs text-base-content/60">{entity.assignee || 'unassigned'}</span>
+            <button
+              className="btn btn-xs btn-primary ml-auto"
+              onClick={onGroomStart}
+              disabled={chatBusy}
+            >
+              Groom
+            </button>
           </div>
         </header>
 
@@ -319,6 +328,7 @@ function GroomTab(props: {
   onSendThread: (message: string) => void
 }) {
   const groom = groomEntity(props.entity)
+  const messages = parseThread(props.thread ?? '')
   const [message, setMessage] = useState('')
 
   useEffect(() => {
@@ -336,27 +346,45 @@ function GroomTab(props: {
     <>
       <section className="space-y-2">
         <div className="flex items-center justify-between gap-2">
-          <h3 className="text-sm font-semibold">Spec grooming</h3>
-          <span className={`badge badge-sm ${groom.ready ? 'badge-success' : 'badge-warning'}`}>
-            {groom.ready ? 'Ready to build' : 'Not ready'}
-          </span>
-        </div>
-        <progress className="progress progress-success w-full" value={groom.score} max={100} />
-        <p className="text-xs text-base-content/60">
-          {groom.score}% overall. Required items {groom.requiredOk}/{groom.requiredTotal}.
-        </p>
-      </section>
-
-      <section className="space-y-2">
-        <div className="flex items-center justify-between gap-2">
-          <h3 className="text-sm font-semibold">Grooming assistant</h3>
+          <div className="flex items-center gap-2">
+            <h3 className="text-sm font-semibold">Grooming assistant</h3>
+            <span className={`badge badge-xs ${groom.ready ? 'badge-success' : 'badge-warning'}`}>
+              {groom.ready ? 'ready' : 'not ready'}
+            </span>
+          </div>
           {props.chatBusy && <span className="loading loading-spinner loading-xs" />}
         </div>
         {props.chatError && <p className="text-xs text-error">{props.chatError}</p>}
-        <div className="max-h-72 overflow-auto rounded-box bg-base-200 p-2">
-          <MarkdownView
-            body={props.thread || 'No messages yet. Ask the assistant to groom this card.'}
-          />
+        <div className="max-h-80 space-y-2 overflow-auto rounded-box bg-base-200 p-2">
+          {messages.length === 0 && (
+            <p className="text-sm text-base-content/60">
+              No messages yet. Click Groom above or type below.
+            </p>
+          )}
+          {messages.map((item, index) => (
+            <div
+              key={`${item.role}-${index}`}
+              className={`flex ${item.role === 'user' ? 'justify-end' : 'justify-start'}`}
+            >
+              <div
+                className={`max-w-[85%] rounded-box p-2 text-sm ${
+                  item.role === 'user'
+                    ? 'bg-primary text-primary-content'
+                    : item.role === 'decision'
+                      ? 'border border-success bg-base-100'
+                      : 'bg-base-100'
+                }`}
+              >
+                <div className="mb-1 text-[10px] uppercase tracking-wide opacity-60">
+                  {item.role === 'decision' ? 'Decision' : item.role} · {item.at}
+                </div>
+                <MarkdownView body={item.text} />
+              </div>
+            </div>
+          ))}
+          {props.chatBusy && (
+            <div className="text-xs text-base-content/60">Assistant is thinking...</div>
+          )}
         </div>
         <div className="flex items-start gap-1">
           <textarea
@@ -380,11 +408,22 @@ function GroomTab(props: {
         </p>
       </section>
 
-      <ul className="space-y-2">
-        {groom.items.map((item) => (
-          <GroomRow key={item.key} item={item} />
-        ))}
-      </ul>
+      <details className="rounded-box bg-base-200 p-2">
+        <summary className="cursor-pointer text-sm font-semibold">
+          Spec readiness {groom.ready ? 'ready' : 'not ready'} · {groom.score}%
+        </summary>
+        <div className="mt-2 space-y-2">
+          <progress className="progress progress-success w-full" value={groom.score} max={100} />
+          <p className="text-xs text-base-content/60">
+            Required items {groom.requiredOk}/{groom.requiredTotal}.
+          </p>
+          <ul className="space-y-2">
+            {groom.items.map((item) => (
+              <GroomRow key={item.key} item={item} />
+            ))}
+          </ul>
+        </div>
+      </details>
     </>
   )
 }

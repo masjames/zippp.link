@@ -53,7 +53,6 @@ export function reducer(state: FactoryState, action: Action): FactoryState {
     return {
       ...state,
       threads: { ...state.threads, [action.id]: action.thread },
-      chatBusy: { ...state.chatBusy, [action.id]: false },
     }
   }
   if (action.type === 'chat_started') {

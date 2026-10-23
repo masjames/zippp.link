@@ -67,7 +67,8 @@ func AppendThread(cfg *Config, id, role, text string) (string, error) {
 			trimmed := strings.TrimSpace(line)
 			if strings.HasPrefix(trimmed, "DECISION:") {
 				decision := strings.TrimSpace(strings.TrimPrefix(trimmed, "DECISION:"))
-				if decision != "" {
+				lower := strings.ToLower(decision)
+				if decision != "" && !strings.HasPrefix(lower, "(pending") && !strings.HasPrefix(lower, "pending") {
 					builder.WriteString("## decision " + timestamp + "\n\n")
 					builder.WriteString(decision + "\n\n")
 				}
