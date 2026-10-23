@@ -10,3 +10,4 @@ One line per decision. Contracts live in the Pi brief.
 - Decision: when a human changes an entity status during verification, do not overwrite it. Log the race, store the result with `wrote_status: false`, and broadcast it so the UI clears the running state.
 - Decision: omit the `model` check when the body has no ERD entities. This matches the expected three-check e2e for entities without an ERD.
 - Decision: an ERD field passes when it appears in at least one target file where the entity declaration matched. Fields are not scoped to the declaration. This known limit is intentional.
+- M4: the native Eraser probe returned 404 for both `@eraserlabs/eraser-diagrams` and `eraser-diagrams`. Ship the local SVG renderer only.
