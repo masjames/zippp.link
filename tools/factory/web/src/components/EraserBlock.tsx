@@ -7,13 +7,15 @@ export function EraserBlock({ source }: { source: string }) {
   }
   const layout = layoutErd(model)
   return (
-    <svg
-      className="w-full"
-      viewBox={`0 0 ${layout.width} ${layout.height}`}
-      role="img"
-      aria-label="Entity relationship diagram"
-      style={{ maxHeight: '480px' }}
-    >
+    <div className="max-h-[70vh] overflow-auto rounded-box bg-base-200">
+      <svg
+        width={layout.width}
+        height={layout.height}
+        viewBox={`0 0 ${layout.width} ${layout.height}`}
+        role="img"
+        aria-label="Entity relationship diagram"
+        className="block"
+      >
       <g stroke="currentColor" fill="currentColor">
         {layout.lines.map((line, index) => (
           <g key={`line-${index}`}>
@@ -84,6 +86,7 @@ export function EraserBlock({ source }: { source: string }) {
           </g>
         ))}
       </g>
-    </svg>
+      </svg>
+    </div>
   )
 }

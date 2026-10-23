@@ -1,14 +1,19 @@
 import type { Entity, EntityStatus, Result } from '../types'
 import { entityGap } from '../lib/gap'
+import type { GapSeverity } from '../lib/gap'
 import { extractEraserBlocks } from '../lib/eraser'
+import { extractFlowBlocks } from '../lib/flow'
+import { groomEntity } from '../lib/grooming'
+import type { GroomItem } from '../lib/grooming'
 import { parseAcceptance } from '../lib/spec'
 import { EraserBlock } from './EraserBlock'
 import { ErrorBoundary } from './ErrorBoundary'
+import { FlowBlock } from './FlowBlock'
 import { MarkdownView } from './MarkdownView'
 import { RelationMap } from './RelationMap'
 import { VerifyPanel } from './VerifyPanel'
 
-export type DetailTab = 'spec' | 'diagram' | 'gap'
+export type DetailTab = 'spec' | 'diagram' | 'groom' | 'gap'
 
 type Props = {
   entity?: Entity
@@ -19,7 +24,6 @@ type Props = {
   onTab: (tab: DetailTab) => void
   onSelect: (id: string) => void
   onVerify: () => void
-  onEdit: () => void
 }
 
 const statusClass: Record<EntityStatus, string> = {
@@ -30,12 +34,21 @@ const statusClass: Record<EntityStatus, string> = {
   done: 'badge-success',
 }
 
+const gapClass: Record<GapSeverity, string> = {
+  none: 'badge-success',
+  warn: 'badge-warning',
+  fail: 'badge-error',
+  unknown: 'badge-ghost',
+}
+
 export function DetailPane(props: Props) {
-  const { entity, entities, result, running, tab, onTab, onSelect, onVerify, onEdit } = props
+  const { entity, entities, result, running, tab, onTab, onSelect, onVerify } = props
   if (!entity) {
     return (
       <aside className="min-h-0 overflow-auto border-l border-base-300 bg-base-100 p-4">
-        <p className="text-sm text-base-content/60">Select a task to inspect its spec, diagram, and gap.</p>
+        <p className="text-sm text-base-content/60">
+          Select a task to inspect its spec, diagram, grooming, and gap.
+        </p>
       </aside>
     )
   }
@@ -77,6 +90,13 @@ export function DetailPane(props: Props) {
         </button>
         <button
           role="tab"
+          className={`tab ${tab === 'groom' ? 'tab-active' : ''}`}
+          onClick={() => onTab('groom')}
+        >
+          Groom
+        </button>
+        <button
+          role="tab"
           className={`tab ${tab === 'gap' ? 'tab-active' : ''}`}
           onClick={() => onTab('gap')}
         >
@@ -86,17 +106,12 @@ export function DetailPane(props: Props) {
 
       <div className="min-h-0 flex-1 space-y-4 overflow-auto p-3">
         {tab === 'spec' && (
-          <SpecTab
-            entity={entity}
-            relations={relations}
-            entities={entities}
-            onSelect={onSelect}
-            onEdit={onEdit}
-          />
+          <SpecTab entity={entity} relations={relations} entities={entities} onSelect={onSelect} />
         )}
         {tab === 'diagram' && (
           <DiagramTab entity={entity} entities={entities} onSelect={onSelect} />
         )}
+        {tab === 'groom' && <GroomTab entity={entity} />}
         {tab === 'gap' && (
           <GapTab entity={entity} result={result} running={running} onVerify={onVerify} />
         )}
@@ -110,22 +125,16 @@ function SpecTab(props: {
   relations: Array<{ label: string; ids: string[] }>
   entities: Record<string, Entity>
   onSelect: (id: string) => void
-  onEdit: () => void
 }) {
-  const { entity, relations, entities, onSelect, onEdit } = props
+  const { entity, relations, entities, onSelect } = props
   const acceptance = parseAcceptance(entity.body)
   const checked = acceptance.filter((item) => item.checked).length
 
   return (
     <>
-      <section className="space-y-1">
-        <button className="btn btn-sm btn-outline w-full" onClick={onEdit}>
-          Open spec in Neovim
-        </button>
-        <p className="text-xs text-base-content/50">
-          Opens this markdown file in the nvim listening on the configured socket (default
-          /tmp/zippp-nvim.sock). It does not run shell commands.
-        </p>
+      <section className="space-y-2">
+        <h3 className="text-sm font-semibold">Markdown spec</h3>
+        <MarkdownView body={entity.body} />
       </section>
 
       <dl className="grid grid-cols-[90px_1fr] gap-x-2 gap-y-1 text-xs">
@@ -140,7 +149,7 @@ function SpecTab(props: {
       <section className="space-y-1">
         <h3 className="text-sm font-semibold">Verification plan</h3>
         {entity.verification.target_files.length === 0 && (
-          <p className="text-xs text-base-content/60">No target files.</p>
+          <p className="text-xs text-base-content/60">No target files. Manual plan expected.</p>
         )}
         <ul className="space-y-1">
           {entity.verification.target_files.map((file) => (
@@ -187,11 +196,6 @@ function SpecTab(props: {
           </ul>
         </section>
       )}
-
-      <section className="space-y-2">
-        <h3 className="text-sm font-semibold">Spec</h3>
-        <MarkdownView body={entity.body} />
-      </section>
     </>
   )
 }
@@ -201,23 +205,31 @@ function DiagramTab(props: {
   entities: Record<string, Entity>
   onSelect: (id: string) => void
 }) {
-  const blocks = extractEraserBlocks(props.entity.body)
+  const eraser = extractEraserBlocks(props.entity.body)
+  const flow = extractFlowBlocks(props.entity.body)
   return (
     <>
       <section className="space-y-2">
         <h3 className="text-sm font-semibold">Diagram</h3>
-        {blocks.length === 0 && (
+        {eraser.length === 0 && flow.length === 0 && (
           <p className="text-sm text-base-content/60">
-            No eraser diagram in this spec. Add a fenced block with the language `eraser` to the
-            markdown body.
+            No diagram in this spec. Add a fenced `eraser` or `flow` block to the markdown body.
           </p>
         )}
-        {blocks.map((block, index) => (
+        {eraser.map((block, index) => (
           <ErrorBoundary
-            key={`${props.entity.id}-diagram-${index}`}
+            key={`${props.entity.id}-eraser-${index}`}
             fallback={<pre className="overflow-auto rounded-box bg-base-200 p-2 text-xs">{block}</pre>}
           >
             <EraserBlock source={block} />
+          </ErrorBoundary>
+        ))}
+        {flow.map((block, index) => (
+          <ErrorBoundary
+            key={`${props.entity.id}-flow-${index}`}
+            fallback={<pre className="overflow-auto rounded-box bg-base-200 p-2 text-xs">{block}</pre>}
+          >
+            <FlowBlock source={block} />
           </ErrorBoundary>
         ))}
       </section>
@@ -227,6 +239,48 @@ function DiagramTab(props: {
         <RelationMap entity={props.entity} entities={props.entities} onSelect={props.onSelect} />
       </section>
     </>
+  )
+}
+
+function GroomTab({ entity }: { entity: Entity }) {
+  const groom = groomEntity(entity)
+  return (
+    <>
+      <section className="space-y-2">
+        <div className="flex items-center justify-between gap-2">
+          <h3 className="text-sm font-semibold">Spec grooming</h3>
+          <span className={`badge badge-sm ${groom.ready ? 'badge-success' : 'badge-warning'}`}>
+            {groom.ready ? 'Ready to build' : 'Not ready'}
+          </span>
+        </div>
+        <progress className="progress progress-success w-full" value={groom.score} max={100} />
+        <p className="text-xs text-base-content/60">
+          {groom.score}% overall. Required items {groom.requiredOk}/{groom.requiredTotal}.
+        </p>
+      </section>
+
+      <ul className="space-y-2">
+        {groom.items.map((item) => (
+          <GroomRow key={item.key} item={item} />
+        ))}
+      </ul>
+    </>
+  )
+}
+
+function GroomRow({ item }: { item: GroomItem }) {
+  return (
+    <li className="rounded-box bg-base-200 p-2">
+      <div className="flex items-center justify-between gap-2">
+        <span className="text-sm">
+          {item.ok ? '[x]' : '[ ]'} {item.label}
+        </span>
+        <span className={`badge badge-xs ${item.required ? 'badge-warning' : 'badge-ghost'}`}>
+          {item.required ? 'required' : 'recommended'}
+        </span>
+      </div>
+      {!item.ok && <p className="mt-1 text-xs text-base-content/60">{item.detail}</p>}
+    </li>
   )
 }
 
@@ -242,7 +296,7 @@ function GapTab(props: {
       <section className="space-y-1">
         <h3 className="text-sm font-semibold">Gap</h3>
         <div className="flex items-center gap-2">
-          <span className="badge badge-sm">{gap.label}</span>
+          <span className={`badge badge-sm ${gapClass[gap.severity]}`}>{gap.label}</span>
           <span className="text-sm text-base-content/70">{gap.detail}</span>
         </div>
       </section>

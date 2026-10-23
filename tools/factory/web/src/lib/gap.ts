@@ -13,6 +13,13 @@ export function entityGap(entity: Entity, result: Result | undefined, running: b
     return { severity: 'warn', label: 'Running', detail: 'Verification is running.' }
   }
   if (!result) {
+    if (entity.type === 'diagram') {
+      return {
+        severity: 'none',
+        label: 'Reference',
+        detail: 'Reference diagram. No code verification required.',
+      }
+    }
     if (entity.status === 'done') {
       return {
         severity: 'fail',
@@ -73,6 +80,7 @@ export function summarizeGaps(
   }
   for (const entity of entities) {
     if (entity.status === 'done') summary.done += 1
+    if (entity.type === 'diagram') continue
     const result = results[entity.id]
     if (!result) summary.unverified += 1
     else if (result.passed) summary.passed += 1

@@ -57,9 +57,25 @@ describe('entityGap', () => {
   it('reports running', () => {
     expect(entityGap(entity('verify'), undefined, true).label).toBe('Running')
   })
+
+  it('treats a diagram as a reference', () => {
+    const diagram = { ...entity('done'), type: 'diagram' as const }
+    expect(entityGap(diagram, undefined, false).label).toBe('Reference')
+  })
 })
 
 describe('summarizeGaps', () => {
+  it('does not count reference diagrams as unverified', () => {
+    const summary = summarizeGaps(
+      [{ ...entity('done'), type: 'diagram' as const }],
+      {},
+      {},
+    )
+    expect(summary.total).toBe(1)
+    expect(summary.unverified).toBe(0)
+    expect(summary.gaps).toBe(0)
+  })
+
   it('counts the gap state', () => {
     const summary = summarizeGaps(
       [entity('done', 'FEAT-1'), entity('verify', 'FEAT-2')],

@@ -1,13 +1,14 @@
 import { useEffect, useMemo, useState } from 'react'
 import { DebugPanel } from './components/DebugPanel'
 import { DetailPane } from './components/DetailPane'
+import { DesignView } from './components/DesignView'
 import type { DetailTab } from './components/DetailPane'
 import { GapView } from './components/GapView'
 import { KanbanBoard } from './components/KanbanBoard'
 import { StatusBar } from './components/StatusBar'
 import { useFactorySocket } from './useFactorySocket'
 
-type Tab = 'tasks' | 'gap'
+type Tab = 'tasks' | 'design' | 'gap'
 
 export function App() {
   const [notice, setNotice] = useState<string | null>(null)
@@ -91,6 +92,13 @@ export function App() {
             </button>
             <button
               role="tab"
+              className={`tab ${tab === 'design' ? 'tab-active' : ''}`}
+              onClick={() => setTab('design')}
+            >
+              Design
+            </button>
+            <button
+              role="tab"
               className={`tab ${tab === 'gap' ? 'tab-active' : ''}`}
               onClick={() => setTab('gap')}
             >
@@ -123,6 +131,8 @@ export function App() {
                 onSelect={(id) => selectTask(id)}
               />
             </>
+          ) : tab === 'design' ? (
+            <DesignView entities={allEntities} />
           ) : (
             <GapView
               entities={allEntities}
@@ -141,7 +151,6 @@ export function App() {
           onTab={setDetailTab}
           onSelect={(id) => selectTask(id)}
           onVerify={() => selectedId && send({ type: 'verify', id: selectedId })}
-          onEdit={() => selectedId && send({ type: 'edit', id: selectedId })}
         />
       </div>
     </div>
