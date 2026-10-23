@@ -19,3 +19,4 @@ One line per decision. Contracts live in the Pi brief.
 - Post-M7: removed the Neovim terminal bridge, the editor config block, the hub edit messages, and the web editor_result type. The UI reads markdown inline and the user edits files in Zed.
 - Post-M7 diagrams: added Mermaid as a web dependency. DIAG-001, ERD-001, and FLOW-001 now use Mermaid live and planned blocks. All 15 cards pass spec grooming.
 - Post-M7 UI: the detail pane can expand to full width and collapse. Every diagram frame has a Full screen toggle, with Escape to close.
+- Post-M7 UI: detail controls moved to a left arrow rail. Fullscreen diagrams scale to fit the viewport and do not scroll.

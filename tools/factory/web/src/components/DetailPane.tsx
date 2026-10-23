@@ -48,15 +48,17 @@ const gapClass: Record<GapSeverity, string> = {
 
 export function DetailPane(props: Props) {
   const { entity, entities, result, running, tab, onTab, onSelect, onVerify, expanded, onToggleExpand, onHide } = props
-  const asideClass = `flex min-h-0 flex-col bg-base-100 ${expanded ? '' : 'border-l border-base-300'}`
+  const asideClass = `flex min-h-0 bg-base-100 ${expanded ? '' : 'border-l border-base-300'}`
   if (!entity) {
     return (
       <aside className={asideClass}>
-        <DetailToolbar expanded={expanded} onToggleExpand={onToggleExpand} onHide={onHide} />
-        <div className="min-h-0 flex-1 overflow-auto p-4">
-          <p className="text-sm text-base-content/60">
-            Select a task to inspect its spec, diagram, grooming, and gap.
-          </p>
+        <DetailRail expanded={expanded} onToggleExpand={onToggleExpand} onHide={onHide} />
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+          <div className="min-h-0 flex-1 overflow-auto p-4">
+            <p className="text-sm text-base-content/60">
+              Select a task to inspect its spec, diagram, grooming, and gap.
+            </p>
+          </div>
         </div>
       </aside>
     )
@@ -70,82 +72,91 @@ export function DetailPane(props: Props) {
 
   return (
     <aside className={asideClass}>
-      <DetailToolbar expanded={expanded} onToggleExpand={onToggleExpand} onHide={onHide} />
-      <header className="space-y-1 border-b border-base-300 p-3">
-        <div className="flex items-center justify-between gap-2">
-          <span className="font-mono text-xs text-base-content/60">{entity.id}</span>
-          <span className={`badge badge-sm ${statusClass[entity.status]}`}>{entity.status}</span>
-        </div>
-        <h2 className="text-lg font-semibold">{entity.title}</h2>
-        <div className="flex items-center gap-2">
-          <span className="badge badge-ghost badge-sm">{entity.type}</span>
-          <span className="text-xs text-base-content/60">{entity.assignee || 'unassigned'}</span>
-        </div>
-      </header>
+      <DetailRail expanded={expanded} onToggleExpand={onToggleExpand} onHide={onHide} />
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+        <header className="space-y-1 border-b border-base-300 p-3">
+          <div className="flex items-center justify-between gap-2">
+            <span className="font-mono text-xs text-base-content/60">{entity.id}</span>
+            <span className={`badge badge-sm ${statusClass[entity.status]}`}>{entity.status}</span>
+          </div>
+          <h2 className="text-lg font-semibold">{entity.title}</h2>
+          <div className="flex items-center gap-2">
+            <span className="badge badge-ghost badge-sm">{entity.type}</span>
+            <span className="text-xs text-base-content/60">{entity.assignee || 'unassigned'}</span>
+          </div>
+        </header>
 
-      <div role="tablist" className="tabs tabs-boxed m-2 w-fit">
-        <button
-          role="tab"
-          className={`tab ${tab === 'spec' ? 'tab-active' : ''}`}
-          onClick={() => onTab('spec')}
-        >
-          Spec
-        </button>
-        <button
-          role="tab"
-          className={`tab ${tab === 'diagram' ? 'tab-active' : ''}`}
-          onClick={() => onTab('diagram')}
-        >
-          Diagram
-        </button>
-        <button
-          role="tab"
-          className={`tab ${tab === 'groom' ? 'tab-active' : ''}`}
-          onClick={() => onTab('groom')}
-        >
-          Groom
-        </button>
-        <button
-          role="tab"
-          className={`tab ${tab === 'gap' ? 'tab-active' : ''}`}
-          onClick={() => onTab('gap')}
-        >
-          Gap
-        </button>
-      </div>
+        <div role="tablist" className="tabs tabs-boxed m-2 w-fit">
+          <button
+            role="tab"
+            className={`tab ${tab === 'spec' ? 'tab-active' : ''}`}
+            onClick={() => onTab('spec')}
+          >
+            Spec
+          </button>
+          <button
+            role="tab"
+            className={`tab ${tab === 'diagram' ? 'tab-active' : ''}`}
+            onClick={() => onTab('diagram')}
+          >
+            Diagram
+          </button>
+          <button
+            role="tab"
+            className={`tab ${tab === 'groom' ? 'tab-active' : ''}`}
+            onClick={() => onTab('groom')}
+          >
+            Groom
+          </button>
+          <button
+            role="tab"
+            className={`tab ${tab === 'gap' ? 'tab-active' : ''}`}
+            onClick={() => onTab('gap')}
+          >
+            Gap
+          </button>
+        </div>
 
-      <div className="min-h-0 flex-1 space-y-4 overflow-auto p-3">
-        {tab === 'spec' && (
-          <SpecTab entity={entity} relations={relations} entities={entities} onSelect={onSelect} />
-        )}
-        {tab === 'diagram' && (
-          <DiagramTab entity={entity} entities={entities} onSelect={onSelect} />
-        )}
-        {tab === 'groom' && <GroomTab entity={entity} />}
-        {tab === 'gap' && (
-          <GapTab entity={entity} result={result} running={running} onVerify={onVerify} />
-        )}
+        <div className="min-h-0 flex-1 space-y-4 overflow-auto p-3">
+          {tab === 'spec' && (
+            <SpecTab entity={entity} relations={relations} entities={entities} onSelect={onSelect} />
+          )}
+          {tab === 'diagram' && (
+            <DiagramTab entity={entity} entities={entities} onSelect={onSelect} />
+          )}
+          {tab === 'groom' && <GroomTab entity={entity} />}
+          {tab === 'gap' && (
+            <GapTab entity={entity} result={result} running={running} onVerify={onVerify} />
+          )}
+        </div>
       </div>
     </aside>
   )
 }
 
-function DetailToolbar(props: {
+function DetailRail(props: {
   expanded: boolean
   onToggleExpand: () => void
   onHide: () => void
 }) {
   return (
-    <div className="flex items-center justify-between gap-2 border-b border-base-300 px-2 py-1">
-      <span className="text-xs font-semibold text-base-content/70">Details</span>
-      <div className="flex gap-1">
-        <button className="btn btn-xs" onClick={props.onToggleExpand}>
-          {props.expanded ? 'Split' : 'Expand'}
-        </button>
-        <button className="btn btn-xs btn-ghost" onClick={props.onHide}>
-          Hide
-        </button>
-      </div>
+    <div className="flex w-7 shrink-0 flex-col items-center gap-1 border-r border-base-300 py-1">
+      <button
+        className="btn btn-ghost btn-xs px-1 text-base"
+        title={props.expanded ? 'Split view' : 'Full width'}
+        aria-label={props.expanded ? 'Split view' : 'Full width'}
+        onClick={props.onToggleExpand}
+      >
+        {props.expanded ? '»' : '«'}
+      </button>
+      <button
+        className="btn btn-ghost btn-xs px-1 text-base"
+        title="Hide details"
+        aria-label="Hide details"
+        onClick={props.onHide}
+      >
+        ›
+      </button>
     </div>
   )
 }

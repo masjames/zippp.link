@@ -40,11 +40,13 @@ export function RelationMap({ entity, entities, onSelect }: Props) {
     <DiagramFrame title="Relation map">
       <div className="space-y-1">
         <svg
-        viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
-        className="w-full rounded-box bg-base-200"
-        role="img"
-        aria-label="Relation map"
-      >
+          width={WIDTH}
+          height={HEIGHT}
+          viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
+          className="rounded-box bg-base-200"
+          role="img"
+          aria-label="Relation map"
+        >
         {graph.edges.map((edge) => {
           const targetIndex = graph.nodes.findIndex((node) => node.id === edge.to)
           if (targetIndex < 0) return null

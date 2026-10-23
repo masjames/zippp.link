@@ -63,19 +63,6 @@ export function App() {
         <h1 className="text-sm font-semibold tracking-wide">Zippp Factory</h1>
         <div className="flex items-center gap-3">
           <StatusBar state={state} />
-          <button
-            className="btn btn-xs btn-ghost"
-            onClick={() => {
-              if (detailVisible) {
-                setDetailVisible(false)
-                setDetailExpanded(false)
-              } else {
-                setDetailVisible(true)
-              }
-            }}
-          >
-            {detailVisible ? 'Hide details' : 'Show details'}
-          </button>
           <DebugPanel
             state={state}
             selected={selected}
@@ -186,6 +173,17 @@ export function App() {
           />
         )}
       </div>
+
+      {!detailVisible && (
+        <button
+          className="fixed right-0 top-1/2 z-40 -translate-y-1/2 rounded-l-box border border-r-0 border-base-300 bg-base-100 px-1 py-2 text-base shadow"
+          title="Show details"
+          aria-label="Show details"
+          onClick={() => setDetailVisible(true)}
+        >
+          ‹
+        </button>
+      )}
     </div>
   )
 }
