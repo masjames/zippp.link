@@ -1,22 +1,21 @@
 import { useEffect, useMemo, useState } from 'react'
 import { DebugPanel } from './components/DebugPanel'
 import { DetailPane } from './components/DetailPane'
-import { DepTree } from './components/DepTree'
-import { EntityList } from './components/EntityList'
+import type { DetailTab } from './components/DetailPane'
+import { GapView } from './components/GapView'
 import { KanbanBoard } from './components/KanbanBoard'
 import { StatusBar } from './components/StatusBar'
 import { useFactorySocket } from './useFactorySocket'
-import type { EntityType } from './types'
 
-type Tab = 'kanban' | 'dependencies'
+type Tab = 'tasks' | 'gap'
 
 export function App() {
   const [notice, setNotice] = useState<string | null>(null)
   const { state, send, debug, clearDebug, reconnect } = useFactorySocket(setNotice)
   const [selectedId, setSelectedId] = useState<string | null>(null)
-  const [tab, setTab] = useState<Tab>('kanban')
+  const [tab, setTab] = useState<Tab>('tasks')
+  const [detailTab, setDetailTab] = useState<DetailTab>('spec')
   const [search, setSearch] = useState('')
-  const [typeFilter, setTypeFilter] = useState<EntityType | 'all'>('all')
 
   useEffect(() => {
     if (!notice) return
@@ -35,19 +34,21 @@ export function App() {
 
   const visibleEntities = useMemo(() => {
     const query = search.trim().toLowerCase()
-    return allEntities.filter((entity) => {
-      const matchesSearch =
-        query.length === 0 ||
-        entity.id.toLowerCase().includes(query) ||
-        entity.title.toLowerCase().includes(query)
-      const matchesType = typeFilter === 'all' || entity.type === typeFilter
-      return matchesSearch && matchesType
-    })
-  }, [allEntities, search, typeFilter])
+    if (query.length === 0) return allEntities
+    return allEntities.filter(
+      (entity) =>
+        entity.id.toLowerCase().includes(query) || entity.title.toLowerCase().includes(query),
+    )
+  }, [allEntities, search])
 
   const selected = selectedId ? state.entities[selectedId] : undefined
   const selectedResult = selectedId ? state.verifications[selectedId] : undefined
   const selectedRunning = selectedId ? Boolean(state.running[selectedId]) : false
+
+  function selectTask(id: string, nextTab: DetailTab = 'spec') {
+    setSelectedId(id)
+    setDetailTab(nextTab)
+  }
 
   return (
     <div className="flex h-screen flex-col bg-base-200 text-base-content">
@@ -78,45 +79,56 @@ export function App() {
         </div>
       )}
 
-      <div className="grid min-h-0 flex-1 grid-cols-[280px_minmax(0,1fr)_380px]">
-        <EntityList
-          entities={visibleEntities}
-          allCount={allEntities.length}
-          errors={state.errors}
-          search={search}
-          onSearch={setSearch}
-          typeFilter={typeFilter}
-          onTypeFilter={setTypeFilter}
-          selectedId={selectedId}
-          onSelect={setSelectedId}
-        />
-
+      <div className="grid min-h-0 flex-1 grid-cols-[minmax(0,1fr)_460px]">
         <main className="min-h-0 overflow-auto p-3">
           <div role="tablist" className="tabs tabs-boxed mb-3 w-fit">
             <button
               role="tab"
-              className={`tab ${tab === 'kanban' ? 'tab-active' : ''}`}
-              onClick={() => setTab('kanban')}
+              className={`tab ${tab === 'tasks' ? 'tab-active' : ''}`}
+              onClick={() => setTab('tasks')}
             >
-              Kanban
+              Tasks
             </button>
             <button
               role="tab"
-              className={`tab ${tab === 'dependencies' ? 'tab-active' : ''}`}
-              onClick={() => setTab('dependencies')}
+              className={`tab ${tab === 'gap' ? 'tab-active' : ''}`}
+              onClick={() => setTab('gap')}
             >
-              Dependencies
+              Gap
             </button>
           </div>
-          {tab === 'kanban' ? (
-            <KanbanBoard
-              entities={visibleEntities}
-              state={state}
-              selectedId={selectedId}
-              onSelect={setSelectedId}
-            />
+
+          {tab === 'tasks' ? (
+            <>
+              <div className="mb-3 flex flex-wrap items-center gap-2">
+                <input
+                  className="input input-bordered input-sm w-full max-w-md"
+                  placeholder="Search tasks by id or title"
+                  value={search}
+                  onChange={(event) => setSearch(event.target.value)}
+                />
+                <span className="text-xs text-base-content/60">
+                  {visibleEntities.length} of {allEntities.length} tasks
+                </span>
+                {state.errors.length > 0 && (
+                  <span className="badge badge-warning badge-sm">
+                    {state.errors.length} parse errors
+                  </span>
+                )}
+              </div>
+              <KanbanBoard
+                entities={visibleEntities}
+                state={state}
+                selectedId={selectedId}
+                onSelect={(id) => selectTask(id)}
+              />
+            </>
           ) : (
-            <DepTree entities={visibleEntities} selectedId={selectedId} onSelect={setSelectedId} />
+            <GapView
+              entities={allEntities}
+              state={state}
+              onSelect={(id) => selectTask(id, 'gap')}
+            />
           )}
         </main>
 
@@ -125,7 +137,9 @@ export function App() {
           entities={state.entities}
           result={selectedResult}
           running={selectedRunning}
-          onSelect={setSelectedId}
+          tab={detailTab}
+          onTab={setDetailTab}
+          onSelect={(id) => selectTask(id)}
           onVerify={() => selectedId && send({ type: 'verify', id: selectedId })}
           onEdit={() => selectedId && send({ type: 'edit', id: selectedId })}
         />

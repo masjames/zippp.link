@@ -40,9 +40,8 @@ export function KanbanBoard({ entities, state, selectedId, onSelect }: Props) {
                       <VerificationBadge id={entity.id} state={state} />
                     </div>
                     <div className="mt-1 text-sm">{entity.title}</div>
-                    <div className="mt-2 flex items-center justify-between gap-2">
-                      <span className="badge badge-ghost badge-xs">{entity.type}</span>
-                      <span className="truncate text-xs text-base-content/50">{entity.assignee}</span>
+                    <div className="mt-2 truncate text-xs text-base-content/50">
+                      {entity.assignee || 'unassigned'}
                     </div>
                   </button>
                 ))}

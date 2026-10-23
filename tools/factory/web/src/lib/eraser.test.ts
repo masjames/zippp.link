@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { layoutErd, parseEraser } from './eraser'
+import { extractEraserBlocks, layoutErd, parseEraser } from './eraser'
 
 describe('parseEraser', () => {
   it('parses entities, fields, and a relation', () => {
@@ -79,5 +79,19 @@ describe('layoutErd', () => {
     const layout = layoutErd(model)
     expect(layout.lines[0].fromLabel).toBe('N')
     expect(layout.lines[0].toLabel).toBe('N')
+  })
+})
+
+describe('extractEraserBlocks', () => {
+  it('extracts fenced eraser blocks', () => {
+    const body = 'text\n```eraser\na {\n  id uuid\n}\n```\nmore\n```eraser\nb {\n}\n```\n'
+    const blocks = extractEraserBlocks(body)
+    expect(blocks).toHaveLength(2)
+    expect(blocks[0]).toContain('a {')
+    expect(blocks[1]).toContain('b {')
+  })
+
+  it('ignores an unclosed block', () => {
+    expect(extractEraserBlocks('```eraser\na {\n')).toEqual([])
   })
 })

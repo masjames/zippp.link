@@ -64,6 +64,27 @@ const entityOpen = /^\s*([A-Za-z_][A-Za-z0-9_]*)\s*(\[[^\]]*\])?\s*\{\s*$/
 const relationLine =
   /^\s*([A-Za-z0-9_]+)(?:\.([A-Za-z0-9_]+))?\s+(<>|<|>|-)\s+([A-Za-z0-9_]+)(?:\.([A-Za-z0-9_]+))?\s*$/
 
+
+export function extractEraserBlocks(markdown: string): string[] {
+  const lines = markdown.split(/\r?\n/)
+  const blocks: string[] = []
+  let current: string[] | null = null
+  for (const line of lines) {
+    const trimmed = line.trim()
+    if (current === null && trimmed.startsWith('```eraser')) {
+      current = []
+      continue
+    }
+    if (current !== null && trimmed.startsWith('```')) {
+      blocks.push(current.join('\n'))
+      current = null
+      continue
+    }
+    if (current !== null) current.push(line)
+  }
+  return blocks
+}
+
 export function parseEraser(source: string): EraserModel {
   const entities: EraserEntity[] = []
   const relations: EraserRelation[] = []

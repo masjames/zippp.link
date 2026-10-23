@@ -14,3 +14,4 @@ One line per decision. Contracts live in the Pi brief.
 - M7: a read timeout corrupts a gorilla WebSocket connection. The e2e reconnects after the 2 second no-retrigger window before sending the manual verify message.
 - Post-M7: added a Debug panel with copy report, resync, reconnect, clear log, WebSocket event log, and window error capture.
 - Post-M7: the indexer now only reads features, bugs, stories, and diagrams. `entities/README.md` and other prose files are not parsed as entities.
+- Post-M7 UI: removed the left entity list and the Dependencies view. Tasks is the only Kanban view, with search. Detail tabs are Spec, Diagram, and Gap. The Gap tab and Gap view show planned vs current. The Diagram tab shows the real eraser block and a relation map. Edit in Terminal is now Open spec in Neovim, with a hint.
