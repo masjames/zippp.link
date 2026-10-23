@@ -1,0 +1,14 @@
+{
+  "repo_root": "../..",
+  "entities_root": "spec/themes/03-zippp-software-factory/entities",
+  "listen": "127.0.0.1:8080",
+  "allowed_origins": ["http://localhost:5173","http://127.0.0.1:5173","http://localhost:8080","http://127.0.0.1:8080"],
+  "verify": {
+    "timeout_seconds": 120,
+    "http_timeout_seconds": 10,
+    "max_output_bytes": 65536,
+    "allowed_commands": ["npm","npx","node","go","./gradlew","./android/gradlew"]
+  },
+  "editor": { "nvim_server": "/tmp/zippp-nvim.sock", "focus_command": [] },
+  "reports_dir": "tools/factory/.reports"
+}
