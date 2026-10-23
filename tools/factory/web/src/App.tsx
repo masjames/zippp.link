@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { DebugPanel } from './components/DebugPanel'
 import { DetailPane } from './components/DetailPane'
 import { DepTree } from './components/DepTree'
 import { EntityList } from './components/EntityList'
@@ -11,7 +12,7 @@ type Tab = 'kanban' | 'dependencies'
 
 export function App() {
   const [notice, setNotice] = useState<string | null>(null)
-  const { state, send } = useFactorySocket(setNotice)
+  const { state, send, debug, clearDebug, reconnect } = useFactorySocket(setNotice)
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [tab, setTab] = useState<Tab>('kanban')
   const [search, setSearch] = useState('')
@@ -52,7 +53,20 @@ export function App() {
     <div className="flex h-screen flex-col bg-base-200 text-base-content">
       <header className="flex items-center justify-between gap-4 border-b border-base-300 bg-base-100 px-4 py-2">
         <h1 className="text-sm font-semibold tracking-wide">Zippp Factory</h1>
-        <StatusBar state={state} />
+        <div className="flex items-center gap-3">
+          <StatusBar state={state} />
+          <DebugPanel
+            state={state}
+            selected={selected}
+            selectedResult={selectedResult}
+            selectedRunning={selectedRunning}
+            notice={notice}
+            debug={debug}
+            onClear={clearDebug}
+            onReconnect={reconnect}
+            onResync={() => send({ type: 'resync' })}
+          />
+        </div>
       </header>
 
       {notice && (
