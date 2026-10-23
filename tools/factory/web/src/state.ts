@@ -7,6 +7,9 @@ export type FactoryState = {
   errors: ParseError[]
   verifications: Record<string, Result>
   running: Record<string, boolean>
+  threads: Record<string, string>
+  chatBusy: Record<string, boolean>
+  chatError: Record<string, string>
   needResync: boolean
 }
 
@@ -17,6 +20,9 @@ export const initialState: FactoryState = {
   errors: [],
   verifications: {},
   running: {},
+  threads: {},
+  chatBusy: {},
+  chatError: {},
   needResync: false,
 }
 
@@ -24,6 +30,9 @@ export type Action =
   | { type: 'connection'; connected: boolean }
   | { type: 'server'; message: ServerMsg }
   | { type: 'clear-resync' }
+  | { type: 'thread_loaded'; id: string; thread: string }
+  | { type: 'chat_started'; id: string }
+  | { type: 'chat_result'; id: string; ok: boolean; thread?: string; error?: string }
 
 type SeqStatus = 'ok' | 'stale' | 'gap'
 
@@ -40,6 +49,33 @@ export function reducer(state: FactoryState, action: Action): FactoryState {
   if (action.type === 'clear-resync') {
     return { ...state, needResync: false }
   }
+  if (action.type === 'thread_loaded') {
+    return {
+      ...state,
+      threads: { ...state.threads, [action.id]: action.thread },
+      chatBusy: { ...state.chatBusy, [action.id]: false },
+    }
+  }
+  if (action.type === 'chat_started') {
+    return {
+      ...state,
+      chatBusy: { ...state.chatBusy, [action.id]: true },
+      chatError: { ...state.chatError, [action.id]: '' },
+    }
+  }
+  if (action.type === 'chat_result') {
+    return {
+      ...state,
+      threads: action.thread
+        ? { ...state.threads, [action.id]: action.thread }
+        : state.threads,
+      chatBusy: { ...state.chatBusy, [action.id]: false },
+      chatError: {
+        ...state.chatError,
+        [action.id]: action.ok ? '' : action.error || 'Grooming chat failed',
+      },
+    }
+  }
 
   const message = action.message
   if (message.type === 'snapshot') {
@@ -53,7 +89,12 @@ export function reducer(state: FactoryState, action: Action): FactoryState {
       needResync: false,
     }
   }
-  if (message.type === 'error') {
+  if (
+    message.type === 'error' ||
+    message.type === 'groom_thread' ||
+    message.type === 'groom_chat_started' ||
+    message.type === 'groom_chat_result'
+  ) {
     return state
   }
 

@@ -18,8 +18,9 @@ const (
 )
 
 type inbound struct {
-	Type string `json:"type"`
-	ID   string `json:"id"`
+	Type    string `json:"type"`
+	ID      string `json:"id"`
+	Message string `json:"message"`
 }
 
 type client struct {
@@ -38,7 +39,9 @@ type Hub struct {
 	done       chan struct{}
 	closeOnce  sync.Once
 
-	OnVerify func(id string) error
+	OnVerify    func(id string) error
+	OnThread    func(id string) (string, error)
+	OnGroomChat func(id, message string) error
 }
 
 func NewHub(snapshotFn func() map[string]any, allowedOrigins []string) *Hub {
@@ -234,6 +237,20 @@ func (h *Hub) sendError(c *client, message string) {
 	h.sendToClient(c, map[string]any{"type": "error", "message": message})
 }
 
+func (h *Hub) sendGroomThread(c *client, id, thread string) {
+	h.sendToClient(c, map[string]any{"type": "groom_thread", "id": id, "thread": thread})
+}
+
+func (h *Hub) sendGroomChatResult(c *client, id string, ok bool, thread, message string) {
+	h.sendToClient(c, map[string]any{
+		"type":   "groom_chat_result",
+		"id":     id,
+		"ok":     ok,
+		"thread": thread,
+		"error":  message,
+	})
+}
+
 func (h *Hub) Close() {
 	h.closeOnce.Do(func() {
 		close(h.done)
@@ -281,6 +298,25 @@ func (c *client) readPump() {
 			}
 			if err := c.hub.OnVerify(in.ID); err != nil {
 				c.hub.sendError(c, err.Error())
+			}
+		case "groom_thread":
+			if c.hub.OnThread == nil {
+				c.hub.sendError(c, "groom thread handler not configured")
+				continue
+			}
+			thread, err := c.hub.OnThread(in.ID)
+			if err != nil {
+				c.hub.sendError(c, err.Error())
+				continue
+			}
+			c.hub.sendGroomThread(c, in.ID, thread)
+		case "groom_chat":
+			if c.hub.OnGroomChat == nil {
+				c.hub.sendGroomChatResult(c, in.ID, false, "", "groom chat handler not configured")
+				continue
+			}
+			if err := c.hub.OnGroomChat(in.ID, in.Message); err != nil {
+				c.hub.sendGroomChatResult(c, in.ID, false, "", err.Error())
 			}
 		default:
 			c.hub.sendError(c, "unknown message type")

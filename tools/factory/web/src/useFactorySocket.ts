@@ -43,7 +43,9 @@ export function useFactorySocket(onNotice?: (message: string) => void) {
         dispatch({ type: 'connection', connected: true })
       }
       socket.onclose = (event) => {
-        socketRef.current = null
+        if (socketRef.current === socket) {
+          socketRef.current = null
+        }
         if (!active) return
         pushEvent({
           at: new Date().toISOString(),
@@ -89,6 +91,24 @@ export function useFactorySocket(onNotice?: (message: string) => void) {
           return
         }
         pushEvent(summarizeServerMessage(message))
+        if (message.type === 'groom_thread') {
+          dispatch({ type: 'thread_loaded', id: message.id, thread: message.thread })
+          return
+        }
+        if (message.type === 'groom_chat_started') {
+          dispatch({ type: 'chat_started', id: message.id })
+          return
+        }
+        if (message.type === 'groom_chat_result') {
+          dispatch({
+            type: 'chat_result',
+            id: message.id,
+            ok: message.ok,
+            thread: message.thread,
+            error: message.error,
+          })
+          return
+        }
         if (message.type === 'error') {
           noticeRef.current?.(message.message)
           return

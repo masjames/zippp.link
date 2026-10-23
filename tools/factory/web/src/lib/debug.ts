@@ -50,6 +50,16 @@ export function summarizeServerMessage(message: ServerMsg): DebugEvent {
           .map((check) => `${check.name}:${check.status}`)
           .join(',')}`,
       }
+    case 'groom_thread':
+      return { ...base, id: message.id, summary: `thread chars=${message.thread.length}` }
+    case 'groom_chat_started':
+      return { ...base, id: message.id, summary: `id=${message.id}` }
+    case 'groom_chat_result':
+      return {
+        ...base,
+        id: message.id,
+        summary: `ok=${message.ok}${message.error ? ` error=${message.error}` : ''}`,
+      }
     case 'error':
       return { ...base, message: message.message, summary: message.message }
   }

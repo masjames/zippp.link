@@ -2,7 +2,10 @@ package main
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"log"
+	"strings"
 	"sync"
 	"time"
 )
@@ -12,6 +15,7 @@ type App struct {
 	cfg       *Config
 	store     *Store
 	verifier  *Verifier
+	llm       *LLM
 	hub       *Hub
 	watcher   *Watcher
 	rescanCh  chan struct{}
@@ -32,6 +36,9 @@ func NewApp(cfg *Config) (*App, error) {
 	a.hub = NewHub(a.store.Snapshot, cfg.AllowedOrigins)
 	a.verifier = NewVerifier(cfg, a.store, a.hub.Broadcast)
 	a.hub.OnVerify = a.verifier.Enqueue
+	a.llm = NewLLM(cfg)
+	a.hub.OnThread = a.groomThread
+	a.hub.OnGroomChat = a.groomChat
 	onChange := func() {
 		select {
 		case a.rescanCh <- struct{}{}:
@@ -99,4 +106,79 @@ func (a *App) EntityCount() int {
 		return 0
 	}
 	return a.store.Count()
+}
+
+func (a *App) groomThread(id string) (string, error) {
+	if a.store.Get(id) == nil {
+		return "", fmt.Errorf("unknown entity %s", id)
+	}
+	return ReadThread(a.cfg, id)
+}
+
+func (a *App) groomChat(id, message string) error {
+	entity := a.store.Get(id)
+	if entity == nil {
+		return fmt.Errorf("unknown entity %s", id)
+	}
+	message = strings.TrimSpace(message)
+	if message == "" {
+		return errors.New("message is empty")
+	}
+	if len(message) > 4000 {
+		return errors.New("message is too long")
+	}
+	a.hub.BroadcastNoSeq("groom_chat_started", map[string]any{"id": id})
+	go a.runGroomChat(entity, message)
+	return nil
+}
+
+func (a *App) runGroomChat(entity *Entity, message string) {
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
+	defer cancel()
+
+	thread, err := ReadThread(a.cfg, entity.ID)
+	if err != nil {
+		a.hub.BroadcastNoSeq("groom_chat_result", map[string]any{"id": entity.ID, "ok": false, "error": err.Error()})
+		return
+	}
+	thread, err = AppendThread(a.cfg, entity.ID, "user", message)
+	if err != nil {
+		a.hub.BroadcastNoSeq("groom_chat_result", map[string]any{"id": entity.ID, "ok": false, "error": err.Error()})
+		return
+	}
+
+	system := "You are the Zippp Factory spec grooming assistant. You help the user turn a card into a buildable spec. Ask one clear question at a time. Do not invent facts. Do not implement code. Keep replies short and concrete. When the user makes a decision, write it on its own line as: DECISION: <decision>"
+	prompt := fmt.Sprintf(
+		"Entity: %s %s\nStatus: %s\n\nSpec:\n%s\n\nThread:\n%s\n\nReply to the latest user message. Ask one question at a time. Record a decision only when the user has made one.",
+		entity.ID,
+		entity.Title,
+		entity.Status,
+		entity.Body,
+		thread,
+	)
+	reply, err := a.llm.Chat(ctx, system, prompt)
+	if err != nil {
+		a.hub.BroadcastNoSeq("groom_chat_result", map[string]any{
+			"id":     entity.ID,
+			"ok":     false,
+			"thread": thread,
+			"error":  err.Error(),
+		})
+		return
+	}
+	thread, err = AppendThread(a.cfg, entity.ID, "assistant", reply)
+	if err != nil {
+		a.hub.BroadcastNoSeq("groom_chat_result", map[string]any{
+			"id":     entity.ID,
+			"ok":     false,
+			"thread": thread,
+			"error":  err.Error(),
+		})
+		return
+	}
+	a.hub.BroadcastNoSeq("groom_chat_result", map[string]any{
+		"id":     entity.ID,
+		"ok":     true,
+		"thread": thread,
+	})
 }

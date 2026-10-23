@@ -9,5 +9,11 @@
     "max_output_bytes": 65536,
     "allowed_commands": ["npm","npx","node","go","./gradlew","./android/gradlew"]
   },
+  "llm": {
+    "base_url": "https://api.deepseek.com",
+    "model": "deepseek-chat",
+    "api_key_file": ".factory-key",
+    "timeout_seconds": 120
+  },
   "reports_dir": "tools/factory/.reports"
 }

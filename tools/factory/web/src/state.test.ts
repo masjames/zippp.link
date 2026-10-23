@@ -126,4 +126,26 @@ describe('state reducer', () => {
   it('updates connection state', () => {
     expect(reducer(initialState, { type: 'connection', connected: true }).connected).toBe(true)
   })
+
+  it('tracks the grooming thread and chat state', () => {
+    let state = reducer(initialState, {
+      type: 'thread_loaded',
+      id: 'FEAT-1',
+      thread: '# Grooming thread',
+    })
+    expect(state.threads['FEAT-1']).toBe('# Grooming thread')
+    state = reducer(state, { type: 'chat_started', id: 'FEAT-1' })
+    expect(state.chatBusy['FEAT-1']).toBe(true)
+    state = reducer(state, { type: 'chat_result', id: 'FEAT-1', ok: false, error: 'no key' })
+    expect(state.chatBusy['FEAT-1']).toBe(false)
+    expect(state.chatError['FEAT-1']).toBe('no key')
+    state = reducer(state, {
+      type: 'chat_result',
+      id: 'FEAT-1',
+      ok: true,
+      thread: '# Grooming thread\n\nReply',
+    })
+    expect(state.threads['FEAT-1']).toContain('Reply')
+    expect(state.chatError['FEAT-1']).toBe('')
+  })
 })

@@ -174,6 +174,13 @@ export function App() {
             onTab={setDetailTab}
             onSelect={(id) => selectTask(id)}
             onVerify={() => selectedId && send({ type: 'verify', id: selectedId })}
+            thread={selectedId ? state.threads[selectedId] : undefined}
+            chatBusy={selectedId ? Boolean(state.chatBusy[selectedId]) : false}
+            chatError={selectedId ? state.chatError[selectedId] : undefined}
+            onLoadThread={() => selectedId && send({ type: 'groom_thread', id: selectedId })}
+            onSendThread={(message) =>
+              selectedId && send({ type: 'groom_chat', id: selectedId, message })
+            }
             expanded={detailExpanded}
             onToggleExpand={() => setDetailExpanded((value) => !value)}
             onHide={() => {

@@ -2,3 +2,4 @@ bin/
 .reports/
 web/node_modules/
 web/dist/
+.factory-key

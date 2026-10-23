@@ -26,7 +26,8 @@ Open http://127.0.0.1:5173.
 ## Config
 
 `factory.config.json`: `repo_root`, `entities_root`, `listen`,
-`allowed_origins`, `verify` limits and commands, `reports_dir`.
+`allowed_origins`, `verify` limits and commands, `llm` provider, `reports_dir`.
+The Groom tab uses the key in `.factory-key` or `ZIPPP_FACTORY_LLM_API_KEY`.
 
 ## Done
 

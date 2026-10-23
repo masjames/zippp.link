@@ -17,6 +17,7 @@ type Config struct {
 	Listen         string       `json:"listen"`
 	AllowedOrigins []string     `json:"allowed_origins"`
 	Verify         VerifyConfig `json:"verify"`
+	LLM            LLMConfig    `json:"llm"`
 	ReportsDir     string       `json:"reports_dir"`
 }
 
@@ -25,6 +26,13 @@ type VerifyConfig struct {
 	HTTPTimeoutSeconds int      `json:"http_timeout_seconds"`
 	MaxOutputBytes     int      `json:"max_output_bytes"`
 	AllowedCommands    []string `json:"allowed_commands"`
+}
+
+type LLMConfig struct {
+	BaseURL        string `json:"base_url"`
+	Model          string `json:"model"`
+	APIKeyFile     string `json:"api_key_file"`
+	TimeoutSeconds int    `json:"timeout_seconds"`
 }
 
 func LoadConfig(path string) (*Config, error) {
@@ -65,13 +73,29 @@ func LoadConfig(path string) (*Config, error) {
 	if cfg.Verify.MaxOutputBytes <= 0 {
 		cfg.Verify.MaxOutputBytes = 65536
 	}
+	if cfg.LLM.BaseURL == "" {
+		cfg.LLM.BaseURL = "https://api.deepseek.com"
+	}
+	if cfg.LLM.Model == "" {
+		cfg.LLM.Model = "deepseek-chat"
+	}
+	if cfg.LLM.APIKeyFile == "" {
+		cfg.LLM.APIKeyFile = ".factory-key"
+	}
+	cfg.LLM.APIKeyFile, err = resolvePath(base, cfg.LLM.APIKeyFile)
+	if err != nil {
+		return nil, err
+	}
+	if cfg.LLM.TimeoutSeconds <= 0 {
+		cfg.LLM.TimeoutSeconds = 120
+	}
 	if cfg.AllowedOrigins == nil {
 		cfg.AllowedOrigins = []string{}
 	}
 	if cfg.Verify.AllowedCommands == nil {
 		cfg.Verify.AllowedCommands = []string{}
 	}
-	for _, dir := range []string{"features", "bugs", "stories", "diagrams"} {
+	for _, dir := range []string{"features", "bugs", "stories", "diagrams", "threads"} {
 		if err := os.MkdirAll(filepath.Join(cfg.EntitiesRoot, dir), 0o755); err != nil {
 			return nil, fmt.Errorf("create entity dir %s: %w", dir, err)
 		}

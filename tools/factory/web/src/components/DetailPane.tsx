@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import type { Entity, EntityStatus, Result } from '../types'
 import { entityGap } from '../lib/gap'
 import type { GapSeverity } from '../lib/gap'
@@ -29,6 +30,11 @@ type Props = {
   expanded: boolean
   onToggleExpand: () => void
   onHide: () => void
+  thread?: string
+  chatBusy: boolean
+  chatError?: string
+  onLoadThread: () => void
+  onSendThread: (message: string) => void
 }
 
 const statusClass: Record<EntityStatus, string> = {
@@ -47,7 +53,10 @@ const gapClass: Record<GapSeverity, string> = {
 }
 
 export function DetailPane(props: Props) {
-  const { entity, entities, result, running, tab, onTab, onSelect, onVerify, expanded, onToggleExpand, onHide } = props
+  const {
+    entity, entities, result, running, tab, onTab, onSelect, onVerify, expanded, onToggleExpand, onHide,
+    thread, chatBusy, chatError, onLoadThread, onSendThread,
+  } = props
   const asideClass = `flex min-h-0 bg-base-100 ${expanded ? '' : 'border-l border-base-300'}`
   if (!entity) {
     return (
@@ -124,7 +133,16 @@ export function DetailPane(props: Props) {
           {tab === 'diagram' && (
             <DiagramTab entity={entity} entities={entities} onSelect={onSelect} />
           )}
-          {tab === 'groom' && <GroomTab entity={entity} />}
+          {tab === 'groom' && (
+            <GroomTab
+              entity={entity}
+              thread={thread}
+              chatBusy={chatBusy}
+              chatError={chatError}
+              onLoadThread={onLoadThread}
+              onSendThread={onSendThread}
+            />
+          )}
           {tab === 'gap' && (
             <GapTab entity={entity} result={result} running={running} onVerify={onVerify} />
           )}
@@ -292,8 +310,28 @@ function DiagramTab(props: {
   )
 }
 
-function GroomTab({ entity }: { entity: Entity }) {
-  const groom = groomEntity(entity)
+function GroomTab(props: {
+  entity: Entity
+  thread?: string
+  chatBusy: boolean
+  chatError?: string
+  onLoadThread: () => void
+  onSendThread: (message: string) => void
+}) {
+  const groom = groomEntity(props.entity)
+  const [message, setMessage] = useState('')
+
+  useEffect(() => {
+    props.onLoadThread()
+  }, [props.entity.id])
+
+  function send() {
+    const value = message.trim()
+    if (!value || props.chatBusy) return
+    props.onSendThread(value)
+    setMessage('')
+  }
+
   return (
     <>
       <section className="space-y-2">
@@ -306,6 +344,39 @@ function GroomTab({ entity }: { entity: Entity }) {
         <progress className="progress progress-success w-full" value={groom.score} max={100} />
         <p className="text-xs text-base-content/60">
           {groom.score}% overall. Required items {groom.requiredOk}/{groom.requiredTotal}.
+        </p>
+      </section>
+
+      <section className="space-y-2">
+        <div className="flex items-center justify-between gap-2">
+          <h3 className="text-sm font-semibold">Grooming assistant</h3>
+          {props.chatBusy && <span className="loading loading-spinner loading-xs" />}
+        </div>
+        {props.chatError && <p className="text-xs text-error">{props.chatError}</p>}
+        <div className="max-h-72 overflow-auto rounded-box bg-base-200 p-2">
+          <MarkdownView
+            body={props.thread || 'No messages yet. Ask the assistant to groom this card.'}
+          />
+        </div>
+        <div className="flex items-start gap-1">
+          <textarea
+            className="textarea textarea-bordered textarea-sm w-full"
+            rows={2}
+            placeholder="Ask about this card or answer the last question"
+            value={message}
+            onChange={(event) => setMessage(event.target.value)}
+            disabled={props.chatBusy}
+          />
+          <button
+            className="btn btn-sm btn-primary"
+            onClick={send}
+            disabled={props.chatBusy || message.trim().length === 0}
+          >
+            Send
+          </button>
+        </div>
+        <p className="text-xs text-base-content/50">
+          LLM uses the configured provider. Key file: tools/factory/.factory-key. Decisions are written to the card thread.
         </p>
       </section>
 

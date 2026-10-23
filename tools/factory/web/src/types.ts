@@ -68,8 +68,13 @@ export type ServerMsg =
     }
   | { type: 'verification_started'; seq: number; id: string }
   | { type: 'verification'; seq: number; result: Result }
+  | { type: 'groom_thread'; id: string; thread: string }
+  | { type: 'groom_chat_started'; id: string }
+  | { type: 'groom_chat_result'; id: string; ok: boolean; thread?: string; error?: string }
   | { type: 'error'; message: string }
 
 export type ClientMsg =
   | { type: 'resync' }
   | { type: 'verify'; id: string }
+  | { type: 'groom_thread'; id: string }
+  | { type: 'groom_chat'; id: string; message: string }

@@ -47,13 +47,21 @@ func SetStatus(path, id, from, to string) error {
 	if err != nil {
 		return err
 	}
-	tmp, err := os.CreateTemp(filepath.Dir(path), ".factory-tmp-*")
+	return writeFileAtomic(path, out, info.Mode())
+}
+
+func writeFileAtomic(path string, out []byte, mode os.FileMode) error {
+	dir := filepath.Dir(path)
+	if err := os.MkdirAll(dir, 0o755); err != nil {
+		return err
+	}
+	tmp, err := os.CreateTemp(dir, ".factory-tmp-*")
 	if err != nil {
 		return err
 	}
 	tmpName := tmp.Name()
 	defer os.Remove(tmpName)
-	if err := tmp.Chmod(info.Mode()); err != nil {
+	if err := tmp.Chmod(mode); err != nil {
 		tmp.Close()
 		return err
 	}
