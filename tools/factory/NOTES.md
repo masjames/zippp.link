@@ -21,4 +21,4 @@ One line per decision. Contracts live in the Pi brief.
 - Post-M7 UI: the detail pane can expand to full width and collapse. Every diagram frame has a Full screen toggle, with Escape to close.
 - Post-M7 UI: detail controls moved to a left arrow rail. Fullscreen diagrams scale to fit the viewport and do not scroll.
 - Post-M7 UI: the detail pane starts collapsed. Clicking outside a task card clears the selection and collapses the pane. Task cards and Gap rows keep the selection.
-- Post-M7 grooming assistant: local LLM chat in the Groom tab. Threads persist at entities/threads/<ID>.md. Lines starting with DECISION: become decision blocks. The key is read from tools/factory/.factory-key or ZIPPF_FACTORY_LLM_API_KEY. The key file is ignored. Fixed a React StrictMode socket ref race.
+- Post-M7 grooming assistant: local LLM chat in the Groom tab. Threads persist at entities/threads/<ID>.md. Lines starting with DECISION: become decision blocks. The key is read from tools/factory/.factory-key or ZIPPP_FACTORY_LLM_API_KEY. The key file is ignored. Fixed a React StrictMode socket ref race.
