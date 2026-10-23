@@ -11,3 +11,4 @@ One line per decision. Contracts live in the Pi brief.
 - Decision: omit the `model` check when the body has no ERD entities. This matches the expected three-check e2e for entities without an ERD.
 - Decision: an ERD field passes when it appears in at least one target file where the entity declaration matched. Fields are not scoped to the declaration. This known limit is intentional.
 - M4: the native Eraser probe returned 404 for both `@eraserlabs/eraser-diagrams` and `eraser-diagrams`. Ship the local SVG renderer only.
+- M7: a read timeout corrupts a gorilla WebSocket connection. The e2e reconnects after the 2 second no-retrigger window before sending the manual verify message.
