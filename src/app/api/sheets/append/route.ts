@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { resolveRequestUser } from "@/lib/auth/request-user";
 import { balance, refundScan, spend } from "@/lib/billing/ledger";
 import { LOW_CREDITS_WARN } from "@/lib/billing/config";
+import { getPlanUsage, recordCapture } from "@/lib/billing/plan";
 import { billingConfigured, command } from "@/lib/billing/redis";
 import { appendRows, SheetsApiError, SheetsAuthError } from "@/lib/google/sheets";
 import { buildAppendRows, PAYMENT_OPTIONS } from "@/lib/google/templates";
@@ -189,6 +190,13 @@ export async function POST(req: Request) {
   const purpose = parseNullableString(body.purpose, 200);
   const customer = parseNullableString(body.customer, 200);
 
+  const planUsage = billingConfigured()
+    ? await getPlanUsage(userId)
+    : null;
+  if (planUsage && planUsage.used >= planUsage.included) {
+    return fail("PLAN_LIMIT", 402, { used_pct: 100 });
+  }
+
   const captured_at = new Date().toISOString();
 
   let rows;
@@ -217,7 +225,7 @@ export async function POST(req: Request) {
   let chargedScanId: string | null = null;
 
   try {
-    if (billingConfigured()) {
+    if (billingConfigured() && !planUsage) {
       const spent = await spend({
         userId,
         credits: 1,
@@ -241,6 +249,15 @@ export async function POST(req: Request) {
       userId
     );
 
+    let planAfter = null;
+    if (planUsage) {
+      try {
+        planAfter = await recordCapture(userId);
+      } catch {
+        /* the row is written; meter lag must not fail the request */
+      }
+    }
+
     let current: { credits: number } | null = null;
     if (billingConfigured()) {
       try {
@@ -258,6 +275,7 @@ export async function POST(req: Request) {
       sheet_tab: workspace.sheet_tab,
       scanId,
       credits_remaining: current?.credits ?? null,
+      plan_used_pct: planAfter?.used_pct ?? null,
     };
 
     if (billingConfigured()) {

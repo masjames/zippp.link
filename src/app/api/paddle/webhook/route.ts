@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { balance, grant } from "@/lib/billing/ledger";
 import { paddleConfig, verifyPaddleSignature } from "@/lib/billing/paddle";
+import { activatePlan, cancelPlan } from "@/lib/billing/plan";
 import { onTopupApproved } from "@/lib/billing/referral";
 import { sendTopUpAlert } from "@/lib/telegram/alerts";
 
@@ -8,7 +9,11 @@ export const runtime = "nodejs";
 
 type PaddleEvent = {
     event_type?: string;
-    data?: { id?: string; custom_data?: { google_user_id?: string } | null };
+    data?: {
+        id?: string;
+        subscription_id?: string;
+        custom_data?: { google_user_id?: string; plan?: string } | null;
+    };
 };
 
 export async function POST(req: Request) {
@@ -27,8 +32,28 @@ export async function POST(req: Request) {
         return NextResponse.json({ ok: false, error: "Bad JSON." }, { status: 400 });
     }
 
+    if (event.event_type === "subscription.canceled") {
+        const subscriptionId = event.data?.id;
+        const canceled = subscriptionId
+            ? await cancelPlan(subscriptionId)
+            : false;
+        return NextResponse.json({ ok: true, canceled });
+    }
+
     if (event.event_type !== "transaction.completed") {
         return NextResponse.json({ ok: true, ignored: event.event_type });
+    }
+
+    if (event.data?.custom_data?.plan === "pro") {
+        const planUserId = event.data.custom_data.google_user_id;
+        if (!planUserId) {
+            return NextResponse.json({ ok: false, error: "Missing user." }, { status: 400 });
+        }
+        const plan = await activatePlan({
+            userId: planUserId,
+            subscriptionId: event.data.subscription_id ?? event.data.id ?? null,
+        });
+        return NextResponse.json({ ok: true, plan: plan.period_end });
     }
 
     const txnId = event.data?.id;

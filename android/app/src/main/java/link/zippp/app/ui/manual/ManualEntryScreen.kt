@@ -148,6 +148,7 @@ fun ManualEntryScreen(
                                 outOfCredits = true
                                 error = R.string.error_no_credits
                             }
+                            response.code == "PLAN_LIMIT" -> error = R.string.plan_limit
                             else -> error = R.string.error_append
                         }
                     } catch (e: ApiException) {

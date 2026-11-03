@@ -656,6 +656,54 @@ Indonesia
 Zippp Space
 ## app.space.settings.id
 Zippp Space
+## app.plan.title.en
+Plan
+## app.plan.title.id
+Paket
+## app.plan.active.en
+Active
+## app.plan.active.id
+Aktif
+## app.plan.canceled.en
+Cancels at period end
+## app.plan.canceled.id
+Berakhir di akhir periode
+## app.plan.free.en
+No plan yet
+## app.plan.free.id
+Belum ada paket
+## app.plan.body.en
+Subscribe on the web. Android only shows your usage.
+## app.plan.body.id
+Langganan lewat web. Android hanya menampilkan pemakaian.
+## app.plan.used.en
+{used} of {included} used
+## app.plan.used.id
+{used} dari {included} terpakai
+## app.plan.percent.en
+{percent}% used
+## app.plan.percent.id
+{percent}% terpakai
+## app.plan.periodEnd.en
+Ends {date}
+## app.plan.periodEnd.id
+Berakhir {date}
+## app.plan.subscribe.en
+Subscribe
+## app.plan.subscribe.id
+Langganan
+## app.plan.renew.en
+Manage plan
+## app.plan.renew.id
+Kelola paket
+## app.plan.busy.en
+Opening checkout…
+## app.plan.busy.id
+Membuka pembayaran…
+## app.plan.error.en
+Checkout is not available right now.
+## app.plan.error.id
+Pembayaran belum tersedia.
 ## app.space.title.en
 Space
 ## app.space.title.id
@@ -4175,6 +4223,18 @@ Catat dari notifikasi
 Back
 ## android.settings.back.id
 Kembali
+## android.plan.limit.en
+Your plan's fair-use limit is reached.
+## android.plan.limit.id
+Batas wajar paket Anda sudah tercapai.
+## android.plan.label.en
+Plan
+## android.plan.label.id
+Paket
+## android.plan.used.en
+{used} of {included} used
+## android.plan.used.id
+{used} dari {included} terpakai
 ## android.space.title.en
 Space
 ## android.space.title.id

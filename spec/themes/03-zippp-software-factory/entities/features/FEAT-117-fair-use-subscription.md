@@ -2,15 +2,18 @@
 id: FEAT-117
 type: feature
 title: Fair-use subscription meter + web checkout
-status: todo
+status: verify
 assignee: adit
 relations:
   blocks: []
   implements: ["DEC-002"]
   depends_on: ["DIR-001", "DEC-002", "ROAD-001"]
 verification:
-  target_files: []
-  test_command: ""
+  target_files:
+    - "src/lib/billing/plan.ts"
+    - "src/app/api/billing/subscribe/route.ts"
+    - "src/components/app/PlanCard.tsx"
+  test_command: "npm test"
   prod_endpoint: ""
 ---
 
@@ -29,10 +32,10 @@ Monetize the OS without Play IAP or prepaid scan packs as the story.
 
 # Acceptance criteria
 
-- [ ] Server tracks entitlement + usage %
-- [ ] Web can subscribe / manage plan
-- [ ] Android shows plan + usage %, never checkout
-- [ ] Capture blocked or soft-warned per fair-use policy when exhausted
+- [x] Server tracks entitlement + usage %
+- [x] Web can subscribe / manage plan (subscribe + status; cancel still in Paddle)
+- [x] Android shows plan + usage %, never checkout
+- [x] Capture blocked or soft-warned per fair-use policy when exhausted
 - [ ] Legacy credit paths deprecated or migrated
 
 # Verification
@@ -47,3 +50,5 @@ Monetize the OS without Play IAP or prepaid scan packs as the story.
 # Definition of done
 
 A subscribed user sees usage % on web and Android; unpaid/exhausted behavior is defined and tested.
+
+Implementation note (2026-11-03): `plan.ts` holds the period, included captures, and a per-period usage counter. Append blocks with `PLAN_LIMIT` at the cap and records one capture on success; credit spend is skipped only while a plan is active. Checkout uses a Paddle price id from env (`PADDLE_PLAN_PRICE_ID`), so no price is hardcoded. Web PlanCard shows the meter and opens checkout; Android shows usage only. Legacy credits still run for accounts without a plan, so migration is not done yet. Four plan tests cover activation, idempotency, cap, cancellation, and zero usage.

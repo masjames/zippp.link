@@ -65,12 +65,27 @@ fun CameraScreen(
     val lifecycleOwner = LocalLifecycleOwner.current
     val scope = rememberCoroutineScope()
 
+    var planText by remember { mutableStateOf<String?>(null) }
+
     var hasPermission by remember {
         mutableStateOf(
             ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) ==
                 PackageManager.PERMISSION_GRANTED
         )
     }
+    LaunchedEffect(token) {
+        runCatching { api.me(token) }.onSuccess { me ->
+            planText = me.plan?.let { plan ->
+                val label = context.getString(R.string.plan_label)
+                val detail = context
+                    .getString(R.string.plan_used)
+                    .replace("{used}", plan.used.toString())
+                    .replace("{included}", plan.included.toString())
+                "$label: $detail"
+            }
+        }
+    }
+
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { granted -> hasPermission = granted }
@@ -188,6 +203,12 @@ fun CameraScreen(
                 text = "${stringResource(R.string.scan_balance_label)}: $credits",
                 style = MaterialTheme.typography.titleMedium,
             )
+            planText?.let {
+                Text(
+                    text = it,
+                    style = MaterialTheme.typography.bodySmall,
+                )
+            }
             if (spaces.isNotEmpty()) {
                 Text(
                     text = "${stringResource(R.string.space_label)}: " +

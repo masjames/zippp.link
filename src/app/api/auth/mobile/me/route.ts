@@ -3,6 +3,7 @@ import { resolveBearerUser } from "@/lib/auth/mobile-auth";
 import { mobileApiEnabled } from "@/lib/mobile/config";
 import { loadWorkspaceForUser } from "@/lib/google/workspace-store";
 import { PAYMENT_OPTIONS } from "@/lib/google/templates";
+import { getPlanUsage } from "@/lib/billing/plan";
 import { listSpacesForUser } from "@/lib/space/space-store";
 
 export const runtime = "nodejs";
@@ -69,9 +70,32 @@ export async function GET(req: Request) {
     workspace = null;
   }
 
+  let plan: {
+    status: string;
+    used: number;
+    included: number;
+    used_pct: number;
+    period_end: number;
+  } | null = null;
+  try {
+    const usage = await getPlanUsage(auth.user.userId);
+    if (usage) {
+      plan = {
+        status: usage.status,
+        used: usage.used,
+        included: usage.included,
+        used_pct: usage.used_pct,
+        period_end: usage.period_end,
+      };
+    }
+  } catch {
+    plan = null;
+  }
+
   return noStore({
     ok: true,
     user: { email: auth.user.email },
+    plan,
     device_id: auth.user.deviceId,
     spaces,
     workspace,

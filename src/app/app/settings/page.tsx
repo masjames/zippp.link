@@ -7,6 +7,7 @@ import WaLinkPanel from "@/components/app/WaLinkPanel";
 import ConnectedDevices from "@/components/app/ConnectedDevices";
 import TelegramLinkPanel from "@/components/app/TelegramLinkPanel";
 import PairDeviceModal from "@/components/app/PairDeviceModal";
+import PlanCard from "@/components/app/PlanCard";
 import { useApp } from "@/components/app/AppProvider";
 import LangSelect from "@/components/LangSelect";
 import { fill } from "@/lib/t";
@@ -84,6 +85,8 @@ export default function SettingsPage() {
                     <ConnectedDevices />
                 </>
             ) : null}
+
+            <PlanCard />
 
             <TelegramLinkPanel />
 

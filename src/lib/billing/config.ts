@@ -15,6 +15,12 @@ export const LOW_CREDITS_WARN = 10;
 export const ORDER_TTL_MIN = 60;
 /** DOKU hosted checkout page validity (payment_due_date, minutes). */
 export const DOKU_ORDER_TTL_MIN = 60;
+/** Fair-use captures included per monthly plan. Tunable, not a price. */
+export const PLAN_INCLUDED_CAPTURES = Number(
+  process.env.PLAN_INCLUDED_CAPTURES || 300
+);
+export const PLAN_PERIOD_DAYS = 30;
+
 export const INTL_PACK_CREDITS = 100;
 export const INTL_PACK_USD = 9;
 /** Suggested IDR top-up amounts shown on the public pricing page and in the app. */

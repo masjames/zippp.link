@@ -112,8 +112,8 @@ set in Production. Preview is enabled for testing.
 - FEAT-113 auth and FEAT-114 Space are built; tests, typecheck, and build green.
   No device run yet. Pairing spike verified on Preview.
 - Gate that matters: **STORY-102** (not companion STORY-101).
-- Next build: **FEAT-117** (ROAD Phase 6). FEAT-102, FEAT-115, and FEAT-116 are
-  built and in Factory verify; all need a runtime pass.
+- Next build: **STORY-102** device proof (ROAD Phase 7). FEAT-102, FEAT-115,
+  FEAT-116, and FEAT-117 are built and in Factory verify; all need a runtime pass.
 
 ---
 
@@ -1219,6 +1219,9 @@ Never use `NEXT_PUBLIC_*` for secrets. PostHog public key is the exception.
 - **FEAT-116** assets and goals built: per-Space ledger with archive, web section
   on the Space page, Android Space screen, store tests. Browser and device runs
   pending.
+- **FEAT-117** plan meter built: period and counter in Upstash, append blocks at
+  the cap, Paddle checkout behind `PADDLE_PLAN_PRICE_ID`, web meter card, Android
+  usage line. Prices stay outside the repo. Legacy credits still run.
 - FEAT-112 parked per DEC-003; do not treat companion-only docs as north star.
 - FEAT-102 flags: editing a flagged field or the acknowledge button clears the
   block. Correction telemetry posts per-field edited/flagged state; the
@@ -1633,8 +1636,9 @@ Follow **ROAD-001**. Do not revive companion credit E2E as the main gate.
 2. **FEAT-102 / FEAT-115** — both built, in Factory verify, and both need a
    device run. Manual entry now gets a server-issued scan id, so credits and
    idempotency behave exactly like a camera scan.
-3. **FEAT-117** — fair-use subscription + web checkout (Phase 6). FEAT-116 assets
-   and goals is built and in Factory verify on both surfaces.
+3. **FEAT-117** — fair-use meter, Paddle checkout, Android usage built and in
+   Factory verify. Open: Paddle cancel UI, legacy credit migration. Then STORY-102
+   needs a real phone, so the rest of Phase 7 is yours.
 4. **STORY-102** — Space device proof (Phase 7).
 5. **FEAT-110** — Production mobile enable only after STORY-102.
 6. Keep distribution hygiene as needed: FEAT-105/106/108; FEAT-107 after auth.

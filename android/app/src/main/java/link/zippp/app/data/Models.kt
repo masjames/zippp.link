@@ -42,9 +42,18 @@ data class Workspace(
 )
 
 @Serializable
+data class PlanInfo(
+    val status: String = "active",
+    val included: Int = 0,
+    val used: Int = 0,
+    @SerialName("used_pct") val usedPct: Int = 0,
+)
+
+@Serializable
 data class MeResponse(
     val ok: Boolean = false,
     val workspace: Workspace? = null,
+    val plan: PlanInfo? = null,
 )
 
 @Serializable

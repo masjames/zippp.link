@@ -392,6 +392,7 @@ fun ReviewScreen(
                                     error = R.string.error_no_credits
                                 }
                                 response.code == "SCAN_ALREADY_SENT" -> onAccepted(null)
+                                response.code == "PLAN_LIMIT" -> error = R.string.plan_limit
                                 else -> error = R.string.error_append
                             }
                         } catch (e: ApiException) {
