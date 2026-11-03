@@ -5,6 +5,9 @@ import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.Modifier
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -209,31 +212,48 @@ private fun ZipppRoot(
             },
         )
         RootScreen.Review -> {
-            val draft = batch.find(currentDraftId ?: "")
-            if (draft == null) {
-                screen = nextDraft()
-            } else {
-                ReviewScreen(
+            Box(modifier = Modifier.fillMaxSize()) {
+                CameraScreen(
                     api = api,
                     token = token!!,
-                    receipt = draft.receipt,
-                    scanId = draft.scanId,
-                    credits = credits,
-                    onDiscard = {
-                        batch.remove(draft.id)
-                        screen = nextDraft()
-                    },
-                    onAccept = { request ->
-                        batch.markAccepted(draft.id)
-                        outbox.trySend(draft.id to request)
-                        screen = nextDraft()
-                    },
-                    onSessionLost = {
-                        store.clear()
-                        token = null
-                        screen = RootScreen.Camera
-                    },
+                    initialCredits = credits,
+                    onCreditsChanged = { credits = it },
+                    onOpenSettings = {},
+                    onOpenManual = {},
+                    onOpenSpace = {},
+                    onOpenBatch = {},
+                    batch = batch,
+                    onOpenDraft = { },
+                    onExtracted = { _, _ -> },
+                    onSessionLost = { },
                 )
+                val draft = batch.find(currentDraftId ?: "")
+                if (draft == null) {
+                    screen = nextDraft()
+                } else {
+                    ReviewScreen(
+                        api = api,
+                        token = token!!,
+                        receipt = draft.receipt,
+                        scanId = draft.scanId,
+                        credits = credits,
+                        onDiscard = {
+                            batch.remove(draft.id)
+                            screen = nextDraft()
+                        },
+                        onAccept = { request ->
+                            batch.markAccepted(draft.id)
+                            outbox.trySend(draft.id to request)
+                            screen = nextDraft()
+                        },
+                        onSessionLost = {
+                            store.clear()
+                            token = null
+                            screen = RootScreen.Camera
+                        },
+                        overlay = true,
+                    )
+                }
             }
         }
         RootScreen.Camera -> CameraScreen(

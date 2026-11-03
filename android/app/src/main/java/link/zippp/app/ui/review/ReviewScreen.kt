@@ -5,6 +5,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -82,6 +83,7 @@ fun ReviewScreen(
     credits: Int,
     onDiscard: () -> Unit,
     onAccept: (AppendRequest) -> Unit,
+    overlay: Boolean = false,
     onSessionLost: () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
@@ -158,9 +160,19 @@ fun ReviewScreen(
     val showOps = showStaff || showOutlet || showPayment || showPurpose || showCustomer
 
     Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(ZipppColors.page),
+        modifier = if (overlay) {
+            Modifier
+                .fillMaxSize()
+                .background(Color(0x99000000))
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null,
+                ) { }
+        } else {
+            Modifier
+                .fillMaxSize()
+                .background(ZipppColors.page)
+        },
         contentAlignment = Alignment.TopCenter,
     ) {
         Column(
