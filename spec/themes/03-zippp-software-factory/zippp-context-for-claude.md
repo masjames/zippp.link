@@ -21,7 +21,7 @@ factory as-built, backlog, risks, env names, and next work are all inlined below
   this file. If code and this file disagree on a shipped path, trust the code
   and update this file in the same change.
 
-**Snapshot:** 2026-11-01  
+**Snapshot:** 2026-11-03  
 **Previous snapshot:** 2026-10-24 (superseded)  
 **Repository:** `github.com/masjames/zippp.link`  
 **Local path:** `/Users/mm/Dev/adit/zippp`  
@@ -40,6 +40,9 @@ factory as-built, backlog, risks, env names, and next work are all inlined below
 4. Legacy prepaid credits and pairing-only Android **still run in code** until
    ROAD Phases 4–6; do not treat them as destination UX.
 5. Production mobile still dark; Space capture path not proven on device yet.
+6. **2026-11-03:** Phase 3 code (FEAT-113 auth, FEAT-114 Space) plus the Android
+   companion were uncommitted. Commit hygiene closed in four commits; worktree
+   clean. Device proof is still the open gate.
 
 ---
 
@@ -50,7 +53,7 @@ factory as-built, backlog, risks, env names, and next work are all inlined below
 3. Before claiming "shipped", re-check: `git status`, `npm test`, `npx tsc --noEmit`,
    and (if relevant) Preview / device behavior. Status sections are a snapshot.
 4. Do one task at a time from §19.
-5. Worktree is dirty. Commit with explicit pathspecs. Never `git add -A`.
+5. Keep the worktree clean. Commit with explicit pathspecs. Never `git add -A`.
 6. Never print `.env*`, tokens, Preview bypass values, or `tools/factory/.factory-key`.
 
 ---
@@ -105,10 +108,11 @@ set in Production. Preview is enabled for testing.
 
 **Current milestone:**
 
-- **DIR-001 Zippp Space** locked; Phase 1–2 of ROAD-001 done.
-- Pairing spike verified on Preview; Space product path **not** built/proven.
+- **DIR-001 Zippp Space** locked; ROAD-001 Phase 1–3 code done and committed.
+- FEAT-113 auth and FEAT-114 Space are built; tests, typecheck, and build green.
+  No device run yet. Pairing spike verified on Preview.
 - Gate that matters: **STORY-102** (not companion STORY-101).
-- Next build: **FEAT-113** (auth). **FEAT-114** (Space model) is built, in verify.
+- Next build: **FEAT-102** + **FEAT-115** (ROAD Phase 4).
 
 ---
 
@@ -1202,16 +1206,15 @@ Never use `NEXT_PUBLIC_*` for secrets. PostHog public key is the exception.
 - Play compliance: no Data Safety submission; web-only pay posture is a strategy,
   not a guarantee.
 - Release signing: scaffolded, no production keystore.
-- **FEAT-114** Space membership is built and in verify: web create, invite,
-  join, leave, remove; Android lists Space names. Two-account manual proof pending.
-- **FEAT-113** in progress — Android entry is still pairing-first.
+- **FEAT-113 / FEAT-114** code complete and committed: Android Google and magic
+  link sign-in, device registry and revoke, Space create/invite/join/leave.
+  Two-account and on-device sign-in proof pending.
 - FEAT-112 parked per DEC-003; do not treat companion-only docs as north star.
 - FEAT-102 grooming: hard-flag clear-by-checkbox decided; whether ack posts to
   `/api/corrections` still open.
 
 ### Not done
 
-- **FEAT-113** Android Google / magic-link auth (ROAD Phase 3).
 - **STORY-102** Space device proof (ROAD Phase 7 gate before FEAT-110).
 - STORY-101 legacy companion E2E (parked; not the prod gate).
 - FEAT-102 Android review contract (reshaped in Phase 4).
@@ -1224,7 +1227,6 @@ Never use `NEXT_PUBLIC_*` for secrets. PostHog public key is the exception.
 - FEAT-109 rollout plan sync (checkboxes/stale contracts in plan).
 - FEAT-110 Production mobile enablement (**blocked** on STORY-102).
 - FEAT-112 Android umbrella — superseded by FEAT-113 + DEC-003; parked.
-- Clean commit of theme reorg + remaining pivot worktree.
 
 ### Known code edge case (billing)
 
@@ -1514,7 +1516,7 @@ tools/factory/scripts/check.sh
 LLM key: `tools/factory/.factory-key` or env `ZIPPP_FACTORY_LLM_API_KEY`.
 File is gitignored.
 
-### Indexed entity backlog (2026-11-01)
+### Indexed entity backlog (2026-11-03)
 
 | ID | Type | Status | Title |
 |---|---|---|---|
@@ -1523,8 +1525,8 @@ File is gitignored.
 | ERD-001 | diagram | **done** | Logical ERD (live/planned) |
 | FLOW-001 | diagram | **done** | User flow (live/planned) |
 | FEAT-900 | feature | todo | Factory selftest fixture |
-| FEAT-113 | feature | todo | Android Google / magic-link auth (ROAD Phase 3) |
-| FEAT-114 | feature | verify | Zippp Space membership model (ROAD Phase 3) |
+| FEAT-113 | feature | **done** | Android Google / magic-link auth (ROAD Phase 3) |
+| FEAT-114 | feature | **done** | Zippp Space membership model (ROAD Phase 3) |
 | STORY-102 | story | todo | Space device proof (ROAD Phase 7 gate) |
 | STORY-101 | story | todo | Legacy companion E2E (parked) |
 | FEAT-102 | feature | todo | Android review contract |
@@ -1616,15 +1618,16 @@ Re-run `assembleRelease` before shipping.
 
 Follow **ROAD-001**. Do not revive companion credit E2E as the main gate.
 
-1. **FEAT-113** — Android Google / magic-link auth (Phase 3).
-2. **FEAT-114** — built; in Factory verify. Reopen only if verification fails.
-3. **FEAT-102** (reshaped) + **FEAT-115** — review + notification capture (Phase 4).
-4. **FEAT-116** — assets + goals (Phase 5).
-5. **FEAT-117** — fair-use subscription + web checkout (Phase 6).
-6. **STORY-102** — Space device proof (Phase 7).
-7. **FEAT-110** — Production mobile enable only after STORY-102.
-8. Keep distribution hygiene as needed: FEAT-105/106/108; FEAT-107 after auth.
-9. **Commit hygiene** when you next touch git — explicit pathspecs, never `git add -A`.
+1. **Phase 3 verification** — FEAT-113 / FEAT-114 code is complete and committed.
+   Prove Android sign-in and two-account Space on a device; reopen only if it fails.
+2. **FEAT-102** (reshaped) + **FEAT-115** — review + notification capture (Phase 4).
+3. **FEAT-116** — assets + goals (Phase 5).
+4. **FEAT-117** — fair-use subscription + web checkout (Phase 6).
+5. **STORY-102** — Space device proof (Phase 7).
+6. **FEAT-110** — Production mobile enable only after STORY-102.
+7. Keep distribution hygiene as needed: FEAT-105/106/108; FEAT-107 after auth.
+8. Commit with explicit pathspecs, never `git add -A`. Worktree is clean as of
+   2026-11-03.
 
 Parked: STORY-101, FEAT-109, FEAT-112 (blocked; decisions live in DEC-*).
 
@@ -1686,17 +1689,16 @@ Parked: STORY-101, FEAT-109, FEAT-112 (blocked; decisions live in DEC-*).
 
 - **DIR-001 Zippp Space** is locked: personal finance OS, shared Space, web-only pay,
   Android full client, NLS proactive capture.
-- **ROAD-001 Phases 1–2 done:** Factory Direction tab + living-spec / backlog aligned
-  to DIR/DEC (Phase 2 complete in this file).
+- **ROAD-001 Phases 1–3 code done:** Factory Direction tab, living spec, Phase 3
+  auth + Space backend, web, and Android sign-in. Device proof pending.
 - **Implemented (legacy companion spine):** pairing, extract/append contracts, Telegram,
   web device UI. Pairing verified on Preview with a real APK; Space path not proven.
-- Software Factory built (FEAT-111 `done`). Factory is not "next to build."
+- Software Factory built (FEAT-111 `done`), with a build runner. Not "next to build."
 - Android review partial; Rev 2 sheet layout and Drive proof still missing in code.
 - Production mobile dark. **FEAT-110 blocked on STORY-102** (not STORY-101).
-- Worktree may be dirty — commit with explicit pathspecs only.
-- **Next agent (ROAD Phase 3):** finish **FEAT-113** auth (**FEAT-114** Space model
-  is built, in verify) → Phase 4 **FEAT-102** / **FEAT-115** → assets **FEAT-116** → fair-use **FEAT-117** →
-  **STORY-102** device proof → **FEAT-110** only after STORY-102.
+- Worktree clean as of 2026-11-03; commit with explicit pathspecs only.
+- **Next agent (ROAD Phase 4):** **FEAT-102** / **FEAT-115** → assets **FEAT-116** →
+  fair-use **FEAT-117** → **STORY-102** device proof → **FEAT-110** only after STORY-102.
 
 ---
 

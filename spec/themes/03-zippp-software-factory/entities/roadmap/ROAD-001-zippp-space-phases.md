@@ -38,7 +38,7 @@ Without phases, every FEAT looks equally urgent.
 - [x] Phase 2 living-spec rewrite + DEC-005 backlog disposition applied
 - [x] Do not ship Phase 5–6 before Phase 4 works on a phone
 - [x] Do not enable Production mobile before STORY-102
-- [x] Phase 3 Auth + Space started (backend + Android sign-in shell; Google Credential Manager + web Space UI still open)
+- [x] Phase 3 Auth + Space code complete (mobile Google + magic link, device revoke, web Space UI); device proof pending
 
 # Non-goals
 

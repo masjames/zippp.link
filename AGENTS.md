@@ -11,7 +11,7 @@ Receipt photo to Google Sheet intake. Site: zippp.link. Prepaid credits.
 - The Google Sheet is the system of record for receipts. zippp keeps no receipt ledger.
 - Optional photo proof lands in the **user's** Google Drive only.
 - The credit ledger (Upstash) is the only record of money and credits.
-- **Next build:** commit hygiene → STORY-101 → FEAT-102. Factory already built.
+- **Next build:** Phase 4, FEAT-102 + FEAT-115. Factory already built.
   One task at a time. Details and priority live in the context file §19.
 
 ## Stack
