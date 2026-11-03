@@ -41,6 +41,8 @@ import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import kotlinx.coroutines.launch
 import link.zippp.app.BuildConfig
 import link.zippp.app.R
+import link.zippp.app.ui.theme.ZipppColors
+import link.zippp.app.ui.theme.ZipppShell
 import link.zippp.app.data.ApiClient
 import link.zippp.app.data.ApiException
 import link.zippp.app.data.SecureTokenStore
@@ -185,21 +187,21 @@ private fun MagicLinkPanel(
         }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(28.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
+    ZipppShell {
+        Text(
+            text = stringResource(R.string.app_name),
+            style = MaterialTheme.typography.headlineLarge,
+            color = ZipppColors.maroon,
+        )
         Text(
             text = stringResource(R.string.signin_title),
             style = MaterialTheme.typography.headlineMedium,
+            color = ZipppColors.ink,
         )
-        Spacer(Modifier.height(8.dp))
         Text(
             text = stringResource(R.string.signin_subtitle),
             style = MaterialTheme.typography.bodyMedium,
+            color = ZipppColors.muted,
         )
         Spacer(Modifier.height(24.dp))
 

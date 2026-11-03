@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Lowercase z from public/favicon.svg, drawn inside the 72dp safe zone. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:fillColor="#1C0B09"
+        android:pathData="M37,40 L71,40 L71,48 L37,48 Z" />
+    <path
+        android:fillColor="#1C0B09"
+        android:pathData="M63,48 L71,48 L45,74 L37,74 Z" />
+    <path
+        android:fillColor="#1C0B09"
+        android:pathData="M37,74 L71,74 L71,82 L37,82 Z" />
+</vector>

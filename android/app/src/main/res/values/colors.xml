@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Matches the orange token in globals.css and public/favicon.svg. -->
+    <color name="ic_launcher_background">#EE5329</color>
+</resources>
