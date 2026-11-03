@@ -28,6 +28,15 @@ type SpaceDetail = {
     members: SpaceMember[];
 };
 
+type LedgerItem = {
+    id: string;
+    kind: "asset" | "goal";
+    name: string;
+    amount: number;
+    progress: number | null;
+    note: string | null;
+};
+
 export default function SpaceSettingsPage() {
     const { t, auth } = useApp();
     const router = useRouter();
@@ -46,6 +55,15 @@ export default function SpaceSettingsPage() {
     const [copied, setCopied] = useState(false);
     const [actionBusy, setActionBusy] = useState(false);
     const [actionError, setActionError] = useState<string | null>(null);
+    const [items, setItems] = useState<LedgerItem[]>([]);
+    const [itemKind, setItemKind] = useState<"asset" | "goal">("asset");
+    const [itemName, setItemName] = useState("");
+    const [itemAmount, setItemAmount] = useState("");
+    const [itemProgress, setItemProgress] = useState("");
+    const [itemNote, setItemNote] = useState("");
+    const [itemEditingId, setItemEditingId] = useState<string | null>(null);
+    const [itemBusy, setItemBusy] = useState(false);
+    const [itemError, setItemError] = useState<string | null>(null);
 
     const myUserId = auth?.googleUserId ?? null;
 
@@ -213,6 +231,100 @@ export default function SpaceSettingsPage() {
         }
     }
 
+    const loadItems = useCallback(async (spaceId: string) => {
+        const res = await fetch(`/api/spaces/${spaceId}/assets`, {
+            cache: "no-store",
+        });
+        const data = await res.json();
+        if (!res.ok || !data.ok) throw new Error("ITEMS_FAILED");
+        setItems(Array.isArray(data.items) ? (data.items as LedgerItem[]) : []);
+    }, []);
+
+    useEffect(() => {
+        if (!detail?.id) {
+            setItems([]);
+            return;
+        }
+        setItemEditingId(null);
+        setItemError(null);
+        loadItems(detail.id).catch(() => setItems([]));
+    }, [detail?.id, loadItems]);
+
+    function resetItemForm() {
+        setItemEditingId(null);
+        setItemName("");
+        setItemAmount("");
+        setItemProgress("");
+        setItemNote("");
+    }
+
+    function editItem(item: LedgerItem) {
+        setItemEditingId(item.id);
+        setItemKind(item.kind);
+        setItemName(item.name);
+        setItemAmount(String(item.amount));
+        setItemProgress(item.progress === null ? "" : String(item.progress));
+        setItemNote(item.note ?? "");
+    }
+
+    async function saveItem() {
+        if (!detail) return;
+        const amount = Number(itemAmount.replace(",", "."));
+        const progress = Number((itemProgress || "0").replace(",", "."));
+        if (!itemName.trim() || !Number.isFinite(amount)) {
+            setItemError(t("app.space.items.error"));
+            return;
+        }
+        setItemBusy(true);
+        setItemError(null);
+        try {
+            const res = await fetch(
+                itemEditingId
+                    ? `/api/spaces/${detail.id}/assets/${itemEditingId}`
+                    : `/api/spaces/${detail.id}/assets`,
+                {
+                    method: itemEditingId ? "PATCH" : "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        kind: itemKind,
+                        name: itemName,
+                        amount,
+                        progress: itemKind === "goal" ? progress : undefined,
+                        note: itemNote.trim() || null,
+                    }),
+                }
+            );
+            const data = await res.json();
+            if (!res.ok || !data.ok) throw new Error("SAVE_FAILED");
+            resetItemForm();
+            await loadItems(detail.id);
+        } catch {
+            setItemError(t("app.space.items.error"));
+        } finally {
+            setItemBusy(false);
+        }
+    }
+
+    async function archiveItem(id: string) {
+        if (!detail) return;
+        setItemBusy(true);
+        setItemError(null);
+        try {
+            const res = await fetch(
+                `/api/spaces/${detail.id}/assets/${id}`,
+                { method: "DELETE" }
+            );
+            const data = await res.json();
+            if (!res.ok || !data.ok) throw new Error("ARCHIVE_FAILED");
+            if (itemEditingId === id) resetItemForm();
+            await loadItems(detail.id);
+        } catch {
+            setItemError(t("app.space.items.error"));
+        } finally {
+            setItemBusy(false);
+        }
+    }
+
     const isOwner = detail?.role === "owner";
 
     return (
@@ -364,6 +476,149 @@ export default function SpaceSettingsPage() {
                             </li>
                         ))}
                     </ul>
+
+                    <p className="mt-4 text-sm font-semibold">
+                        {t("app.space.items.title")}
+                    </p>
+                    {items.length === 0 ? (
+                        <p className="mt-1 text-xs text-muted">
+                            {t("app.space.items.empty")}
+                        </p>
+                    ) : (
+                        <ul className="mt-1 divide-y divide-line">
+                            {items.map((item) => (
+                                <li
+                                    key={item.id}
+                                    className="flex items-start justify-between gap-3 py-2"
+                                >
+                                    <div className="min-w-0">
+                                        <p className="truncate text-sm font-semibold">
+                                            {item.name}
+                                        </p>
+                                        <p className="text-xs text-muted">
+                                            {item.kind === "goal"
+                                                ? fill(
+                                                      t("app.space.items.goalProgress"),
+                                                      {
+                                                          progress: item.progress ?? 0,
+                                                          target: item.amount,
+                                                      }
+                                                  )
+                                                : fill(t("app.space.items.value"), {
+                                                      amount: item.amount,
+                                                  })}
+                                        </p>
+                                        {item.note ? (
+                                            <p className="text-xs text-muted">
+                                                {item.note}
+                                            </p>
+                                        ) : null}
+                                    </div>
+                                    <div className="flex flex-none flex-col items-end gap-1">
+                                        <button
+                                            type="button"
+                                            disabled={itemBusy}
+                                            onClick={() => editItem(item)}
+                                            className="text-xs font-semibold text-brand disabled:opacity-50"
+                                        >
+                                            {t("app.space.items.edit")}
+                                        </button>
+                                        <button
+                                            type="button"
+                                            disabled={itemBusy}
+                                            onClick={() => void archiveItem(item.id)}
+                                            className="text-xs font-semibold text-danger disabled:opacity-50"
+                                        >
+                                            {t("app.space.items.archive")}
+                                        </button>
+                                    </div>
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+
+                    <div className="mt-3 rounded-xl bg-page p-3">
+                        <div className="flex gap-2">
+                            {(["asset", "goal"] as const).map((kind) => (
+                                <button
+                                    key={kind}
+                                    type="button"
+                                    onClick={() => setItemKind(kind)}
+                                    className={`flex-1 rounded-full px-3 py-2 text-xs font-semibold ${
+                                        itemKind === kind
+                                            ? "bg-mist text-ink"
+                                            : "bg-card text-muted"
+                                    }`}
+                                >
+                                    {t(
+                                        kind === "asset"
+                                            ? "app.space.items.asset"
+                                            : "app.space.items.goal"
+                                    )}
+                                </button>
+                            ))}
+                        </div>
+                        <input
+                            value={itemName}
+                            onChange={(e) => setItemName(e.target.value)}
+                            maxLength={80}
+                            placeholder={t("app.space.items.name")}
+                            className="mt-2 w-full rounded-xl border border-line bg-card px-3 py-2 text-sm text-body"
+                        />
+                        <div className="mt-2 flex gap-2">
+                            <input
+                                value={itemAmount}
+                                onChange={(e) => setItemAmount(e.target.value)}
+                                inputMode="decimal"
+                                placeholder={t(
+                                    itemKind === "goal"
+                                        ? "app.space.items.target"
+                                        : "app.space.items.amount"
+                                )}
+                                className="w-1/2 rounded-xl border border-line bg-card px-3 py-2 text-sm text-body"
+                            />
+                            {itemKind === "goal" ? (
+                                <input
+                                    value={itemProgress}
+                                    onChange={(e) => setItemProgress(e.target.value)}
+                                    inputMode="decimal"
+                                    placeholder={t("app.space.items.progress")}
+                                    className="w-1/2 rounded-xl border border-line bg-card px-3 py-2 text-sm text-body"
+                                />
+                            ) : null}
+                        </div>
+                        <input
+                            value={itemNote}
+                            onChange={(e) => setItemNote(e.target.value)}
+                            maxLength={280}
+                            placeholder={t("app.space.items.note")}
+                            className="mt-2 w-full rounded-xl border border-line bg-card px-3 py-2 text-sm text-body"
+                        />
+                        <div className="mt-2 flex gap-2">
+                            <button
+                                type="button"
+                                disabled={itemBusy}
+                                onClick={() => void saveItem()}
+                                className="flex-1 rounded-full bg-brand px-4 py-2 text-sm font-semibold text-ink disabled:opacity-50"
+                            >
+                                {itemEditingId
+                                    ? t("app.space.items.save")
+                                    : t("app.space.items.add")}
+                            </button>
+                            {itemEditingId ? (
+                                <button
+                                    type="button"
+                                    onClick={resetItemForm}
+                                    className="rounded-full bg-mist px-4 py-2 text-sm font-semibold text-ink"
+                                >
+                                    {t("app.space.items.cancel")}
+                                </button>
+                            ) : null}
+                        </div>
+                        {itemError ? (
+                            <p className="mt-2 text-xs text-danger">{itemError}</p>
+                        ) : null}
+                    </div>
 
                     {isOwner ? (
                         <div className="mt-4 border-t border-line pt-4">

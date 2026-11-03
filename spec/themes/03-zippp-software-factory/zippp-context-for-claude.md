@@ -112,8 +112,8 @@ set in Production. Preview is enabled for testing.
 - FEAT-113 auth and FEAT-114 Space are built; tests, typecheck, and build green.
   No device run yet. Pairing spike verified on Preview.
 - Gate that matters: **STORY-102** (not companion STORY-101).
-- Next build: **FEAT-116** (ROAD Phase 5). FEAT-102 and FEAT-115 are built and
-  in Factory verify; both need a device run.
+- Next build: **FEAT-117** (ROAD Phase 6). FEAT-102, FEAT-115, and FEAT-116 are
+  built and in Factory verify; all need a runtime pass.
 
 ---
 
@@ -1216,6 +1216,9 @@ Never use `NEXT_PUBLIC_*` for secrets. PostHog public key is the exception.
 - **FEAT-115** capture flow built: opt-in notification listener, local prompt
   with Camera and Manual actions, settings screen, manual entry through
   `POST /api/scan/manual`. Device run pending; Play declaration drafted in the card.
+- **FEAT-116** assets and goals built: per-Space ledger with archive, web section
+  on the Space page, Android Space screen, store tests. Browser and device runs
+  pending.
 - FEAT-112 parked per DEC-003; do not treat companion-only docs as north star.
 - FEAT-102 flags: editing a flagged field or the acknowledge button clears the
   block. Correction telemetry posts per-field edited/flagged state; the
@@ -1630,12 +1633,12 @@ Follow **ROAD-001**. Do not revive companion credit E2E as the main gate.
 2. **FEAT-102 / FEAT-115** — both built, in Factory verify, and both need a
    device run. Manual entry now gets a server-issued scan id, so credits and
    idempotency behave exactly like a camera scan.
-3. **FEAT-116** — assets + goals (Phase 5).
-4. **FEAT-117** — fair-use subscription + web checkout (Phase 6).
-5. **STORY-102** — Space device proof (Phase 7).
-6. **FEAT-110** — Production mobile enable only after STORY-102.
-7. Keep distribution hygiene as needed: FEAT-105/106/108; FEAT-107 after auth.
-8. Commit with explicit pathspecs, never `git add -A`. Worktree is clean as of
+3. **FEAT-117** — fair-use subscription + web checkout (Phase 6). FEAT-116 assets
+   and goals is built and in Factory verify on both surfaces.
+4. **STORY-102** — Space device proof (Phase 7).
+5. **FEAT-110** — Production mobile enable only after STORY-102.
+6. Keep distribution hygiene as needed: FEAT-105/106/108; FEAT-107 after auth.
+7. Commit with explicit pathspecs, never `git add -A`. Worktree is clean as of
    2026-11-03.
 
 Parked: STORY-101, FEAT-109, FEAT-112 (blocked; decisions live in DEC-*).

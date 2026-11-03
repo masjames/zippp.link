@@ -58,6 +58,7 @@ fun CameraScreen(
     onCreditsChanged: (Int) -> Unit,
     onOpenSettings: () -> Unit,
     onOpenManual: () -> Unit,
+    onOpenSpace: () -> Unit,
     onSessionLost: () -> Unit,
 ) {
     val context = LocalContext.current
@@ -175,6 +176,9 @@ fun CameraScreen(
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 TextButton(onClick = onOpenManual) {
                     Text(stringResource(R.string.camera_manual))
+                }
+                TextButton(onClick = onOpenSpace) {
+                    Text(stringResource(R.string.space_title))
                 }
                 TextButton(onClick = onOpenSettings) {
                     Text(stringResource(R.string.settings_title))

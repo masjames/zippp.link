@@ -708,6 +708,74 @@ Pemilik
 Member
 ## app.space.role.member.id
 Anggota
+## app.space.items.title.en
+Assets and goals
+## app.space.items.title.id
+Aset dan tujuan
+## app.space.items.empty.en
+No assets or goals yet.
+## app.space.items.empty.id
+Belum ada aset atau tujuan.
+## app.space.items.asset.en
+Asset
+## app.space.items.asset.id
+Aset
+## app.space.items.goal.en
+Goal
+## app.space.items.goal.id
+Tujuan
+## app.space.items.name.en
+Name
+## app.space.items.name.id
+Nama
+## app.space.items.amount.en
+Value
+## app.space.items.amount.id
+Nilai
+## app.space.items.target.en
+Target
+## app.space.items.target.id
+Target
+## app.space.items.progress.en
+Saved
+## app.space.items.progress.id
+Terkumpul
+## app.space.items.note.en
+Note (optional)
+## app.space.items.note.id
+Catatan (opsional)
+## app.space.items.add.en
+Add
+## app.space.items.add.id
+Tambah
+## app.space.items.save.en
+Save
+## app.space.items.save.id
+Simpan
+## app.space.items.cancel.en
+Cancel
+## app.space.items.cancel.id
+Batal
+## app.space.items.edit.en
+Edit
+## app.space.items.edit.id
+Ubah
+## app.space.items.archive.en
+Archive
+## app.space.items.archive.id
+Arsipkan
+## app.space.items.error.en
+Could not save. Try again.
+## app.space.items.error.id
+Tidak bisa menyimpan. Coba lagi.
+## app.space.items.value.en
+Value {amount}
+## app.space.items.value.id
+Nilai {amount}
+## app.space.items.goalProgress.en
+{progress} of {target}
+## app.space.items.goalProgress.id
+{progress} dari {target}
 ## app.space.memberUnknown.en
 Member
 ## app.space.memberUnknown.id
@@ -4107,6 +4175,78 @@ Catat dari notifikasi
 Back
 ## android.settings.back.id
 Kembali
+## android.space.title.en
+Space
+## android.space.title.id
+Space
+## android.space.itemsTitle.en
+Assets and goals
+## android.space.itemsTitle.id
+Aset dan tujuan
+## android.space.itemsEmpty.en
+No assets or goals yet.
+## android.space.itemsEmpty.id
+Belum ada aset atau tujuan.
+## android.space.asset.en
+Asset
+## android.space.asset.id
+Aset
+## android.space.goal.en
+Goal
+## android.space.goal.id
+Tujuan
+## android.space.name.en
+Name
+## android.space.name.id
+Nama
+## android.space.amount.en
+Value
+## android.space.amount.id
+Nilai
+## android.space.target.en
+Target
+## android.space.target.id
+Target
+## android.space.progress.en
+Saved
+## android.space.progress.id
+Terkumpul
+## android.space.note.en
+Note (optional)
+## android.space.note.id
+Catatan (opsional)
+## android.space.add.en
+Add
+## android.space.add.id
+Tambah
+## android.space.save.en
+Save
+## android.space.save.id
+Simpan
+## android.space.cancel.en
+Cancel
+## android.space.cancel.id
+Batal
+## android.space.edit.en
+Edit
+## android.space.edit.id
+Ubah
+## android.space.archive.en
+Archive
+## android.space.archive.id
+Arsipkan
+## android.space.error.en
+Could not save. Try again.
+## android.space.error.id
+Tidak bisa menyimpan. Coba lagi.
+## android.space.value.en
+Value {amount}
+## android.space.value.id
+Nilai {amount}
+## android.space.goalProgress.en
+{progress} of {target}
+## android.space.goalProgress.id
+{progress} dari {target}
 ## android.manual.title.en
 Record spend
 ## android.manual.title.id

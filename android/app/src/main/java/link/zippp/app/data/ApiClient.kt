@@ -231,6 +231,67 @@ class ApiClient(
             }
         }
 
+    suspend fun listLedger(token: String, spaceId: String): LedgerListResponse =
+        withContext(Dispatchers.IO) {
+            val request = Request.Builder()
+                .url("$baseUrl/api/spaces/$spaceId/assets")
+                .header("Authorization", "Bearer $token")
+                .get()
+                .build()
+
+            client.newCall(request).execute().use { response ->
+                val text = response.body?.string().orEmpty()
+                if (response.code == 401) throw ApiException("DEVICE_REVOKED")
+                val parsed = runCatching { json.decodeFromString<LedgerListResponse>(text) }.getOrNull()
+                if (parsed == null) throw ApiException("HTTP_${response.code}")
+                parsed
+            }
+        }
+
+    suspend fun saveLedger(
+        token: String,
+        spaceId: String,
+        body: LedgerRequest,
+        itemId: String? = null,
+    ): LedgerItemResponse =
+        withContext(Dispatchers.IO) {
+            val url = if (itemId == null) {
+                "$baseUrl/api/spaces/$spaceId/assets"
+            } else {
+                "$baseUrl/api/spaces/$spaceId/assets/$itemId"
+            }
+            val request = Request.Builder()
+                .url(url)
+                .header("Authorization", "Bearer $token")
+                .method(
+                    if (itemId == null) "POST" else "PATCH",
+                    json.encodeToString(body).toRequestBody(JSON),
+                )
+                .build()
+
+            client.newCall(request).execute().use { response ->
+                val text = response.body?.string().orEmpty()
+                if (response.code == 401) throw ApiException("DEVICE_REVOKED")
+                val parsed = runCatching { json.decodeFromString<LedgerItemResponse>(text) }.getOrNull()
+                if (parsed == null) throw ApiException("HTTP_${response.code}")
+                parsed
+            }
+        }
+
+    suspend fun archiveLedger(token: String, spaceId: String, itemId: String) =
+        withContext(Dispatchers.IO) {
+            val request = Request.Builder()
+                .url("$baseUrl/api/spaces/$spaceId/assets/$itemId")
+                .header("Authorization", "Bearer $token")
+                .delete()
+                .build()
+
+            client.newCall(request).execute().use { response ->
+                if (response.code == 401) throw ApiException("DEVICE_REVOKED")
+                if (!response.isSuccessful) throw ApiException("HTTP_${response.code}")
+            }
+        }
+
     companion object {
         private val JSON = "application/json; charset=utf-8".toMediaType()
     }

@@ -18,6 +18,7 @@ import link.zippp.app.ui.auth.SignInScreen
 import link.zippp.app.ui.camera.CameraScreen
 import link.zippp.app.ui.manual.ManualEntryScreen
 import link.zippp.app.ui.settings.SettingsScreen
+import link.zippp.app.ui.space.SpaceScreen
 import link.zippp.app.ui.theme.ZipppTheme
 
 /** Values carried from a capture prompt into manual entry. */
@@ -26,7 +27,7 @@ data class ManualPrefill(
     val merchant: String?,
 )
 
-private enum class RootScreen { Camera, Settings, Manual }
+private enum class RootScreen { Camera, Settings, Manual, Space }
 
 class MainActivity : ComponentActivity() {
     private var pendingMagicToken = mutableStateOf<String?>(null)
@@ -122,6 +123,16 @@ private fun ZipppRoot(
         RootScreen.Settings -> SettingsScreen(
             onBack = { screen = RootScreen.Camera },
         )
+        RootScreen.Space -> SpaceScreen(
+            api = api,
+            token = token!!,
+            onBack = { screen = RootScreen.Camera },
+            onSessionLost = {
+                store.clear()
+                token = null
+                screen = RootScreen.Camera
+            },
+        )
         RootScreen.Manual -> ManualEntryScreen(
             api = api,
             token = token!!,
@@ -149,6 +160,7 @@ private fun ZipppRoot(
             onCreditsChanged = { credits = it },
             onOpenSettings = { screen = RootScreen.Settings },
             onOpenManual = { screen = RootScreen.Manual },
+            onOpenSpace = { screen = RootScreen.Space },
             onSessionLost = {
                 store.clear()
                 token = null

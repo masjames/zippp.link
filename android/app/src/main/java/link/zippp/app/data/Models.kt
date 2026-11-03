@@ -55,6 +55,38 @@ data class ManualScanResponse(
 )
 
 @Serializable
+data class LedgerItem(
+    val id: String,
+    val kind: String = "asset",
+    val name: String = "",
+    val amount: Double = 0.0,
+    val progress: Double? = null,
+    val note: String? = null,
+)
+
+@Serializable
+data class LedgerListResponse(
+    val ok: Boolean = false,
+    val items: List<LedgerItem> = emptyList(),
+)
+
+@Serializable
+data class LedgerItemResponse(
+    val ok: Boolean = false,
+    val item: LedgerItem? = null,
+    val code: String? = null,
+)
+
+@Serializable
+data class LedgerRequest(
+    val kind: String? = null,
+    val name: String? = null,
+    val amount: Double? = null,
+    val progress: Double? = null,
+    val note: String? = null,
+)
+
+@Serializable
 data class CorrectionField(
     val path: String,
     val edited: Boolean,
