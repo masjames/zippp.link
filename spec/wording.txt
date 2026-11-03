@@ -4339,6 +4339,18 @@ Isi nominalnya sendiri. Belum ada yang tersimpan sampai Anda menekan Simpan.
 Save
 ## android.manual.save.id
 Simpan
+## android.camera.flashOn.en
+Flash on
+## android.camera.flashOn.id
+Flash aktif
+## android.camera.flashOff.en
+Flash off
+## android.camera.flashOff.id
+Flash mati
+## android.camera.gallery.en
+Gallery
+## android.camera.gallery.id
+Galeri
 ## android.camera.manual.en
 Manual
 ## android.camera.manual.id

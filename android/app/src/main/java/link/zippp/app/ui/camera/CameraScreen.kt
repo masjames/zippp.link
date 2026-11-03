@@ -2,7 +2,10 @@ package link.zippp.app.ui.camera
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
@@ -10,6 +13,7 @@ import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -24,6 +28,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyRow
@@ -46,7 +51,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -70,6 +79,7 @@ import link.zippp.app.ui.batch.BatchStore
 import link.zippp.app.ui.theme.ZipppColors
 import link.zippp.app.ui.theme.ZipppRadius
 import link.zippp.app.ui.theme.ZipppSpace
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.text.NumberFormat
 
@@ -123,6 +133,61 @@ fun CameraScreen(
     var error by remember { mutableStateOf<Int?>(null) }
     var credits by remember { mutableStateOf(initialCredits) }
     var spaces by remember { mutableStateOf<List<SpaceSummary>>(emptyList()) }
+    var flashOn by remember { mutableStateOf(false) }
+
+    /**
+     * The single extract path: the shutter and the gallery picker both hand
+     * bytes here, so result mapping and busy handling cannot drift apart.
+     */
+    suspend fun extractBytes(bytes: ByteArray) {
+        try {
+            val response = api.extract(token, bytes)
+            val extracted = response.receipt
+            val extractedScan = response.scanId
+            if (response.ok && extracted != null && extractedScan != null) {
+                onExtracted(extracted, extractedScan)
+            } else {
+                error = R.string.error_extract
+            }
+        } catch (e: ApiException) {
+            if (e.code == "DEVICE_REVOKED") onSessionLost()
+            else error = R.string.error_extract
+        } catch (_: Exception) {
+            error = R.string.error_extract
+        } finally {
+            busy = false
+        }
+    }
+
+    val galleryLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.PickVisualMedia()
+    ) { uri ->
+        if (uri != null && !busy) {
+            busy = true
+            error = null
+            scope.launch {
+                try {
+                    val raw = withContext(Dispatchers.IO) {
+                        context.contentResolver.openInputStream(uri)?.use { it.readBytes() }
+                    }
+                    val bytes = if (raw == null) {
+                        null
+                    } else {
+                        withContext(Dispatchers.IO) { encodeGalleryJpeg(raw) }
+                    }
+                    if (bytes == null) {
+                        busy = false
+                        error = R.string.error_extract
+                    } else {
+                        extractBytes(bytes)
+                    }
+                } catch (_: Exception) {
+                    busy = false
+                    error = R.string.error_extract
+                }
+            }
+        }
+    }
 
     LaunchedEffect(token) {
         runCatching { api.listSpaces(token) }
@@ -160,6 +225,14 @@ fun CameraScreen(
         }, ContextCompat.getMainExecutor(context))
     }
 
+    // Apply the toggle to whatever capture use case is currently bound, and to
+    // a fresh one after the camera rebinds.
+    LaunchedEffect(imageCapture, flashOn) {
+        val capture = imageCapture ?: return@LaunchedEffect
+        capture.flashMode =
+            if (flashOn) ImageCapture.FLASH_MODE_ON else ImageCapture.FLASH_MODE_OFF
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -172,6 +245,7 @@ fun CameraScreen(
                     PreviewView(ctx).also { previewView = it }
                 },
             )
+            GuideFrame()
         } else {
             Box(
                 modifier = Modifier
@@ -355,6 +429,39 @@ fun CameraScreen(
                 )
                 Spacer(Modifier.height(8.dp))
             }
+            Row(
+                modifier = Modifier
+                    .widthIn(max = 430.dp)
+                    .fillMaxWidth()
+                    .padding(bottom = 10.dp),
+                horizontalArrangement = Arrangement.spacedBy(
+                    space = 8.dp,
+                    alignment = Alignment.CenterHorizontally,
+                ),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                CaptureToolPill(
+                    label = stringResource(
+                        if (flashOn) R.string.camera_flash_on else R.string.camera_flash_off
+                    ),
+                    enabled = imageCapture != null,
+                    onClick = { flashOn = !flashOn },
+                    active = flashOn,
+                    icon = { FlashGlyph(on = flashOn) },
+                )
+                CaptureToolPill(
+                    label = stringResource(R.string.camera_gallery),
+                    enabled = !busy,
+                    onClick = {
+                        galleryLauncher.launch(
+                            PickVisualMediaRequest(
+                                ActivityResultContracts.PickVisualMedia.ImageOnly
+                            )
+                        )
+                    },
+                    icon = { GalleryGlyph() },
+                )
+            }
             if (busy) {
                 CircularProgressIndicator(
                     color = ZipppColors.orange,
@@ -376,21 +483,11 @@ fun CameraScreen(
                                     scope.launch {
                                         try {
                                             val bytes = withContext(Dispatchers.IO) { file.readBytes() }
-                                            val response = api.extract(token, bytes)
-                                            val extracted = response.receipt
-                                            val extractedScan = response.scanId
-                                            if (response.ok && extracted != null && extractedScan != null) {
-                                                onExtracted(extracted, extractedScan)
-                                            } else {
-                                                error = R.string.error_extract
-                                            }
-                                        } catch (e: ApiException) {
-                                            if (e.code == "DEVICE_REVOKED") onSessionLost()
-                                            else error = R.string.error_extract
+                                            extractBytes(bytes)
                                         } catch (_: Exception) {
+                                            busy = false
                                             error = R.string.error_extract
                                         } finally {
-                                            busy = false
                                             file.delete()
                                         }
                                     }
@@ -422,6 +519,117 @@ fun CameraScreen(
                 }
             }
         }
+    }
+}
+
+/**
+ * Static portrait guide over the viewfinder: four L-shaped corner brackets,
+ * mirroring the guide frame on the web capture screen.
+ */
+@Composable
+private fun GuideFrame() {
+    Canvas(
+        modifier = Modifier
+            .fillMaxSize()
+            // 28dp side inset; the vertical inset clears the top status card and
+            // the shutter row so the brackets sit on the visible preview band.
+            .padding(horizontal = 28.dp, vertical = 150.dp),
+    ) {
+        val color = ZipppColors.peach.copy(alpha = 0.9f)
+        val stroke = 1.5.dp.toPx()
+        val arm = 34.dp.toPx()
+        val half = stroke / 2f
+        val left = half
+        val top = half
+        val right = size.width - half
+        val bottom = size.height - half
+
+        drawLine(color, Offset(left, top), Offset(left + arm, top), stroke)
+        drawLine(color, Offset(left, top), Offset(left, top + arm), stroke)
+
+        drawLine(color, Offset(right - arm, top), Offset(right, top), stroke)
+        drawLine(color, Offset(right, top), Offset(right, top + arm), stroke)
+
+        drawLine(color, Offset(left, bottom), Offset(left + arm, bottom), stroke)
+        drawLine(color, Offset(left, bottom - arm), Offset(left, bottom), stroke)
+
+        drawLine(color, Offset(right - arm, bottom), Offset(right, bottom), stroke)
+        drawLine(color, Offset(right, bottom - arm), Offset(right, bottom), stroke)
+    }
+}
+
+/** Small pill for the flash and gallery actions beside the shutter. */
+@Composable
+private fun CaptureToolPill(
+    label: String,
+    enabled: Boolean,
+    onClick: () -> Unit,
+    active: Boolean = false,
+    icon: @Composable () -> Unit,
+) {
+    Row(
+        modifier = Modifier
+            .clip(RoundedCornerShape(ZipppRadius.pill))
+            .background(
+                if (active) ZipppColors.peach else ZipppColors.card.copy(alpha = 0.92f)
+            )
+            .border(1.dp, ZipppColors.line, RoundedCornerShape(ZipppRadius.pill))
+            .clickable(enabled = enabled, onClick = onClick)
+            .padding(horizontal = 12.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+    ) {
+        icon()
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelLarge,
+            fontWeight = FontWeight.SemiBold,
+            color = if (enabled) ZipppColors.ink else ZipppColors.muted,
+            maxLines = 1,
+        )
+    }
+}
+
+/** Bolt glyph; fills with the brand color while the flash is armed. */
+@Composable
+private fun FlashGlyph(on: Boolean) {
+    Canvas(modifier = Modifier.size(width = 9.dp, height = 13.dp)) {
+        val bolt = Path().apply {
+            moveTo(size.width * 0.62f, 0f)
+            lineTo(0f, size.height * 0.62f)
+            lineTo(size.width * 0.44f, size.height * 0.62f)
+            lineTo(size.width * 0.36f, size.height)
+            lineTo(size.width, size.height * 0.36f)
+            lineTo(size.width * 0.54f, size.height * 0.36f)
+            close()
+        }
+        drawPath(path = bolt, color = if (on) ZipppColors.orange else ZipppColors.muted)
+    }
+}
+
+/** Photo glyph for the gallery picker. */
+@Composable
+private fun GalleryGlyph() {
+    Canvas(modifier = Modifier.size(13.dp)) {
+        drawRoundRect(
+            color = ZipppColors.muted,
+            cornerRadius = CornerRadius(2.dp.toPx()),
+            style = Stroke(width = 1.2.dp.toPx()),
+        )
+        drawCircle(
+            color = ZipppColors.muted,
+            radius = size.minDimension * 0.13f,
+            center = Offset(size.width * 0.33f, size.height * 0.33f),
+        )
+        val dune = Path().apply {
+            moveTo(size.width * 0.16f, size.height * 0.8f)
+            lineTo(size.width * 0.44f, size.height * 0.46f)
+            lineTo(size.width * 0.62f, size.height * 0.66f)
+            lineTo(size.width * 0.72f, size.height * 0.55f)
+            lineTo(size.width * 0.86f, size.height * 0.8f)
+            close()
+        }
+        drawPath(path = dune, color = ZipppColors.muted)
     }
 }
 
@@ -563,4 +771,40 @@ private fun draftTotalText(receipt: Receipt): String? {
     val amount = format.format(total)
     val currency = receipt.currency?.trim()?.takeIf { it.isNotEmpty() }
     return if (currency == null) amount else "$currency $amount"
+}
+
+/** Gallery uploads stay within the same budget the web capture screen uses. */
+private const val GALLERY_MAX_PIXELS = 3_000_000
+private const val GALLERY_JPEG_QUALITY = 72
+
+/**
+ * Picker results can be PNG, WebP or HEIC and larger than the API accepts,
+ * while the multipart upload always declares `image/jpeg`. Decode, downsample
+ * and re-encode so the gallery path hands the API the same kind of bytes a
+ * shutter capture produces.
+ */
+private fun encodeGalleryJpeg(bytes: ByteArray): ByteArray? {
+    val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+    BitmapFactory.decodeByteArray(bytes, 0, bytes.size, bounds)
+    val width = bounds.outWidth
+    val height = bounds.outHeight
+    if (width <= 0 || height <= 0) return null
+
+    var sample = 1
+    while (width * height / (sample * sample) > GALLERY_MAX_PIXELS) sample *= 2
+    val bitmap = BitmapFactory.decodeByteArray(
+        bytes,
+        0,
+        bytes.size,
+        BitmapFactory.Options().apply { inSampleSize = sample },
+    ) ?: return null
+
+    return try {
+        ByteArrayOutputStream().use { out ->
+            bitmap.compress(Bitmap.CompressFormat.JPEG, GALLERY_JPEG_QUALITY, out)
+            out.toByteArray()
+        }
+    } finally {
+        bitmap.recycle()
+    }
 }
