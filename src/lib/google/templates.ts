@@ -141,6 +141,15 @@ export const TEMPLATE_HEADERS: Record<TemplateId, readonly string[]> = {
   custom: CUSTOM_HEADERS,
 };
 
+/**
+ * Payment values the sheet accepts per template. The append route rejects any
+ * other value, and mobile gets the same list so the picker cannot drift.
+ */
+export const PAYMENT_OPTIONS: Partial<Record<TemplateId, readonly string[]>> = {
+  "personal-expense": ["Cash", "Debit", "Credit", "QRIS", "E-wallet", "Transfer"],
+  "sales-recap": ["Cash", "QRIS", "Transfer"],
+};
+
 /** Stable mill/op field ids used as column_map keys. */
 export const RESTO_INVENTORY_FIELDS = [
   { id: "date", label: "Date", aliases: ["date"] },

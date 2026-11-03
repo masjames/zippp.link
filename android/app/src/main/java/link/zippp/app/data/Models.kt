@@ -38,6 +38,28 @@ data class Workspace(
     val outlets: List<String> = emptyList(),
     @SerialName("default_outlet") val defaultOutlet: String? = null,
     @SerialName("photo_proof") val photoProof: Boolean = false,
+    @SerialName("payment_options") val paymentOptions: List<String> = emptyList(),
+)
+
+@Serializable
+data class MeResponse(
+    val ok: Boolean = false,
+    val workspace: Workspace? = null,
+)
+
+@Serializable
+data class CorrectionField(
+    val path: String,
+    val edited: Boolean,
+    val flagged: Boolean,
+    val reasons: List<String> = emptyList(),
+)
+
+@Serializable
+data class CorrectionRequest(
+    val runId: String? = null,
+    val countChanged: Boolean = false,
+    val fields: List<CorrectionField> = emptyList(),
 )
 
 @Serializable

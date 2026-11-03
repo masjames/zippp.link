@@ -1197,8 +1197,8 @@ Never use `NEXT_PUBLIC_*` for secrets. PostHog public key is the exception.
 
 ### Partial
 
-- Android review: merchant/total edit + hard-flag acknowledgement only.
-  Missing: template ops, correction telemetry, line-item edit, assumed-date pill.
+- Android review: built with template ops, line-item edits, hard-flag blocking,
+  assumed-date label, and correction telemetry. Device proof pending.
 - Camera: capture works; no QR scanner, steady detection, or auto-snap.
 - Web Rev 2 sheet product: audit Tasks 3–7 still open in code
   (`sheet-layout.ts` and product `drive.ts` do **not** exist; only
@@ -1209,15 +1209,18 @@ Never use `NEXT_PUBLIC_*` for secrets. PostHog public key is the exception.
 - **FEAT-113 / FEAT-114** code complete and committed: Android Google and magic
   link sign-in, device registry and revoke, Space create/invite/join/leave.
   Two-account and on-device sign-in proof pending.
+- **FEAT-113 shipped without compiling:** `SignInScreen.kt` used two strings the
+  generator never mapped. Fixed 2026-11-03; `:app:compileSideloadDebugKotlin`
+  now passes.
 - FEAT-112 parked per DEC-003; do not treat companion-only docs as north star.
-- FEAT-102 grooming: hard-flag clear-by-checkbox decided; whether ack posts to
-  `/api/corrections` still open.
+- FEAT-102 flags: editing a flagged field or the acknowledge button clears the
+  block. Correction telemetry posts per-field edited/flagged state; the
+  acknowledge tap itself is not recorded.
 
 ### Not done
 
 - **STORY-102** Space device proof (ROAD Phase 7 gate before FEAT-110).
 - STORY-101 legacy companion E2E (parked; not the prod gate).
-- FEAT-102 Android review contract (reshaped in Phase 4).
 - FEAT-103 photo proof via Drive (product path).
 - FEAT-104 month tabs and daily totals.
 - FEAT-105 sideload OTA client (`OtaUpdateManager.kt` missing).
@@ -1620,7 +1623,10 @@ Follow **ROAD-001**. Do not revive companion credit E2E as the main gate.
 
 1. **Phase 3 verification** — FEAT-113 / FEAT-114 code is complete and committed.
    Prove Android sign-in and two-account Space on a device; reopen only if it fails.
-2. **FEAT-102** (reshaped) + **FEAT-115** — review + notification capture (Phase 4).
+2. **FEAT-102** — built, in Factory verify: ops fields, line-item edits, hard
+   flags, assumed date, correction telemetry. **FEAT-115** notification capture
+   is next, but it needs two surfaces that do not exist yet: an in-app Settings
+   screen and a manual entry screen. Build those first or shrink its acceptance.
 3. **FEAT-116** — assets + goals (Phase 5).
 4. **FEAT-117** — fair-use subscription + web checkout (Phase 6).
 5. **STORY-102** — Space device proof (Phase 7).

@@ -5,13 +5,12 @@ import { balance, refundScan, spend } from "@/lib/billing/ledger";
 import { LOW_CREDITS_WARN } from "@/lib/billing/config";
 import { billingConfigured, command } from "@/lib/billing/redis";
 import { appendRows, SheetsApiError, SheetsAuthError } from "@/lib/google/sheets";
-import { buildAppendRows } from "@/lib/google/templates";
+import { buildAppendRows, PAYMENT_OPTIONS } from "@/lib/google/templates";
 import { loadWorkspaceForUser } from "@/lib/google/workspace-store";
-import { sanitizeRows } from "@/lib/google/sheet-safe";
 import { hasScanOwner } from "@/lib/mobile/scan-store";
+import { sanitizeRows } from "@/lib/google/sheet-safe";
 import { sendLowCreditAlert } from "@/lib/telegram/alerts";
 import type { LineItem, Receipt } from "@/types/receipt";
-import type { TemplateId } from "@/lib/google/workspace-store";
 
 export const runtime = "nodejs";
 
@@ -20,11 +19,6 @@ const MAX_TEXT = 500;
 const RESULT_CACHE_TTL = 24 * 60 * 60;
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-
-const PAYMENT_VALUES: Partial<Record<TemplateId, string[]>> = {
-  "personal-expense": ["Cash", "Debit", "Credit", "QRIS", "E-wallet", "Transfer"],
-  "sales-recap": ["Cash", "QRIS", "Transfer"],
-};
 
 type AppendBody = {
   receipt?: Receipt;
@@ -188,7 +182,7 @@ export async function POST(req: Request) {
   }
 
   const payment = parseNullableString(body.payment, 40);
-  const allowedPayments = PAYMENT_VALUES[workspace.template_id];
+  const allowedPayments = PAYMENT_OPTIONS[workspace.template_id];
   if (payment && allowedPayments && !allowedPayments.includes(payment)) {
     return fail("PAYMENT_INVALID", 400);
   }

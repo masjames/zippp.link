@@ -180,6 +180,38 @@ class ApiClient(
             }
         }
 
+    suspend fun me(token: String): MeResponse =
+        withContext(Dispatchers.IO) {
+            val request = Request.Builder()
+                .url("$baseUrl/api/auth/mobile/me")
+                .header("Authorization", "Bearer $token")
+                .get()
+                .build()
+
+            client.newCall(request).execute().use { response ->
+                val text = response.body?.string().orEmpty()
+                if (response.code == 401) throw ApiException("DEVICE_REVOKED")
+                val parsed = runCatching { json.decodeFromString<MeResponse>(text) }.getOrNull()
+                if (parsed == null) throw ApiException("HTTP_${response.code}")
+                parsed
+            }
+        }
+
+    /** Field-level correction telemetry. Failure never blocks the accept path. */
+    suspend fun logCorrections(token: String, requestBody: CorrectionRequest) =
+        withContext(Dispatchers.IO) {
+            val body = json.encodeToString(requestBody).toRequestBody(JSON)
+            val request = Request.Builder()
+                .url("$baseUrl/api/corrections")
+                .header("Authorization", "Bearer $token")
+                .post(body)
+                .build()
+
+            client.newCall(request).execute().use { response ->
+                if (response.code == 401) throw ApiException("DEVICE_REVOKED")
+            }
+        }
+
     companion object {
         private val JSON = "application/json; charset=utf-8".toMediaType()
     }

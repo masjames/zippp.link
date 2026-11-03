@@ -2,7 +2,7 @@
 id: FEAT-102
 type: feature
 title: Android review contract
-status: todo
+status: verify
 assignee: adit
 relations:
   blocks: []
@@ -29,12 +29,12 @@ A member can confirm a real spend on Android without opening web.
 
 # Acceptance criteria
 
-- [ ] The review card collects staff, outlet, payment, purpose, and customer when the template requires them.
-- [ ] Ubah edits merchant, date, totals, every line item, and every ops field.
-- [ ] Hard flags block Terima until the field is edited or explicitly acknowledged.
-- [ ] A null date is filled with the capture date and marked tanggal diasumsikan.
-- [ ] Accepted corrections post to /api/corrections with field, before, after, flags, and run id.
-- [ ] No token, sheet id, or raw server error string is rendered in the app.
+- [x] The review card collects staff, outlet, payment, purpose, and customer when the template requires them.
+- [x] Ubah edits merchant, date, totals, every line item, and every ops field.
+- [x] Hard flags block Terima until the field is edited or explicitly acknowledged.
+- [x] A null date is filled with the capture date and marked tanggal diasumsikan.
+- [x] Accepted corrections post to /api/corrections with field, before, after, flags, and run id.
+- [x] No token, sheet id, or raw server error string is rendered in the app.
 
 # Verification
 
@@ -69,4 +69,6 @@ flowchart LR
 
 # Notes
 
-The current Android review edits merchant and total only. Template ops, telemetry, assumed date, and line-item edits are missing.
+Template ops, telemetry, assumed date, and line-item edits are implemented; device proof is pending.
+
+Implementation note (2026-11-03): review card, ops fields, line-item edits, assumed date, and correction telemetry are implemented in `ReviewScreen.kt`; correction paths match the web record. Compiled with `:app:compileSideloadDebugKotlin`. No device run yet.

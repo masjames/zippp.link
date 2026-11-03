@@ -3911,6 +3911,14 @@ Tempel token magic link
 Continue
 ## android.signin.consume.id
 Lanjut
+## android.signin.google.en
+Continue with Google
+## android.signin.google.id
+Lanjut dengan Google
+## android.signin.googleMissingClient.en
+This build is missing the Google client id. Use the email link instead.
+## android.signin.googleMissingClient.id
+Build ini belum punya client id Google. Pakai tautan email saja.
 ## android.signin.usePairing.en
 Have a pairing code?
 ## android.signin.usePairing.id
@@ -4031,6 +4039,42 @@ Mengirim…
 Edited
 ## android.review.editedLabel.id
 Diedit
+## android.review.category.en
+Category
+## android.review.category.id
+Kategori
+## android.review.payment.en
+Payment
+## android.review.payment.id
+Pembayaran
+## android.review.staff.en
+Staff
+## android.review.staff.id
+Staf
+## android.review.outlet.en
+Outlet
+## android.review.outlet.id
+Outlet
+## android.review.purpose.en
+Purpose
+## android.review.purpose.id
+Keperluan
+## android.review.customer.en
+Customer
+## android.review.customer.id
+Pelanggan
+## android.review.description.en
+Item
+## android.review.description.id
+Item
+## android.review.qty.en
+Qty
+## android.review.qty.id
+Jumlah
+## android.review.amount.en
+Amount
+## android.review.amount.id
+Nominal
 ## android.review.dateAssumed.en
 date assumed
 ## android.review.dateAssumed.id
