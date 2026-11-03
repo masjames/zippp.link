@@ -47,3 +47,15 @@ demo/out/raw-live/
 demo/out/zippp-google-verification-demo.mp4
 .demo-profile/
 demo/in/
+
+# TypeScript incremental build info
+*.tsbuildinfo
+
+# Android local build files
+android/local.properties
+android/.gradle/
+android/**/build/
+android/app/release/
+*.jks
+*.keystore
+keystore.properties
