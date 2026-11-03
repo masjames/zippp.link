@@ -10,6 +10,7 @@ import { applySession } from "@/lib/google/session";
 import { saveTokens } from "@/lib/google/token-store";
 import { saveDonationRefreshToken } from "@/lib/google/donation-token";
 import { claimInvite } from "@/lib/billing/invites";
+import { safeNextPath } from "@/lib/auth/safe-next";
 
 export const runtime = "nodejs";
 
@@ -94,12 +95,15 @@ export async function GET(req: Request) {
 
     // Bind this browser to the user so tokens/workspace/billing are per-user.
     // Admins land straight on the admin panel.
-    const response = redirectHome(
-      req,
-      "ok",
-      undefined,
-      isAdmin(user.email) ? "/admin" : "/app"
-    );
+    const next = safeNextPath(jar.get("zippp_oauth_next")?.value, req.url);
+    const dest =
+      next ?? (isAdmin(user.email) ? "/admin" : "/app");
+    const response = redirectHome(req, "ok", undefined, dest);
+    response.cookies.set("zippp_oauth_next", "", {
+      httpOnly: true,
+      path: "/",
+      maxAge: 0,
+    });
     applySession(user.id, response);
     return response;
   } catch (e) {

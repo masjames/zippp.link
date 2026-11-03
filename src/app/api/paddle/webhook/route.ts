@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
-import { grant } from "@/lib/billing/ledger";
+import { balance, grant } from "@/lib/billing/ledger";
 import { paddleConfig, verifyPaddleSignature } from "@/lib/billing/paddle";
 import { onTopupApproved } from "@/lib/billing/referral";
+import { sendTopUpAlert } from "@/lib/telegram/alerts";
 
 export const runtime = "nodejs";
 
@@ -46,6 +47,17 @@ export async function POST(req: Request) {
     });
     if (granted) {
         await onTopupApproved(userId, credits, `paddle:${txnId}`);
+        let current = { credits: 0 };
+        try {
+            current = await balance(userId);
+        } catch {
+            /* alert balance is best effort */
+        }
+        void sendTopUpAlert({
+            userId,
+            added: credits,
+            newBalance: current.credits,
+        });
     }
 
     return NextResponse.json({ ok: true, granted });

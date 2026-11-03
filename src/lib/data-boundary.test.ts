@@ -28,6 +28,11 @@ const PHOTO_PATH = [
     "src/lib/schema.ts",
     "src/lib/verify-receipt.ts",
     "src/app/api/extract/route.ts",
+    "src/lib/auth/mobile-auth.ts",
+    "src/lib/auth/mobile-token.ts",
+    "src/lib/auth/device-store.ts",
+    "src/lib/mobile/scan-store.ts",
+    "src/lib/mobile/config.ts",
 ];
 
 /** Anything that carries Google user data or Google API credentials. */
@@ -58,6 +63,12 @@ test("/api/extract accepts the image and nothing else", () => {
         (m) => m[1]
     );
     assert.deepEqual(fields, ["image"]);
+});
+
+test("/api/extract uses the bearer-only resolver, not the Google-aware one", () => {
+    const route = source("src/app/api/extract/route.ts");
+    assert.ok(!route.includes("@/lib/auth/request-user"));
+    assert.ok(route.includes("@/lib/auth/mobile-auth"));
 });
 
 test("the sheet path never touches an AI provider", () => {

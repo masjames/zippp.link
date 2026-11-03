@@ -1,25 +1,39 @@
 import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
-import { currentUser } from "@/lib/auth";
-import { refundScan, spend } from "@/lib/billing/ledger";
-import { billingConfigured } from "@/lib/billing/redis";
-import {
-  appendRows,
-  SheetsApiError,
-  SheetsAuthError,
-} from "@/lib/google/sheets";
+import { resolveRequestUser } from "@/lib/auth/request-user";
+import { balance, refundScan, spend } from "@/lib/billing/ledger";
+import { LOW_CREDITS_WARN } from "@/lib/billing/config";
+import { billingConfigured, command } from "@/lib/billing/redis";
+import { appendRows, SheetsApiError, SheetsAuthError } from "@/lib/google/sheets";
 import { buildAppendRows } from "@/lib/google/templates";
-import { hasTokens } from "@/lib/google/token-store";
-import { loadWorkspace } from "@/lib/google/workspace-store";
+import { loadWorkspaceForUser } from "@/lib/google/workspace-store";
+import { sanitizeRows } from "@/lib/google/sheet-safe";
+import { hasScanOwner } from "@/lib/mobile/scan-store";
+import { sendLowCreditAlert } from "@/lib/telegram/alerts";
 import type { LineItem, Receipt } from "@/types/receipt";
+import type { TemplateId } from "@/lib/google/workspace-store";
 
 export const runtime = "nodejs";
+
+const MAX_LINE_ITEMS = 200;
+const MAX_TEXT = 500;
+const RESULT_CACHE_TTL = 24 * 60 * 60;
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+const PAYMENT_VALUES: Partial<Record<TemplateId, string[]>> = {
+  "personal-expense": ["Cash", "Debit", "Credit", "QRIS", "E-wallet", "Transfer"],
+  "sales-recap": ["Cash", "QRIS", "Transfer"],
+};
 
 type AppendBody = {
   receipt?: Receipt;
   staff?: string;
   outlet?: string | null;
-  /** Stable id for this scan; makes the credit charge idempotent. */
+  payment?: string | null;
+  purpose?: string | null;
+  customer?: string | null;
+  /** Server-issued scanId from POST /api/extract. Idempotency key. */
   scanId?: string;
 };
 
@@ -36,11 +50,11 @@ function parseNullableNumber(v: unknown): number | null {
   return null;
 }
 
-function parseNullableString(v: unknown): string | null {
+function parseNullableString(v: unknown, max = MAX_TEXT): string | null {
   if (v === null || v === undefined) return null;
   if (typeof v !== "string") return null;
   const t = v.trim();
-  return t === "" ? null : t;
+  return t === "" ? null : t.slice(0, max);
 }
 
 function parseLineItem(raw: unknown): LineItem | null {
@@ -58,14 +72,15 @@ function parseReceipt(raw: unknown): Receipt | null {
   if (!raw || typeof raw !== "object") return null;
   const o = raw as Record<string, unknown>;
   if (!Array.isArray(o.line_items)) return null;
+  if (o.line_items.length > MAX_LINE_ITEMS) return null;
   const line_items = o.line_items
     .map(parseLineItem)
     .filter((x): x is LineItem => x != null);
   return {
     merchant: parseNullableString(o.merchant),
-    date: parseNullableString(o.date),
-    currency: parseNullableString(o.currency),
-    category: parseNullableString(o.category),
+    date: parseNullableString(o.date, 40),
+    currency: parseNullableString(o.currency, 8),
+    category: parseNullableString(o.category, 80),
     line_items,
     subtotal: parseNullableNumber(o.subtotal),
     tax: parseNullableNumber(o.tax),
@@ -73,171 +88,220 @@ function parseReceipt(raw: unknown): Receipt | null {
   };
 }
 
+const resultCacheKey = (userId: string, scanId: string) =>
+  `scan:result:${userId}:${scanId}`;
+
+function fail(code: string, status: number, extra?: Record<string, unknown>) {
+  return NextResponse.json({ ok: false, code, error: code, ...extra }, { status });
+}
+
 export async function POST(req: Request) {
+  const { user, error: authError } = await resolveRequestUser(req);
+
+  if (!user) {
+    if (authError === "DEVICE_REVOKED") return fail("DEVICE_REVOKED", 401);
+    if (authError === "SERVER_MISCONFIGURED") {
+      return fail("SERVER_MISCONFIGURED", 503);
+    }
+    return fail("UNAUTHORIZED", 401);
+  }
+
+  const userId = user.userId;
+
+  let body: AppendBody;
+  try {
+    body = (await req.json()) as AppendBody;
+  } catch {
+    return fail("INVALID_JSON", 400);
+  }
+
+  const receipt = parseReceipt(body.receipt);
+  if (!receipt) return fail("RECEIPT_INVALID", 400);
+  if (receipt.line_items.length === 0) return fail("RECEIPT_EMPTY", 400);
+
+  const scanId =
+    typeof body.scanId === "string" && body.scanId.trim()
+      ? body.scanId.trim()
+      : randomUUID();
+
+  if (!UUID_RE.test(scanId)) return fail("SCAN_ID_INVALID", 400);
+
+  // Mobile clients must use a scan id issued by /api/extract. Web clients keep
+  // their existing client-generated ids for backwards compatibility.
+  if (user.source === "mobile") {
+    const issued = await hasScanOwner(userId, scanId);
+    if (!issued) return fail("SCAN_NOT_ISSUED", 400);
+  }
+
+  if (billingConfigured()) {
+    try {
+      const cached = (await command([
+        "GET",
+        resultCacheKey(userId, scanId),
+      ])) as string | null;
+      if (cached) {
+        const parsed = JSON.parse(cached) as Record<string, unknown>;
+        let creditsRemaining: number | null = null;
+        try {
+          creditsRemaining = (await balance(userId)).credits;
+        } catch {
+          creditsRemaining = null;
+        }
+        return NextResponse.json({
+          ...parsed,
+          credits_remaining: creditsRemaining,
+          duplicate: true,
+        });
+      }
+    } catch {
+      /* cache miss or store error; continue to the normal path */
+    }
+  }
+
+  const workspace = await loadWorkspaceForUser(userId);
+  if (
+    !workspace ||
+    !workspace.spreadsheet_id ||
+    !workspace.sheet_tab ||
+    !workspace.column_map ||
+    Object.keys(workspace.column_map).length === 0
+  ) {
+    return fail("NO_WORKSPACE", 400);
+  }
+
+  const staff = typeof body.staff === "string" ? body.staff.trim().slice(0, 120) : "";
+  if (staff && workspace.staff_names.length > 0 && !workspace.staff_names.includes(staff)) {
+    return fail("STAFF_INVALID", 400);
+  }
+
+  let outlet: string | null = null;
+  if (typeof body.outlet === "string" && body.outlet.trim()) {
+    outlet = body.outlet.trim().slice(0, 120);
+  } else if (body.outlet === null || body.outlet === undefined) {
+    outlet = workspace.default_outlet;
+  }
+  if (outlet && workspace.outlets.length > 0 && !workspace.outlets.includes(outlet)) {
+    return fail("OUTLET_INVALID", 400);
+  }
+  if (workspace.outlets.length > 1 && !outlet) {
+    return fail("OUTLET_REQUIRED", 400);
+  }
+
+  const payment = parseNullableString(body.payment, 40);
+  const allowedPayments = PAYMENT_VALUES[workspace.template_id];
+  if (payment && allowedPayments && !allowedPayments.includes(payment)) {
+    return fail("PAYMENT_INVALID", 400);
+  }
+  const purpose = parseNullableString(body.purpose, 200);
+  const customer = parseNullableString(body.customer, 200);
+
+  const captured_at = new Date().toISOString();
+
+  let rows;
+  try {
+    rows = buildAppendRows({
+      receipt,
+      column_map: workspace.column_map,
+      constants: workspace.constants,
+      headers: workspace.headers,
+      staff,
+      outlet,
+      captured_at,
+      receipt_id: scanId,
+      payment: payment ?? undefined,
+      purpose: purpose ?? undefined,
+      customer: customer ?? undefined,
+    });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Failed to build rows.";
+    return fail("ROWS_INVALID", 400, { message });
+  }
+
+  const safeRows = sanitizeRows(rows);
+
   let chargedUserId: string | null = null;
   let chargedScanId: string | null = null;
+
   try {
-    if (!(await hasTokens())) {
-      return NextResponse.json(
-        { ok: false, error: "Not signed in with Google." },
-        { status: 401 }
-      );
-    }
-
-    const workspace = await loadWorkspace();
-    if (
-      !workspace ||
-      !workspace.spreadsheet_id ||
-      !workspace.sheet_tab ||
-      !workspace.column_map ||
-      Object.keys(workspace.column_map).length === 0
-    ) {
-      return NextResponse.json(
-        {
-          ok: false,
-          error:
-            "No spreadsheet connected or column map missing. Connect a [zippp] sheet and save the map first.",
-        },
-        { status: 400 }
-      );
-    }
-
-    let body: AppendBody;
-    try {
-      body = (await req.json()) as AppendBody;
-    } catch {
-      return NextResponse.json(
-        { ok: false, error: "Invalid JSON body." },
-        { status: 400 }
-      );
-    }
-
-    const receipt = parseReceipt(body.receipt);
-    if (!receipt) {
-      return NextResponse.json(
-        { ok: false, error: "Body must include a valid receipt." },
-        { status: 400 }
-      );
-    }
-    if (receipt.line_items.length === 0) {
-      return NextResponse.json(
-        { ok: false, error: "Receipt has no line items to append." },
-        { status: 400 }
-      );
-    }
-
-    // Staff is optional.
-    const staff =
-      typeof body.staff === "string" ? body.staff.trim() : "";
-    const isResto = workspace.template_id === "resto-inventory";
-
-    let outlet: string | null = null;
-    if (typeof body.outlet === "string" && body.outlet.trim()) {
-      outlet = body.outlet.trim();
-    } else if (body.outlet === null || body.outlet === undefined) {
-      outlet = workspace.default_outlet;
-    }
-
-    if (workspace.outlets.length > 1 && !outlet) {
-      return NextResponse.json(
-        {
-          ok: false,
-          error: "Outlet is required when multiple outlets are configured.",
-        },
-        { status: 400 }
-      );
-    }
-
-    const captured_at = new Date().toISOString();
-
-    let rows;
-    try {
-      rows = buildAppendRows({
-        receipt,
-        column_map: workspace.column_map,
-        constants: workspace.constants,
-        headers: workspace.headers,
-        staff,
-        outlet,
-        captured_at,
-      });
-    } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "Failed to build rows.";
-      return NextResponse.json({ ok: false, error: message }, { status: 400 });
-    }
-
-    // Charge one credit on Send (idempotent on the scan id).
     if (billingConfigured()) {
-      const user = await currentUser();
-      if (!user.signedIn || !user.userId) {
-        return NextResponse.json(
-          { ok: false, error: "Not signed in with Google." },
-          { status: 401 }
-        );
-      }
-      const scanId =
-        typeof body.scanId === "string" && body.scanId
-          ? body.scanId
-          : randomUUID();
       const spent = await spend({
-        userId: user.userId,
+        userId,
         credits: 1,
-        idem: `scan:${scanId}`,
+        idem: `scan:${userId}:${scanId}`,
       });
-      if (spent === "insufficient") {
-        return NextResponse.json(
-          { ok: false, error: "No credits. Top up to send.", needsCredits: true },
-          { status: 402 }
-        );
-      }
+      if (spent === "insufficient") return fail("NO_CREDITS", 402, { credits: 0 });
       if (spent === "duplicate") {
-        return NextResponse.json(
-          { ok: false, error: "This scan was already sent." },
-          { status: 409 }
-        );
+        // The cache was already checked above. A duplicate with no cached
+        // result means a prior attempt charged but never completed. Do not
+        // claim success: the row may not exist.
+        return fail("SCAN_ALREADY_SENT", 409);
       }
-      chargedUserId = user.userId;
+      chargedUserId = userId;
       chargedScanId = scanId;
     }
 
     const result = await appendRows(
       workspace.spreadsheet_id,
       workspace.sheet_tab,
-      rows
+      safeRows,
+      userId
     );
 
-    return NextResponse.json({
+    let current: { credits: number } | null = null;
+    if (billingConfigured()) {
+      try {
+        current = await balance(userId);
+      } catch {
+        // The row is already written. Never refund or fail because the
+        // balance read failed after a successful append.
+        current = null;
+      }
+    }
+    const successBody = {
       ok: true,
       rows_written: result.updatedRows,
       spreadsheet_title: workspace.spreadsheet_title,
       sheet_tab: workspace.sheet_tab,
-    });
+      scanId,
+      credits_remaining: current?.credits ?? null,
+    };
+
+    if (billingConfigured()) {
+      try {
+        await command([
+          "SET",
+          resultCacheKey(userId, scanId),
+          JSON.stringify(successBody),
+          "EX",
+          RESULT_CACHE_TTL,
+        ]);
+      } catch {
+        /* cache write is non-fatal; spend idempotency still protects retries */
+      }
+      if (current && current.credits < LOW_CREDITS_WARN) {
+        void sendLowCreditAlert({ userId, remaining: current.credits });
+      }
+    }
+
+    return NextResponse.json(successBody);
   } catch (err) {
-    // Append failed after charging: give the credit back.
     if (chargedUserId && chargedScanId) {
       try {
         await refundScan(chargedUserId, chargedScanId);
       } catch {
-        /* ignore */
+        /* refund failure is logged; the user can contact support */
+        console.error(
+          JSON.stringify({ event: "append.refund.failed", userId: chargedUserId, scanId: chargedScanId })
+        );
       }
     }
-    if (err instanceof SheetsAuthError) {
-      return NextResponse.json(
-        { ok: false, error: err.message, needsReconsent: true },
-        { status: 401 }
-      );
-    }
+    if (err instanceof SheetsAuthError) return fail("GOOGLE_RECONSENT", 401);
     if (err instanceof SheetsApiError) {
-      return NextResponse.json(
-        { ok: false, error: err.message },
-        { status: err.status >= 400 && err.status < 600 ? err.status : 400 }
-      );
+      return fail("APPEND_FAILED", err.status >= 400 && err.status < 600 ? err.status : 400, {
+        message: err.message,
+      });
     }
     console.error("POST /api/sheets/append", err);
-    return NextResponse.json(
-      { ok: false, error: "Failed to append rows to spreadsheet." },
-      { status: 500 }
-    );
+    return fail("APPEND_FAILED", 500);
   }
 }

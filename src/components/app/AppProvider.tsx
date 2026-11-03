@@ -28,6 +28,7 @@ export type AuthState = {
     signedIn: boolean;
     oauthConfigured: boolean;
     googleUserId: string | null;
+    mobileApiEnabled?: boolean;
 };
 
 export type Workspace = {

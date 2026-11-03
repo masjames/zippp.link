@@ -1,9 +1,10 @@
 import { createHmac, randomUUID, timingSafeEqual } from "node:crypto";
 import { sendTelegram } from "../telegram";
 import { creditsForIdr, ORDER_TTL_MIN } from "./config";
-import { grant } from "./ledger";
+import { balance, grant } from "./ledger";
 import { command } from "./redis";
 import { onTopupApproved } from "./referral";
+import { sendTopUpAlert } from "../telegram/alerts";
 
 /**
  * Kasera Pay QRIS. One create call returns a hosted checkout URL and the QR
@@ -220,6 +221,17 @@ export async function applyKaseraEvent(event: {
         await setStatus(order, "succeeded", Date.now());
         if (granted) {
             await onTopupApproved(order.userId, credits, `kasera:${order.txId}`);
+            let current = { credits: 0 };
+            try {
+                current = await balance(order.userId);
+            } catch {
+                /* alert balance is best effort */
+            }
+            void sendTopUpAlert({
+                userId: order.userId,
+                added: credits,
+                newBalance: current.credits,
+            });
             void sendTelegram(
                 `💸 <b>QRIS paid</b> ${credits} credits\norder: <code>${order.orderId}</code>\nemail: ${order.email ?? "?"}`
             );

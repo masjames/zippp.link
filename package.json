@@ -6,10 +6,11 @@
     "build": "next build",
     "start": "next start",
     "logs": "python3 scripts/watch-logs.py",
-    "test": "node --experimental-transform-types --loader ./scripts/ts-loader.mjs --test src/lib/verify-receipt.test.ts src/lib/eval-score.test.ts src/lib/correction-diff.test.ts src/lib/data-boundary.test.ts",
+    "test": "node --experimental-transform-types --loader ./scripts/ts-loader.mjs --test src/lib/verify-receipt.test.ts src/lib/eval-score.test.ts src/lib/correction-diff.test.ts src/lib/auth/mobile-token.test.ts src/lib/auth/pairing-store.test.ts src/lib/auth/magic-link-store.test.ts src/lib/auth/safe-next.test.ts src/lib/space/space-store.test.ts src/lib/google/sheet-safe.test.ts src/lib/data-boundary.test.ts",
     "eval": "node --experimental-transform-types --loader ./scripts/ts-loader.mjs scripts/eval.ts",
     "grant": "node --env-file=.env.local scripts/grant.mjs",
-    "demo:live": "node demo/record-live.mjs"
+    "demo:live": "node demo/record-live.mjs",
+    "android:strings": "node scripts/gen-android-strings.mjs"
   },
   "dependencies": {
     "@google/genai": "^2.23.0",
@@ -25,6 +26,7 @@
     "pdfjs-dist": "^4.10.38",
     "postcss": "^8.5.28",
     "posthog-js": "^1.438.12",
+    "qrcode.react": "^4.2.0",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "tailwindcss": "^3.4.19"

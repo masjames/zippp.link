@@ -652,6 +652,220 @@ English
 Indonesia
 ## app.settings.language.indonesia.id
 Indonesia
+## app.space.settings.en
+Zippp Space
+## app.space.settings.id
+Zippp Space
+## app.space.title.en
+Space
+## app.space.title.id
+Space
+## app.space.subtitle.en
+Share one Zippp Space with someone you trust.
+## app.space.subtitle.id
+Bagikan satu Zippp Space dengan orang yang Anda percaya.
+## app.space.defaultName.en
+My Space
+## app.space.defaultName.id
+Space Saya
+## app.space.loading.en
+Loading Spaces...
+## app.space.loading.id
+Memuat Space...
+## app.space.error.en
+Could not load your Spaces.
+## app.space.error.id
+Gagal memuat Space Anda.
+## app.space.empty.en
+No Space yet. Create one to get started.
+## app.space.empty.id
+Belum ada Space. Buat satu untuk mulai.
+## app.space.create.title.en
+Create a Space
+## app.space.create.title.id
+Buat Space
+## app.space.create.name.en
+Space name
+## app.space.create.name.id
+Nama Space
+## app.space.create.placeholder.en
+Our Space
+## app.space.create.placeholder.id
+Space Kami
+## app.space.create.button.en
+Create Space
+## app.space.create.button.id
+Buat Space
+## app.space.create.busy.en
+Creating...
+## app.space.create.busy.id
+Membuat...
+## app.space.role.owner.en
+Owner
+## app.space.role.owner.id
+Pemilik
+## app.space.role.member.en
+Member
+## app.space.role.member.id
+Anggota
+## app.space.memberUnknown.en
+Member
+## app.space.memberUnknown.id
+Anggota
+## app.space.members.title.en
+Members
+## app.space.members.title.id
+Anggota
+## app.space.members.count.en
+Members: {count}
+## app.space.members.count.id
+Anggota: {count}
+## app.space.members.you.en
+You
+## app.space.members.you.id
+Anda
+## app.space.invite.title.en
+Invite someone
+## app.space.invite.title.id
+Undang seseorang
+## app.space.invite.emailLabel.en
+Email (optional)
+## app.space.invite.emailLabel.id
+Email (opsional)
+## app.space.invite.emailPlaceholder.en
+name@email.com
+## app.space.invite.emailPlaceholder.id
+nama@email.com
+## app.space.invite.button.en
+Create invite link
+## app.space.invite.button.id
+Buat tautan undangan
+## app.space.invite.busy.en
+Creating...
+## app.space.invite.busy.id
+Membuat...
+## app.space.invite.link.en
+Invite link
+## app.space.invite.link.id
+Tautan undangan
+## app.space.invite.copy.en
+Copy link
+## app.space.invite.copy.id
+Salin tautan
+## app.space.invite.copied.en
+Copied
+## app.space.invite.copied.id
+Tersalin
+## app.space.invite.sent.en
+Invite email sent.
+## app.space.invite.sent.id
+Email undangan terkirim.
+## app.space.invite.shareOnly.en
+Share this link with the person you invited.
+## app.space.invite.shareOnly.id
+Bagikan tautan ini ke orang yang Anda undang.
+## app.space.invite.invalidEmail.en
+Enter a valid email.
+## app.space.invite.invalidEmail.id
+Masukkan email yang valid.
+## app.space.invite.emailSubject.en
+Join {name} on Zippp
+## app.space.invite.emailSubject.id
+Gabung ke {name} di Zippp
+## app.space.invite.emailBody.en
+You were invited to the Zippp Space {name}.
+
+Open this link to join:
+{link}
+
+This link expires in 7 days.
+## app.space.invite.emailBody.id
+Anda diundang ke Zippp Space {name}.
+
+Buka tautan ini untuk bergabung:
+{link}
+
+Tautan ini berlaku 7 hari.
+## app.space.leave.button.en
+Leave Space
+## app.space.leave.button.id
+Keluar dari Space
+## app.space.leave.confirm.en
+Leave this Space?
+## app.space.leave.confirm.id
+Keluar dari Space ini?
+## app.space.leave.owner.en
+The owner cannot leave a Space.
+## app.space.leave.owner.id
+Pemilik tidak bisa keluar dari Space.
+## app.space.remove.button.en
+Remove
+## app.space.remove.button.id
+Hapus
+## app.space.remove.confirm.en
+Remove this member from the Space?
+## app.space.remove.confirm.id
+Hapus anggota ini dari Space?
+## app.space.ownerOnly.en
+Only the owner can do this.
+## app.space.ownerOnly.id
+Hanya pemilik yang bisa melakukan ini.
+## app.space.join.title.en
+Join a Space
+## app.space.join.title.id
+Gabung ke Space
+## app.space.join.loading.en
+Checking invite...
+## app.space.join.loading.id
+Memeriksa undangan...
+## app.space.join.invited.en
+You were invited to {name}.
+## app.space.join.invited.id
+Anda diundang ke {name}.
+## app.space.join.button.en
+Join Space
+## app.space.join.button.id
+Gabung ke Space
+## app.space.join.busy.en
+Joining...
+## app.space.join.busy.id
+Bergabung...
+## app.space.join.signIn.en
+Sign in to join
+## app.space.join.signIn.id
+Masuk untuk bergabung
+## app.space.join.success.en
+You joined {name}.
+## app.space.join.success.id
+Anda bergabung ke {name}.
+## app.space.join.open.en
+Open Zippp
+## app.space.join.open.id
+Buka Zippp
+## app.space.join.invalid.en
+This invite link is invalid or has expired.
+## app.space.join.invalid.id
+Tautan undangan ini tidak valid atau sudah kedaluwarsa.
+## app.space.join.missingCode.en
+This link is missing an invite code.
+## app.space.join.missingCode.id
+Tautan ini tidak punya kode undangan.
+## app.space.join.emailMismatch.en
+This invite is for a different email. Sign in with the invited email.
+## app.space.join.emailMismatch.id
+Undangan ini untuk email lain. Masuk dengan email yang diundang.
+## app.space.join.error.en
+Could not join this Space. Try again.
+## app.space.join.error.id
+Gagal bergabung ke Space ini. Coba lagi.
+## app.space.open.en
+Open
+## app.space.open.id
+Buka
+## app.space.error.generic.en
+Something went wrong. Try again.
+## app.space.error.generic.id
+Terjadi kesalahan. Coba lagi.
 ## admin.back.en
 Back to app
 ## admin.back.id
@@ -2058,6 +2272,10 @@ A session cookie keeps you signed in. A region cookie remembers which language a
 
 Sign out in Settings: the stored token and your sheet setup are deleted from our servers at once. To remove zippp's access at Google as well, remove it at [Google permissions](https://myaccount.google.com/permissions). To delete your account record and the credit ledger, email us from the Google address on the account (see the contact page). Rows in your sheet are yours and are never deleted by zippp.
 
+# Telegram (optional)
+
+If you link Telegram from Settings, we send your email address, scan quota, sheet title, and device pairing notices to Telegram so the bot can answer /saldo and send alerts. Telegram stores those messages on its servers. You can disconnect Telegram at any time in Settings. We do not send receipt images through Telegram in this version.
+
 # Changes
 
 We update this page when something changes and show the date at the top.
@@ -2152,6 +2370,10 @@ Cookie sesi menjaga Anda tetap masuk. Cookie wilayah mengingat bahasa dan mata u
 Keluar di Pengaturan: token yang tersimpan dan pengaturan sheet langsung dihapus dari server kami. Untuk mencabut akses zippp di Google juga, cabut di [izin Google](https://myaccount.google.com/permissions). Untuk menghapus catatan akun dan buku kredit, kirim email dari alamat Google yang dipakai di akun Anda (lihat halaman kontak). Baris di sheet Anda adalah milik Anda dan tidak pernah dihapus zippp.
 
 # Perubahan
+
+# Telegram (opsional)
+
+Jika Anda menghubungkan Telegram dari Pengaturan, kami mengirim alamat email, kuota scan, nama sheet, dan pemberitahuan perangkat ke Telegram agar bot dapat menjawab /saldo dan mengirim notifikasi. Telegram menyimpan pesan tersebut di servernya. Anda dapat memutuskan Telegram kapan saja di Pengaturan. Kami tidak mengirim gambar struk melalui Telegram pada versi ini.
 
 Kami memperbarui halaman ini saat ada perubahan dan menampilkan tanggalnya di atas.
 
@@ -3658,3 +3880,360 @@ Sheet yang sama yang sudah dibuka tim Anda.
 How a receipt moves through zippp
 ## landing.media.flowTitle.id
 Jalan sebuah struk di zippp
+
+---
+
+## android.signin.title.en
+Sign in to Zippp
+## android.signin.title.id
+Masuk ke Zippp
+## android.signin.subtitle.en
+Use email magic link, or connect with a pairing code from the web.
+## android.signin.subtitle.id
+Pakai magic link email, atau hubungkan dengan kode pairing dari web.
+## android.signin.emailHint.en
+Email
+## android.signin.emailHint.id
+Email
+## android.signin.sendLink.en
+Send magic link
+## android.signin.sendLink.id
+Kirim magic link
+## android.signin.linkSent.en
+If that email has a Zippp account, a link is on the way. Open it on this phone.
+## android.signin.linkSent.id
+Jika email itu punya akun Zippp, tautan sedang dikirim. Buka di ponsel ini.
+## android.signin.tokenHint.en
+Paste magic link token
+## android.signin.tokenHint.id
+Tempel token magic link
+## android.signin.consume.en
+Continue
+## android.signin.consume.id
+Lanjut
+## android.signin.usePairing.en
+Have a pairing code?
+## android.signin.usePairing.id
+Punya kode pairing?
+## android.signin.back.en
+Back to sign in
+## android.signin.back.id
+Kembali ke masuk
+
+## android.pairing.title.en
+Connect Your Device
+## android.pairing.title.id
+Hubungkan Perangkat Anda
+## android.pairing.subtitle.en
+Enter the 8-character code from your Zippp account
+## android.pairing.subtitle.id
+Masukkan kode 8 karakter dari akun Zippp Anda
+## android.pairing.codeHint.en
+XXXX-XXXX
+## android.pairing.codeHint.id
+XXXX-XXXX
+## android.pairing.connect.en
+Connect
+## android.pairing.connect.id
+Hubungkan
+## android.pairing.scanQr.en
+Scan QR Code
+## android.pairing.scanQr.id
+Scan QR Code
+## android.pairing.connecting.en
+Connecting…
+## android.pairing.connecting.id
+Menghubungkan…
+## android.pairing.invalid_code.en
+Code is invalid or has expired. Generate a new code.
+## android.pairing.invalid_code.id
+Kode tidak valid atau sudah kedaluwarsa. Buat kode baru.
+## android.pairing.rate_limited.en
+Too many attempts. Please wait before trying again.
+## android.pairing.rate_limited.id
+Terlalu banyak percobaan. Harap tunggu sebelum mencoba lagi.
+
+## android.pairing.error.en
+Could not connect this device. Try again.
+## android.pairing.error.id
+Gagal menghubungkan perangkat ini. Coba lagi.
+## android.pairing.device_conflict.en
+This device is already connected to another account.
+## android.pairing.device_conflict.id
+Perangkat ini sudah terhubung ke akun lain.
+## android.error.server.en
+The service is unavailable. Try again later.
+## android.error.server.id
+Layanan sedang tidak tersedia. Coba lagi nanti.
+## android.camera.permission.en
+The app needs the camera to photograph receipts.
+## android.camera.permission.id
+Aplikasi memerlukan kamera untuk memotret struk.
+## android.camera.allow.en
+Allow Camera
+## android.camera.allow.id
+Izinkan Kamera
+## android.camera.error.en
+The camera is not available. Try again.
+## android.camera.error.id
+Kamera tidak dapat digunakan. Coba lagi.
+## android.review.merchant.en
+Merchant
+## android.review.merchant.id
+Nama Toko
+## android.review.total.en
+Total
+## android.review.total.id
+Total
+## android.review.date.en
+Date
+## android.review.date.id
+Tanggal
+
+## android.camera.scanBalance.en
+Remaining scans
+## android.camera.scanBalance.id
+Sisa scan
+## android.camera.space.en
+Space
+## android.camera.space.id
+Space
+## android.camera.steady.en
+Hold steady…
+## android.camera.steady.id
+Tahan…
+## android.camera.snap.en
+Snap
+## android.camera.snap.id
+Jepret
+
+## android.review.title.en
+Review Receipt
+## android.review.title.id
+Periksa Struk
+## android.review.accept.en
+Accept
+## android.review.accept.id
+Terima
+## android.review.edit.en
+Edit
+## android.review.edit.id
+Ubah
+## android.review.discard.en
+Discard
+## android.review.discard.id
+Buang
+## android.review.accepting.en
+Sending…
+## android.review.accepting.id
+Mengirim…
+## android.review.editedLabel.en
+Edited
+## android.review.editedLabel.id
+Diedit
+## android.review.dateAssumed.en
+date assumed
+## android.review.dateAssumed.id
+tanggal diasumsikan
+## android.review.acknowledge.en
+I have checked these values
+## android.review.acknowledge.id
+Saya sudah memeriksa nilai ini
+## android.review.hardFlagWarning.en
+One or more values could not be verified. Please review before accepting.
+## android.review.hardFlagWarning.id
+Satu atau lebih nilai tidak dapat diverifikasi. Periksa sebelum menerima.
+
+## android.error.no_credits.en
+Your scan quota has run out. New scans are not available.
+## android.error.no_credits.id
+Sisa kuota scan Anda telah habis. Pemindaian baru belum tersedia.
+## android.error.no_credits.refresh.en
+Refresh
+## android.error.no_credits.refresh.id
+Muat Ulang
+## android.error.no_credits.support.en
+Support
+## android.error.no_credits.support.id
+Bantuan
+## android.error.google_reconsent.en
+Google account access needs to be renewed. Sign in again to your Zippp account.
+## android.error.google_reconsent.id
+Akses akun Google perlu diperbarui. Masuk kembali ke akun Zippp Anda.
+## android.error.device_revoked.en
+This device session has been revoked. Connect the device again.
+## android.error.device_revoked.id
+Sesi perangkat ini telah dicabut. Hubungkan kembali perangkat Anda.
+## android.error.no_sheet.en
+No Google Sheet connected. Set up a sheet first.
+## android.error.no_sheet.id
+Belum ada Google Sheet yang terhubung. Siapkan sheet terlebih dahulu.
+## android.error.extract_failed.en
+Could not read this receipt. Try again or discard.
+## android.error.extract_failed.id
+Gagal membaca struk ini. Coba lagi atau abaikan.
+
+## android.error.append.en
+Could not save to Google Sheet. Try again.
+## android.error.append.id
+Gagal menyimpan ke Google Sheet. Coba lagi.
+## android.error.no_credits.short.en
+Scan quota is empty.
+## android.error.no_credits.short.id
+Kuota scan habis.
+
+## telegram.linked.en
+Your Telegram account has been linked to Zippp.
+## telegram.linked.id
+Akun Telegram Anda telah terhubung ke Zippp.
+## telegram.not_linked.en
+Your Telegram account is not yet linked. Use the link from your web dashboard.
+## telegram.not_linked.id
+Akun Telegram Anda belum terhubung. Gunakan tautan dari dasbor web Anda.
+## telegram.link_expired.en
+Link code expired. Please generate a new one from your dashboard.
+## telegram.link_expired.id
+Kode tautan kedaluwarsa. Hasilkan kode baru dari dasbor Anda.
+## telegram.low_credit.en
+Your scan balance is running low. {count} scans left.
+## telegram.low_credit.id
+Kuota scan Anda hampir habis. Sisa {count} scan.
+## telegram.topup_done.en
+Scan balance updated. +{added} scans. Total {total} scans.
+## telegram.topup_done.id
+Kuota scan diperbarui. +{added} scan. Total {total} scan.
+## telegram.new_device.en
+A new device has been paired with your account: {device}.
+## telegram.new_device.id
+Perangkat baru telah dipasangkan dengan akun Anda: {device}.
+
+## telegram.help.en
+Commands: /saldo (scan balance), /bantuan (help), /unlink (disconnect Telegram).
+## telegram.help.id
+Perintah: /saldo (sisa scan), /bantuan (bantuan), /unlink (putuskan Telegram).
+## telegram.balance.en
+Scans left: {count}
+Sheet: {sheet}
+## telegram.balance.id
+Sisa scan: {count}
+Sheet: {sheet}
+## telegram.unlinked.en
+Telegram has been disconnected from your Zippp account.
+## telegram.unlinked.id
+Telegram telah diputuskan dari akun Zippp Anda.
+## telegram.link_conflict.en
+This Telegram account is already linked to another Zippp account.
+## telegram.link_conflict.id
+Akun Telegram ini sudah terhubung ke akun Zippp lain.
+
+## web.telegram.title.en
+Telegram
+## web.telegram.title.id
+Telegram
+## web.telegram.linked.en
+Telegram is connected. Use /saldo to check your scan quota.
+## web.telegram.linked.id
+Telegram terhubung. Gunakan /saldo untuk melihat sisa scan.
+## web.telegram.notLinked.en
+Connect Telegram for quota alerts and support.
+## web.telegram.notLinked.id
+Hubungkan Telegram untuk notifikasi kuota dan bantuan.
+## web.telegram.link.en
+Connect Telegram
+## web.telegram.link.id
+Hubungkan Telegram
+## web.telegram.unlink.en
+Disconnect Telegram
+## web.telegram.unlink.id
+Putuskan Telegram
+## web.telegram.error.en
+Could not update the Telegram connection.
+## web.telegram.error.id
+Gagal memperbarui koneksi Telegram.
+
+## web.devices.title.en
+Connected Devices
+## web.devices.title.id
+Perangkat Terhubung
+## web.devices.empty.en
+No devices paired yet. Use "Connect Device" to pair your Android phone.
+## web.devices.empty.id
+Belum ada perangkat yang dipasangkan. Gunakan "Hubungkan Perangkat" untuk memasangkan ponsel Android Anda.
+## web.devices.revoke.en
+Revoke Access
+## web.devices.revoke.id
+Cabut Akses
+## web.devices.revoke_all.en
+Revoke All Devices
+## web.devices.revoke_all.id
+Cabut Semua Perangkat
+## web.devices.paired_at.en
+Paired
+## web.devices.paired_at.id
+Dipasangkan
+## web.devices.last_seen.en
+Last active
+## web.devices.last_seen.id
+Terakhir aktif
+
+## web.pairing.button.en
+Connect Device
+## web.pairing.button.id
+Hubungkan Perangkat
+## web.pairing.error.en
+Could not create a pairing code. Try again.
+## web.pairing.error.id
+Gagal membuat kode pairing. Coba lagi.
+## web.pairing.expired.en
+Code expired
+## web.pairing.expired.id
+Kode kedaluwarsa
+## web.pairing.qrShow.en
+Show QR Code
+## web.pairing.qrShow.id
+Tampilkan Kode QR
+## web.pairing.qrHide.en
+Hide QR Code
+## web.pairing.qrHide.id
+Sembunyikan Kode QR
+## web.pairing.close.en
+Close
+## web.pairing.close.id
+Tutup
+## web.devices.loading.en
+Loading devices…
+## web.devices.loading.id
+Memuat perangkat…
+## web.devices.error.en
+Could not load devices.
+## web.devices.error.id
+Gagal memuat perangkat.
+## web.devices.revoked.en
+Revoked
+## web.devices.revoked.id
+Dicabut
+## web.devices.confirmRevoke.en
+Revoke access for this device?
+## web.devices.confirmRevoke.id
+Cabut akses untuk perangkat ini?
+
+## web.pairing.title.en
+Connect Android App
+## web.pairing.title.id
+Hubungkan Aplikasi Android
+## web.pairing.instruction.en
+Enter this code on your Zippp Android app or scan the QR code.
+## web.pairing.instruction.id
+Masukkan kode ini di aplikasi Zippp Android Anda atau scan kode QR-nya.
+## web.pairing.expires.en
+Expires in
+## web.pairing.expires.id
+Kedaluwarsa dalam
+## web.pairing.generate.en
+Generate New Code
+## web.pairing.generate.id
+Buat Kode Baru
+## web.pairing.generating.en
+Generating…
+## web.pairing.generating.id
+Membuat…

@@ -10,3 +10,9 @@
 node_modules
 *.log
 tsconfig.tsbuildinfo
+
+android/
+demo/out/
+demo/in/
+.demo-profile/
+eval/images/

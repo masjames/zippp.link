@@ -6,12 +6,16 @@ import {
   createOAuthClient,
   googleOAuthConfigured,
 } from "@/lib/google/oauth";
+import { safeNextPath } from "@/lib/auth/safe-next";
 
 export const runtime = "nodejs";
 
 const STATE_COOKIE = "zippp_oauth_state";
+const NEXT_COOKIE = "zippp_oauth_next";
 
 export async function GET(req: Request) {
+  const next = safeNextPath(new URL(req.url).searchParams.get("next"), req.url);
+
   if (!googleOAuthConfigured()) {
     const url = new URL("/app", req.url);
     url.searchParams.set("auth", "error");
@@ -34,6 +38,15 @@ export async function GET(req: Request) {
     path: "/",
     maxAge: 600,
   });
+  if (next) {
+    jar.set(NEXT_COOKIE, next, {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      path: "/",
+      maxAge: 600,
+    });
+  }
 
   return NextResponse.redirect(consentUrl);
 }

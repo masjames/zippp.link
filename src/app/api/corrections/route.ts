@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
-import { currentUser } from "@/lib/auth";
+import { resolveRequestUser } from "@/lib/auth/request-user";
 import {
     appendCorrection,
     hashUser,
@@ -34,9 +34,9 @@ function parseFields(raw: unknown): CorrectionField[] {
 }
 
 export async function POST(req: Request) {
-    const user = await currentUser();
-    if (!user.signedIn || !user.userId) {
-        return NextResponse.json({ ok: false }, { status: 401 });
+    const { user } = await resolveRequestUser(req);
+    if (!user) {
+        return NextResponse.json({ ok: false, code: "UNAUTHORIZED" }, { status: 401 });
     }
 
     let body: Record<string, unknown>;

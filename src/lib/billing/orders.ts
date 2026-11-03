@@ -1,9 +1,10 @@
 import { randomUUID } from "node:crypto";
 import { sendTelegram } from "../telegram";
 import { creditsForIdr, MIN_TOPUP_IDR, ORDER_TTL_MIN } from "./config";
-import { grant } from "./ledger";
+import { balance, grant } from "./ledger";
 import { billingConfigured, command } from "./redis";
 import { onTopupApproved } from "./referral";
+import { sendTopUpAlert } from "../telegram/alerts";
 
 export type OrderState =
     | "pending"
@@ -186,6 +187,17 @@ export async function approveOrder(id: string): Promise<Order | null> {
     });
     if (granted) {
         await onTopupApproved(order.userId, credits, `gopay:${order.id}`);
+        let current = { credits: 0 };
+        try {
+            current = await balance(order.userId);
+        } catch {
+            /* alert balance is best effort */
+        }
+        void sendTopUpAlert({
+            userId: order.userId,
+            added: credits,
+            newBalance: current.credits,
+        });
         void sendTelegram(
             `💰 <b>Approved</b> ${credits} credits\nid: <code>${order.id}</code>\nemail: ${order.email ?? "?"}`
         );

@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { ensureUser } from "@/lib/billing/ledger";
 import { billingConfigured } from "@/lib/billing/redis";
 import { googleOAuthConfigured } from "@/lib/google/oauth";
+import { mobileApiEnabled } from "@/lib/mobile/config";
 import { hasTokens, peekGoogleEmail, peekGoogleUserId } from "@/lib/google/token-store";
 
 export const runtime = "nodejs";
@@ -36,5 +37,6 @@ export async function GET() {
     googleUserId: userId,
     email,
     oauthConfigured: googleOAuthConfigured(),
+    mobileApiEnabled: mobileApiEnabled(),
   });
 }

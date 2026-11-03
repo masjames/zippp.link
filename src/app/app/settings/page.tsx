@@ -1,15 +1,20 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import PhoneShell from "@/components/app/PhoneShell";
 import WaLinkPanel from "@/components/app/WaLinkPanel";
+import ConnectedDevices from "@/components/app/ConnectedDevices";
+import TelegramLinkPanel from "@/components/app/TelegramLinkPanel";
+import PairDeviceModal from "@/components/app/PairDeviceModal";
 import { useApp } from "@/components/app/AppProvider";
 import LangSelect from "@/components/LangSelect";
 import { fill } from "@/lib/t";
 
 export default function SettingsPage() {
-    const { t, lang, balance, signOut } = useApp();
+    const { t, lang, balance, auth, signOut } = useApp();
     const router = useRouter();
+    const [pairOpen, setPairOpen] = useState(false);
 
     const expiry =
         balance?.soonestExpiry != null
@@ -40,6 +45,16 @@ export default function SettingsPage() {
             </div>
 
             <div className="rounded-2xl bg-card p-4">
+                <button
+                    type="button"
+                    onClick={() => router.push("/app/settings/space")}
+                    className="w-full rounded-full bg-mist px-4 py-3 text-sm font-semibold text-ink"
+                >
+                    {t("app.space.settings")}
+                </button>
+            </div>
+
+            <div className="rounded-2xl bg-card p-4">
                 <p className="text-sm font-semibold">
                     {t("app.settings.language.title")}
                 </p>
@@ -54,6 +69,23 @@ export default function SettingsPage() {
                     />
                 </div>
             </div>
+
+            {auth?.mobileApiEnabled ? (
+                <>
+                    <div className="rounded-2xl bg-card p-4">
+                        <button
+                            type="button"
+                            onClick={() => setPairOpen(true)}
+                            className="w-full rounded-full bg-mist px-4 py-3 text-sm font-semibold text-ink"
+                        >
+                            {t("web.pairing.button")}
+                        </button>
+                    </div>
+                    <ConnectedDevices />
+                </>
+            ) : null}
+
+            <TelegramLinkPanel />
 
             <WaLinkPanel t={t} />
 
@@ -99,6 +131,7 @@ export default function SettingsPage() {
                     {t("app.auth.signout")}
                 </button>
             </div>
+        <PairDeviceModal isOpen={pairOpen} onClose={() => setPairOpen(false)} />
         </PhoneShell>
     );
 }

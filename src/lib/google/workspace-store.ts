@@ -27,6 +27,8 @@ export type WorkspaceConfig = {
     staff_names: string[];
     outlets: string[];
     default_outlet: string | null;
+    /** Save the receipt JPEG to the user's Drive when the template wants proof. */
+    photo_proof?: boolean;
     headers: string[];
     updated_at: string;
 };
@@ -162,6 +164,7 @@ export function workspacePublic(ws: WorkspaceConfig) {
         staff_names: ws.staff_names,
         outlets: ws.outlets,
         default_outlet: ws.default_outlet,
+        photo_proof: ws.photo_proof ?? false,
         headers: ws.headers,
         updated_at: ws.updated_at,
     };
