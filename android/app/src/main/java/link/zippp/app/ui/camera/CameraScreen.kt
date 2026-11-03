@@ -54,7 +54,6 @@ import link.zippp.app.data.ApiException
 import link.zippp.app.data.ExtractResponse
 import link.zippp.app.data.Receipt
 import link.zippp.app.data.SpaceSummary
-import link.zippp.app.ui.review.ReviewScreen
 import link.zippp.app.ui.theme.ZipppColors
 import link.zippp.app.ui.theme.ZipppRadius
 import link.zippp.app.ui.theme.ZipppSpace
@@ -70,9 +69,7 @@ fun CameraScreen(
     onOpenManual: () -> Unit,
     onOpenSpace: () -> Unit,
     onOpenBatch: () -> Unit,
-    onScanQueued: (Receipt, String) -> Unit,
-    onScanAccepted: (String) -> Unit,
-    onScanDiscarded: (String) -> Unit,
+    onExtracted: (Receipt, String) -> Unit,
     onSessionLost: () -> Unit,
 ) {
     val context = LocalContext.current
@@ -108,7 +105,6 @@ fun CameraScreen(
     var imageCapture by remember { mutableStateOf<ImageCapture?>(null) }
     var busy by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<Int?>(null) }
-    var result by remember { mutableStateOf<ExtractResponse?>(null) }
     var credits by remember { mutableStateOf(initialCredits) }
     var spaces by remember { mutableStateOf<List<SpaceSummary>>(emptyList()) }
 
@@ -146,30 +142,6 @@ fun CameraScreen(
                 error = R.string.error_camera
             }
         }, ContextCompat.getMainExecutor(context))
-    }
-
-    val receipt = result?.receipt
-    val scanId = result?.scanId
-    if (receipt != null && scanId != null) {
-        ReviewScreen(
-            api = api,
-            token = token,
-            receipt = receipt,
-            scanId = scanId,
-            credits = credits,
-            onDiscard = {
-                onScanDiscarded(scanId)
-                result = null
-            },
-            onAccepted = { remaining ->
-                onScanAccepted(scanId)
-                credits = remaining ?: credits
-                onCreditsChanged(credits)
-                result = null
-            },
-            onSessionLost = onSessionLost,
-        )
-        return
     }
 
     Box(
@@ -388,9 +360,10 @@ fun CameraScreen(
                                         try {
                                             val bytes = withContext(Dispatchers.IO) { file.readBytes() }
                                             val response = api.extract(token, bytes)
-                                            if (response.ok && response.receipt != null && response.scanId != null) {
-                                                onScanQueued(response.receipt, response.scanId)
-                                                result = response
+                                            val extracted = response.receipt
+                                            val extractedScan = response.scanId
+                                            if (response.ok && extracted != null && extractedScan != null) {
+                                                onExtracted(extracted, extractedScan)
                                             } else {
                                                 error = R.string.error_extract
                                             }

@@ -97,14 +97,9 @@ fun BatchScreen(
                     verticalArrangement = Arrangement.spacedBy(ZipppSpace.gap),
                 ) {
                     Text(
-                        text = store.items.size.toString(),
-                        style = MaterialTheme.typography.headlineLarge,
-                        color = ZipppColors.mist,
-                    )
-                    StatusChip(
-                        text = stringResource(R.string.queue_title),
-                        background = ZipppColors.peach,
-                        foreground = ZipppColors.maroon,
+                        text = stringResource(R.string.queue_empty),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = ZipppColors.muted,
                     )
                 }
             }
@@ -134,12 +129,12 @@ fun BatchScreen(
             shape = RoundedCornerShape(ZipppRadius.pill),
             colors = ButtonDefaults.buttonColors(
                 containerColor = ZipppColors.orange,
-                contentColor = ZipppColors.card,
+                contentColor = ZipppColors.ink,
             ),
             contentPadding = PaddingValues(vertical = 14.dp),
         ) {
             Text(
-                text = stringResource(R.string.camera_snap),
+                text = stringResource(R.string.queue_capture_more),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
             )

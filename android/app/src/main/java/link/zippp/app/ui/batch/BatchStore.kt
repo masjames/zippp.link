@@ -22,6 +22,8 @@ data class BatchDraft(
     companion object {
         const val STATUS_PENDING = "pending"
         const val STATUS_ACCEPTED = "accepted"
+        const val STATUS_SENDING = "sending"
+        const val STATUS_READY = "ready"
     }
 }
 
@@ -59,8 +61,16 @@ class BatchStore(initial: List<BatchDraft> = emptyList()) {
         update(id) { it.copy(status = BatchDraft.STATUS_ACCEPTED, error = null) }
     }
 
+    fun markSending(id: String) {
+        update(id) { it.copy(status = BatchDraft.STATUS_SENDING, error = null) }
+    }
+
+    fun markReady(id: String, message: String?) {
+        update(id) { it.copy(status = BatchDraft.STATUS_READY, error = message) }
+    }
+
     fun markError(id: String, message: String) {
-        update(id) { it.copy(error = message) }
+        markReady(id, message)
     }
 
     fun remove(id: String) {

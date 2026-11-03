@@ -81,6 +81,8 @@ const map = {
   notify_open_camera: "android.notify.openCamera",
   error_capture_permission: "android.error.capture.permission",
   plan_limit: "android.plan.limit",
+  queue_empty: "android.queue.empty",
+  queue_capture_more: "android.queue.captureMore",
   queue_title: "android.queue.title",
   queue_pending: "android.queue.pending",
   queue_sent: "android.queue.sent",

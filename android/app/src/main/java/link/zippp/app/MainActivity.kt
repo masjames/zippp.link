@@ -21,6 +21,10 @@ import link.zippp.app.ui.settings.SettingsScreen
 import link.zippp.app.ui.space.SpaceScreen
 import link.zippp.app.ui.batch.BatchScreen
 import link.zippp.app.ui.batch.BatchStore
+import link.zippp.app.ui.review.ReviewScreen
+import link.zippp.app.data.AppendRequest
+import link.zippp.app.data.ApiException
+import kotlinx.coroutines.channels.Channel
 import link.zippp.app.ui.theme.ZipppTheme
 
 /** Values carried from a capture prompt into manual entry. */
@@ -29,7 +33,7 @@ data class ManualPrefill(
     val merchant: String?,
 )
 
-private enum class RootScreen { Camera, Settings, Manual, Space, Batch }
+private enum class RootScreen { Camera, Settings, Manual, Space, Batch, Review }
 
 class MainActivity : ComponentActivity() {
     private var pendingMagicToken = mutableStateOf<String?>(null)
@@ -99,6 +103,45 @@ private fun ZipppRoot(
     var screen by remember { mutableStateOf(RootScreen.Camera) }
     var manualSeed by remember { mutableStateOf(manualPrefill) }
     val batch = remember { BatchStore() }
+    var currentDraftId by remember { mutableStateOf<String?>(null) }
+    val outbox = remember { Channel<Pair<String, AppendRequest>>(Channel.UNLIMITED) }
+
+    LaunchedEffect(token, api) {
+        val active = token ?: return@LaunchedEffect
+        for ((draftId, request) in outbox) {
+            batch.markSending(draftId)
+            try {
+                val response = api.append(active, request)
+                when {
+                    response.ok -> {
+                        batch.remove(draftId)
+                        response.creditsRemaining?.let { credits = it }
+                    }
+                    response.code == "NO_CREDITS" -> batch.markReady(draftId, "NO_CREDITS")
+                    response.code == "PLAN_LIMIT" -> batch.markReady(draftId, "PLAN_LIMIT")
+                    response.code == "SCAN_ALREADY_SENT" -> batch.remove(draftId)
+                    else -> batch.markReady(draftId, response.code ?: "ERROR")
+                }
+            } catch (e: ApiException) {
+                if (e.code == "DEVICE_REVOKED") {
+                    store.clear()
+                    token = null
+                } else {
+                    batch.markReady(draftId, e.code)
+                }
+            } catch (_: Exception) {
+                batch.markReady(draftId, "NETWORK")
+            }
+        }
+    }
+
+    fun nextDraft(): RootScreen {
+        val next = batch.items.firstOrNull {
+            it.status == "pending" || it.status == "ready"
+        }
+        currentDraftId = next?.id
+        return if (next != null) RootScreen.Review else RootScreen.Camera
+    }
 
     LaunchedEffect(manualPrefill) {
         if (manualPrefill != null) {
@@ -129,7 +172,10 @@ private fun ZipppRoot(
         RootScreen.Batch -> BatchScreen(
             store = batch,
             onCaptureMore = { screen = RootScreen.Camera },
-            onOpenDraft = { screen = RootScreen.Camera },
+            onOpenDraft = { id ->
+                currentDraftId = id
+                screen = RootScreen.Review
+            },
             onClose = { screen = RootScreen.Camera },
         )
         RootScreen.Space -> SpaceScreen(
@@ -162,6 +208,34 @@ private fun ZipppRoot(
                 screen = RootScreen.Camera
             },
         )
+        RootScreen.Review -> {
+            val draft = batch.find(currentDraftId ?: "")
+            if (draft == null) {
+                screen = nextDraft()
+            } else {
+                ReviewScreen(
+                    api = api,
+                    token = token!!,
+                    receipt = draft.receipt,
+                    scanId = draft.scanId,
+                    credits = credits,
+                    onDiscard = {
+                        batch.remove(draft.id)
+                        screen = nextDraft()
+                    },
+                    onAccept = { request ->
+                        batch.markAccepted(draft.id)
+                        outbox.trySend(draft.id to request)
+                        screen = nextDraft()
+                    },
+                    onSessionLost = {
+                        store.clear()
+                        token = null
+                        screen = RootScreen.Camera
+                    },
+                )
+            }
+        }
         RootScreen.Camera -> CameraScreen(
             api = api,
             token = token!!,
@@ -171,9 +245,11 @@ private fun ZipppRoot(
             onOpenManual = { screen = RootScreen.Manual },
             onOpenSpace = { screen = RootScreen.Space },
             onOpenBatch = { screen = RootScreen.Batch },
-            onScanQueued = { receipt, scanId -> batch.add(receipt, scanId) },
-            onScanAccepted = { scanId -> batch.markAccepted(scanId) },
-            onScanDiscarded = { scanId -> batch.remove(scanId) },
+            onExtracted = { receipt, scanId ->
+                val draft = batch.add(receipt, scanId)
+                currentDraftId = draft.id
+                screen = RootScreen.Review
+            },
             onSessionLost = {
                 store.clear()
                 token = null

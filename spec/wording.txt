@@ -4227,6 +4227,14 @@ Kembali
 Your plan's fair-use limit is reached.
 ## android.plan.limit.id
 Batas wajar paket Anda sudah tercapai.
+## android.queue.empty.en
+Nothing queued yet
+## android.queue.empty.id
+Belum ada antrean
+## android.queue.captureMore.en
+Capture another
+## android.queue.captureMore.id
+Ambil lagi
 ## android.queue.title.en
 Queue
 ## android.queue.title.id

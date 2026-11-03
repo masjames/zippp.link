@@ -81,7 +81,7 @@ fun ReviewScreen(
     scanId: String,
     credits: Int,
     onDiscard: () -> Unit,
-    onAccepted: (Int?) -> Unit,
+    onAccept: (AppendRequest) -> Unit,
     onSessionLost: () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
@@ -409,9 +409,8 @@ fun ReviewScreen(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Button(
-                        enabled = !busy && !outOfCredits && !blocked,
+                        enabled = !blocked,
                         onClick = {
-                            busy = true
                             error = null
                             val editedReceipt = receipt.copy(
                                 merchant = merchant.trim().ifBlank { null },
@@ -442,59 +441,17 @@ fun ReviewScreen(
                             scope.launch {
                                 runCatching { api.logCorrections(token, correction) }
                             }
-                            scope.launch {
-                                try {
-                                    val response = api.append(
-                                        token,
-                                        AppendRequest(
-                                            scanId = scanId,
-                                            receipt = editedReceipt,
-                                            staff = if (showStaff) {
-                                                staff.trim().ifBlank { null }
-                                            } else {
-                                                null
-                                            },
-                                            outlet = if (showOutlet) {
-                                                outlet.trim().ifBlank { null }
-                                            } else {
-                                                null
-                                            },
-                                            payment = if (showPayment) {
-                                                payment.trim().ifBlank { null }
-                                            } else {
-                                                null
-                                            },
-                                            purpose = if (showPurpose) {
-                                                purpose.trim().ifBlank { null }
-                                            } else {
-                                                null
-                                            },
-                                            customer = if (showCustomer) {
-                                                customer.trim().ifBlank { null }
-                                            } else {
-                                                null
-                                            },
-                                        ),
-                                    )
-                                    when {
-                                        response.ok -> onAccepted(response.creditsRemaining)
-                                        response.code == "NO_CREDITS" -> {
-                                            outOfCredits = true
-                                            error = R.string.error_no_credits
-                                        }
-                                        response.code == "SCAN_ALREADY_SENT" -> onAccepted(null)
-                                        response.code == "PLAN_LIMIT" -> error = R.string.plan_limit
-                                        else -> error = R.string.error_append
-                                    }
-                                } catch (e: ApiException) {
-                                    if (e.code == "DEVICE_REVOKED") onSessionLost()
-                                    else error = R.string.error_append
-                                } catch (_: Exception) {
-                                    error = R.string.error_append
-                                } finally {
-                                    busy = false
-                                }
-                            }
+                            onAccept(
+                                AppendRequest(
+                                    scanId = scanId,
+                                    receipt = editedReceipt,
+                                    staff = if (showStaff) staff.trim().ifBlank { null } else null,
+                                    outlet = if (showOutlet) outlet.trim().ifBlank { null } else null,
+                                    payment = if (showPayment) payment.trim().ifBlank { null } else null,
+                                    purpose = if (showPurpose) purpose.trim().ifBlank { null } else null,
+                                    customer = if (showCustomer) customer.trim().ifBlank { null } else null,
+                                )
+                            )
                         },
                         modifier = Modifier.weight(1.4f),
                         shape = RoundedCornerShape(ZipppRadius.pill),
