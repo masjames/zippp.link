@@ -39,7 +39,7 @@ func TestLoadConfigResolvesRelativePaths(t *testing.T) {
 	if cfg.Verify.TimeoutSeconds != 120 || cfg.Verify.HTTPTimeoutSeconds != 10 || cfg.Verify.MaxOutputBytes != 65536 {
 		t.Fatalf("defaults not applied: %+v", cfg.Verify)
 	}
-	for _, dir := range []string{"features", "bugs", "stories", "diagrams"} {
+	for _, dir := range []string{"features", "bugs", "stories", "diagrams", "direction", "decisions", "roadmap"} {
 		if info, err := os.Stat(filepath.Join(cfg.EntitiesRoot, dir)); err != nil || !info.IsDir() {
 			t.Fatalf("missing entity dir %s", dir)
 		}

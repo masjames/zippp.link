@@ -113,6 +113,35 @@ export function useFactorySocket(onNotice?: (message: string) => void) {
           noticeRef.current?.(message.message)
           return
         }
+        if (message.type === 'build_status') {
+          const job =
+            message.job ??
+            ({
+              id: message.id,
+              phase: message.phase,
+              ok: message.ok,
+              message: message.message,
+              brief_path: message.brief_path,
+              model: message.model,
+            } as const)
+          dispatch({ type: 'build_status', job })
+          if (message.phase === 'starting' || message.phase === 'running') {
+            noticeRef.current?.(message.message || `Building ${message.id}`)
+          } else if (message.phase === 'error' || (message.phase === 'exited' && !message.ok)) {
+            noticeRef.current?.(message.message || `Build failed: ${message.id}`)
+          } else if (message.phase === 'exited') {
+            noticeRef.current?.(message.message || `Build finished: ${message.id}`)
+          }
+          return
+        }
+        if (message.type === 'build_result') {
+          noticeRef.current?.(
+            message.ok
+              ? message.message || `Brief ready: ${message.brief_path || message.id}`
+              : message.error || 'Build brief failed',
+          )
+          return
+        }
         dispatch({ type: 'server', message })
       }
     }

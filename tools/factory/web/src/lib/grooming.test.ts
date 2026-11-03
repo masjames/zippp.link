@@ -84,4 +84,24 @@ describe('groomEntity', () => {
     const result = groomEntity(entity(body, 'diagram'))
     expect(result.ready).toBe(true)
   })
+
+  it('grooms a locked decision card without code targets', () => {
+    const body = `# Locked call
+Pay on web.
+
+# Why
+Play posture.
+
+# Locked
+- [x] Web checkout only
+
+# Non-goals
+- IAP
+
+# Done when
+Copy matches.
+`
+    const result = groomEntity(entity(body, 'decision'))
+    expect(result.ready).toBe(true)
+  })
 })

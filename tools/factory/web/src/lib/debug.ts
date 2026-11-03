@@ -60,6 +60,22 @@ export function summarizeServerMessage(message: ServerMsg): DebugEvent {
         id: message.id,
         summary: `ok=${message.ok}${message.error ? ` error=${message.error}` : ''}`,
       }
+    case 'build_status':
+      return {
+        ...base,
+        id: message.id,
+        summary: `phase=${message.phase} ok=${message.ok} ${message.message}`,
+        message: message.message,
+      }
+    case 'build_result':
+      return {
+        ...base,
+        id: message.id,
+        summary: `ok=${message.ok} brief=${message.brief_path ?? ''}${
+          message.error ? ` error=${message.error}` : ''
+        }`,
+        message: message.message ?? message.error,
+      }
     case 'error':
       return { ...base, message: message.message, summary: message.message }
   }

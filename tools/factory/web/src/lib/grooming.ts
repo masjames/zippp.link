@@ -38,12 +38,58 @@ function hasManualVerification(body: string): boolean {
   return /manual/i.test(lines.slice(index + 1).join('\n'))
 }
 
+function isStrategy(type: Entity['type']): boolean {
+  return type === 'direction' || type === 'decision' || type === 'roadmap'
+}
+
 export function groomEntity(entity: Entity): GroomResult {
   const diagram = entity.type === 'diagram'
+  const strategy = isStrategy(entity.type)
   const acceptance = parseAcceptance(entity.body)
   const hasTargets = entity.verification.target_files.length > 0
   const hasTest = entity.verification.test_command.trim().length > 0
   const manual = hasManualVerification(entity.body)
+
+  if (strategy) {
+    const items: GroomItem[] = [
+      {
+        key: 'summary',
+        label: 'What it is',
+        ok: hasHeading(entity.body, /what it is|summary|overview|locked call|destination/i),
+        required: true,
+        detail: 'Add # What it is (or # Locked call / # Destination).',
+      },
+      {
+        key: 'goal',
+        label: 'Why',
+        ok: hasHeading(entity.body, /goal|why|so that/i),
+        required: true,
+        detail: 'Add # Why — one sentence.',
+      },
+      {
+        key: 'acceptance',
+        label: 'Locked / phases',
+        ok: acceptance.length > 0 || hasHeading(entity.body, /locked|phases|decision/i),
+        required: true,
+        detail: 'Add checkboxes or a # Locked / # Phases section.',
+      },
+      {
+        key: 'out-of-scope',
+        label: 'Non-goals',
+        ok: hasHeading(entity.body, /out of scope|non-goals|not this/i),
+        required: true,
+        detail: 'Add # Non-goals so scope cannot sprawl.',
+      },
+      {
+        key: 'definition',
+        label: 'Done when',
+        ok: hasHeading(entity.body, /definition of done|done when/i),
+        required: true,
+        detail: 'Add # Done when.',
+      },
+    ]
+    return scoreItems(items)
+  }
 
   const items: GroomItem[] = [
     {
@@ -113,6 +159,10 @@ export function groomEntity(entity: Entity): GroomResult {
     },
   ]
 
+  return scoreItems(items)
+}
+
+function scoreItems(items: GroomItem[]): GroomResult {
   const requiredItems = items.filter((item) => item.required)
   const recommendedItems = items.filter((item) => !item.required)
   const requiredOk = requiredItems.filter((item) => item.ok).length

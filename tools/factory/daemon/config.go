@@ -18,6 +18,7 @@ type Config struct {
 	AllowedOrigins []string     `json:"allowed_origins"`
 	Verify         VerifyConfig `json:"verify"`
 	LLM            LLMConfig    `json:"llm"`
+	Build          BuildConfig  `json:"build"`
 	ReportsDir     string       `json:"reports_dir"`
 }
 
@@ -95,7 +96,12 @@ func LoadConfig(path string) (*Config, error) {
 	if cfg.Verify.AllowedCommands == nil {
 		cfg.Verify.AllowedCommands = []string{}
 	}
-	for _, dir := range []string{"features", "bugs", "stories", "diagrams", "threads"} {
+	cfg.buildDefaults()
+	// Default: spawn enabled. Opt out with "build": { "enabled": false }.
+	if !jsonHasBuildEnabled(raw) {
+		cfg.Build.Enabled = true
+	}
+	for _, dir := range []string{"features", "bugs", "stories", "diagrams", "direction", "decisions", "roadmap", "threads"} {
 		if err := os.MkdirAll(filepath.Join(cfg.EntitiesRoot, dir), 0o755); err != nil {
 			return nil, fmt.Errorf("create entity dir %s: %w", dir, err)
 		}
@@ -111,6 +117,18 @@ func resolvePath(base, value string) (string, error) {
 		value = filepath.Join(base, value)
 	}
 	return filepath.Abs(value)
+}
+
+func jsonHasBuildEnabled(raw []byte) bool {
+	var probe struct {
+		Build *struct {
+			Enabled *bool `json:"enabled"`
+		} `json:"build"`
+	}
+	if err := json.Unmarshal(raw, &probe); err != nil {
+		return false
+	}
+	return probe.Build != nil && probe.Build.Enabled != nil
 }
 
 func validateListen(listen string) error {

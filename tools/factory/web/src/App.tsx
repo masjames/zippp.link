@@ -3,20 +3,22 @@ import type { MouseEvent } from 'react'
 import { DebugPanel } from './components/DebugPanel'
 import { DetailPane } from './components/DetailPane'
 import { DesignView } from './components/DesignView'
+import { DirectionView } from './components/DirectionView'
 import type { DetailTab } from './components/DetailPane'
 import { GapView } from './components/GapView'
 import { KanbanBoard } from './components/KanbanBoard'
 import { StatusBar } from './components/StatusBar'
 import { useFactorySocket } from './useFactorySocket'
 import { hasThreadMessages } from './lib/thread'
+import { isStrategyEntity, isTaskEntity } from './lib/strategy'
 
-type Tab = 'tasks' | 'design' | 'gap'
+type Tab = 'direction' | 'tasks' | 'design' | 'gap'
 
 export function App() {
   const [notice, setNotice] = useState<string | null>(null)
   const { state, send, debug, clearDebug, reconnect } = useFactorySocket(setNotice)
   const [selectedId, setSelectedId] = useState<string | null>(null)
-  const [tab, setTab] = useState<Tab>('tasks')
+  const [tab, setTab] = useState<Tab>('direction')
   const [detailTab, setDetailTab] = useState<DetailTab>('spec')
   const [detailVisible, setDetailVisible] = useState(false)
   const [detailExpanded, setDetailExpanded] = useState(false)
@@ -37,18 +39,26 @@ export function App() {
     [state.entities],
   )
 
+  const taskEntities = useMemo(() => allEntities.filter(isTaskEntity), [allEntities])
+  const strategyEntities = useMemo(() => allEntities.filter(isStrategyEntity), [allEntities])
+
   const visibleEntities = useMemo(() => {
     const query = search.trim().toLowerCase()
-    if (query.length === 0) return allEntities
-    return allEntities.filter(
+    if (query.length === 0) return taskEntities
+    return taskEntities.filter(
       (entity) =>
         entity.id.toLowerCase().includes(query) || entity.title.toLowerCase().includes(query),
     )
-  }, [allEntities, search])
+  }, [taskEntities, search])
 
   const selected = selectedId ? state.entities[selectedId] : undefined
   const selectedResult = selectedId ? state.verifications[selectedId] : undefined
   const selectedRunning = selectedId ? Boolean(state.running[selectedId]) : false
+  const selectedBuild = selectedId ? state.builds[selectedId] : undefined
+  const selectedBuilding =
+    (selectedBuild?.phase === 'starting' || selectedBuild?.phase === 'running') &&
+    selected?.status !== 'verify' &&
+    selected?.status !== 'done'
 
   function selectTask(id: string, nextTab: DetailTab = 'spec') {
     setSelectedId(id)
@@ -107,6 +117,13 @@ export function App() {
           <div role="tablist" className="tabs tabs-boxed mb-3 w-fit">
             <button
               role="tab"
+              className={`tab ${tab === 'direction' ? 'tab-active' : ''}`}
+              onClick={() => setTab('direction')}
+            >
+              Direction
+            </button>
+            <button
+              role="tab"
               className={`tab ${tab === 'tasks' ? 'tab-active' : ''}`}
               onClick={() => setTab('tasks')}
             >
@@ -128,7 +145,18 @@ export function App() {
             </button>
           </div>
 
-          {tab === 'tasks' ? (
+          {tab === 'direction' ? (
+            <DirectionView
+              entities={strategyEntities}
+              tasks={taskEntities}
+              selectedId={selectedId}
+              onSelect={(id) => selectTask(id)}
+              onBuild={(id) => {
+                selectTask(id)
+                send({ type: 'build', id })
+              }}
+            />
+          ) : tab === 'tasks' ? (
             <>
               <div className="mb-3 flex flex-wrap items-center gap-2">
                 <input
@@ -138,7 +166,7 @@ export function App() {
                   onChange={(event) => setSearch(event.target.value)}
                 />
                 <span className="text-xs text-base-content/60">
-                  {visibleEntities.length} of {allEntities.length} tasks
+                  {visibleEntities.length} of {taskEntities.length} tasks
                 </span>
                 {state.errors.length > 0 && (
                   <span className="badge badge-warning badge-sm">
@@ -157,7 +185,7 @@ export function App() {
             <DesignView entities={allEntities} />
           ) : (
             <GapView
-              entities={allEntities}
+              entities={taskEntities}
               state={state}
               onSelect={(id) => selectTask(id, 'gap')}
             />
@@ -171,10 +199,13 @@ export function App() {
             entities={state.entities}
             result={selectedResult}
             running={selectedRunning}
+            buildJob={selectedBuild}
+            building={Boolean(selectedBuilding)}
             tab={detailTab}
             onTab={setDetailTab}
             onSelect={(id) => selectTask(id)}
             onVerify={() => selectedId && send({ type: 'verify', id: selectedId })}
+            onBuild={() => selectedId && send({ type: 'build', id: selectedId })}
             thread={selectedId ? state.threads[selectedId] : undefined}
             chatBusy={selectedId ? Boolean(state.chatBusy[selectedId]) : false}
             chatError={selectedId ? state.chatError[selectedId] : undefined}

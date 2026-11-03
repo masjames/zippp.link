@@ -1,4 +1,12 @@
-export type EntityType = 'feature' | 'bug' | 'story' | 'spec' | 'diagram'
+export type EntityType =
+  | 'feature'
+  | 'bug'
+  | 'story'
+  | 'spec'
+  | 'diagram'
+  | 'direction'
+  | 'decision'
+  | 'roadmap'
 export type EntityStatus = 'todo' | 'in-progress' | 'blocked' | 'verify' | 'done'
 
 export type Relations = {
@@ -51,6 +59,22 @@ export type Result = {
   checks: CheckResult[]
 }
 
+export type BuildPhase = 'starting' | 'running' | 'exited' | 'error'
+
+export type BuildJob = {
+  id: string
+  phase: BuildPhase
+  ok: boolean
+  message: string
+  brief_path?: string
+  model?: string
+  agent?: string
+  pid?: number
+  exit_code?: number
+  started_at?: string
+  finished_at?: string
+}
+
 export type ServerMsg =
   | {
       type: 'snapshot'
@@ -58,6 +82,7 @@ export type ServerMsg =
       entities: Entity[]
       errors: ParseError[]
       verifications: Record<string, Result>
+      builds?: Record<string, BuildJob>
     }
   | {
       type: 'diff'
@@ -71,6 +96,24 @@ export type ServerMsg =
   | { type: 'groom_thread'; id: string; thread: string }
   | { type: 'groom_chat_started'; id: string }
   | { type: 'groom_chat_result'; id: string; ok: boolean; thread?: string; error?: string }
+  | {
+      type: 'build_status'
+      id: string
+      phase: BuildPhase
+      ok: boolean
+      message: string
+      brief_path?: string
+      model?: string
+      job?: BuildJob
+    }
+  | {
+      type: 'build_result'
+      id: string
+      ok: boolean
+      brief_path?: string
+      message?: string
+      error?: string
+    }
   | { type: 'error'; message: string }
 
 export type ClientMsg =
@@ -78,3 +121,4 @@ export type ClientMsg =
   | { type: 'verify'; id: string }
   | { type: 'groom_thread'; id: string }
   | { type: 'groom_chat'; id: string; message: string }
+  | { type: 'build'; id: string }

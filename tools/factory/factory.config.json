@@ -15,5 +15,12 @@
     "api_key_file": ".factory-key",
     "timeout_seconds": 120
   },
+  "build": {
+    "enabled": true,
+    "agent": "omp",
+    "model": "deepseek/deepseek-v4-flash",
+    "terminal": "ghostty",
+    "script": "tools/factory/scripts/run-omp-build.sh"
+  },
   "reports_dir": "tools/factory/.reports"
 }

@@ -210,7 +210,7 @@ func isEntityPath(rel string) bool {
 		return false
 	}
 	switch parts[0] {
-	case "features", "bugs", "stories", "diagrams":
+	case "features", "bugs", "stories", "diagrams", "direction", "decisions", "roadmap":
 		return true
 	}
 	return false

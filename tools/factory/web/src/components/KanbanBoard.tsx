@@ -80,7 +80,10 @@ function TaskCard(props: {
     >
       <div className="flex items-center justify-between gap-2">
         <span className="font-mono text-xs text-base-content/70">{entity.id}</span>
-        <VerificationBadge id={entity.id} state={state} />
+        <div className="flex items-center gap-1">
+          <BuildBadge id={entity.id} state={state} />
+          <VerificationBadge id={entity.id} state={state} />
+        </div>
       </div>
       <div className="mt-1 text-sm">{entity.title}</div>
       <div className="mt-2 flex items-center justify-between gap-2">
@@ -91,6 +94,26 @@ function TaskCard(props: {
       </div>
     </button>
   )
+}
+
+function BuildBadge({ id, state }: { id: string; state: FactoryState }) {
+  const job = state.builds[id]
+  if (!job) return null
+  const entity = state.entities[id]
+  if (
+    (job.phase === 'starting' || job.phase === 'running') &&
+    entity?.status !== 'verify' &&
+    entity?.status !== 'done'
+  ) {
+    return <span className="badge badge-info badge-xs">omp</span>
+  }
+  if (job.phase === 'error' || (job.phase === 'exited' && !job.ok)) {
+    return <span className="badge badge-error badge-xs">build fail</span>
+  }
+  if (job.phase === 'exited') {
+    return <span className="badge badge-success badge-xs">built</span>
+  }
+  return null
 }
 
 function VerificationBadge({ id, state }: { id: string; state: FactoryState }) {

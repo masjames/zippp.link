@@ -42,6 +42,7 @@ type Hub struct {
 	OnVerify    func(id string) error
 	OnThread    func(id string) (string, error)
 	OnGroomChat func(id, message string) error
+	OnBuild     func(id string) error
 }
 
 func NewHub(snapshotFn func() map[string]any, allowedOrigins []string) *Hub {
@@ -317,6 +318,14 @@ func (c *client) readPump() {
 			}
 			if err := c.hub.OnGroomChat(in.ID, in.Message); err != nil {
 				c.hub.sendGroomChatResult(c, in.ID, false, "", err.Error())
+			}
+		case "build":
+			if c.hub.OnBuild == nil {
+				c.hub.sendError(c, "build handler not configured")
+				continue
+			}
+			if err := c.hub.OnBuild(in.ID); err != nil {
+				c.hub.sendError(c, err.Error())
 			}
 		default:
 			c.hub.sendError(c, "unknown message type")

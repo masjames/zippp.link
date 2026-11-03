@@ -1,5 +1,8 @@
 bin/
 .reports/
+.briefs/*.md
+.briefs/*.json
+!.briefs/.gitkeep
 web/node_modules/
 web/dist/
 .factory-key

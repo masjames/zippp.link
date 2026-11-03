@@ -1,4 +1,4 @@
-import type { Entity, ParseError, Result, ServerMsg } from './types'
+import type { BuildJob, Entity, ParseError, Result, ServerMsg } from './types'
 
 export type FactoryState = {
   connected: boolean
@@ -6,6 +6,7 @@ export type FactoryState = {
   entities: Record<string, Entity>
   errors: ParseError[]
   verifications: Record<string, Result>
+  builds: Record<string, BuildJob>
   running: Record<string, boolean>
   threads: Record<string, string>
   chatBusy: Record<string, boolean>
@@ -19,6 +20,7 @@ export const initialState: FactoryState = {
   entities: {},
   errors: [],
   verifications: {},
+  builds: {},
   running: {},
   threads: {},
   chatBusy: {},
@@ -33,6 +35,7 @@ export type Action =
   | { type: 'thread_loaded'; id: string; thread: string }
   | { type: 'chat_started'; id: string }
   | { type: 'chat_result'; id: string; ok: boolean; thread?: string; error?: string }
+  | { type: 'build_status'; job: BuildJob }
 
 type SeqStatus = 'ok' | 'stale' | 'gap'
 
@@ -75,6 +78,12 @@ export function reducer(state: FactoryState, action: Action): FactoryState {
       },
     }
   }
+  if (action.type === 'build_status') {
+    return {
+      ...state,
+      builds: { ...state.builds, [action.job.id]: action.job },
+    }
+  }
 
   const message = action.message
   if (message.type === 'snapshot') {
@@ -84,6 +93,7 @@ export function reducer(state: FactoryState, action: Action): FactoryState {
       entities: Object.fromEntries(message.entities.map((entity) => [entity.id, entity])),
       errors: message.errors,
       verifications: message.verifications,
+      builds: message.builds ?? {},
       running: {},
       needResync: false,
     }
@@ -92,7 +102,9 @@ export function reducer(state: FactoryState, action: Action): FactoryState {
     message.type === 'error' ||
     message.type === 'groom_thread' ||
     message.type === 'groom_chat_started' ||
-    message.type === 'groom_chat_result'
+    message.type === 'groom_chat_result' ||
+    message.type === 'build_result' ||
+    message.type === 'build_status'
   ) {
     return state
   }

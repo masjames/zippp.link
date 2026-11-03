@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"path/filepath"
 	"strings"
 	"sync"
 	"time"
@@ -15,6 +16,7 @@ type App struct {
 	cfg       *Config
 	store     *Store
 	verifier  *Verifier
+	builder   *BuildRunner
 	llm       *LLM
 	hub       *Hub
 	watcher   *Watcher
@@ -33,12 +35,14 @@ func NewApp(cfg *Config) (*App, error) {
 	}
 	_, _ = a.store.Rescan()
 
-	a.hub = NewHub(a.store.Snapshot, cfg.AllowedOrigins)
+	a.hub = NewHub(a.snapshot, cfg.AllowedOrigins)
 	a.verifier = NewVerifier(cfg, a.store, a.hub.Broadcast)
+	a.builder = NewBuildRunner(cfg, a.hub.BroadcastNoSeq)
 	a.hub.OnVerify = a.verifier.Enqueue
 	a.llm = NewLLM(cfg)
 	a.hub.OnThread = a.groomThread
 	a.hub.OnGroomChat = a.groomChat
+	a.hub.OnBuild = a.startBuild
 	onChange := func() {
 		select {
 		case a.rescanCh <- struct{}{}:
@@ -74,6 +78,19 @@ func (a *App) Start(ctx context.Context) {
 							"removed": diff.Removed,
 							"errors":  diff.Errors,
 						})
+						// Agent handed off: stop build spinner even if Ghostty/omp still open.
+						if a.builder != nil {
+							for _, entity := range diff.Upserts {
+								switch entity.Status {
+								case "verify":
+									a.builder.CompleteHandoff(entity.ID, "card → verify — Factory verifier takes over")
+								case "done":
+									a.builder.CompleteHandoff(entity.ID, "card → done")
+								case "blocked":
+									a.builder.CompleteHandoff(entity.ID, "card → blocked — agent stopped")
+								}
+							}
+						}
 					}
 					for _, id := range became {
 						if err := a.verifier.Enqueue(id); err != nil {
@@ -106,6 +123,67 @@ func (a *App) EntityCount() int {
 		return 0
 	}
 	return a.store.Count()
+}
+
+func (a *App) snapshot() map[string]any {
+	snap := a.store.Snapshot()
+	if a.builder != nil {
+		snap["builds"] = a.builder.Snapshot()
+	} else {
+		snap["builds"] = map[string]BuildJob{}
+	}
+	return snap
+}
+
+func (a *App) startBuild(id string) error {
+	entity := a.store.Get(id)
+	if entity == nil {
+		return fmt.Errorf("unknown entity %s", id)
+	}
+	switch entity.Type {
+	case "feature", "bug", "story":
+	default:
+		return fmt.Errorf("build only supported for feature/bug/story, got %s", entity.Type)
+	}
+	if entity.Status == "blocked" || entity.Status == "done" {
+		return fmt.Errorf("cannot build card in status %s", entity.Status)
+	}
+	if a.builder != nil && a.builder.Active(id) {
+		return fmt.Errorf("build already running for %s", id)
+	}
+
+	path, err := WriteBuildBrief(a.cfg, entity)
+	if err != nil {
+		return err
+	}
+
+	// Flip todo/verify → in-progress when (re)starting a build.
+	// entity.Path is repo-root relative (same as verifier).
+	abs := filepath.Join(a.cfg.RepoRoot, filepath.FromSlash(entity.Path))
+	switch entity.Status {
+	case "todo", "verify":
+		from := entity.Status
+		if err := SetStatus(abs, entity.ID, from, "in-progress"); err != nil {
+			log.Printf("build: status flip %s: %v", entity.ID, err)
+		} else {
+			diff, _ := a.store.Rescan()
+			if diff.Changed {
+				a.hub.Broadcast("diff", map[string]any{
+					"upserts": diff.Upserts,
+					"removed": diff.Removed,
+					"errors":  diff.Errors,
+				})
+			}
+			if refreshed := a.store.Get(id); refreshed != nil {
+				entity = refreshed
+			}
+		}
+	}
+
+	if a.builder == nil {
+		return fmt.Errorf("build runner not configured")
+	}
+	return a.builder.Launch(entity, path)
 }
 
 func (a *App) groomThread(id string) (string, error) {

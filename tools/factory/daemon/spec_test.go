@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 )
@@ -84,6 +85,27 @@ func TestParseEntityErrors(t *testing.T) {
 				t.Fatalf("error = %q, want %q", err.Error(), tc.want)
 			}
 		})
+	}
+}
+
+func TestParseEntityStrategyTypes(t *testing.T) {
+	for _, tc := range []struct {
+		typ  string
+		id   string
+		path string
+	}{
+		{"direction", "DIR-1", "direction/DIR-1.md"},
+		{"decision", "DEC-1", "decisions/DEC-1.md"},
+		{"roadmap", "ROAD-1", "roadmap/ROAD-1.md"},
+	} {
+		raw := []byte(fmt.Sprintf("---\nid: %s\ntype: %s\ntitle: T\nstatus: done\n---\nBody\n", tc.id, tc.typ))
+		entity, err := ParseEntity(tc.path, raw)
+		if err != nil {
+			t.Fatalf("%s: %v", tc.typ, err)
+		}
+		if entity.Type != tc.typ || entity.ID != tc.id {
+			t.Fatalf("%s: got %+v", tc.typ, entity)
+		}
 	}
 }
 

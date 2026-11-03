@@ -15,6 +15,8 @@ import { FlowBlock } from './FlowBlock'
 import { MarkdownView } from './MarkdownView'
 import { MermaidBlock } from './MermaidBlock'
 import { RelationMap } from './RelationMap'
+import type { BuildJob } from '../types'
+import { BuildPanel } from './BuildPanel'
 import { VerifyPanel } from './VerifyPanel'
 
 export type DetailTab = 'spec' | 'diagram' | 'groom' | 'gap'
@@ -24,10 +26,13 @@ type Props = {
   entities: Record<string, Entity>
   result?: Result
   running: boolean
+  buildJob?: BuildJob
+  building: boolean
   tab: DetailTab
   onTab: (tab: DetailTab) => void
   onSelect: (id: string) => void
   onVerify: () => void
+  onBuild: () => void
   expanded: boolean
   onToggleExpand: () => void
   onHide: () => void
@@ -56,7 +61,7 @@ const gapClass: Record<GapSeverity, string> = {
 
 export function DetailPane(props: Props) {
   const {
-    entity, entities, result, running, tab, onTab, onSelect, onVerify, expanded, onToggleExpand, onHide,
+    entity, entities, result, running, buildJob, building, tab, onTab, onSelect, onVerify, onBuild, expanded, onToggleExpand, onHide,
     thread, chatBusy, chatError, onLoadThread, onSendThread, onGroomStart,
   } = props
   const asideClass = `flex min-h-0 bg-base-100 ${expanded ? '' : 'border-l border-base-300'}`
@@ -95,19 +100,44 @@ export function DetailPane(props: Props) {
           <div className="flex items-center gap-2">
             <span className="badge badge-ghost badge-sm">{entity.type}</span>
             <span className="text-xs text-base-content/60">{entity.assignee || 'unassigned'}</span>
-            {groom.ready ? (
-              <span className="badge badge-success badge-xs ml-auto">groomed</span>
-            ) : (
-              <button
-                className="btn btn-xs btn-primary ml-auto"
-                onClick={onGroomStart}
-                disabled={chatBusy}
-              >
-                Groom
-              </button>
-            )}
+            <div className="ml-auto flex items-center gap-1">
+              {groom.ready ? (
+                <span className="badge badge-success badge-xs">groomed</span>
+              ) : (
+                <button
+                  className="btn btn-xs btn-ghost"
+                  onClick={onGroomStart}
+                  disabled={chatBusy}
+                >
+                  Groom
+                </button>
+              )}
+              {canBuild(entity, groom.ready) && (
+                <button
+                  className="btn btn-xs btn-primary"
+                  onClick={onBuild}
+                  disabled={building}
+                  title="Spawn Ghostty + omp (DeepSeek) on this card"
+                >
+                  {building ? 'Building…' : 'Build this'}
+                </button>
+              )}
+            </div>
           </div>
         </header>
+
+        <div className="border-b border-base-300 px-3 py-2">
+          <BuildPanel
+            job={buildJob}
+            building={building}
+            entityStatus={entity.status}
+            verifyResult={result}
+            verifyRunning={running}
+            canRebuild={canBuild(entity, groom.ready) || entity.status === 'verify'}
+            onBuild={onBuild}
+            onVerify={onVerify}
+          />
+        </div>
 
         <div role="tablist" className="tabs tabs-boxed m-2 w-fit">
           <button
@@ -497,4 +527,14 @@ function GapTab(props: {
       />
     </>
   )
+}
+
+function canBuild(entity: Entity, groomed: boolean): boolean {
+  if (entity.type !== 'feature' && entity.type !== 'bug' && entity.type !== 'story') {
+    return false
+  }
+  if (entity.status === 'blocked' || entity.status === 'done') return false
+  // verify: allow rebuild after failed auto-verify
+  if (entity.status === 'in-progress' || entity.status === 'verify') return true
+  return groomed
 }

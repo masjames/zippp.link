@@ -82,7 +82,7 @@ func ParseEntity(relPath string, raw []byte) (*Entity, error) {
 		return nil, fmt.Errorf("invalid id %q", entity.ID)
 	}
 	switch entity.Type {
-	case "feature", "bug", "story", "spec", "diagram":
+	case "feature", "bug", "story", "spec", "diagram", "direction", "decision", "roadmap":
 	default:
 		return nil, fmt.Errorf("invalid type %q", entity.Type)
 	}
