@@ -245,6 +245,11 @@ private fun ZipppRoot(
             onOpenManual = { screen = RootScreen.Manual },
             onOpenSpace = { screen = RootScreen.Space },
             onOpenBatch = { screen = RootScreen.Batch },
+            batch = batch,
+            onOpenDraft = { id ->
+                currentDraftId = id
+                screen = RootScreen.Review
+            },
             onExtracted = { receipt, scanId ->
                 val draft = batch.add(receipt, scanId)
                 currentDraftId = draft.id

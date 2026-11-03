@@ -45,7 +45,7 @@ object ZipppRadius {
 object ZipppSpace {
     val page = 12.dp
     val shell = 24.dp
-    val gap = 12.dp
+    val gap = 16.dp
 }
 
 /**
@@ -67,7 +67,7 @@ fun ZipppShell(content: @Composable ColumnScope.() -> Unit) {
                 .fillMaxHeight()
                 .padding(horizontal = 8.dp, vertical = 8.dp)
                 .background(ZipppColors.card, RoundedCornerShape(ZipppRadius.phone))
-                .padding(horizontal = ZipppSpace.shell, vertical = 20.dp),
+                .padding(start = ZipppSpace.shell, end = ZipppSpace.shell, top = 16.dp, bottom = 48.dp),
             verticalArrangement = Arrangement.spacedBy(ZipppSpace.gap),
             content = content,
         )

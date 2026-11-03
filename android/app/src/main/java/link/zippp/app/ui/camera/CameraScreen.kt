@@ -11,6 +11,8 @@ import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,8 +22,12 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -38,9 +44,14 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
@@ -54,10 +65,13 @@ import link.zippp.app.data.ApiException
 import link.zippp.app.data.ExtractResponse
 import link.zippp.app.data.Receipt
 import link.zippp.app.data.SpaceSummary
+import link.zippp.app.ui.batch.BatchDraft
+import link.zippp.app.ui.batch.BatchStore
 import link.zippp.app.ui.theme.ZipppColors
 import link.zippp.app.ui.theme.ZipppRadius
 import link.zippp.app.ui.theme.ZipppSpace
 import java.io.File
+import java.text.NumberFormat
 
 @Composable
 fun CameraScreen(
@@ -69,6 +83,8 @@ fun CameraScreen(
     onOpenManual: () -> Unit,
     onOpenSpace: () -> Unit,
     onOpenBatch: () -> Unit,
+    batch: BatchStore,
+    onOpenDraft: (String) -> Unit,
     onExtracted: (Receipt, String) -> Unit,
     onSessionLost: () -> Unit,
 ) {
@@ -321,6 +337,7 @@ fun CameraScreen(
                 .padding(horizontal = ZipppSpace.page, vertical = 20.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
+            BatchStrip(batch = batch, onOpenDraft = onOpenDraft)
             error?.let {
                 Text(
                     text = stringResource(it),
@@ -406,4 +423,144 @@ fun CameraScreen(
             }
         }
     }
+}
+
+/**
+ * Inline draft strip under the viewfinder, mirroring the web capture screen
+ * where captured receipts stay on the camera page instead of a queue page.
+ * Accepted drafts leave the batch on success, so they never appear here.
+ */
+@Composable
+private fun BatchStrip(
+    batch: BatchStore,
+    onOpenDraft: (String) -> Unit,
+) {
+    val drafts = batch.items.filter { it.status != BatchDraft.STATUS_ACCEPTED }
+    if (drafts.isEmpty()) return
+
+    LazyRow(
+        modifier = Modifier
+            .widthIn(max = 430.dp)
+            .fillMaxWidth()
+            .heightIn(max = 92.dp)
+            .padding(bottom = 10.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        items(items = drafts, key = { draft -> draft.id }) { draft ->
+            BatchCard(
+                draft = draft,
+                onOpen = { onOpenDraft(draft.id) },
+            )
+        }
+    }
+}
+
+@Composable
+private fun BatchCard(
+    draft: BatchDraft,
+    onOpen: () -> Unit,
+) {
+    val pending = draft.status == BatchDraft.STATUS_PENDING
+    val sending = draft.status == BatchDraft.STATUS_SENDING
+    val receipt = draft.receipt
+    val merchant = receipt.merchant?.trim().takeUnless { it.isNullOrEmpty() }
+        ?: stringResource(R.string.review_title)
+    val total = draftTotalText(receipt)
+    val chipBackground = if (sending) ZipppColors.mist else ZipppColors.peach
+    val chipForeground = when {
+        sending -> ZipppColors.ink
+        pending -> ZipppColors.maroon
+        else -> ZipppColors.danger
+    }
+
+    Column(
+        modifier = Modifier
+            .width(160.dp)
+            .alpha(if (sending) 0.55f else 1f)
+            .clip(RoundedCornerShape(ZipppRadius.card))
+            .background(ZipppColors.card)
+            .border(
+                width = 1.dp,
+                color = ZipppColors.line,
+                shape = RoundedCornerShape(ZipppRadius.card),
+            )
+            .clickable(enabled = pending, onClick = onOpen)
+            .padding(horizontal = 12.dp, vertical = 10.dp),
+        verticalArrangement = Arrangement.spacedBy(4.dp),
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+        ) {
+            Text(
+                text = merchant,
+                modifier = Modifier.weight(1f),
+                style = MaterialTheme.typography.bodyMedium,
+                color = if (pending || sending) ZipppColors.ink else ZipppColors.muted,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            BatchChip(
+                text = stringResource(R.string.queue_pending),
+                background = chipBackground,
+                foreground = chipForeground,
+            )
+        }
+        if (total != null) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+            ) {
+                Text(
+                    text = stringResource(R.string.review_total),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = ZipppColors.muted,
+                )
+                Spacer(Modifier.weight(1f))
+                Text(
+                    text = total,
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = ZipppColors.ink,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun BatchChip(
+    text: String,
+    background: Color,
+    foreground: Color,
+) {
+    Box(
+        modifier = Modifier
+            .clip(RoundedCornerShape(ZipppRadius.pill))
+            .background(background)
+            .padding(horizontal = 6.dp, vertical = 2.dp),
+    ) {
+        Text(
+            text = text,
+            style = MaterialTheme.typography.labelSmall,
+            fontWeight = FontWeight.SemiBold,
+            color = foreground,
+            maxLines = 1,
+        )
+    }
+}
+
+/** Amount in the receipt's own currency code; never invents a symbol. */
+private fun draftTotalText(receipt: Receipt): String? {
+    val total = receipt.total ?: return null
+    val format = NumberFormat.getNumberInstance()
+    format.maximumFractionDigits = if (total % 1.0 == 0.0) 0 else 2
+    format.minimumFractionDigits = 0
+    val amount = format.format(total)
+    val currency = receipt.currency?.trim()?.takeIf { it.isNotEmpty() }
+    return if (currency == null) amount else "$currency $amount"
 }
