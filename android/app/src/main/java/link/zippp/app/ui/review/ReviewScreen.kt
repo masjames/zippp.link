@@ -1,24 +1,32 @@
 // @implements FEAT-102
 package link.zippp.app.ui.review
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -29,10 +37,17 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.toMutableStateList
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import java.time.LocalDate
 import kotlin.math.abs
 import kotlinx.coroutines.launch
@@ -45,6 +60,9 @@ import link.zippp.app.data.CorrectionRequest
 import link.zippp.app.data.LineItem
 import link.zippp.app.data.Receipt
 import link.zippp.app.data.Workspace
+import link.zippp.app.ui.theme.ZipppColors
+import link.zippp.app.ui.theme.ZipppRadius
+import link.zippp.app.ui.theme.ZipppSpace
 
 /** Editable text for one line. Values stay strings until Accept. */
 private data class LineDraft(
@@ -137,288 +155,499 @@ fun ReviewScreen(
     val hardFlags = receipt.flags.filter { it.reason !in SOFT_FLAGS }
     val unresolved = hardFlags.filter { it.path !in editedPaths }
     val blocked = unresolved.isNotEmpty() && !acknowledged
+    val showOps = showStaff || showOutlet || showPayment || showPurpose || showCustomer
 
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(20.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp),
+            .background(ZipppColors.page),
+        contentAlignment = Alignment.TopCenter,
     ) {
-        Text(
-            text = stringResource(R.string.review_title),
-            style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.Bold,
-        )
-        Text(
-            text = "${stringResource(R.string.scan_balance_label)}: $credits",
-            style = MaterialTheme.typography.bodyMedium,
-        )
-
-        if (hardFlags.isNotEmpty()) {
-            Text(
-                text = stringResource(R.string.review_hard_flags),
-                color = MaterialTheme.colorScheme.error,
-                style = MaterialTheme.typography.bodySmall,
-            )
-            if (unresolved.isNotEmpty() && !acknowledged) {
-                OutlinedButton(
-                    onClick = { acknowledged = true },
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    Text(stringResource(R.string.review_acknowledge))
-                }
-            }
-        }
-
-        OutlinedTextField(
-            value = merchant,
-            onValueChange = { merchant = it },
-            readOnly = !editing,
-            label = { Text(stringResource(R.string.review_merchant)) },
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = true,
-        )
-
-        OutlinedTextField(
-            value = category,
-            onValueChange = { category = it },
-            readOnly = !editing,
-            label = { Text(stringResource(R.string.review_category)) },
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = true,
-        )
-
-        OutlinedTextField(
-            value = date,
-            onValueChange = { date = it },
-            readOnly = !editing,
-            label = { Text(stringResource(R.string.review_date)) },
-            supportingText = if (dateAssumed) {
-                { Text(stringResource(R.string.review_date_assumed)) }
-            } else {
-                null
-            },
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = true,
-        )
-
-        OutlinedTextField(
-            value = total,
-            onValueChange = { total = it },
-            readOnly = !editing,
-            label = { Text(stringResource(R.string.review_total)) },
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = true,
-        )
-
-        if (showStaff) {
-            ChoiceField(
-                label = stringResource(R.string.review_staff),
-                value = staff,
-                options = staffOptions,
-                enabled = editing,
-                onSelect = { staff = it },
-            )
-        }
-        if (showOutlet) {
-            ChoiceField(
-                label = stringResource(R.string.review_outlet),
-                value = outlet,
-                options = outletOptions,
-                enabled = editing,
-                onSelect = { outlet = it },
-            )
-        }
-        if (showPayment) {
-            ChoiceField(
-                label = stringResource(R.string.review_payment),
-                value = payment,
-                options = paymentOptions,
-                enabled = editing,
-                onSelect = { payment = it },
-            )
-        }
-        if (showPurpose) {
-            OutlinedTextField(
-                value = purpose,
-                onValueChange = { purpose = it },
-                readOnly = !editing,
-                label = { Text(stringResource(R.string.review_purpose)) },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-            )
-        }
-        if (showCustomer) {
-            OutlinedTextField(
-                value = customer,
-                onValueChange = { customer = it },
-                readOnly = !editing,
-                label = { Text(stringResource(R.string.review_customer)) },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-            )
-        }
-
-        lines.forEachIndexed { index, line ->
-            if (editing) {
-                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    OutlinedTextField(
-                        value = line.description,
-                        onValueChange = { lines[index] = line.copy(description = it) },
-                        label = { Text(stringResource(R.string.review_description)) },
-                        modifier = Modifier.fillMaxWidth(),
-                        singleLine = true,
-                    )
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        OutlinedTextField(
-                            value = line.qty,
-                            onValueChange = { lines[index] = line.copy(qty = it) },
-                            label = { Text(stringResource(R.string.review_qty)) },
-                            modifier = Modifier.weight(1f),
-                            singleLine = true,
-                        )
-                        OutlinedTextField(
-                            value = line.amount,
-                            onValueChange = { lines[index] = line.copy(amount = it) },
-                            label = { Text(stringResource(R.string.review_amount)) },
-                            modifier = Modifier.weight(1f),
-                            singleLine = true,
-                        )
-                    }
-                }
-            } else {
-                Row(modifier = Modifier.fillMaxWidth()) {
-                    Text(
-                        text = line.description.ifBlank { "-" },
-                        modifier = Modifier.weight(1f),
-                        style = MaterialTheme.typography.bodyMedium,
-                    )
-                    Text(
-                        text = line.amount.ifBlank { "-" },
-                        style = MaterialTheme.typography.bodyMedium,
-                    )
-                }
-            }
-        }
-
-        error?.let {
-            Text(
-                text = stringResource(it),
-                color = MaterialTheme.colorScheme.error,
-                style = MaterialTheme.typography.bodySmall,
-            )
-        }
-
-        if (outOfCredits) {
-            Text(
-                text = stringResource(R.string.no_credits_message),
-                style = MaterialTheme.typography.bodyMedium,
-            )
-        }
-
-        Spacer(Modifier.height(4.dp))
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .widthIn(max = 430.dp)
+                .verticalScroll(rememberScrollState())
+                .padding(ZipppSpace.page),
+            verticalArrangement = Arrangement.spacedBy(ZipppSpace.gap),
         ) {
-            OutlinedButton(
-                onClick = { editing = !editing },
-                enabled = !busy,
-                modifier = Modifier.weight(1f),
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                Text(stringResource(R.string.review_edit))
+                Text(
+                    text = stringResource(R.string.review_title),
+                    modifier = Modifier.weight(1f),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = ZipppColors.ink,
+                )
+                Text(
+                    text = "${stringResource(R.string.scan_balance_label)}: $credits",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = ZipppColors.muted,
+                )
             }
-            OutlinedButton(
-                onClick = onDiscard,
-                enabled = !busy,
-                modifier = Modifier.weight(1f),
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(ZipppRadius.card))
+                    .background(ZipppColors.card)
+                    .border(1.dp, ZipppColors.line, RoundedCornerShape(ZipppRadius.card))
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(ZipppSpace.gap),
             ) {
-                Text(stringResource(R.string.review_discard))
-            }
-            Button(
-                enabled = !busy && !outOfCredits && !blocked,
-                onClick = {
-                    busy = true
-                    error = null
-                    val editedReceipt = receipt.copy(
-                        merchant = merchant.trim().ifBlank { null },
-                        date = date.trim().ifBlank { null },
-                        category = category.trim().ifBlank { null },
-                        total = total.trim().toDoubleOrNull(),
-                        lineItems = lines.mapIndexed { index, line ->
-                            LineItem(
-                                description = line.description.trim().ifBlank { null },
-                                qty = line.qty.trim().toDoubleOrNull(),
-                                unitPrice = receipt.lineItems.getOrNull(index)?.unitPrice,
-                                amount = line.amount.trim().toDoubleOrNull(),
-                            )
-                        },
+                ReviewField(
+                    label = stringResource(R.string.review_merchant),
+                    value = merchant,
+                    onChange = { merchant = it },
+                    editing = editing,
+                    textStyle = MaterialTheme.typography.headlineMedium,
+                    valueColor = ZipppColors.maroon,
+                )
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(ZipppSpace.gap),
+                ) {
+                    ReviewField(
+                        label = stringResource(R.string.review_date),
+                        value = date,
+                        onChange = { date = it },
+                        editing = editing,
+                        modifier = Modifier.weight(1f),
                     )
-                    val correction = CorrectionRequest(
-                        runId = scanId,
-                        countChanged = false,
-                        fields = buildCorrectionFields(
-                            receipt = receipt,
-                            merchant = merchant,
-                            date = date,
-                            dateAssumed = dateAssumed,
-                            total = total,
-                            lines = lines,
-                        ),
+                    ReviewField(
+                        label = stringResource(R.string.review_total),
+                        value = total,
+                        onChange = { total = it },
+                        editing = editing,
+                        modifier = Modifier.weight(1f),
+                        textStyle = MaterialTheme.typography.titleMedium
+                            .copy(fontFeatureSettings = "tnum"),
+                        align = TextAlign.End,
                     )
-                    scope.launch {
-                        runCatching { api.logCorrections(token, correction) }
-                    }
-                    scope.launch {
-                        try {
-                            val response = api.append(
-                                token,
-                                AppendRequest(
-                                    scanId = scanId,
-                                    receipt = editedReceipt,
-                                    staff = if (showStaff) staff.trim().ifBlank { null } else null,
-                                    outlet = if (showOutlet) outlet.trim().ifBlank { null } else null,
-                                    payment = if (showPayment) payment.trim().ifBlank { null } else null,
-                                    purpose = if (showPurpose) purpose.trim().ifBlank { null } else null,
-                                    customer = if (showCustomer) customer.trim().ifBlank { null } else null,
-                                ),
-                            )
-                            when {
-                                response.ok -> onAccepted(response.creditsRemaining)
-                                response.code == "NO_CREDITS" -> {
-                                    outOfCredits = true
-                                    error = R.string.error_no_credits
+                }
+
+                if (dateAssumed) {
+                    Text(
+                        text = stringResource(R.string.review_date_assumed),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = ZipppColors.muted,
+                    )
+                }
+
+                ReviewField(
+                    label = stringResource(R.string.review_category),
+                    value = category,
+                    onChange = { category = it },
+                    editing = editing,
+                )
+
+                if (lines.isNotEmpty()) {
+                    Hairline()
+
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        lines.forEachIndexed { index, line ->
+                            if (editing) {
+                                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                                    ReviewField(
+                                        label = stringResource(R.string.review_description),
+                                        value = line.description,
+                                        onChange = { lines[index] = line.copy(description = it) },
+                                        editing = true,
+                                    )
+                                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                        ReviewField(
+                                            label = stringResource(R.string.review_qty),
+                                            value = line.qty,
+                                            onChange = { lines[index] = line.copy(qty = it) },
+                                            editing = true,
+                                            modifier = Modifier.weight(1f),
+                                        )
+                                        ReviewField(
+                                            label = stringResource(R.string.review_amount),
+                                            value = line.amount,
+                                            onChange = { lines[index] = line.copy(amount = it) },
+                                            editing = true,
+                                            modifier = Modifier.weight(1f),
+                                            textStyle = MaterialTheme.typography.bodyMedium
+                                                .copy(fontFeatureSettings = "tnum"),
+                                            align = TextAlign.End,
+                                        )
+                                    }
                                 }
-                                response.code == "SCAN_ALREADY_SENT" -> onAccepted(null)
-                                response.code == "PLAN_LIMIT" -> error = R.string.plan_limit
-                                else -> error = R.string.error_append
+                            } else {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                    Text(
+                                        text = line.description.ifBlank { "-" },
+                                        modifier = Modifier.weight(1f),
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = ZipppColors.ink,
+                                    )
+                                    Text(
+                                        text = line.amount.ifBlank { "-" },
+                                        style = MaterialTheme.typography.bodyMedium
+                                            .copy(fontFeatureSettings = "tnum"),
+                                        color = ZipppColors.ink,
+                                        textAlign = TextAlign.End,
+                                    )
+                                }
                             }
-                        } catch (e: ApiException) {
-                            if (e.code == "DEVICE_REVOKED") onSessionLost()
-                            else error = R.string.error_append
-                        } catch (_: Exception) {
-                            error = R.string.error_append
-                        } finally {
-                            busy = false
+                            if (index != lines.lastIndex) Hairline()
                         }
                     }
-                },
-                modifier = Modifier.weight(1f),
-            ) {
-                if (busy) CircularProgressIndicator(modifier = Modifier.height(18.dp))
-                else Text(stringResource(R.string.review_accept))
+                }
+
+                if (showOps) {
+                    Hairline()
+                    if (showStaff) {
+                        ChoiceField(
+                            label = stringResource(R.string.review_staff),
+                            value = staff,
+                            options = staffOptions,
+                            enabled = editing,
+                            onSelect = { staff = it },
+                        )
+                    }
+                    if (showOutlet) {
+                        ChoiceField(
+                            label = stringResource(R.string.review_outlet),
+                            value = outlet,
+                            options = outletOptions,
+                            enabled = editing,
+                            onSelect = { outlet = it },
+                        )
+                    }
+                    if (showPayment) {
+                        ChoiceField(
+                            label = stringResource(R.string.review_payment),
+                            value = payment,
+                            options = paymentOptions,
+                            enabled = editing,
+                            onSelect = { payment = it },
+                        )
+                    }
+                    if (showPurpose) {
+                        ReviewField(
+                            label = stringResource(R.string.review_purpose),
+                            value = purpose,
+                            onChange = { purpose = it },
+                            editing = editing,
+                        )
+                    }
+                    if (showCustomer) {
+                        ReviewField(
+                            label = stringResource(R.string.review_customer),
+                            value = customer,
+                            onChange = { customer = it },
+                            editing = editing,
+                        )
+                    }
+                }
+
+                if (hardFlags.isNotEmpty()) {
+                    Hairline()
+                    Text(
+                        text = stringResource(R.string.review_hard_flags),
+                        color = ZipppColors.danger,
+                        style = MaterialTheme.typography.bodySmall,
+                        fontWeight = FontWeight.Medium,
+                    )
+                    if (unresolved.isNotEmpty() && !acknowledged) {
+                        OutlinedButton(
+                            onClick = { acknowledged = true },
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(ZipppRadius.pill),
+                            border = BorderStroke(1.dp, ZipppColors.line),
+                            colors = ButtonDefaults.outlinedButtonColors(
+                                contentColor = ZipppColors.ink,
+                            ),
+                            contentPadding = PaddingValues(
+                                horizontal = 16.dp,
+                                vertical = 10.dp,
+                            ),
+                        ) {
+                            Text(
+                                text = stringResource(R.string.review_acknowledge),
+                                maxLines = 1,
+                            )
+                        }
+                    } else if (acknowledged) {
+                        Text(
+                            text = stringResource(R.string.review_acknowledge),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = ZipppColors.muted,
+                        )
+                    }
+                }
+
+                error?.let {
+                    Text(
+                        text = stringResource(it),
+                        color = ZipppColors.danger,
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
+
+                if (outOfCredits) {
+                    Text(
+                        text = stringResource(R.string.no_credits_message),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = ZipppColors.muted,
+                    )
+                }
+
+                Hairline()
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Button(
+                        enabled = !busy && !outOfCredits && !blocked,
+                        onClick = {
+                            busy = true
+                            error = null
+                            val editedReceipt = receipt.copy(
+                                merchant = merchant.trim().ifBlank { null },
+                                date = date.trim().ifBlank { null },
+                                category = category.trim().ifBlank { null },
+                                total = total.trim().toDoubleOrNull(),
+                                lineItems = lines.mapIndexed { index, line ->
+                                    LineItem(
+                                        description = line.description.trim().ifBlank { null },
+                                        qty = line.qty.trim().toDoubleOrNull(),
+                                        unitPrice = receipt.lineItems.getOrNull(index)?.unitPrice,
+                                        amount = line.amount.trim().toDoubleOrNull(),
+                                    )
+                                },
+                            )
+                            val correction = CorrectionRequest(
+                                runId = scanId,
+                                countChanged = false,
+                                fields = buildCorrectionFields(
+                                    receipt = receipt,
+                                    merchant = merchant,
+                                    date = date,
+                                    dateAssumed = dateAssumed,
+                                    total = total,
+                                    lines = lines,
+                                ),
+                            )
+                            scope.launch {
+                                runCatching { api.logCorrections(token, correction) }
+                            }
+                            scope.launch {
+                                try {
+                                    val response = api.append(
+                                        token,
+                                        AppendRequest(
+                                            scanId = scanId,
+                                            receipt = editedReceipt,
+                                            staff = if (showStaff) {
+                                                staff.trim().ifBlank { null }
+                                            } else {
+                                                null
+                                            },
+                                            outlet = if (showOutlet) {
+                                                outlet.trim().ifBlank { null }
+                                            } else {
+                                                null
+                                            },
+                                            payment = if (showPayment) {
+                                                payment.trim().ifBlank { null }
+                                            } else {
+                                                null
+                                            },
+                                            purpose = if (showPurpose) {
+                                                purpose.trim().ifBlank { null }
+                                            } else {
+                                                null
+                                            },
+                                            customer = if (showCustomer) {
+                                                customer.trim().ifBlank { null }
+                                            } else {
+                                                null
+                                            },
+                                        ),
+                                    )
+                                    when {
+                                        response.ok -> onAccepted(response.creditsRemaining)
+                                        response.code == "NO_CREDITS" -> {
+                                            outOfCredits = true
+                                            error = R.string.error_no_credits
+                                        }
+                                        response.code == "SCAN_ALREADY_SENT" -> onAccepted(null)
+                                        response.code == "PLAN_LIMIT" -> error = R.string.plan_limit
+                                        else -> error = R.string.error_append
+                                    }
+                                } catch (e: ApiException) {
+                                    if (e.code == "DEVICE_REVOKED") onSessionLost()
+                                    else error = R.string.error_append
+                                } catch (_: Exception) {
+                                    error = R.string.error_append
+                                } finally {
+                                    busy = false
+                                }
+                            }
+                        },
+                        modifier = Modifier.weight(1.4f),
+                        shape = RoundedCornerShape(ZipppRadius.pill),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = ZipppColors.orange,
+                            contentColor = ZipppColors.ink,
+                            disabledContainerColor = ZipppColors.mist,
+                            disabledContentColor = ZipppColors.muted,
+                        ),
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 10.dp),
+                    ) {
+                        if (busy) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(18.dp),
+                                color = ZipppColors.ink,
+                                strokeWidth = 2.dp,
+                            )
+                        } else {
+                            Text(
+                                text = stringResource(R.string.review_accept),
+                                fontWeight = FontWeight.SemiBold,
+                                maxLines = 1,
+                            )
+                        }
+                    }
+                    OutlinedButton(
+                        onClick = { editing = !editing },
+                        enabled = !busy,
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(ZipppRadius.pill),
+                        border = BorderStroke(1.dp, ZipppColors.line),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            contentColor = ZipppColors.ink,
+                            disabledContentColor = ZipppColors.muted,
+                        ),
+                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 10.dp),
+                    ) {
+                        Text(
+                            text = stringResource(R.string.review_edit),
+                            fontWeight = FontWeight.SemiBold,
+                            maxLines = 1,
+                        )
+                    }
+                    OutlinedButton(
+                        onClick = onDiscard,
+                        enabled = !busy,
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(ZipppRadius.pill),
+                        border = BorderStroke(1.dp, ZipppColors.line),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            contentColor = ZipppColors.danger,
+                            disabledContentColor = ZipppColors.muted,
+                        ),
+                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 10.dp),
+                    ) {
+                        Text(
+                            text = stringResource(R.string.review_discard),
+                            fontWeight = FontWeight.SemiBold,
+                            maxLines = 1,
+                        )
+                    }
+                }
+
+                if (outOfCredits) {
+                    Button(
+                        onClick = onDiscard,
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(ZipppRadius.pill),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = ZipppColors.orange,
+                            contentColor = ZipppColors.ink,
+                        ),
+                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 10.dp),
+                    ) {
+                        Text(
+                            text = stringResource(R.string.no_credits_refresh),
+                            fontWeight = FontWeight.SemiBold,
+                            maxLines = 1,
+                        )
+                    }
+                }
             }
         }
+    }
+}
 
-        if (outOfCredits) {
-            Button(
-                onClick = onDiscard,
+/** Muted 12sp label above every value, like the web card's field labels. */
+@Composable
+private fun ReviewLabel(text: String) {
+    Text(
+        text = text,
+        style = MaterialTheme.typography.bodySmall,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 12.sp,
+        lineHeight = 12.sp,
+        color = ZipppColors.muted,
+    )
+}
+
+/** Hairline rule in the brand line colour. */
+@Composable
+private fun Hairline() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(1.dp)
+            .background(ZipppColors.line)
+    )
+}
+
+/**
+ * Label above value. Read-only values render as plain ink text; the editing
+ * toggle swaps the same value into a bordered input, so nothing but the
+ * affordance changes.
+ */
+@Composable
+private fun ReviewField(
+    label: String,
+    value: String,
+    onChange: (String) -> Unit,
+    editing: Boolean,
+    modifier: Modifier = Modifier,
+    textStyle: TextStyle = MaterialTheme.typography.bodyMedium,
+    valueColor: Color = ZipppColors.ink,
+    align: TextAlign = TextAlign.Start,
+) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(4.dp),
+    ) {
+        ReviewLabel(label)
+        if (editing) {
+            BasicTextField(
+                value = value,
+                onValueChange = onChange,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(ZipppRadius.card))
+                    .background(ZipppColors.card)
+                    .border(1.dp, ZipppColors.line, RoundedCornerShape(ZipppRadius.card))
+                    .padding(horizontal = 8.dp, vertical = 8.dp),
+                textStyle = textStyle.copy(color = valueColor, textAlign = align),
+                singleLine = true,
+                cursorBrush = SolidColor(ZipppColors.orange),
+            )
+        } else {
+            Text(
+                text = value.ifBlank { "-" },
                 modifier = Modifier.fillMaxWidth(),
-            ) {
-                Text(stringResource(R.string.no_credits_refresh))
-            }
+                style = textStyle,
+                color = valueColor,
+                textAlign = align,
+            )
         }
     }
 }
@@ -433,34 +662,53 @@ private fun ChoiceField(
     onSelect: (String) -> Unit,
 ) {
     if (options.isEmpty()) {
-        OutlinedTextField(
+        ReviewField(
+            label = label,
             value = value,
-            onValueChange = onSelect,
-            readOnly = !enabled,
-            label = { Text(label) },
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = true,
+            onChange = onSelect,
+            editing = enabled,
         )
         return
     }
     var open by remember { mutableStateOf(false) }
-    Box(modifier = Modifier.fillMaxWidth()) {
-        OutlinedButton(
-            onClick = { open = true },
-            enabled = enabled,
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            Text(if (value.isBlank()) label else "$label: $value")
-        }
-        DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
-            options.forEach { option ->
-                DropdownMenuItem(
-                    text = { Text(option) },
-                    onClick = {
-                        onSelect(option)
-                        open = false
-                    },
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(4.dp),
+    ) {
+        ReviewLabel(label)
+        Box(modifier = Modifier.fillMaxWidth()) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(ZipppRadius.card))
+                    .background(ZipppColors.card)
+                    .border(1.dp, ZipppColors.line, RoundedCornerShape(ZipppRadius.card))
+                    .clickable(enabled = enabled) { open = true }
+                    .padding(horizontal = 8.dp, vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = value.ifBlank { "-" },
+                    modifier = Modifier.weight(1f),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = if (enabled) ZipppColors.ink else ZipppColors.muted,
                 )
+                Text(
+                    text = "▾",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = ZipppColors.muted,
+                )
+            }
+            DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
+                options.forEach { option ->
+                    DropdownMenuItem(
+                        text = { Text(option) },
+                        onClick = {
+                            onSelect(option)
+                            open = false
+                        },
+                    )
+                }
             }
         }
     }

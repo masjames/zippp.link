@@ -10,16 +10,21 @@ import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -35,6 +40,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
@@ -46,8 +52,12 @@ import link.zippp.app.R
 import link.zippp.app.data.ApiClient
 import link.zippp.app.data.ApiException
 import link.zippp.app.data.ExtractResponse
+import link.zippp.app.data.Receipt
 import link.zippp.app.data.SpaceSummary
 import link.zippp.app.ui.review.ReviewScreen
+import link.zippp.app.ui.theme.ZipppColors
+import link.zippp.app.ui.theme.ZipppRadius
+import link.zippp.app.ui.theme.ZipppSpace
 import java.io.File
 
 @Composable
@@ -59,6 +69,10 @@ fun CameraScreen(
     onOpenSettings: () -> Unit,
     onOpenManual: () -> Unit,
     onOpenSpace: () -> Unit,
+    onOpenBatch: () -> Unit,
+    onScanQueued: (Receipt, String) -> Unit,
+    onScanAccepted: (String) -> Unit,
+    onScanDiscarded: (String) -> Unit,
     onSessionLost: () -> Unit,
 ) {
     val context = LocalContext.current
@@ -143,8 +157,12 @@ fun CameraScreen(
             receipt = receipt,
             scanId = scanId,
             credits = credits,
-            onDiscard = { result = null },
+            onDiscard = {
+                onScanDiscarded(scanId)
+                result = null
+            },
             onAccepted = { remaining ->
+                onScanAccepted(scanId)
                 credits = remaining ?: credits
                 onCreditsChanged(credits)
                 result = null
@@ -154,7 +172,11 @@ fun CameraScreen(
         return
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(ZipppColors.maroon),
+    ) {
         if (hasPermission) {
             AndroidView(
                 modifier = Modifier.fillMaxSize(),
@@ -163,20 +185,43 @@ fun CameraScreen(
                 },
             )
         } else {
-            Column(
+            Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(28.dp),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally,
+                    .padding(ZipppSpace.shell),
+                contentAlignment = Alignment.Center,
             ) {
-                Text(
-                    text = stringResource(R.string.camera_permission),
-                    style = MaterialTheme.typography.bodyMedium,
-                )
-                Spacer(Modifier.height(12.dp))
-                Button(onClick = { permissionLauncher.launch(Manifest.permission.CAMERA) }) {
-                    Text(stringResource(R.string.camera_allow))
+                Column(
+                    modifier = Modifier
+                        .widthIn(max = 430.dp)
+                        .fillMaxWidth()
+                        .background(
+                            ZipppColors.card,
+                            RoundedCornerShape(ZipppRadius.panel),
+                        )
+                        .padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Text(
+                        text = stringResource(R.string.camera_permission),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = ZipppColors.ink,
+                        textAlign = TextAlign.Center,
+                    )
+                    Spacer(Modifier.height(12.dp))
+                    Button(
+                        onClick = { permissionLauncher.launch(Manifest.permission.CAMERA) },
+                        shape = RoundedCornerShape(ZipppRadius.pill),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = ZipppColors.orange,
+                            contentColor = ZipppColors.ink,
+                        ),
+                    ) {
+                        Text(
+                            text = stringResource(R.string.camera_allow),
+                            style = MaterialTheme.typography.titleMedium,
+                        )
+                    }
                 }
             }
         }
@@ -185,36 +230,115 @@ fun CameraScreen(
             modifier = Modifier
                 .align(Alignment.TopCenter)
                 .fillMaxWidth()
-                .padding(20.dp),
+                .padding(horizontal = ZipppSpace.page, vertical = ZipppSpace.page),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                TextButton(onClick = onOpenManual) {
-                    Text(stringResource(R.string.camera_manual))
+            Column(
+                modifier = Modifier
+                    .widthIn(max = 430.dp)
+                    .fillMaxWidth()
+                    .background(
+                        ZipppColors.card.copy(alpha = 0.95f),
+                        RoundedCornerShape(ZipppRadius.panel),
+                    )
+                    .padding(horizontal = ZipppSpace.page, vertical = 10.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        text = stringResource(R.string.app_name),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = ZipppColors.maroon,
+                    )
+                    Spacer(Modifier.weight(1f))
+                    Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                        TextButton(
+                            onClick = onOpenManual,
+                            modifier = Modifier.height(34.dp),
+                            shape = RoundedCornerShape(ZipppRadius.pill),
+                            contentPadding = PaddingValues(horizontal = 10.dp, vertical = 0.dp),
+                            colors = ButtonDefaults.textButtonColors(
+                                contentColor = ZipppColors.orange,
+                            ),
+                        ) {
+                            Text(
+                                text = stringResource(R.string.camera_manual),
+                                style = MaterialTheme.typography.bodySmall,
+                            )
+                        }
+                        TextButton(
+                            onClick = onOpenSpace,
+                            modifier = Modifier.height(34.dp),
+                            shape = RoundedCornerShape(ZipppRadius.pill),
+                            contentPadding = PaddingValues(horizontal = 10.dp, vertical = 0.dp),
+                            colors = ButtonDefaults.textButtonColors(
+                                contentColor = ZipppColors.orange,
+                            ),
+                        ) {
+                            Text(
+                                text = stringResource(R.string.space_title),
+                                style = MaterialTheme.typography.bodySmall,
+                            )
+                        }
+                        TextButton(
+                            onClick = onOpenBatch,
+                            modifier = Modifier.height(34.dp),
+                            shape = RoundedCornerShape(ZipppRadius.pill),
+                            contentPadding = PaddingValues(horizontal = 10.dp, vertical = 0.dp),
+                            colors = ButtonDefaults.textButtonColors(
+                                contentColor = ZipppColors.orange,
+                            ),
+                        ) {
+                            Text(
+                                text = stringResource(R.string.queue_title),
+                                style = MaterialTheme.typography.bodySmall,
+                            )
+                        }
+                        TextButton(
+                            onClick = onOpenSettings,
+                            modifier = Modifier.height(34.dp),
+                            shape = RoundedCornerShape(ZipppRadius.pill),
+                            contentPadding = PaddingValues(horizontal = 10.dp, vertical = 0.dp),
+                            colors = ButtonDefaults.textButtonColors(
+                                contentColor = ZipppColors.orange,
+                            ),
+                        ) {
+                            Text(
+                                text = stringResource(R.string.settings_title),
+                                style = MaterialTheme.typography.bodySmall,
+                            )
+                        }
+                    }
                 }
-                TextButton(onClick = onOpenSpace) {
-                    Text(stringResource(R.string.space_title))
-                }
-                TextButton(onClick = onOpenSettings) {
-                    Text(stringResource(R.string.settings_title))
-                }
-            }
-            Text(
-                text = "${stringResource(R.string.scan_balance_label)}: $credits",
-                style = MaterialTheme.typography.titleMedium,
-            )
-            planText?.let {
                 Text(
-                    text = it,
+                    text = "${stringResource(R.string.scan_balance_label)}: $credits",
+                    modifier = Modifier.fillMaxWidth(),
                     style = MaterialTheme.typography.bodySmall,
+                    color = ZipppColors.muted,
+                    textAlign = TextAlign.Center,
                 )
-            }
-            if (spaces.isNotEmpty()) {
-                Text(
-                    text = "${stringResource(R.string.space_label)}: " +
-                        spaces.joinToString(", ") { it.displayName },
-                    style = MaterialTheme.typography.bodySmall,
-                )
+                planText?.let {
+                    Text(
+                        text = it,
+                        modifier = Modifier.fillMaxWidth(),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = ZipppColors.muted,
+                        textAlign = TextAlign.Center,
+                    )
+                }
+                if (spaces.isNotEmpty()) {
+                    Text(
+                        text = "${stringResource(R.string.space_label)}: " +
+                            spaces.joinToString(", ") { it.displayName },
+                        modifier = Modifier.fillMaxWidth(),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = ZipppColors.muted,
+                        textAlign = TextAlign.Center,
+                    )
+                }
             }
         }
 
@@ -222,19 +346,31 @@ fun CameraScreen(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth()
-                .padding(24.dp),
+                .padding(horizontal = ZipppSpace.page, vertical = 20.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             error?.let {
                 Text(
                     text = stringResource(it),
-                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier
+                        .widthIn(max = 430.dp)
+                        .fillMaxWidth()
+                        .background(
+                            ZipppColors.card.copy(alpha = 0.95f),
+                            RoundedCornerShape(ZipppRadius.card),
+                        )
+                        .padding(horizontal = 12.dp, vertical = 8.dp),
+                    color = ZipppColors.danger,
                     style = MaterialTheme.typography.bodySmall,
+                    textAlign = TextAlign.Center,
                 )
                 Spacer(Modifier.height(8.dp))
             }
             if (busy) {
-                CircularProgressIndicator()
+                CircularProgressIndicator(
+                    color = ZipppColors.orange,
+                    strokeWidth = 3.dp,
+                )
             } else {
                 Button(
                     enabled = hasPermission && imageCapture != null,
@@ -253,6 +389,7 @@ fun CameraScreen(
                                             val bytes = withContext(Dispatchers.IO) { file.readBytes() }
                                             val response = api.extract(token, bytes)
                                             if (response.ok && response.receipt != null && response.scanId != null) {
+                                                onScanQueued(response.receipt, response.scanId)
                                                 result = response
                                             } else {
                                                 error = R.string.error_extract
@@ -276,9 +413,22 @@ fun CameraScreen(
                             },
                         )
                     },
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .widthIn(max = 430.dp)
+                        .fillMaxWidth()
+                        .height(56.dp),
+                    shape = RoundedCornerShape(ZipppRadius.pill),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = ZipppColors.orange,
+                        contentColor = ZipppColors.ink,
+                        disabledContainerColor = ZipppColors.orange.copy(alpha = 0.4f),
+                        disabledContentColor = ZipppColors.ink.copy(alpha = 0.5f),
+                    ),
                 ) {
-                    Text(stringResource(R.string.camera_snap))
+                    Text(
+                        text = stringResource(R.string.camera_snap),
+                        style = MaterialTheme.typography.titleMedium,
+                    )
                 }
             }
         }

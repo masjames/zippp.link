@@ -19,6 +19,8 @@ import link.zippp.app.ui.camera.CameraScreen
 import link.zippp.app.ui.manual.ManualEntryScreen
 import link.zippp.app.ui.settings.SettingsScreen
 import link.zippp.app.ui.space.SpaceScreen
+import link.zippp.app.ui.batch.BatchScreen
+import link.zippp.app.ui.batch.BatchStore
 import link.zippp.app.ui.theme.ZipppTheme
 
 /** Values carried from a capture prompt into manual entry. */
@@ -27,7 +29,7 @@ data class ManualPrefill(
     val merchant: String?,
 )
 
-private enum class RootScreen { Camera, Settings, Manual, Space }
+private enum class RootScreen { Camera, Settings, Manual, Space, Batch }
 
 class MainActivity : ComponentActivity() {
     private var pendingMagicToken = mutableStateOf<String?>(null)
@@ -96,6 +98,7 @@ private fun ZipppRoot(
     var credits by remember { mutableStateOf(0) }
     var screen by remember { mutableStateOf(RootScreen.Camera) }
     var manualSeed by remember { mutableStateOf(manualPrefill) }
+    val batch = remember { BatchStore() }
 
     LaunchedEffect(manualPrefill) {
         if (manualPrefill != null) {
@@ -122,6 +125,12 @@ private fun ZipppRoot(
     when (screen) {
         RootScreen.Settings -> SettingsScreen(
             onBack = { screen = RootScreen.Camera },
+        )
+        RootScreen.Batch -> BatchScreen(
+            store = batch,
+            onCaptureMore = { screen = RootScreen.Camera },
+            onOpenDraft = { screen = RootScreen.Camera },
+            onClose = { screen = RootScreen.Camera },
         )
         RootScreen.Space -> SpaceScreen(
             api = api,
@@ -161,6 +170,10 @@ private fun ZipppRoot(
             onOpenSettings = { screen = RootScreen.Settings },
             onOpenManual = { screen = RootScreen.Manual },
             onOpenSpace = { screen = RootScreen.Space },
+            onOpenBatch = { screen = RootScreen.Batch },
+            onScanQueued = { receipt, scanId -> batch.add(receipt, scanId) },
+            onScanAccepted = { scanId -> batch.markAccepted(scanId) },
+            onScanDiscarded = { scanId -> batch.remove(scanId) },
             onSessionLost = {
                 store.clear()
                 token = null
