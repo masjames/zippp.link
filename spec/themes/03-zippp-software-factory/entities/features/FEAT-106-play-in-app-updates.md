@@ -7,7 +7,7 @@ assignee: adit
 relations:
   blocks: []
   implements: []
-  depends_on: []
+  depends_on: ["DIR-001"]
 verification:
   target_files: ["android/app/build.gradle.kts", "android/app/src/play/java/link/zippp/app/update/PlayUpdates.kt"]
   test_command: "./android/gradlew -p android :app:assembleDebug"
@@ -24,6 +24,7 @@ Keep Play-distributed installs current without violating Play distribution polic
 
 # Context
 
+- Play distribution for Zippp Space Android (`DIR-001`); not a product-direction card.
 - `spec/themes/02-android-telegram-pivot/SPEC-ANDROID-COMPANION.md` section 5.1.
 - `spec/themes/02-android-telegram-pivot/android-rollout-plan.md` Lane E.
 

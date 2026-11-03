@@ -2,12 +2,12 @@
 id: FEAT-112
 type: feature
 title: Android full app and auth
-status: todo
+status: blocked
 assignee: adit
 relations:
   blocks: []
-  implements: []
-  depends_on: []
+  implements: ["DEC-003"]
+  depends_on: ["DIR-001", "DEC-003", "ROAD-001"]
 verification:
   target_files: []
   test_command: ""
@@ -16,52 +16,35 @@ verification:
 
 # What it is
 
-A full native Android app with the same receipt functionality as the web app. Authentication stays web-first: the user signs in on the web or receives an email magic link, then the app is authenticated. The app is not a reduced companion.
+Android as a first-class Zippp Space client (auth + product parity). **Blocked** until Phase 2–3 under ROAD-001; decisions live in DEC-003.
 
 # Goal
 
-Make Android a first-class client for the receipt workflow without duplicating the account and billing portal.
+Ship Android that matches the personal finance product — not the old companion spike.
 
 # Context
 
-- `spec/themes/02-android-telegram-pivot/SPEC-ANDROID-COMPANION.md`
-- `spec/themes/02-android-telegram-pivot/android-rollout-plan.md`
-- `spec/themes/03-zippp-software-factory/zippp-context-for-claude.md` section 19.
-
-# Decisions to groom
-
-Use the Grooming assistant in the Groom tab. The thread is saved at `entities/threads/FEAT-112.md`.
-
-1. Should Android include top-up and pricing, or stay web-only to protect the Play companion posture?
-2. Which auth paths go live: web login plus pairing, email magic link, or both?
-3. Should the magic link open the web and then pair, or deep-link into the Android app?
-4. Which web-only functions must move to Android: sheet setup, top-up, devices, Telegram, admin, or none?
-5. Keep QR pairing as an optional faster path?
+- Owns: `entities/direction/DIR-001-zippp-space.md`
+- Auth/surfaces: `entities/decisions/DEC-003-surfaces-and-auth.md`
+- Capture: `entities/decisions/DEC-004-proactive-capture.md`
+- Old companion specs are historical, not north star.
 
 # Acceptance criteria
 
-- [ ] The Android app has the same receipt workflow as the web app.
-- [ ] The user can authenticate with web login plus pairing or an email magic link.
-- [ ] The app can capture, extract, review with all template ops, edit line items, accept, discard, and append.
-- [ ] The app shows credits and account status without violating the chosen distribution policy.
-- [ ] Every decision above is recorded in the grooming thread and reflected in this spec.
+- [ ] Google sign-in and/or magic link work on Android
+- [ ] Device bind/revoke still works
+- [ ] Product surfaces match DEC-003 (no Android checkout)
+- [ ] Card body no longer describes web-first companion as the goal
 
 # Verification
 
-- Manual: answer the grooming decisions, then define the Android end-to-end test.
-- Static trace ID: not required until the implementation task is split out.
-- Production: none while mobile is dark.
+- Manual: reopen after ROAD-001 Phase 3 starts; split into smaller FEATs before coding.
 
 # Out of scope
 
-- Admin.
-- Android billing until decision 1 is made.
-- Replacing the web account portal.
+- Play Billing
+- Admin
 
 # Definition of done
 
-The decisions are recorded, Android has the agreed parity, and the end-to-end test passes on a real device.
-
-# Notes
-
-This card is the umbrella for Android parity and auth. FEAT-102 owns the review contract. STORY-101 owns the end-to-end test. FEAT-110 owns Production enablement.
+Unblocked under ROAD-001, split into buildable FEATs, device proof story defined.

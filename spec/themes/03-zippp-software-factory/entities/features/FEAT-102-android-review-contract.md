@@ -6,8 +6,8 @@ status: todo
 assignee: adit
 relations:
   blocks: []
-  implements: []
-  depends_on: []
+  implements: ["DIR-001"]
+  depends_on: ["DIR-001", "DEC-005"]
 verification:
   target_files: ["android/app/src/main/java/link/zippp/app/ui/review/ReviewScreen.kt", "src/app/api/corrections/route.ts"]
   test_command: "npm test"
@@ -16,17 +16,16 @@ verification:
 
 # What it is
 
-The Android review card must collect the same template operations as the web card, record corrections, handle a missing date, and allow full line-item edits before Terima.
+Android review before confirm: edit line items, handle missing date, hard flags, corrections. Reshape under **personal expense / Space** — not multi-persona ops theater.
 
 # Goal
 
-Make the Android review path match the web review contract so a person can accept a real nota without opening the web app.
+A member can confirm a real spend on Android without opening web.
 
 # Context
 
-- `spec/themes/02-android-telegram-pivot/SPEC-ANDROID-COMPANION.md` section 7.
-- `spec/themes/01-mvp/USER-FLOW.md` review card and ops per template.
-- `spec/themes/01-mvp/AUDIT-2026-10.md` section 5.4.
+- `DIR-001`, `DEC-005` (reshape)
+- Historical companion review notes still useful for Terima/Ubah/Buang FSM
 
 # Acceptance criteria
 

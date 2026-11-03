@@ -1,11 +1,15 @@
 # zippp templates
 
-Depends on: `SPEC.md`, `USER-FLOW.md`
+**Direction override:** Factory `DIR-001`, `DEC-001`…`005`, `ROAD-001`.  
+**ICP (2026-11-01):** `personal-expense` is the active bridge template.  
+`resto-inventory` / `sales-recap` / `reimbursement` / `custom` = **legacy** — keep for existing workspaces; do not market or expand (DEC-005).  
+Space-native schema arrives under ROAD-001 (not this file yet).
+
+Depends on: `SPEC.md`, `USER-FLOW.md`  
 Owns: column maps, sheet layout, dropdowns, photo proof. One row per **line
 item**. Header facts repeat. Unknown = empty cell, never invented.
 
-Decisions: `AUDIT-2026-10.md` (revision 2). Implementer builds from that brief;
-this file is the lasting column and layout contract.
+`AUDIT-2026-10.md` still useful for month-tab engineering on zippp-owned sheets.
 
 Mill extract: merchant, date, currency, line description, qty, unit_price,
 amount, subtotal, tax, total, category (`Receipt` in `src/types/receipt.ts`).
@@ -15,16 +19,15 @@ There is no `doc_ref` field. Op fields never come from the model.
 
 ## Templates
 
-| Id | Persona | Create title |
-|---|---|---|
-| `resto-inventory` | Sonny (purchasing) | `[zippp] Resto inventory` |
-| `personal-expense` | Bibian (personal spend) | `[zippp] Expenses` |
-| `sales-recap` | Fais (daily sales) | `[zippp] Sales` |
-| `reimbursement` | Bagas (claim / proof) | `[zippp] Reimbursement` |
-| `custom` | own headers | `[zippp] Custom` |
+| Id | Who | Create title | Status |
+|---|---|---|---|
+| `personal-expense` | Member (personal spend) | `[zippp] Expenses` | **Active** |
+| `resto-inventory` | Legacy purchasing | `[zippp] Resto inventory` | Parked |
+| `sales-recap` | Legacy sales | `[zippp] Sales` | Parked |
+| `reimbursement` | Legacy claims | `[zippp] Reimbursement` | Parked |
+| `custom` | own headers | `[zippp] Custom` | Parked |
 
-Keep the id `resto-inventory` for existing workspaces; change the UI label only
-(`app.sheets.tpl.resto`).
+Keep legacy ids for existing workspaces; change UI labels only if needed.
 
 `custom` = user's headers, single tab, no Summary, no daily block, no photo.
 Zippp-owned templates share the layout in **Sheet layout** below.

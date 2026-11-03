@@ -7,7 +7,7 @@ assignee: adit
 relations:
   blocks: []
   implements: []
-  depends_on: [STORY-101]
+  depends_on: ["DIR-001", "ROAD-001", "DEC-005", "STORY-102"]
 verification:
   target_files: ["src/lib/mobile/config.ts", "src/app/api/app-version/route.ts"]
   test_command: "npm test"
@@ -16,11 +16,11 @@ verification:
 
 # What it is
 
-The production enablement gate for the Android companion: set `MOBILE_API_ENABLED` and `MOBILE_JWT_SECRET` only after the end-to-end device test passes.
+Production gate for Zippp Space mobile: set `MOBILE_API_ENABLED` and `MOBILE_JWT_SECRET` only after **STORY-102** passes.
 
 # Goal
 
-Turn on the mobile API in Production with a proven capture-to-Sheet path and a clear rollback.
+Turn on the mobile API in Production with a proven Space capture path and a clear rollback.
 
 # Context
 
@@ -30,7 +30,7 @@ Turn on the mobile API in Production with a proven capture-to-Sheet path and a c
 
 # Acceptance criteria
 
-- [ ] STORY-101 passes on a real device and a real Sheet.
+- [ ] STORY-102 passes on a real device (Space path).
 - [ ] `MOBILE_API_ENABLED=true` is set in Production.
 - [ ] `MOBILE_JWT_SECRET` is at least 32 bytes and set in Production.
 - [ ] Pairing, extract, append, and revoke are smoke-tested on Production.
@@ -55,4 +55,4 @@ Production mobile is on, the main path works, and the rollback has been rehearse
 
 # Notes
 
-This task is blocked by STORY-101. Mobile is dark in Production today.
+Blocked by STORY-102 (`ROAD-001` Phase 7). Mobile is dark in Production today.

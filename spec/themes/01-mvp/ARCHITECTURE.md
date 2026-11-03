@@ -1,5 +1,8 @@
 # zippp architecture
 
+**Direction override:** Factory `DIR-001`, `DEC-001`…`005`, `ROAD-001`.  
+Stack detail below is mostly **as-built** (Sheet SoR, credit ledger). Evolve under ROAD; do not treat companion/credits as product destiny.
+
 Depends on: `SPEC.md`, `USER-FLOW.md`
 Owns: how it is built. Column dictionary: `TEMPLATES.md`. Copy: `wording.txt`.
 
@@ -28,7 +31,7 @@ src/
   components/landing/  landing page
   components/app/      AppFlow, screens, queue, debug panel, camera detector
   lib/                 extraction pipeline, region, wording loader, Google helpers
-spec/                  all specs and docs (archived/ for inactive)
+spec/                  themes/, wording.txt, context, archives/
 ```
 
 ---
@@ -310,6 +313,9 @@ Admin-only, guarded like `/admin` (server `currentUser().admin`, 404 otherwise).
 | `UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN` (preferred) **or** `BLOB_READ_WRITE_TOKEN` (legacy) | server; JSON/session store |
 | `DONATION_GOOGLE_REFRESH_TOKEN` / `DONATION_DRIVE_FOLDER_ID` / `DONATION_DRIVE_FOLDER_NAME` | server; donated photos in the operator's Drive (`scripts/donation-drive-auth.mjs`); the admin login copies the token by default |
 | `MAILTRAP_API_TOKEN` / `MAILTRAP_FROM_EMAIL` / `MAILTRAP_FROM_NAME` / `MAILTRAP_USE_SANDBOX` / `MAILTRAP_INBOX_ID` | server; grant email via the `mailtrap` SDK (`src/lib/email.ts`) |
+| `TELEGRAM_BOT_USERNAME` / `TELEGRAM_WEBHOOK_SECRET` | server; user linking and inbound webhook. `TELEGRAM_CHAT_ID` remains the admin chat. |
+| `MOBILE_API_ENABLED` / `MOBILE_JWT_SECRET` | server; Android API gate and HMAC secret (>= 32 bytes, production fails closed). |
+| `APP_LATEST_VERSION_CODE` / `APP_LATEST_VERSION_NAME` / `APP_MIN_SUPPORTED_VERSION_CODE` / `APP_DOWNLOAD_URL` / `APP_APK_SHA256` / `APP_APK_SIZE` / `APP_RELEASE_NOTES` / `APP_PLAY_STORE_URL` | server; `GET /api/app-version` manifest. |
 | `KASERA_API_KEY` / `KASERA_WEBHOOK_SECRET` / `KASERA_BASE_URL` | server; QRIS via Kasera Pay (`src/lib/billing/kasera.ts`) |
 | `DOKU_ENV` / `DOKU_CLIENT_ID` / `DOKU_SECRET_KEY` / `DOKU_NOTIFY_PATH` | server; DOKU Checkout (halted) (`src/lib/billing/doku.ts`) |
 | `ZIPPP_DATA_DIR` | server (local only) |

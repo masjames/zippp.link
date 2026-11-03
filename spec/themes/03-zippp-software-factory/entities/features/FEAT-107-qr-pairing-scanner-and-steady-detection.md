@@ -6,8 +6,8 @@ status: todo
 assignee: adit
 relations:
   blocks: []
-  implements: []
-  depends_on: []
+  implements: ["DEC-003"]
+  depends_on: ["DIR-001", "DEC-003", "FEAT-113"]
 verification:
   target_files: ["android/app/src/main/java/link/zippp/app/ui/pairing/PairingScreen.kt", "android/app/src/main/java/link/zippp/app/ui/camera/CameraScreen.kt"]
   test_command: "./android/gradlew -p android :app:assembleDebug"

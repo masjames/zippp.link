@@ -3,23 +3,26 @@
 Receipt photo to Google Sheet intake. Site: zippp.link. Prepaid credits.
 
 ## Truth
-- spec/ is the source of truth. Update the owning spec file in the same change.
+- **Agent source of truth (only doc required):**  
+  `spec/themes/03-zippp-software-factory/zippp-context-for-claude.md`  
+  Do not require other `spec/**/*.md` to understand the product. Update that
+  file when contracts change. Edit `spec/wording.txt` for copy only.
 - Every user-visible string lives in spec/wording.txt. Never hardcode copy.
 - The Google Sheet is the system of record for receipts. zippp keeps no receipt ledger.
 - Optional photo proof lands in the **user's** Google Drive only.
 - The credit ledger (Upstash) is the only record of money and credits.
-- **Next build:** `spec/AUDIT-2026-10.md` §10. One task at a time. Older Phase 1
-  log: `spec/zippp-ship-plan.md`.
+- **Next build:** commit hygiene → STORY-101 → FEAT-102. Factory already built.
+  One task at a time. Details and priority live in the context file §19.
 
 ## Stack
 Next.js App Router, TypeScript, Tailwind, Vercel.
 google-auth-library for OAuth and Sheets. Vercel Blob or Upstash for session data (src/lib/google/kv.ts).
 Upstash Redis (separate client) for credits, orders, referrals.
-Paddle (sandbox) for international packs. DOKU Checkout for Indonesia. Telegram bot for admin alerts.
-Extraction: PP-OCRv6 then DeepSeek Flash.
+Paddle (sandbox) for international packs. DOKU Checkout for Indonesia. Telegram bot for admin and user alerts. Android companion under android/.
+Extraction: PP-OCRv6 then DeepSeek Flash. Mobile API is dark unless MOBILE_API_ENABLED=true.
 
 ## Rules
-- Do one task at a time from `spec/AUDIT-2026-10.md` §10 (Revision 2).
+- Do one task at a time from the context file §19 (not from archived audits).
 - Never read, print or commit .env or any key. No NEXT_PUBLIC for secrets.
 - Credits, orders and admin checks are decided on the server. Never trust the browser.
 - Every credit grant needs an idempotency key. Spending must be atomic.

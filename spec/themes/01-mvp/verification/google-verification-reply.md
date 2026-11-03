@@ -12,7 +12,7 @@ Letter: Third-Party Data Safety Team, three findings.
 
 Decision: **Option 2, keep DeepSeek, prove segregation.** The photo path and
 the Google data path are disjoint in code, so no re-architecture is needed.
-Evidence is the privacy page, `spec/ARCHITECTURE.md` "Data flow", and the guard
+Evidence is the privacy page, `spec/themes/01-mvp/ARCHITECTURE.md` "Data flow", and the guard
 test `src/lib/data-boundary.test.ts`.
 
 ## What changed in the product

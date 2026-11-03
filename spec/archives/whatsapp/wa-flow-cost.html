@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>zippp — How WhatsApp works · flow · cost</title>
+  <style>
+    :root {
+      --ink: #121212;
+      --mute: #5a5a5a;
+      --faint: #8a8a8a;
+      --line: #121212;
+      --bg: #fafafa;
+      --paper: #ffffff;
+      --wash: #f0f0f0;
+      --soft: #e8e8e8;
+      --ok: #0b6b3a;
+      --warn: #8a5a00;
+      --cost: #121212;
+      --phone-w: 260px;
+      --max: 1280px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font: 15px/1.5 "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+    }
+    code, .mono, pre, .phone, table, .tag, .cap, .calc {
+      font-family: "IBM Plex Mono", "SF Mono", Menlo, Consolas, monospace;
+    }
+
+    /* —— chrome —— */
+    header {
+      background: var(--paper);
+      border-bottom: 2px solid var(--ink);
+      padding: 28px clamp(20px, 4vw, 48px) 24px;
+    }
+    header .kicker {
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--mute);
+      margin: 0 0 8px;
+    }
+    header h1 {
+      margin: 0 0 10px;
+      font-size: clamp(22px, 2.4vw, 32px);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      max-width: 28ch;
+    }
+    header .lede {
+      margin: 0;
+      color: var(--mute);
+      font-size: 16px;
+      max-width: 68ch;
+      line-height: 1.55;
+    }
+    .laws {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 18px;
+    }
+    .law {
+      border: 1px solid var(--ink);
+      background: var(--wash);
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 4px;
+      padding: 10px clamp(20px, 4vw, 48px);
+      background: var(--paper);
+      border-bottom: 1px solid var(--ink);
+      font-size: 13px;
+    }
+    nav a {
+      color: var(--ink);
+      text-decoration: none;
+      padding: 6px 12px;
+      border: 1px solid transparent;
+    }
+    nav a:hover { border-color: var(--ink); background: var(--wash); }
+
+    main {
+      padding: 36px clamp(20px, 4vw, 48px) 64px;
+      max-width: var(--max);
+      margin: 0 auto;
+    }
+    section { margin-bottom: 64px; }
+    h2 {
+      margin: 0 0 10px;
+      font-size: clamp(18px, 1.8vw, 24px);
+      letter-spacing: -0.02em;
+      border-bottom: 2px solid var(--ink);
+      padding-bottom: 8px;
+    }
+    h3 {
+      margin: 0 0 10px;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .note {
+      color: var(--mute);
+      font-size: 14px;
+      margin: 0 0 20px;
+      max-width: 78ch;
+    }
+
+    /* —— one-liner hero —— */
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 20px;
+      margin-bottom: 28px;
+    }
+    @media (max-width: 900px) {
+      .hero-grid { grid-template-columns: 1fr; }
+    }
+    .hero-card {
+      background: var(--paper);
+      border: 2px solid var(--ink);
+      padding: 22px 24px;
+    }
+    .hero-card p { margin: 0 0 12px; }
+    .hero-card p:last-child { margin-bottom: 0; }
+    .hero-card strong { font-weight: 700; }
+    .chain {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      margin-top: 14px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .chain span {
+      border: 1.5px solid var(--ink);
+      padding: 8px 12px;
+      background: var(--wash);
+    }
+    .chain .arr { border: 0; background: none; color: var(--mute); padding: 0 2px; }
+
+    .roles {
+      display: grid;
+      gap: 10px;
+    }
+    .role {
+      border: 1px solid var(--ink);
+      padding: 12px 14px;
+      background: var(--paper);
+    }
+    .role .who {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--mute);
+      margin-bottom: 4px;
+    }
+    .role .job { font-size: 14px; font-weight: 600; }
+
+    /* —— screens —— */
+    .screens {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px 12px;
+      align-items: stretch;
+      justify-content: flex-start;
+    }
+    .beat {
+      display: flex;
+      flex-direction: column;
+      width: var(--phone-w);
+      flex: 0 0 var(--phone-w);
+    }
+    .phone {
+      border: 2px solid var(--ink);
+      background: var(--paper);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 340px;
+    }
+    .phone .bar {
+      border-bottom: 1.5px solid var(--ink);
+      padding: 10px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      background: var(--wash);
+    }
+    .phone .body {
+      padding: 14px 12px;
+      flex: 1;
+    }
+    .bubble {
+      border: 1.5px solid var(--ink);
+      padding: 10px 12px;
+      margin: 0 0 10px;
+      font-size: 13px;
+      line-height: 1.4;
+      max-width: 94%;
+    }
+    .bubble.in { margin-right: auto; background: var(--wash); }
+    .bubble.out { margin-left: auto; background: var(--paper); }
+    .bubble.ghost {
+      border-style: dashed;
+      color: var(--mute);
+      font-size: 12px;
+    }
+    .btns { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
+    .btns span {
+      border: 1.5px solid var(--ink);
+      text-align: center;
+      padding: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      background: var(--wash);
+    }
+    .tag {
+      display: inline-block;
+      border: 1px solid var(--ink);
+      padding: 3px 8px;
+      font-size: 10px;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      font-weight: 700;
+    }
+    .tag.cost { background: var(--cost); color: var(--paper); }
+    .tag.free { background: var(--paper); color: var(--ok); border-color: var(--ok); }
+    .tag.twilio { background: var(--wash); }
+    .cap {
+      margin-top: 10px;
+      font-size: 12px;
+      color: var(--mute);
+      line-height: 1.4;
+      min-height: 3.2em;
+    }
+    .arrow {
+      align-self: center;
+      font-size: 22px;
+      color: var(--faint);
+      padding: 0 2px;
+      width: 28px;
+      text-align: center;
+      flex: 0 0 28px;
+      padding-bottom: 48px;
+    }
+    @media (max-width: 1400px) {
+      .arrow { display: none; }
+    }
+
+    /* —— architecture —— */
+    .arch {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    @media (max-width: 960px) {
+      .arch { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 560px) {
+      .arch { grid-template-columns: 1fr; }
+    }
+    .arch-node {
+      border: 2px solid var(--ink);
+      background: var(--paper);
+      padding: 16px;
+      min-height: 140px;
+    }
+    .arch-node .label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--mute);
+      margin-bottom: 6px;
+    }
+    .arch-node .title {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .arch-node ul {
+      margin: 0;
+      padding-left: 16px;
+      font-size: 13px;
+      color: var(--mute);
+    }
+    .arch-node.sor { background: var(--wash); }
+    .arch-node.transport { border-style: dashed; }
+
+    .flow {
+      border: 2px solid var(--ink);
+      background: var(--paper);
+      padding: 20px 22px;
+      overflow-x: auto;
+    }
+    .flow pre {
+      margin: 0;
+      font-size: 12px;
+      line-height: 1.45;
+      white-space: pre;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      background: var(--paper);
+    }
+    th, td {
+      border: 1px solid var(--ink);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { background: var(--wash); font-weight: 700; font-size: 12px; }
+    td.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+    tr.total td { font-weight: 700; background: var(--wash); }
+    tr.hl td { background: #fff8e8; }
+
+    .grid2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .grid3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 16px;
+    }
+    @media (max-width: 800px) {
+      .grid2, .grid3 { grid-template-columns: 1fr; }
+    }
+
+    .box {
+      border: 1.5px solid var(--ink);
+      background: var(--paper);
+      padding: 16px 18px;
+    }
+    .box ul { margin: 0; padding-left: 18px; }
+    .box li { margin-bottom: 6px; font-size: 14px; }
+    .box .sub { color: var(--mute); font-size: 13px; margin: 0 0 10px; }
+
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 0; }
+    .pill {
+      border: 1px solid var(--ink);
+      padding: 4px 10px;
+      font-size: 12px;
+      background: var(--wash);
+    }
+
+    .calc {
+      border: 2px solid var(--ink);
+      background: var(--paper);
+      padding: 20px 22px;
+      font-size: 13px;
+      line-height: 1.5;
+      white-space: pre-wrap;
+    }
+
+    .compare {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 16px;
+    }
+    @media (max-width: 800px) {
+      .compare { grid-template-columns: 1fr; }
+    }
+    .compare .box h3 { font-size: 13px; }
+    .price-big {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      margin: 8px 0 4px;
+      font-variant-numeric: tabular-nums;
+    }
+    .price-sub { color: var(--mute); font-size: 13px; margin: 0 0 12px; }
+
+    .prompt-wrap textarea {
+      width: 100%;
+      min-height: 360px;
+      border: 2px solid var(--ink);
+      padding: 14px;
+      font: 13px/1.45 "IBM Plex Mono", Menlo, Consolas, monospace;
+      resize: vertical;
+      background: var(--wash);
+    }
+    .actions { margin: 10px 0 0; display: flex; gap: 8px; flex-wrap: wrap; }
+    button {
+      border: 2px solid var(--ink);
+      background: var(--paper);
+      color: var(--ink);
+      font: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 10px 16px;
+      cursor: pointer;
+    }
+    button:hover { background: var(--wash); }
+    button:active { background: var(--ink); color: var(--paper); }
+    #copy-status { font-size: 12px; color: var(--mute); align-self: center; }
+
+    footer {
+      border-top: 1px solid var(--ink);
+      padding: 18px clamp(20px, 4vw, 48px);
+      font-size: 12px;
+      color: var(--mute);
+      background: var(--paper);
+    }
+
+    .callout {
+      border-left: 4px solid var(--ink);
+      background: var(--paper);
+      padding: 14px 18px;
+      margin: 0 0 20px;
+      font-size: 14px;
+    }
+    .callout strong { display: block; margin-bottom: 4px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="kicker">zippp.link · product + cost map</p>
+    <h1>How zippp works with WhatsApp</h1>
+    <p class="lede">
+      WhatsApp is the shutter. Google Sheet is the ledger.
+      User sends a receipt photo (or a short note) → zippp extracts → user checks →
+      one row lands in their Sheet. No second books. No auto-write.
+    </p>
+    <div class="laws">
+      <span class="law">Sheet = source of truth</span>
+      <span class="law">Check before Accept</span>
+      <span class="law">1 credit = 1 Accept</span>
+      <span class="law">≤2 outbound business msgs / Accept</span>
+      <span class="law">Soft-cap 800 outbound / mo</span>
+    </div>
+  </header>
+
+  <nav>
+    <a href="#how">1. Idea</a>
+    <a href="#screens">2. Screens</a>
+    <a href="#data">3. Who holds what</a>
+    <a href="#api">4. Messaging cost</a>
+    <a href="#calc">5. Calculator</a>
+    <a href="#twilio">6. Twilio notes</a>
+  </nav>
+
+  <main>
+    <!-- HOW -->
+    <section id="how">
+      <h2>1. The idea in one glance</h2>
+      <p class="note">
+        Built for personal / family cash notes (Bayu). Same Accept path as web Snap —
+        WA just removes the “open the app” step when you already live in chat.
+      </p>
+
+      <div class="hero-grid">
+        <div class="hero-card">
+          <p><strong>Job to be done</strong></p>
+          <p>
+            After buying something, snap the nota in WhatsApp.
+            See the draft (merchant, amount, category).
+            Tap <strong>Terima</strong> → it appears in the family Google Sheet.
+            Tap <strong>Ubah</strong> to fix on web, or <strong>Buang</strong> to drop it.
+          </p>
+          <div class="chain">
+            <span>Foto / teks</span><span class="arr">→</span>
+            <span>Extract</span><span class="arr">→</span>
+            <span>Review</span><span class="arr">→</span>
+            <span>Terima</span><span class="arr">→</span>
+            <span>Sheet row</span>
+          </div>
+        </div>
+        <div class="roles">
+          <div class="role">
+            <div class="who">WhatsApp (Meta / Twilio)</div>
+            <div class="job">Transport only — deliver inbound photo &amp; our 2 replies</div>
+          </div>
+          <div class="role">
+            <div class="who">zippp (Next.js)</div>
+            <div class="job">Link phone ↔ Google, OCR/LLM, draft FSM, spend credit</div>
+          </div>
+          <div class="role">
+            <div class="who">Google Sheet (user’s)</div>
+            <div class="job">System of record — the only place the expense “exists”</div>
+          </div>
+          <div class="role">
+            <div class="who">Credits (Upstash)</div>
+            <div class="job">Money ledger — 1 Accept burns 1 credit on successful append</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout">
+        <strong>Not in v1</strong>
+        Marketing blasts, digests, Meta AI budgets, group chat bots, BSP shopping,
+        or writing to Sheet without the user tapping Terima / typing Terima.
+      </div>
+    </section>
+
+    <!-- SCREENS -->
+    <section id="screens">
+      <h2>2. Screen flow (what the user sees)</h2>
+      <p class="note">
+        Five beats. Black tags = billable business outbound on WhatsApp
+        (Meta Service + Twilio per-msg when using Twilio). Inbound is never a Meta template fee;
+        Twilio still charges <strong>$0.005</strong> on inbound and outbound.
+      </p>
+
+      <div class="screens">
+        <div class="beat">
+          <div class="phone">
+            <div class="bar">A · Link once (web)</div>
+            <div class="body">
+              <div class="tag free">no WA fee / Accept</div>
+              <div class="bubble in">Settings → Hubungkan WhatsApp</div>
+              <div class="bubble out">Open claim link from WA<br/>or use /app/wa-mock</div>
+              <div class="bubble in">WhatsApp terhubung ✓</div>
+            </div>
+          </div>
+          <div class="cap">Binds wa_id ↔ Google account. Done once per phone.</div>
+        </div>
+
+        <div class="arrow">→</div>
+
+        <div class="beat">
+          <div class="phone">
+            <div class="bar">B · Capture</div>
+            <div class="body">
+              <div class="tag free">Meta inbound Rp0</div>
+              <div class="tag twilio">Twilio in $0.005</div>
+              <div class="bubble in">[foto nota]<br/>atau “kopi 25rb”</div>
+              <div class="bubble out ghost">
+                Opens 24h customer service window.<br/>
+                Webhook → extract. No Sheet write yet.
+              </div>
+            </div>
+          </div>
+          <div class="cap">User → WA → /api/wa/webhook. Starts the free-form Service window.</div>
+        </div>
+
+        <div class="arrow">→</div>
+
+        <div class="beat">
+          <div class="phone">
+            <div class="bar">C · Review</div>
+            <div class="body">
+              <div class="tag cost">outbound #1 · Service</div>
+              <div class="bubble out">
+                Warung · Rp25.000<br/>
+                Makanan · hari ini
+                <div class="btns">
+                  <span>Terima</span>
+                  <span>Ubah</span>
+                  <span>Buang</span>
+                </div>
+              </div>
+              <div class="bubble out ghost" style="margin-top:8px">
+                Sandbox fallback:<br/>Balas Terima / Ubah / Buang
+              </div>
+            </div>
+          </div>
+          <div class="cap">Check the draft. Sheet still untouched. Counts as 1 outbound.</div>
+        </div>
+
+        <div class="arrow">→</div>
+
+        <div class="beat">
+          <div class="phone">
+            <div class="bar">D · Accept</div>
+            <div class="body">
+              <div class="tag free">Meta inbound Rp0</div>
+              <div class="tag twilio">Twilio in $0.005</div>
+              <div class="bubble in">[Terima] atau teks “Terima”</div>
+              <div class="bubble out ghost">
+                −1 credit<br/>
+                append Google Sheet<br/>
+                (zippp money, not Meta)
+              </div>
+            </div>
+          </div>
+          <div class="cap">Only here does the row become real. Fail → refund credit.</div>
+        </div>
+
+        <div class="arrow">→</div>
+
+        <div class="beat">
+          <div class="phone">
+            <div class="bar">E · Saved</div>
+            <div class="body">
+              <div class="tag cost">outbound #2 · Service</div>
+              <div class="bubble out">
+                Tersimpan ✓<br/>
+                Buka Sheet →
+              </div>
+            </div>
+          </div>
+          <div class="cap">Hard stop: no 3rd “thanks” bubble. Soft-cap blocks new extracts at 800 outbounds/mo.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- DATA -->
+    <section id="data">
+      <h2>3. Who holds what</h2>
+      <p class="note">
+        Dashed box = messaging transport (Meta direct or Twilio → Meta).
+        Solid boxes = zippp + Google. Transport never stores the ledger.
+      </p>
+
+      <div class="arch">
+        <div class="arch-node">
+          <div class="label">User</div>
+          <div class="title">Phone · WhatsApp</div>
+          <ul>
+            <li>Sends foto / teks</li>
+            <li>Taps Terima / Ubah / Buang</li>
+            <li>Opens Sheet link</li>
+          </ul>
+        </div>
+        <div class="arch-node transport">
+          <div class="label">Transport</div>
+          <div class="title">Meta or Twilio</div>
+          <ul>
+            <li>Webhook inbound</li>
+            <li>Send Service msgs</li>
+            <li>WA_PROVIDER flag</li>
+          </ul>
+        </div>
+        <div class="arch-node">
+          <div class="label">zippp</div>
+          <div class="title">FSM · credits · OCR</div>
+          <ul>
+            <li>Link + draft in Redis</li>
+            <li>Extract pipeline</li>
+            <li>Outbound counter</li>
+          </ul>
+        </div>
+        <div class="arch-node sor">
+          <div class="label">SoR</div>
+          <div class="title">Google Sheet</div>
+          <ul>
+            <li>User’s Drive</li>
+            <li>Append on Terima</li>
+            <li>Optional photo proof</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="flow">
+<pre>
+ USER WA                 TRANSPORT                    ZIPPP                         GOOGLE
+ ─────                   ─────────                    ─────                         ──────
+ foto/teks ──inbound──►  Meta / Twilio ──webhook──►  checks link·sheet·credit·cap
+                                                      OCR / DeepSeek (~Rp3–6)
+                         ◄── outbound #1 review ────  draft in Redis (reviewing)
+ [Terima] ──inbound──►                                spend credit + append ───────► Sheet row
+                         ◄── outbound #2 saved ─────  state → ready
+
+ Soft-cap: Redis wa:out:{yyyy-mm} += 1 per outbound; ≥800 → blocked_quota
+</pre>
+      </div>
+    </section>
+
+    <!-- COST -->
+    <section id="api">
+      <h2>4. Messaging cost (Indonesia)</h2>
+      <p class="note">
+        Sources: Meta rate card (Service Rp356.65 / msg, sheet 1 Oct 2026) and
+        <strong>Twilio WhatsApp messaging pricing calculator</strong> (Twilio $0.005 in or out;
+        Meta template fees passed through). Customer service window = 24h after a user message.
+      </p>
+
+      <div class="grid3" style="margin-bottom:20px">
+        <div class="box">
+          <h3>Twilio fee</h3>
+          <p class="sub">Every WA message Twilio handles</p>
+          <div class="price-big">$0.005</div>
+          <p class="price-sub">inbound <em>or</em> outbound · per message</p>
+        </div>
+        <div class="box">
+          <h3>Meta · Service</h3>
+          <p class="sub">Non-template msgs inside the 24h window</p>
+          <div class="price-big">Rp356.65</div>
+          <p class="price-sub">per business-sent Service msg (our review + saved)</p>
+        </div>
+        <div class="box">
+          <h3>Meta · Utility template</h3>
+          <p class="sub">Twilio calculator · Indonesia</p>
+          <div class="price-big">$0 / $0.025</div>
+          <p class="price-sub">$0 during CSW · $0.025 outside CSW (+ Twilio $0.005)</p>
+        </div>
+      </div>
+
+      <div class="callout">
+        <strong>How categories map to zippp</strong>
+        Our v1 review + “Tersimpan” are <strong>Service messages</strong> (non-template, inside the window
+        the user’s foto opened). We avoid Marketing. Utility templates only if buttons require them —
+        during CSW Meta Utility pass-through is $0 on the Twilio calculator; outside CSW Utility is $0.025.
+        Authentication is for OTPs — not our Accept path.
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Step</th>
+            <th>What happens</th>
+            <th>Meta</th>
+            <th>Twilio</th>
+            <th>zippp</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>A Link</td>
+            <td>Web claim / mock playground</td>
+            <td class="num">0 / Accept</td>
+            <td class="num">0</td>
+            <td class="num">—</td>
+          </tr>
+          <tr>
+            <td>B Capture</td>
+            <td>User sends foto/text (opens 24h window)</td>
+            <td class="num">inbound 0</td>
+            <td class="num">$0.005</td>
+            <td class="num">—</td>
+          </tr>
+          <tr>
+            <td>B→C Extract</td>
+            <td>OCR / LLM</td>
+            <td class="num">—</td>
+            <td class="num">—</td>
+            <td class="num">~Rp3–6</td>
+          </tr>
+          <tr class="hl">
+            <td>C Review</td>
+            <td>Outbound #1 · Service (buttons or text fallback)</td>
+            <td class="num">Rp356.65*</td>
+            <td class="num">$0.005</td>
+            <td class="num">—</td>
+          </tr>
+          <tr>
+            <td>D Terima</td>
+            <td>Button tap or text “Terima”</td>
+            <td class="num">inbound 0</td>
+            <td class="num">$0.005</td>
+            <td class="num">—</td>
+          </tr>
+          <tr>
+            <td>D Append</td>
+            <td>Sheets API + credit debit</td>
+            <td class="num">—</td>
+            <td class="num">—</td>
+            <td class="num">1 credit</td>
+          </tr>
+          <tr class="hl">
+            <td>E Saved</td>
+            <td>Outbound #2 · Service + Sheet URL</td>
+            <td class="num">Rp356.65*</td>
+            <td class="num">$0.005</td>
+            <td class="num">—</td>
+          </tr>
+          <tr class="total">
+            <td colspan="2">Per Accept · happy path (after Meta free tier)</td>
+            <td class="num">Rp713.30</td>
+            <td class="num">$0.020</td>
+            <td class="num">1 credit + ~Rp3–6</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="note" style="margin-top:12px">
+        * Meta ~1,000 free Service msgs/mo (confirm in Business Manager) → our soft-cap 800 outbound ≈ 400 Accepts at META messaging ≈ 0.
+        Twilio $0.005 still applies on every in/out even inside Meta free tier.
+        Failed Twilio processing fee $0.001/msg is ignored in the planning table.
+      </p>
+
+      <div class="compare">
+        <div class="box">
+          <h3>Path · Meta Cloud API direct</h3>
+          <p class="sub">WA_PROVIDER=meta · no Twilio hop</p>
+          <ul>
+            <li>Messaging: Meta Service only on 2 outbounds</li>
+            <li>Inbound: Meta Rp0</li>
+            <li>~Rp713 / Accept after free tier</li>
+            <li>Faster long-term cost; slower Meta onboarding</li>
+          </ul>
+        </div>
+        <div class="box">
+          <h3>Path · Twilio Sandbox / Twilio WA</h3>
+          <p class="sub">WA_PROVIDER=twilio · calculator model</p>
+          <ul>
+            <li>Twilio: $0.005 × (2 in + 2 out) = <strong>$0.02</strong> / Accept</li>
+            <li>Plus Meta Service pass-through on 2 outbounds (~Rp713)</li>
+            <li>~$0.02 + Rp713 after free tier · ~$0.02 while Meta free</li>
+            <li>Fast Sandbox today; prod still Meta-gated (WABA)</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="grid2" style="margin-top:16px">
+        <div class="box">
+          <h3>We send (keep ≤2)</h3>
+          <ul>
+            <li>Review + Terima / Ubah / Buang (Service or Utility QR)</li>
+            <li>“Tersimpan” + Open Sheet</li>
+            <li>Rare error / quota CTA only</li>
+          </ul>
+        </div>
+        <div class="box">
+          <h3>We never send</h3>
+          <ul>
+            <li>Marketing templates</li>
+            <li>“Sedang dibaca” / progress spam</li>
+            <li>Reminders, digests, cold outreach</li>
+            <li>Auth OTP templates on the Accept path</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- CALC -->
+    <section id="calc">
+      <h2>5. Calculator</h2>
+      <p class="note">Plug monthly Accept volume. O = outbound Service count ≈ 2A. Twilio msgs ≈ 4A (2 in + 2 out) on the happy path.</p>
+      <div class="calc">A  = WA Accepts / month
+O  = outbound Service msgs ≈ 2A
+T  = Twilio-handled msgs ≈ 4A          (foto + Terima + review + saved)
+F  = 1000 free Meta Service msgs/mo    (confirm in BM)
+
+META_IDR   = max(0, O − F) × 356.65
+TWILIO_USD = T × 0.005
+           = 4A × 0.005 = 0.02A
+
+A_free_max (Meta) = 500 Accepts   (1000/2)
+A_soft_max (ours) = 400 Accepts   (800 outbound cap) → aim META_IDR = 0
+
+Examples (after Meta free tier empties; Twilio always):
+  100 Accepts → Meta 0 · Twilio $2.00
+  400 Accepts → Meta 0 (soft-cap) · Twilio $8.00
+  600 Accepts → Meta Rp71,330 · Twilio $12.00
+ 1000 Accepts → Meta Rp356,650 · Twilio $20.00
+
+Twilio Utility template (ID): Meta $0 inside CSW, $0.025 outside + $0.005 Twilio.
+Prefer staying inside the user-opened 24h window — our foto already opens it.</div>
+    </section>
+
+    <!-- TWILIO -->
+    <section id="twilio">
+      <h2>6. Twilio Sandbox · ops checklist</h2>
+      <p class="note">Preview only. Production www.zippp.link stays WA-off until Sandbox smoke passes.</p>
+      <div class="grid2">
+        <div class="box">
+          <h3>Env (Preview)</h3>
+          <ul>
+            <li><code>WA_CHANNEL_ENABLED=true</code></li>
+            <li><code>WA_PROVIDER=twilio</code></li>
+            <li><code>TWILIO_ACCOUNT_SID</code> / <code>AUTH_TOKEN</code></li>
+            <li><code>TWILIO_WHATSAPP_FROM=whatsapp:+14155238886</code></li>
+            <li>Optional: keep <code>WA_MOCK=true</code> for browser playground</li>
+          </ul>
+        </div>
+        <div class="box">
+          <h3>Smoke</h3>
+          <ul>
+            <li>Join Sandbox → <code>join …</code></li>
+            <li>Webhook POST → Preview <code>/api/wa/webhook</code> (+ SSO bypass query)</li>
+            <li>Link phone in Settings</li>
+            <li>Foto → review → Terima / Ubah / Buang text</li>
+          </ul>
+        </div>
+      </div>
+
+      <div style="margin-top:20px">
+        <h3>Ready-to-paste · Twilio AI</h3>
+        <p class="note">Short brief if you reopen Kendall. Copy, then send.</p>
+        <div class="prompt-wrap">
+          <textarea id="twilio-prompt" readonly>zippp (zippp.link): receipt photo on WA → extract → review [Terima|Ubah|Buang] → Accept appends Google Sheet + 1 credit. Sheet=SoR. ≤2 outbound Service msgs/Accept. Soft-cap 800 outbound/mo. ID market.
+
+Using Twilio WA Sandbox first (WA_PROVIDER=twilio). Calculator: Twilio $0.005 in or out; Meta Utility ID $0 inside 24h CSW / $0.025 outside; our outbounds are Service non-template during CSW.
+
+Confirm: (1) Sandbox webhook + MediaUrl0 image path, (2) freeform text buttons vs Content/Utility QR, (3) per-Accept cost = 4×$0.005 Twilio + 2× Meta Service pass-through, (4) prod still needs Meta WABA.</textarea>
+          <div class="actions">
+            <button type="button" id="copy-btn">Copy prompt</button>
+            <span id="copy-status"></span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    zippp · spec/plans/wa-flow-cost.html · Twilio calc + Meta ID Service Rp356.65 ·
+    Preview only until Sandbox proven · Production WA flag off
+  </footer>
+
+  <script>
+    const btn = document.getElementById("copy-btn");
+    const ta = document.getElementById("twilio-prompt");
+    const status = document.getElementById("copy-status");
+    btn.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(ta.value);
+        status.textContent = "Copied.";
+      } catch {
+        ta.select();
+        document.execCommand("copy");
+        status.textContent = "Copied (fallback).";
+      }
+    });
+  </script>
+</body>
+</html>

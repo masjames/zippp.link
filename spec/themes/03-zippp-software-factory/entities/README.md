@@ -1,18 +1,28 @@
 # Factory entities
 
-Only files in the four entity subfolders are indexed by the Software Factory. This README is not an entity.
+**How to find anything (Covert):** name → group → sequence.  
+**How to not think (Krug):** open **Direction** first.
+
+| Folder | Type | Prefix | Job |
+|---|---|---|---|
+| `direction/` | direction | `DIR-*` | Where we are going (one north star) |
+| `decisions/` | decision | `DEC-*` | Locked calls (one decision each) |
+| `roadmap/` | roadmap | `ROAD-*` | Ordered phases |
+| `features/` | feature | `FEAT-*` | Build work |
+| `bugs/` | bug | `BUG-*` | Defects |
+| `stories/` | story | `STORY-*` | Proof / E2E |
+| `diagrams/` | diagram | `DIAG-*` / `ERD-*` / `FLOW-*` | Maps |
 
 ```text
-features/   FEAT-*
-bugs/       BUG-*
-stories/    STORY-*
-diagrams/   ERD-* / DIAG-*
+Direction  →  Decisions  →  Roadmap  →  Tasks  →  Design / Gap
 ```
 
-Use `../templates/entity.md`. Keep one entity per file. Use the YAML
-frontmatter contract exactly. Link deeper prose specs by path in the body.
+Only files in these entity subfolders are indexed. This README is not an entity.
 
-Do not put long-form specs, meeting notes, session logs, or archived material
-here. Those belong elsewhere in `spec/`.
+Use `../templates/entity.md` for FEAT/BUG/STORY. Strategy cards stay short: Destination / Locked call, Why, Locked, Non-goals, Done when.
 
-`threads/` holds grooming conversations and is not indexed.
+Do not put long-form specs, meeting notes, or archives here — those live elsewhere under `spec/`.
+
+`threads/` holds grooming chats and is not indexed.
+
+**Current north star:** `direction/DIR-001-zippp-space.md`

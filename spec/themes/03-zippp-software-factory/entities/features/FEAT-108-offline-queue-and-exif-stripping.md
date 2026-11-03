@@ -7,7 +7,7 @@ assignee: adit
 relations:
   blocks: []
   implements: []
-  depends_on: []
+  depends_on: ["DIR-001"]
 verification:
   target_files: ["android/app/src/main/java/link/zippp/app/data/ApiClient.kt", "android/app/src/main/java/link/zippp/app/data/OfflineQueue.kt"]
   test_command: "./android/gradlew -p android :app:assembleDebug"
@@ -24,6 +24,7 @@ Let a person keep capturing when the network is weak without leaking location or
 
 # Context
 
+- `DIR-001` capture reliability on Android.
 - `spec/themes/02-android-telegram-pivot/SPEC-ANDROID-COMPANION.md` sections 7 and 9.
 - `spec/themes/02-android-telegram-pivot/android-rollout-plan.md` Lane F.
 
@@ -33,7 +34,7 @@ Let a person keep capturing when the network is weak without leaking location or
 - [ ] The queue survives app restart.
 - [ ] Upload retries with backoff and never duplicates a scan.
 - [ ] EXIF is stripped before the image leaves the device.
-- [ ] A queued item can be discarded without spending a credit.
+- [ ] A queued item can be discarded before confirm (no spend applied).
 - [ ] No token or image bytes are written to logs.
 
 # Verification

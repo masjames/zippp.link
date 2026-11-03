@@ -2,12 +2,12 @@
 id: STORY-101
 type: story
 title: End-to-end device test
-status: todo
+status: blocked
 assignee: adit
 relations:
   blocks: []
   implements: []
-  depends_on: []
+  depends_on: ["DIR-001", "DEC-005"]
 verification:
   target_files: []
   test_command: ""
@@ -16,11 +16,11 @@ verification:
 
 # What it is
 
-A manual end-to-end test of the paired Android companion against Preview: pair, capture a real nota, extract, review, tap Terima, confirm the Sheet row, and confirm the credit decrement.
+**Parked.** Companion-era E2E (pair → Terima → credit). The gate that matters is **STORY-102** under DIR-001.
 
 # Goal
 
-Prove the main product path works with a real Google account, a real Sheet, and a real device before adding more features.
+Kept only as historical checklist if someone still validates the spike. Do not block Space work on this card.
 
 # Context
 

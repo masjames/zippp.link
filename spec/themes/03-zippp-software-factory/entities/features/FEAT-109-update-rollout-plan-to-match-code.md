@@ -2,12 +2,12 @@
 id: FEAT-109
 type: feature
 title: Update rollout plan to match code
-status: todo
+status: blocked
 assignee: adit
 relations:
   blocks: []
   implements: []
-  depends_on: []
+  depends_on: ["DIR-001", "ROAD-001", "DEC-005"]
 verification:
   target_files: []
   test_command: ""
@@ -16,7 +16,7 @@ verification:
 
 # What it is
 
-A documentation pass that makes the Android rollout plan match the code that actually exists.
+**Parked** per `DEC-005`. Rewrite the Android rollout plan after `ROAD-001` phases — not while companion-era lanes still read as north star.
 
 # Goal
 

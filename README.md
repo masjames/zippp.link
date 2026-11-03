@@ -54,5 +54,7 @@ npm run dev                  # http://localhost:3000
 
 ## Docs
 
-Everything lives in **`spec/`** — start at [`spec/README.md`](./spec/README.md).
-Inactive/old material is in `spec/archived/`.
+**Agents:** read only  
+[`spec/themes/03-zippp-software-factory/zippp-context-for-claude.md`](./spec/themes/03-zippp-software-factory/zippp-context-for-claude.md)  
+(self-contained product + factory + backlog). Copy strings: `spec/wording.txt`.  
+Other theme/archive markdown is optional human history, not required for agents.

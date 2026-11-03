@@ -76,6 +76,23 @@ flowchart TD
   FactoryVerify --> FactoryDone["Done"]
 ```
 
+# Planned — Zippp Space primary loop (DIR-001)
+
+North-star path under `ROAD-001` (does not replace Live / Planned mill diagrams above).
+
+```mermaid
+flowchart TD
+  Signal["Notification / open app"] --> Prompt["Record prompt"]
+  Prompt --> Capture["Camera or manual"]
+  Capture --> Review["Review / edit"]
+  Review --> Confirm["Confirm"]
+  Confirm --> Space["Zippp Space record"]
+  Confirm --> Sheet["Sheet row when connected"]
+  Confirm --> Usage["Usage % under fair-use plan"]
+```
+
+Auth on web + Android; checkout and plan management on web only (`DEC-002`, `DEC-003`).
+
 # Notes
 
-The live flow has no template step, no ops step, no month tab, no Drive proof, no QR step, and no edit branch on Android. The planned flow adds those paths.
+The live flow has no template step, no ops step, no month tab, no Drive proof, no QR step, and no edit branch on Android. The planned flow adds those paths. Space loop above is the product destination once ROAD Phases 3+ ship.

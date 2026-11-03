@@ -6,8 +6,8 @@ status: todo
 assignee: adit
 relations:
   blocks: []
-  implements: []
-  depends_on: []
+  implements: ["DIR-001"]
+  depends_on: ["DIR-001", "DEC-005"]
 verification:
   target_files: ["src/lib/google/sheet-layout.ts", "src/lib/google/sheets.ts"]
   test_command: "npm test"
@@ -16,14 +16,15 @@ verification:
 
 # What it is
 
-The zippp-owned Sheet layout: a Summary tab, one month tab per receipt month, a daily totals block, formatting, dropdowns, and hidden tabs older than 12 months.
+Sheet layout for **Space spend views**: Summary, one tab per month, daily totals, formatting, dropdowns, hide tabs older than 12 months. Reshape per `DEC-005` — same mechanics, Space-first framing.
 
 # Goal
 
-Turn the Sheet into a useful monthly recap instead of a single growing tab.
+Members see monthly spend at a glance in the connected Sheet (and Space UI when wired).
 
 # Context
 
+- `DIR-001`, `DEC-005` (reshape toward Space spend views)
 - `spec/themes/01-mvp/AUDIT-2026-10.md` section 4.
 - `spec/themes/01-mvp/TEMPLATES.md` sheet layout.
 - `spec/themes/01-mvp/ARCHITECTURE.md` templates and sheet layout.

@@ -7,7 +7,7 @@ assignee: adit
 relations:
   blocks: []
   implements: []
-  depends_on: []
+  depends_on: ["DIR-001"]
 verification:
   target_files: ["android/app/src/main/java/link/zippp/app/update/OtaUpdateManager.kt", "src/app/api/app-version/route.ts"]
   test_command: "./android/gradlew -p android :app:assembleDebug"
@@ -24,6 +24,7 @@ Keep direct APK installs current without letting a tampered or unsigned APK inst
 
 # Context
 
+- Distribution for Zippp Space Android (`DIR-001`); not a product-direction card.
 - `spec/themes/02-android-telegram-pivot/SPEC-ANDROID-COMPANION.md` section 5.2.
 - `spec/themes/01-mvp/ARCHITECTURE.md` app version env.
 - `spec/themes/02-android-telegram-pivot/android-rollout-plan.md` Lane E.

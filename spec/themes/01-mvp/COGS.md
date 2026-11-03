@@ -1,5 +1,7 @@
 # zippp COGS — extraction pipeline
 
+**Direction override:** Factory `DIR-001`, `DEC-002` (fair-use sub). Unit economics below are extraction COGS; subscription metering is separate.
+
 Updated: 2 Oct 2026. Supersedes the old "Gemini vision" COGS.
 Pipeline: `ARCHITECTURE.md`. Privacy line: `SPEC.md`, `PRICING.md`.
 
