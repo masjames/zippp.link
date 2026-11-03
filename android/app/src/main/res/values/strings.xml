@@ -60,6 +60,8 @@
     <string name="settings_capture_access_off">Akses notifikasi nonaktif</string>
     <string name="settings_capture_open_access">Buka akses notifikasi</string>
     <string name="settings_capture_toggle">Catat dari notifikasi</string>
+    <string name="settings_balance">Sisa scan</string>
+    <string name="settings_sign_out">Keluar</string>
     <string name="settings_back">Kembali</string>
     <string name="manual_title">Catat pengeluaran</string>
     <string name="manual_body">Isi nominalnya sendiri. Belum ada yang tersimpan sampai Anda menekan Simpan.</string>

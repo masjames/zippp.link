@@ -170,6 +170,12 @@ private fun ZipppRoot(
 
     when (screen) {
         RootScreen.Settings -> SettingsScreen(
+            credits = credits,
+            onSignOut = {
+                store.clear()
+                token = null
+                screen = RootScreen.Camera
+            },
             onBack = { screen = RootScreen.Camera },
         )
         RootScreen.Batch -> BatchScreen(

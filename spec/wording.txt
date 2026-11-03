@@ -4219,6 +4219,14 @@ Buka akses notifikasi
 Record from notifications
 ## android.settings.capture.toggle.id
 Catat dari notifikasi
+## android.settings.balance.en
+Scan balance
+## android.settings.balance.id
+Sisa scan
+## android.settings.signOut.en
+Sign out
+## android.settings.signOut.id
+Keluar
 ## android.settings.back.en
 Back
 ## android.settings.back.id

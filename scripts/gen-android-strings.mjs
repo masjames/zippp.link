@@ -74,6 +74,8 @@ const map = {
   settings_capture_access_off: "android.settings.capture.accessOff",
   settings_capture_open_access: "android.settings.capture.openAccess",
   settings_capture_toggle: "android.settings.capture.toggle",
+  settings_balance: "android.settings.balance",
+  settings_sign_out: "android.settings.signOut",
   settings_back: "android.settings.back",
   manual_title: "android.manual.title",
   manual_body: "android.manual.body",

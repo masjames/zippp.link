@@ -44,6 +44,8 @@ import link.zippp.app.ui.theme.ZipppShell
 
 @Composable
 fun SettingsScreen(
+    credits: Int,
+    onSignOut: () -> Unit,
     onBack: () -> Unit,
 ) {
     val context = LocalContext.current
@@ -77,6 +79,43 @@ fun SettingsScreen(
             color = ZipppColors.ink,
             modifier = Modifier.padding(top = 4.dp),
         )
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    ZipppColors.card,
+                    RoundedCornerShape(ZipppRadius.card),
+                )
+                .border(
+                    BorderStroke(1.dp, ZipppColors.line),
+                    RoundedCornerShape(ZipppRadius.card),
+                )
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Text(
+                text = stringResource(R.string.settings_balance),
+                style = MaterialTheme.typography.bodySmall,
+                color = ZipppColors.muted,
+            )
+            Text(
+                text = credits.toString(),
+                style = MaterialTheme.typography.headlineMedium,
+                color = ZipppColors.maroon,
+            )
+            OutlinedButton(
+                onClick = onSignOut,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(ZipppRadius.pill),
+                border = BorderStroke(1.dp, ZipppColors.line),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    contentColor = ZipppColors.danger,
+                ),
+            ) {
+                Text(stringResource(R.string.settings_sign_out))
+            }
+        }
 
         Column(
             modifier = Modifier
