@@ -48,6 +48,13 @@ data class MeResponse(
 )
 
 @Serializable
+data class ManualScanResponse(
+    val ok: Boolean = false,
+    val scanId: String? = null,
+    val code: String? = null,
+)
+
+@Serializable
 data class CorrectionField(
     val path: String,
     val edited: Boolean,

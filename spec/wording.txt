@@ -4075,6 +4075,74 @@ Jumlah
 Amount
 ## android.review.amount.id
 Nominal
+## android.settings.title.en
+Settings
+## android.settings.title.id
+Pengaturan
+## android.settings.capture.title.en
+Notification capture
+## android.settings.capture.title.id
+Catat dari notifikasi
+## android.settings.capture.body.en
+Zippp reads payment notifications on this device only, then asks before anything is saved. Nothing is sent from notifications.
+## android.settings.capture.body.id
+Zippp membaca notifikasi pembayaran hanya di perangkat ini, lalu meminta izin sebelum menyimpan. Tidak ada yang dikirim dari notifikasi.
+## android.settings.capture.accessOn.en
+Notification access is on
+## android.settings.capture.accessOn.id
+Akses notifikasi aktif
+## android.settings.capture.accessOff.en
+Notification access is off
+## android.settings.capture.accessOff.id
+Akses notifikasi nonaktif
+## android.settings.capture.openAccess.en
+Open notification access
+## android.settings.capture.openAccess.id
+Buka akses notifikasi
+## android.settings.capture.toggle.en
+Record from notifications
+## android.settings.capture.toggle.id
+Catat dari notifikasi
+## android.settings.back.en
+Back
+## android.settings.back.id
+Kembali
+## android.manual.title.en
+Record spend
+## android.manual.title.id
+Catat pengeluaran
+## android.manual.body.en
+Fill the amount yourself. Nothing is saved until you tap Save.
+## android.manual.body.id
+Isi nominalnya sendiri. Belum ada yang tersimpan sampai Anda menekan Simpan.
+## android.manual.save.en
+Save
+## android.manual.save.id
+Simpan
+## android.camera.manual.en
+Manual
+## android.camera.manual.id
+Manual
+## android.notify.channel.en
+Capture prompts
+## android.notify.channel.id
+Pengingat catat
+## android.notify.promptTitle.en
+Record in Zippp Space?
+## android.notify.promptTitle.id
+Catat di Zippp Space?
+## android.notify.openCamera.en
+Camera
+## android.notify.openCamera.id
+Kamera
+## android.notify.promptBody.en
+A payment notification arrived. Nothing has been recorded yet.
+## android.notify.promptBody.id
+Ada notifikasi pembayaran. Belum ada yang tercatat.
+## android.error.capture.permission.en
+Notifications are off for Zippp, so prompts cannot appear.
+## android.error.capture.permission.id
+Notifikasi Zippp mati, jadi pengingat tidak bisa muncul.
 ## android.review.dateAssumed.en
 date assumed
 ## android.review.dateAssumed.id

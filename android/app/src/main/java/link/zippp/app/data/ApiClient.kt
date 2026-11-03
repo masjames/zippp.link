@@ -197,6 +197,25 @@ class ApiClient(
             }
         }
 
+    /** Ask the server for a scan id so manual entry can append like a scan. */
+    suspend fun createManualScan(token: String): ManualScanResponse =
+        withContext(Dispatchers.IO) {
+            val request = Request.Builder()
+                .url("$baseUrl/api/scan/manual")
+                .header("Authorization", "Bearer $token")
+                .post("{}".toRequestBody(JSON))
+                .build()
+
+            client.newCall(request).execute().use { response ->
+                val text = response.body?.string().orEmpty()
+                if (response.code == 401) throw ApiException("DEVICE_REVOKED")
+                val parsed =
+                    runCatching { json.decodeFromString<ManualScanResponse>(text) }.getOrNull()
+                if (parsed == null) throw ApiException("HTTP_${response.code}")
+                parsed
+            }
+        }
+
     /** Field-level correction telemetry. Failure never blocks the accept path. */
     suspend fun logCorrections(token: String, requestBody: CorrectionRequest) =
         withContext(Dispatchers.IO) {

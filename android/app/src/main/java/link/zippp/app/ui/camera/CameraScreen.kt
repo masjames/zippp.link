@@ -13,6 +13,7 @@ import androidx.camera.view.PreviewView
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -22,6 +23,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -54,6 +56,8 @@ fun CameraScreen(
     token: String,
     initialCredits: Int,
     onCreditsChanged: (Int) -> Unit,
+    onOpenSettings: () -> Unit,
+    onOpenManual: () -> Unit,
     onSessionLost: () -> Unit,
 ) {
     val context = LocalContext.current
@@ -168,6 +172,14 @@ fun CameraScreen(
                 .padding(20.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                TextButton(onClick = onOpenManual) {
+                    Text(stringResource(R.string.camera_manual))
+                }
+                TextButton(onClick = onOpenSettings) {
+                    Text(stringResource(R.string.settings_title))
+                }
+            }
             Text(
                 text = "${stringResource(R.string.scan_balance_label)}: $credits",
                 style = MaterialTheme.typography.titleMedium,

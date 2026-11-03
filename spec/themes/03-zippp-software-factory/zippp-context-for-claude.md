@@ -112,7 +112,8 @@ set in Production. Preview is enabled for testing.
 - FEAT-113 auth and FEAT-114 Space are built; tests, typecheck, and build green.
   No device run yet. Pairing spike verified on Preview.
 - Gate that matters: **STORY-102** (not companion STORY-101).
-- Next build: **FEAT-102** + **FEAT-115** (ROAD Phase 4).
+- Next build: **FEAT-116** (ROAD Phase 5). FEAT-102 and FEAT-115 are built and
+  in Factory verify; both need a device run.
 
 ---
 
@@ -1212,6 +1213,9 @@ Never use `NEXT_PUBLIC_*` for secrets. PostHog public key is the exception.
 - **FEAT-113 shipped without compiling:** `SignInScreen.kt` used two strings the
   generator never mapped. Fixed 2026-11-03; `:app:compileSideloadDebugKotlin`
   now passes.
+- **FEAT-115** capture flow built: opt-in notification listener, local prompt
+  with Camera and Manual actions, settings screen, manual entry through
+  `POST /api/scan/manual`. Device run pending; Play declaration drafted in the card.
 - FEAT-112 parked per DEC-003; do not treat companion-only docs as north star.
 - FEAT-102 flags: editing a flagged field or the acknowledge button clears the
   block. Correction telemetry posts per-field edited/flagged state; the
@@ -1623,10 +1627,9 @@ Follow **ROAD-001**. Do not revive companion credit E2E as the main gate.
 
 1. **Phase 3 verification** — FEAT-113 / FEAT-114 code is complete and committed.
    Prove Android sign-in and two-account Space on a device; reopen only if it fails.
-2. **FEAT-102** — built, in Factory verify: ops fields, line-item edits, hard
-   flags, assumed date, correction telemetry. **FEAT-115** notification capture
-   is next, but it needs two surfaces that do not exist yet: an in-app Settings
-   screen and a manual entry screen. Build those first or shrink its acceptance.
+2. **FEAT-102 / FEAT-115** — both built, in Factory verify, and both need a
+   device run. Manual entry now gets a server-issued scan id, so credits and
+   idempotency behave exactly like a camera scan.
 3. **FEAT-116** — assets + goals (Phase 5).
 4. **FEAT-117** — fair-use subscription + web checkout (Phase 6).
 5. **STORY-102** — Space device proof (Phase 7).
