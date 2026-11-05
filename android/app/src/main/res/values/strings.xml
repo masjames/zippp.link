@@ -101,6 +101,8 @@
     <string name="no_credits_message">Sisa kuota scan Anda telah habis. Pemindaian baru belum tersedia.</string>
     <string name="no_credits_refresh">Muat Ulang</string>
     <string name="error_no_credits">Kuota scan habis.</string>
+    <string name="settings_quota_title">Kuota pemakaian wajar</string>
+    <string name="settings_quota_pct">{pct}% terpakai</string>
     <string name="error_append">Gagal menyimpan ke Google Sheet. Coba lagi.</string>
     <string name="error_device_revoked">Sesi perangkat ini telah dicabut. Hubungkan kembali perangkat Anda.</string>
 </resources>

@@ -9,9 +9,11 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.padding
@@ -36,6 +38,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.app.NotificationManagerCompat
 import link.zippp.app.R
+import link.zippp.app.data.PlanInfo
 import link.zippp.app.notify.CapturePrefs
 import link.zippp.app.ui.theme.ZipppColors
 import link.zippp.app.ui.theme.ZipppRadius
@@ -48,7 +51,7 @@ import link.zippp.app.ui.theme.ZipppType
 
 @Composable
 fun SettingsScreen(
-    credits: Int,
+    plan: PlanInfo?,
     onSignOut: () -> Unit,
 ) {
     val context = LocalContext.current
@@ -101,25 +104,7 @@ fun SettingsScreen(
                 color = ZipppColors.text,
             )
 
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(ZipppRadius.card))
-                    .background(ZipppColors.surface)
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp),
-            ) {
-                Text(
-                    text = stringResource(R.string.settings_balance),
-                    style = ZipppType.small,
-                    color = ZipppColors.muted,
-                )
-                Text(
-                    text = credits.toString(),
-                    style = ZipppType.h1,
-                    color = ZipppColors.ink,
-                )
-            }
+            plan?.let { QuotaCard(it) }
 
             ZipppSectionCard {
                 Text(
@@ -208,5 +193,53 @@ fun SettingsScreen(
                 kind = ZipppButtonKind.Danger,
             )
         }
+    }
+}
+
+/** Fair-use quota as a percentage with a bar. No credit counts, no purchase path. */
+@Composable
+private fun QuotaCard(plan: PlanInfo) {
+    val pct = plan.usedPct.coerceIn(0, 100)
+    val full = pct >= 100
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(ZipppRadius.card))
+            .background(ZipppColors.surface)
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        Text(
+            text = stringResource(R.string.settings_quota_title),
+            style = ZipppType.small,
+            color = ZipppColors.muted,
+        )
+        Text(
+            text = stringResource(R.string.settings_quota_pct).replace("{pct}", pct.toString()),
+            style = ZipppType.h1,
+            color = if (full) ZipppColors.danger else ZipppColors.ink,
+        )
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(8.dp)
+                .clip(RoundedCornerShape(ZipppRadius.pill))
+                .background(ZipppColors.card),
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth(pct / 100f)
+                    .height(8.dp)
+                    .clip(RoundedCornerShape(ZipppRadius.pill))
+                    .background(if (full) ZipppColors.danger else ZipppColors.orange),
+            )
+        }
+        Text(
+            text = stringResource(R.string.plan_used)
+                .replace("{used}", plan.used.toString())
+                .replace("{included}", plan.included.toString()),
+            style = ZipppType.small,
+            color = ZipppColors.muted,
+        )
     }
 }

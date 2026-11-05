@@ -4433,6 +4433,14 @@ Gagal menyimpan ke Google Sheet. Coba lagi.
 Scan quota is empty.
 ## android.error.no_credits.short.id
 Kuota scan habis.
+## android.settings.quota.title.en
+Fair-use quota
+## android.settings.quota.title.id
+Kuota pemakaian wajar
+## android.settings.quota.pct.en
+{pct}% used
+## android.settings.quota.pct.id
+{pct}% terpakai
 
 ## telegram.linked.en
 Your Telegram account has been linked to Zippp.

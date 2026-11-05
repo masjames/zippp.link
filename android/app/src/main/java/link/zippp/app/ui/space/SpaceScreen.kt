@@ -1,4 +1,4 @@
-// @implements FEAT-116
+// @implements FEAT-116, FEAT-118
 package link.zippp.app.ui.space
 
 import androidx.compose.foundation.background
@@ -8,22 +8,14 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
@@ -38,7 +30,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
@@ -49,8 +40,12 @@ import link.zippp.app.data.LedgerItem
 import link.zippp.app.data.LedgerRequest
 import link.zippp.app.ui.theme.ZipppColors
 import link.zippp.app.ui.theme.ZipppRadius
+import link.zippp.app.ui.theme.ZipppButton
+import link.zippp.app.ui.theme.ZipppButtonKind
+import link.zippp.app.ui.theme.ZipppSectionCard
 import link.zippp.app.ui.theme.ZipppShell
 import link.zippp.app.ui.theme.ZipppSpace
+import link.zippp.app.ui.theme.ZipppType
 
 @Composable
 fun SpaceScreen(
@@ -112,14 +107,14 @@ fun SpaceScreen(
     ZipppShell {
         Column(
             modifier = Modifier
-                .fillMaxSize()
+                .weight(1f)
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(ZipppSpace.gap),
         ) {
             Text(
                 text = stringResource(R.string.space_title),
-                style = MaterialTheme.typography.headlineLarge,
-                color = ZipppColors.ink,
+                style = ZipppType.h1,
+                color = ZipppColors.text,
             )
 
             if (spaces.size > 1) {
@@ -151,17 +146,17 @@ fun SpaceScreen(
                 }
             }
 
-            SpaceCard {
+            ZipppSectionCard {
                 Text(
                     text = stringResource(R.string.space_items_title),
-                    style = MaterialTheme.typography.titleMedium,
-                    color = ZipppColors.ink,
+                    style = ZipppType.h3,
+                    color = ZipppColors.text,
                 )
 
                 if (items.isEmpty()) {
                     Text(
                         text = stringResource(R.string.space_items_empty),
-                        style = MaterialTheme.typography.bodySmall,
+                        style = ZipppType.small,
                         color = ZipppColors.muted,
                     )
                 } else {
@@ -180,8 +175,7 @@ fun SpaceScreen(
                             ) {
                                 Text(
                                     text = item.name,
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    fontWeight = FontWeight.SemiBold,
+                                    style = ZipppType.bodyStrong,
                                     color = ZipppColors.ink,
                                 )
                                 Text(
@@ -193,13 +187,13 @@ fun SpaceScreen(
                                         stringResource(R.string.space_value)
                                             .replace("{amount}", money(item.amount))
                                     },
-                                    style = MaterialTheme.typography.bodySmall,
+                                    style = ZipppType.small,
                                     color = ZipppColors.muted,
                                 )
                                 item.note?.let {
                                     Text(
                                         text = it,
-                                        style = MaterialTheme.typography.bodySmall,
+                                        style = ZipppType.small,
                                         color = ZipppColors.muted,
                                     )
                                 }
@@ -210,17 +204,15 @@ fun SpaceScreen(
                             ) {
                                 Text(
                                     text = stringResource(R.string.space_edit),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    fontWeight = FontWeight.SemiBold,
-                                    color = if (busy) ZipppColors.orange.copy(alpha = 0.5f) else ZipppColors.orange,
+                                    style = ZipppType.smallStrong,
+                                    color = if (busy) ZipppColors.accent.copy(alpha = 0.5f) else ZipppColors.accent,
                                     modifier = Modifier
                                         .padding(vertical = 2.dp)
                                         .clickable(enabled = !busy) { editItem(item) },
                                 )
-                                Text(
+                                                                Text(
                                     text = stringResource(R.string.space_archive),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    fontWeight = FontWeight.SemiBold,
+                                    style = ZipppType.smallStrong,
                                     color = if (busy) ZipppColors.danger.copy(alpha = 0.5f) else ZipppColors.danger,
                                     modifier = Modifier
                                         .padding(vertical = 2.dp)
@@ -251,7 +243,7 @@ fun SpaceScreen(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(ZipppColors.page, RoundedCornerShape(ZipppRadius.panel))
+                        .background(ZipppColors.page, RoundedCornerShape(ZipppRadius.card))
                         .padding(12.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
@@ -320,15 +312,20 @@ fun SpaceScreen(
                         Text(
                             text = stringResource(it),
                             color = ZipppColors.danger,
-                            style = MaterialTheme.typography.bodySmall,
+                            style = ZipppType.small,
                         )
                     }
 
-                    Button(
+                    ZipppButton(
+                        text = stringResource(
+                            if (editingId == null) R.string.space_add else R.string.space_save
+                        ),
                         enabled = !busy && name.isNotBlank() && amount.toDoubleOrNull() != null,
+                        kind = ZipppButtonKind.Brand,
+                        modifier = Modifier.fillMaxWidth(),
                         onClick = {
-                            val spaceId = selectedId ?: return@Button
-                            val value = amount.toDoubleOrNull() ?: return@Button
+                            val spaceId = selectedId ?: return@ZipppButton
+                            val value = amount.toDoubleOrNull() ?: return@ZipppButton
                             busy = true
                             error = null
                             scope.launch {
@@ -364,83 +361,20 @@ fun SpaceScreen(
                                 }
                             }
                         },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(44.dp),
-                        shape = RoundedCornerShape(ZipppRadius.pill),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = ZipppColors.orange,
-                            contentColor = ZipppColors.ink,
-                            disabledContainerColor = ZipppColors.orange.copy(alpha = 0.5f),
-                            disabledContentColor = ZipppColors.ink.copy(alpha = 0.5f),
-                        ),
-                        elevation = ButtonDefaults.buttonElevation(0.dp),
-                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                    ) {
-                        if (busy) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(18.dp),
-                                color = ZipppColors.ink,
-                                strokeWidth = 2.dp,
-                            )
-                        } else {
-                            Text(
-                                text = stringResource(
-                                    if (editingId == null) R.string.space_add else R.string.space_save
-                                ),
-                                style = MaterialTheme.typography.bodyMedium,
-                                fontWeight = FontWeight.SemiBold,
-                            )
-                        }
-                    }
+                    )
                 }
             }
 
-            Button(
-                onClick = {
-                    if (editingId != null) resetForm() else onBack()
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(44.dp),
-                shape = RoundedCornerShape(ZipppRadius.pill),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = ZipppColors.mist,
-                    contentColor = ZipppColors.ink,
-                    disabledContainerColor = ZipppColors.mist.copy(alpha = 0.5f),
-                    disabledContentColor = ZipppColors.ink.copy(alpha = 0.5f),
-                ),
-                elevation = ButtonDefaults.buttonElevation(0.dp),
-                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-            ) {
-                Text(
-                    text = stringResource(
-                        if (editingId == null) R.string.settings_back else R.string.space_cancel
-                    ),
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.SemiBold,
+            if (editingId != null) {
+                ZipppButton(
+                    text = stringResource(R.string.space_cancel),
+                    onClick = { resetForm() },
+                    modifier = Modifier.fillMaxWidth(),
+                    kind = ZipppButtonKind.Mist,
                 )
             }
         }
     }
-}
-
-/** White section card with an 8dp radius and a hairline border. */
-@Composable
-private fun SpaceCard(content: @Composable ColumnScope.() -> Unit) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(ZipppColors.card, RoundedCornerShape(ZipppRadius.card))
-            .border(
-                width = 1.dp,
-                color = ZipppColors.line,
-                shape = RoundedCornerShape(ZipppRadius.card),
-            )
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-        content = content,
-    )
 }
 
 /** Space selector pill: orange while selected, bordered white otherwise. */
@@ -468,8 +402,7 @@ private fun SpacePill(
     ) {
         Text(
             text = label,
-            style = MaterialTheme.typography.bodySmall,
-            fontWeight = FontWeight.SemiBold,
+            style = ZipppType.smallStrong,
             color = if (selected) ZipppColors.ink else ZipppColors.muted,
         )
     }
@@ -496,8 +429,7 @@ private fun RowScope.KindPill(
     ) {
         Text(
             text = label,
-            style = MaterialTheme.typography.bodySmall,
-            fontWeight = FontWeight.SemiBold,
+            style = ZipppType.smallStrong,
             color = if (selected) ZipppColors.ink else ZipppColors.muted,
             textAlign = TextAlign.Center,
         )

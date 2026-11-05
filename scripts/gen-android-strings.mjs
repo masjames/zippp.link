@@ -115,6 +115,8 @@ const map = {
   no_credits_message: "android.error.no_credits",
   no_credits_refresh: "android.error.no_credits.refresh",
   error_no_credits: "android.error.no_credits.short",
+  settings_quota_title: "android.settings.quota.title",
+  settings_quota_pct: "android.settings.quota.pct",
   error_append: "android.error.append",
   error_device_revoked: "android.error.device_revoked",
 };

@@ -28,6 +28,7 @@ import link.zippp.app.ui.batch.BatchScreen
 import link.zippp.app.ui.batch.BatchStore
 import link.zippp.app.ui.review.ReviewScreen
 import link.zippp.app.data.AppendRequest
+import link.zippp.app.data.PlanInfo
 import link.zippp.app.data.ApiException
 import kotlinx.coroutines.channels.Channel
 import link.zippp.app.ui.theme.ZipppColors
@@ -126,6 +127,7 @@ private fun ZipppRoot(
     val api = remember { ApiClient() }
     var token by remember { mutableStateOf(store.loadToken()) }
     var credits by remember { mutableStateOf(0) }
+    var plan by remember { mutableStateOf<PlanInfo?>(null) }
     var screen by remember { mutableStateOf(RootScreen.Camera) }
     var manualSeed by remember { mutableStateOf(manualPrefill) }
     val batch = remember { BatchStore() }
@@ -158,6 +160,13 @@ private fun ZipppRoot(
             } catch (_: Exception) {
                 batch.markReady(draftId, "NETWORK")
             }
+        }
+    }
+
+    LaunchedEffect(token, screen) {
+        val active = token ?: return@LaunchedEffect
+        if (screen == RootScreen.Settings) {
+            plan = runCatching { api.me(active) }.getOrNull()?.plan ?: plan
         }
     }
 
@@ -198,7 +207,7 @@ private fun ZipppRoot(
             onSettings = { screen = RootScreen.Settings },
         ) {
             SettingsScreen(
-                credits = credits,
+                plan = plan,
                 onSignOut = {
                     store.clear()
                     token = null
