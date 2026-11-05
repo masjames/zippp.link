@@ -54,12 +54,18 @@ the next receipt in two taps. The scan screen is no longer the first screen.
 - Scan and Manual are disabled only when the quota is known to be exhausted.
   Unknown quota never disables them.
 - Google access on the phone is the `serverAuthCode` flow (Option A).
+- Month to date is deferred until after FEAT-104 (slice S-H9).
+- Home constants stay in `src/lib/billing/config.ts`. No `sheet-style.ts` now: that file is for Google Sheet styling (header colours, column widths), not Home timings.
+- Pull to refresh is in, with Reload buttons and refresh on resume.
+- Last spending does not open the Sheet at that row in v1.
+- The Space card needs one call: `GET /api/spaces` gains a `summary` field per Space (slice S-H3b).
+- When the server answers `MOBILE_API_DISABLED`, Home shows a neutral card with Reload (spec 07 section 7.11).
 
 # Slices
 
-S-H1 spec and wording keys. S-H2 pure parse and aggregate with tests. S-H3 route,
-cache, rate limit. S-H4 Android screen with fake data. S-H5 wiring and navigation.
-S-H6 quota and Space cards. S-H7 daily block source after FEAT-104. S-H8 device run.
+S-H1 spec and wording keys (keys are in `spec/wording.txt`, the generator map is left). S-H2 pure parse and aggregate with tests. S-H3 route,
+cache, rate limit. S-H3b `summary` on `GET /api/spaces`. S-H4 Android screen with fake data. S-H5 wiring and navigation.
+S-H6 quota and Space cards. S-H7 daily block source after FEAT-104. S-H8 device run. S-H9 month to date after S-H7.
 Details and dependencies are in section 19 of the spec file.
 
 # Acceptance criteria

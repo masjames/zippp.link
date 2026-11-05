@@ -335,8 +335,11 @@ Device: checklist items 10 to 13 with a real Sheet.
 2. File 07 section 12 and the Home cache rule must bust the key after a manual save too (already stated at line 635, keep).
 3. File 02 and file 03 describe `scanId` for capture. This file adds the rule that a manual form keeps one `scanId` across retries. Capture drafts already do (draft id and `scanId` are fixed per draft).
 
-## 13. Open questions
+## 13. Decisions log
 
-1. Show `subtotal` and `tax` fields? Spec says no: unknown stays empty and Home uses `Amount + Tax`. A user with tax in the amount enters the total only.
-2. Should the notification prefill leave Merchant empty when the title is a known wallet app name (GoPay, OVO, Dana)? Spec prefills it and labels the prefill, to avoid keeping a list of app names.
-3. Add recent merchants as suggestion chips? Left out: it needs history, and zippp keeps no receipt ledger.
+| # | Decision | Owner call or default | Date | Files |
+|---|---|---|---|---|
+| 1 | Manual entry has no subtotal and no tax fields. Unknown stays empty and Home uses Amount plus Tax | Default | 2026-11-05 | 11, 07 |
+| 2 | The notification prefill fills Merchant even when the title is only an app name such as GoPay, and labels it a prefill (`android.manual.fromNotification`). No app name list is kept | Default | 2026-11-05 | 11 |
+| 3 | No recent merchant suggestion chips. They need history and zippp keeps no receipt ledger | Default | 2026-11-05 | 11 |
+| 4 | Manual entry opens from Home only, not from Capture | Owner call | 2026-11-05 | 11, 02, 07 |

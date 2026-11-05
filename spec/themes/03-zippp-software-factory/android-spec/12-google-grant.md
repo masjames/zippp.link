@@ -362,8 +362,39 @@ Device: items 3 to 9, 12 and 16 need a real Google account and the Android OAuth
 | G3 | Wire the three triggers (Sheet choose CHECK, Home card, Accept and Manual save) and the `returnTo` contract | G2, files 06 and 07 changes |
 | G4 | Tests and the device run | G3 |
 
-## 16. Open questions
+## 16. Decisions log
 
-1. Is the OAuth consent screen in Testing or Production, and is Sheets scope verification complete? Testing mode caps users and expires refresh tokens after 7 days.
-2. Should `me` return a `google_granted` boolean so the app can offer the grant before the first failing call (for example straight after Google sign in), instead of discovering it from an error? It costs one field and saves one failed request per new user.
-3. Should the screen offer a web fallback link (Option B) when Play services are missing? Spec says no: Option B has the account mismatch gap and the owner rejected it.
+| # | Decision | Owner call or default | Date | Files |
+|---|---|---|---|---|
+| 1 | The Google OAuth consent screen is in Production and is the one the web app already uses. Android adds clients to the same Cloud project and no new scopes | Owner call (owner runs production web and production OAuth) | 2026-11-05 | 12, 01 section 12.6 |
+| 2 | `me` returns `google_granted` (boolean) so the app can offer the grant right after Google sign in instead of finding out from a failed call | Default, owner may reverse | 2026-11-05 | 12, 09, 07 |
+| 3 | No web fallback (Option B) when Play services are missing. The screen shows `android.grant.noPlay` and Allow stays disabled | Owner call (Option A only) | 2026-11-05 | 12, 09 |
+| 4 | Setup checklist for the Android OAuth clients lives in section 17 and is ticked by the owner | Default | 2026-11-05 | 12, 01 |
+
+Decision 2 adds one field to the `me` response (`user.google_granted`), true when
+the server holds a refresh token with the Sheets and `drive.file` scopes for this
+user. Code task for track FEAT-119 step 5. Context file section 7 documents it
+when built.
+
+## 17. Owner setup checklist (Android OAuth, same project as production web)
+
+Done once, in the Google Cloud console of the project that owns the production web
+OAuth client. Tick each item and keep the SHA-1 values in the owner's notes, never
+in the repo.
+
+| # | Item | Done when |
+|---|---|---|
+| 1 | Confirm the OAuth consent screen publishing status is "In production" | Console shows In production |
+| 2 | Confirm the scopes on the consent screen are Sheets, Drive file, and email, the same as `GOOGLE_OAUTH_SCOPES` | The list matches. Add nothing else |
+| 3 | Copy the Web application client id (the one in `GOOGLE_CLIENT_ID`) | Value ready for `ZIPPP_GOOGLE_SERVER_CLIENT_ID` |
+| 4 | Read the debug SHA-1 (`keytool -list -v` on the debug keystore the project signs with) | A 20-byte SHA-1 line |
+| 5 | Create Android client B: package `link.zippp.app.debug`, the debug SHA-1 | Client listed |
+| 6 | Create the release signing key (FEAT-105 scaffold has none yet) and read its SHA-1 | SHA-1 ready |
+| 7 | Create Android client A: package `link.zippp.app`, the release SHA-1. Add the Play App Signing SHA-1 later | Client listed |
+| 8 | Preview Vercel environment has `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` equal to production | Values match |
+| 9 | Device test: sign in with Google, see the consent dialog for Sheets and Drive file, allow, return to the app | Checklist items 3 and 4 in section 13 pass |
+| 10 | Revoke access in the Google account page and confirm the app asks again (section 13 item 16) | Item 16 passes |
+
+If step 9 fails with a developer error, the package name or SHA-1 of the client does
+not match the installed build. Compare the package (`link.zippp.app.debug` for a
+debug build) and the SHA-1 first.

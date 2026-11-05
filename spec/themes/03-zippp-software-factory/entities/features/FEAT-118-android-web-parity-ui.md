@@ -52,12 +52,17 @@ shell card, same type scale, same colours, same capture and review flow.
 | 3 | Drop `BatchScreen`. Queue lives in the inline strip and the review sheet. | Web has no batch screen. |
 | 4 | Header on every screen except sign in, sheet choose and the review overlay: wordmark, Home (hidden on Home), Settings (hidden on Settings). Capture shows it. No credit pill on Android. | Owner call 2026-11-05. Web shows the header on capture. |
 | 5 | Quota shows on Settings as a percentage of the fair-use plan, like Claude Code usage. No numbers of credits, no purchase path. | DEC-002, FEAT-117. |
-| 8 | Web confirm card gets the FEAT-102 ops fields so both surfaces match. | Owner call 2026-11-05. |
 | 6 | Android settings shows only sections that exist on Android: balance, Space, notification capture, plan usage, open sheet, sign out. No Telegram, WhatsApp, language or referral. | Those need web-only flows. |
+| 7 | No new user-visible strings outside `spec/wording.txt`. Android strings come from `npm run android:strings`. | Project rule. |
+| 8 | Web confirm card gets the FEAT-102 ops fields so both surfaces match. | Owner call 2026-11-05. |
 | 9 | Home dashboard is the main screen (FEAT-120). Capture is entered from Home and back always returns to Home. Manual lives on Home only. Space is a top-level screen reached from a Home card and from Settings. | Owner calls 2026-11-05. |
 | 10 | One canonical button table in `android-spec/01`: Primary 56, Brand 56, Mist 52, Outline 52, Danger text 52, minimum target 48dp. | Resolves conflicting heights across the screen specs. |
 | 11 | Google access on a phone uses `serverAuthCode` and `POST /api/auth/mobile/google-grant` (FEAT-119). | Owner call 2026-11-05. |
-| 7 | No new user-visible strings outside `spec/wording.txt`. Android strings come from `npm run android:strings`. | Project rule. |
+| 12 | Builds: debug points to Preview, release points to `https://www.zippp.link` and cannot carry a bypass header. Production mobile stays dark until STORY-102. See spec 01 section 12. | Owner call 2026-11-05. |
+| 13 | Delete in the review sheet has a 5 second Undo snackbar on Android. The web stays immediate. | Owner call 2026-11-05. |
+| 14 | Phone revokes this device only. Disconnect sheet and column map editing stay on the web. | Owner call 2026-11-05. |
+| 15 | Capture accepts images and PDF, and spreadsheets (CSV, Excel) through FEAT-121. | Owner call 2026-11-05. |
+| 16 | Month to date is deferred until after FEAT-104. Home constants stay in `src/lib/billing/config.ts`, no `sheet-style.ts` now. | Owner call and default 2026-11-05. |
 
 # Screen specs
 
@@ -123,6 +128,12 @@ One slice at a time. Each ends with a green compile and a commit.
 
 1. No credit pill. Quota percentage lives on Settings.
 2. Web confirm card gets the ops fields (S9).
+3. Home dashboard is the main screen, Manual lives on Home, Space is a Home card, Capture back returns to Home.
+4. Google grant is Option A (`serverAuthCode`). The Google consent screen is the production one.
+5. Undo on Delete: yes, 5 seconds, Android only.
+6. Revoke: this device only. PDF, images and spreadsheets are accepted at capture (FEAT-121).
+
+The per-file decision tables are the record. Each `android-spec` file ends with a Decisions log.
 
 # Out of scope
 

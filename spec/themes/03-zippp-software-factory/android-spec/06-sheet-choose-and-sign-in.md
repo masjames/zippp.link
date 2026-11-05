@@ -147,7 +147,7 @@ The backend slice is FEAT-119 (file 09). Until it ships, a user with no workspac
 
 Present (verified): `app.sheets.checking`, `creating`, `error`, `retry`, `chooseTitle`, `chooseBody`, `create`, `useExisting`, `wizard.title`, `wizard.body`, `wizard.warn`, `wizard.continue`, `cancel`, `name.title`, `name.body`, `name.label`, `name.create`, `name.back`, `name.required`, `template`, `title`, `body`, `emptyTitle`, `emptyBody`, `created`, `connected`, `open`, `choose`, `reconnect`, `continue`, `tpl.*`, `app.auth.signout`, `android.signin.*`, `android.pairing.*`, `android.error.google_reconsent`, `android.error.no_sheet`, `android.error.server`.
 
-Missing, to add: `android.error.sheet_name_taken` (name already used; same key as file 09, replaces the earlier `android.sheets.duplicateName`), `android.error.no_sheet.action` (W-2), `android.error.google_grant_required` and the grant screen keys listed in file 12. If the Continue label should read as a scan label on Android: `android.sheets.toHome`.
+Missing, to add: `android.error.sheet_name_taken` (name already used; same key as file 09, replaces the earlier `android.sheets.duplicateName`), `android.error.no_sheet.action` (W-2), `android.error.google_grant_required` and the grant screen keys listed in file 12. The Continue label stays `app.sheets.continue`. `android.sheets.toHome` is not added.
 
 Constraint: `app.sheets.chooseBody` and the wizard copy do not mention money, so they are safe on Android as is.
 
@@ -179,3 +179,13 @@ Constraint: `app.sheets.chooseBody` and the wizard copy do not mention money, so
 13. No string on any of these screens contains kredit, saldo, Rp, $ or a purchase link.
 14. The same account shows the same connected sheet on web and on the phone.
 15. Blocked until the backend slice in section 3.3 ships: items 4 to 11 cannot pass on a real device with bearer auth alone.
+
+## 7. Decisions log
+
+| # | Decision | Owner call or default | Date | Files |
+|---|---|---|---|---|
+| 1 | Google access on the phone is the `serverAuthCode` grant (file 12) | Owner call | 2026-11-05 | 06, 09, 12 |
+| 2 | Continue after setup returns to Home, label `app.sheets.continue` | Default | 2026-11-05 | 06, 01 |
+| 3 | `drive.file` visibility is accepted. A sheet created elsewhere is not listed. The empty state offers Create a new sheet, and the message (`android.error.no_sheet` plus `android.error.no_sheet.action`) is clear that the sheet is made by zippp. To reuse an older sheet the user opens it with zippp on the web first | Owner call | 2026-11-05 | 06, 09 |
+| 4 | Disconnect sheet and column map editing are web only | Default (recommended) | 2026-11-05 | 06, 09 |
+| 5 | Duplicate name uses `android.error.sheet_name_taken`. `android.sheets.duplicateName` is retired | Resolved | 2026-11-05 | 06, 09 |

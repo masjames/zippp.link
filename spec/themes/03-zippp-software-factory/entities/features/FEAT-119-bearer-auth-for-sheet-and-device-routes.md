@@ -16,7 +16,6 @@ verification:
     - "src/app/api/notices/route.ts"
     - "src/app/api/notices/read/route.ts"
     - "src/app/api/contribute/route.ts"
-    - "src/app/api/auth/devices/route.ts"
     - "src/app/api/auth/device/revoke/route.ts"
     - "src/app/api/auth/mobile/google-grant/route.ts"
     - "src/lib/google/sheets.ts"
@@ -79,14 +78,30 @@ An Android user can finish sheet setup and basic account upkeep without the web 
 - Origin check on the cookie path (listed as separate hardening in the spec)
 - Any top-up, pricing or checkout on Android
 
-# Open questions
+# Decisions (owner, 2026-11-05)
 
-Decided 2026-11-05: the Google grant on the phone is the `serverAuthCode` flow through
-`POST /api/auth/mobile/google-grant`. The web Custom Tab option was rejected.
+| Decision | Owner call or default |
+|---|---|
+| Google grant on the phone is the `serverAuthCode` flow through `POST /api/auth/mobile/google-grant`. Option B (web Custom Tab) rejected | Owner call |
+| The phone revokes **this device only** (Sign out). `GET /api/auth/devices` stays cookie only. Other devices are managed on the web | Owner call |
+| Disconnect sheet stays web only (`DELETE /api/sheets/workspace` rejects bearer with 403 `WEB_ONLY`) | Default (recommended) |
+| Column map editing stays web only | Default (recommended) |
+| Rate limits in `09` section 3.1 accepted as proposed | Owner call |
+| `drive.file` visibility accepted, with a clear in-app message and a Create button | Owner call |
+| `/api/contribute` accepts bearer in this slice | Default |
+| `me` returns `user.google_granted` | Default, owner may reverse |
 
-Still open, see `android-spec/09-bearer-route-slice.md` section 10: revoke from the
-phone, disconnect on Android, column map editing, rate limit numbers, `drive.file`
-visibility.
+The full table with file references is in `android-spec/09-bearer-route-slice.md`
+section 10.
+
+# Steps (build order)
+
+1. Library: `userId` through the Google helpers, `hasTokensForUser`, `rateLimit`.
+2. DEC-002 hardening: `subscribe` rejects mobile, `balance` trims for mobile.
+3. Read routes: `notices`, `sheets/workspace` GET.
+4. Write routes: `sheets/connect`, `sheets/map`, `auth/device/revoke` (own device only), `contribute`.
+5. `auth/mobile/google-grant` and `me.user.google_granted`.
+6. Context file section 7 updated. Preview run. Production only after STORY-102.
 
 # Definition of done
 

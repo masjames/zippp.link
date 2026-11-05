@@ -220,7 +220,7 @@ Navigation consequences:
 
 ## 10. Wording keys
 
-All present in `spec/wording.txt`: `app.nav.home`, `app.nav.back`, `app.settings.title`, `android.error.server`, `android.error.no_credits` (card text), `android.error.no_credits.short` (one-line uses such as the Settings quota bar), `android.error.no_credits.refresh`, `android.error.no_credits.support`, `android.error.device_revoked`.
+All present in `spec/wording.txt`: `app.nav.home`, `app.nav.back`, `app.settings.title`, `android.error.server`, `android.error.no_credits` (card text), `android.error.no_credits.short` (one-line uses such as the Settings quota bar), `android.error.no_credits.refresh`, `android.error.no_credits.support`, `android.error.device_revoked`, `android.error.mobile_disabled` (section 12.5).
 
 Home keys are listed in `07-home-dashboard.md` section 13 (`android.home.*`). `android.home.title` is not needed.
 
@@ -238,3 +238,188 @@ Home keys are listed in `07-home-dashboard.md` section 13 (`android.home.*`). `a
 10. Zero quota shows the neutral card. No screen contains the words kredit, saldo, Rp or a price.
 11. System back from Settings, Capture, Manual and Space returns to Home. System back from Home exits.
 12. A revoked token returns to Sign in and clears stored data.
+13. A release build contains no Vercel bypass value and its base URL host is `www.zippp.link` (section 12.3 guard).
+14. When the server answers `MOBILE_API_DISABLED`, the app shows the `android.error.mobile_disabled` card with Reload. The token is kept and no sign in screen appears (section 12.5).
+15. A debug build installed with the Preview base URL signs in, loads `me`, and scans without a 404 (section 12.2 commands).
+
+## 12. Environments
+
+Added 2026-11-05 after the phone audit (file 00, defect 4). The owner uses the
+**production** deployment and the **production** Google OAuth consent screen for the
+web app. The Android build had no base URL set, so it pointed at production, where
+the mobile API is dark. This section fixes how every Android build chooses its
+server, and the gate for turning the mobile API on in production.
+
+### 12.1 The three environments
+
+| | Production | Preview | Local |
+|---|---|---|---|
+| Web host (canonical) | `https://www.zippp.link` (the apex `https://zippp.link` answers a POST with `308` to `www`) | `https://preview.zippp.link` | `http://10.0.2.2:3000` from the Android emulator (the host machine's `localhost`) |
+| `MOBILE_API_ENABLED` | **unset today**, so every bearer route answers `404 MOBILE_API_DISABLED` | `true` | `true` in `.env.local` |
+| `MOBILE_JWT_SECRET` | not set until the gate in 12.4 passes | set (random, Preview only) | set (random, local only) |
+| Vercel protection | none | SSO protection on, so the app needs the automation bypass header | none |
+| Google OAuth | production Web client and consent screen | same Web client, same Cloud project (12.6) | same Web client with a `localhost` redirect URI |
+| Who may install an app that points here | nobody until FEAT-110 | owner and testers, private APK only | owner |
+
+Rules:
+
+1. Preview and local values are never the default of a release build.
+2. The production database and the Preview database are the same Upstash and Google resources only if the owner has configured them so. This spec does not change that. A Preview scan spends real quota on whatever Upstash the Preview deployment is bound to.
+3. Production has no bypass header. Only the Preview deployment is behind Vercel SSO.
+
+### 12.2 What each Android build points to
+
+Android has two dimensions. The product flavors are `play` and `sideload` (they only
+differ in OTA, section 8 of the context file). The build types are `debug`
+(`applicationIdSuffix ".debug"`, package `link.zippp.app.debug`) and `release`
+(package `link.zippp.app`). The server is chosen by the build type and one
+environment variable, not by the flavor.
+
+| Build | Package | Default `API_BASE_URL` | Bypass header | Signed with |
+|---|---|---|---|---|
+| `playDebug`, `sideloadDebug` | `link.zippp.app.debug` | `https://preview.zippp.link` | sent when `ZIPPP_VERCEL_BYPASS` is set | debug keystore |
+| `playRelease`, `sideloadRelease` | `link.zippp.app` | `https://www.zippp.link` | **never** | release keystore |
+
+Resolution order for `API_BASE_URL` in `android/app/build.gradle.kts`, first match wins:
+
+1. `ZIPPP_API_BASE_URL` in the environment (explicit override, used for local and for pinning a build).
+2. The build type default from the table above.
+
+The current file has one default for every build type, `https://zippp.link`. That
+apex default is the bug. Code task (slice E1 in section 12.7): replace it with the
+table above.
+
+Build commands (the secret values come from the Vercel dashboard and are never
+committed, printed, or put in a file in the repo):
+
+```
+# Phone test build against Preview (debug package link.zippp.app.debug)
+ZIPPP_API_BASE_URL=https://preview.zippp.link \
+ZIPPP_VERCEL_BYPASS=<automation bypass value> \
+ZIPPP_GOOGLE_SERVER_CLIENT_ID=<production Web client id> \
+./gradlew :app:assembleSideloadDebug
+
+# Emulator against a local server
+ZIPPP_API_BASE_URL=http://10.0.2.2:3000 ./gradlew :app:assembleSideloadDebug
+
+# Production candidate (only after the gate in 12.4)
+ZIPPP_API_BASE_URL=https://www.zippp.link ./gradlew :app:assembleSideloadRelease
+```
+
+Cleartext HTTP is needed only for the local build. It must be allowed by a
+debug-only network security config and must not exist in the release manifest.
+
+### 12.3 Guards in the build (so the mistake cannot ship)
+
+A release build fails at configuration time when any of these is true:
+
+| Check | Fails the build when |
+|---|---|
+| Host | the base URL host is not `www.zippp.link` |
+| Scheme | the base URL is not `https` |
+| Bypass | `ZIPPP_VERCEL_BYPASS` is not empty |
+| Client id | `ZIPPP_GOOGLE_SERVER_CLIENT_ID` and `GOOGLE_CLIENT_ID` are both empty |
+
+A debug build prints the resolved host (never the bypass value) once at the end of
+configuration. The app never shows the host to the user.
+
+`ApiClient` rules that belong with this section:
+
+- It adds `x-vercel-protection-bypass` only when `BuildConfig.VERCEL_BYPASS` is not blank. A release build has it blank by construction.
+- Production base URL is the `www` host, so the client never meets the apex `308`. OkHttp drops `Authorization` on a cross-host redirect, so a redirect would look like a sign in failure.
+- The stored token is bound to the server that issued it. Changing the base URL between installs leaves a token that the new server rejects. On `401 INVALID_TOKEN` after a base URL change the app signs the user out cleanly (section 7 of this file). The test procedure in 12.8 says: uninstall first, or sign out in Settings.
+
+### 12.4 The gate before the mobile API is turned on in production
+
+Owner decision recorded in FEAT-110 and ROAD-001: production mobile stays dark
+until **STORY-102** (Space device proof) passes against Preview.
+
+Preconditions, all true:
+
+1. STORY-102 checklist signed off on a real phone against Preview, including sign in, capture, review, accept, and a row in the user's Sheet.
+2. FEAT-119 steps 1 to 5 shipped to Preview (bearer sheet routes and `google-grant`) and the grant flow passed.
+3. Web regression tests pass (`npm test`, `npx tsc --noEmit`, `npm run build`) on the commit being promoted.
+4. A release build passes the guards in 12.3 and the Android OAuth clients exist (12.6).
+5. The Telegram admin alert for mobile errors is on, so the owner sees failures.
+
+How to turn it on (owner only, in the Vercel project, Production environment):
+
+| Step | Action |
+|---|---|
+| 1 | Generate `MOBILE_JWT_SECRET`: at least 32 random bytes, different from Preview. Store it only in Vercel |
+| 2 | Set `MOBILE_API_ENABLED=true` in Production |
+| 3 | Redeploy Production (environment variable changes apply on the next deployment) |
+| 4 | Check without a token: `POST https://www.zippp.link/api/extract` answers `401`, not `404`. A `404 MOBILE_API_DISABLED` means the flag did not apply |
+| 5 | Sign in with the release build on one phone and scan one receipt. Confirm one new row in the Sheet and one spend |
+| 6 | Only then distribute the build |
+
+Rollback, in order of speed:
+
+| Action | Effect |
+|---|---|
+| Set `MOBILE_API_ENABLED=false` and redeploy | Every mobile route answers `404 MOBILE_API_DISABLED` again. Web is untouched. Tokens stay valid for when the flag returns |
+| Rotate `MOBILE_JWT_SECRET` and redeploy | Every issued mobile token stops working, all phones sign in again |
+| Revoke one device on the web (Connected devices) | That device only |
+
+No data migration is needed to roll back. The Sheet rows already written stay.
+
+### 12.5 What the app shows when the server answers `MOBILE_API_DISABLED`
+
+The server answers `404` with `code: "MOBILE_API_DISABLED"` (or the generic
+`NOT_FOUND` on routes that do not name it). Before this spec the camera screen
+turned it into the generic read failure and the user could not tell what was wrong.
+
+| Rule | Behaviour |
+|---|---|
+| Distinct state | A neutral card with `android.error.mobile_disabled` (text: "This app is not available on this server yet. Try again later." / id "Aplikasi belum tersedia di server ini. Coba lagi nanti.") and a Reload button (`android.home.retry`, Mist 52dp) |
+| Where | Sign in (replaces the error line under the buttons), Home (file 07 section 7.11), Settings, Space, wherever the first failing call happens. On Capture and Manual the failed draft shows the same text with Delete only and no Retry, because it cannot succeed until the server is enabled (file 02 section 4) |
+| Token | Kept. Never cleared and never a silent sign out. This is not `DEVICE_REVOKED` |
+| Retry | Manual only (Reload). No retry loop, no background polling |
+| Copy | No host name, no env var name, no code shown. Never the word "production" or "server mode" |
+| Logging | One debug log line: route, status, code. No token, no body |
+
+Zero quota and `MOBILE_API_DISABLED` are different states with different keys. Do
+not reuse `android.error.no_credits` for it.
+
+### 12.6 Google OAuth for Android, in the same Cloud project as production web
+
+The web production client and consent screen already exist and the Sheets,
+`drive.file`, and email scopes are already approved on that consent screen
+(`GOOGLE_OAUTH_SCOPES` in `src/lib/google/oauth.ts`). Android adds **no new scope**
+and needs **no new consent screen**. It adds clients to the same project.
+
+| Client | Type | Used for | Registered with |
+|---|---|---|---|
+| Existing production client | Web application | Server code exchange (`GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` on the server). Its client id is the app's `serverClientId` for `requestOfflineAccess`, so the `serverAuthCode` is minted for this client | existing redirect URIs. Android codes are exchanged with the empty redirect URI (file 09 section 4.9) |
+| New Android client A | Android | Release and Play builds | package `link.zippp.app` and the release signing SHA-1. Add the Play App Signing SHA-1 when the Play track exists |
+| New Android client B | Android | Debug builds | package `link.zippp.app.debug` and the SHA-1 of the debug keystore the project signs with |
+
+Notes that avoid the usual failures:
+
+- The debug package is `link.zippp.app.debug`, so it needs its own Android client. Reusing client A makes Google reject the sign in with a developer error.
+- The debug SHA-1 is the keystore named in `signingConfigs.debug` (the repo `debug.keystore` if present, else `~/.android/debug.keystore`). Read it with `keytool -list -v -keystore <path> -alias androiddebugkey -storepass android -keypass android`.
+- Preview needs the same `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` as production in its Vercel environment. The Android flow does not use the redirect URI, so the Preview redirect URI is irrelevant to it.
+- The OAuth consent screen is in Production, so there is no 100 user cap and no 7 day refresh token expiry for this app. Keep the app's publishing status at Production. Do not move it back to Testing.
+- Sheets is a sensitive scope and `drive.file` is a non-sensitive scope. Both were already verified for the web app. If Google asks to re-verify when an Android client is added, answer with the same app details and the same privacy policy URL as the web app.
+- The Android client ids do not go into the app. Only the Web client id is in the app (`GOOGLE_SERVER_CLIENT_ID`). Android clients are matched by package and SHA-1.
+
+The setup checklist the owner ticks lives in file 12 section 17.
+
+### 12.7 Code tasks this section creates
+
+| Slice | Scope | Side |
+|---|---|---|
+| E1 | `build.gradle.kts`: build type defaults, the release guards in 12.3, local network security config for debug only, host printed at configuration | android |
+| E2 | `ApiClient`: distinct handling of `404 MOBILE_API_DISABLED` (card in 12.5), 401 after a base URL change signs out cleanly | android |
+| E3 | Add `android.error.mobile_disabled` to the generator map | android |
+| E4 | Context file section 17: record the three build commands | docs |
+
+E1 to E3 are small and block the phone test. They come first in the build plan (file 08 section 9).
+
+### 12.8 Test procedure for a phone against Preview
+
+1. Uninstall the app (`adb uninstall link.zippp.app.debug`) so no token from another server remains.
+2. Build with the Preview command in 12.2 and `adb install` it.
+3. Sign in with Google. Expect the grant screen on a fresh account (file 12), then Home.
+4. Scan one receipt. Expect the review sheet within the extract timeout, not the generic read failure.
+5. If the card from 12.5 shows, the Preview deployment has `MOBILE_API_ENABLED` unset or the base URL is wrong. Check the Vercel Preview variables and the resolved host line from the build.

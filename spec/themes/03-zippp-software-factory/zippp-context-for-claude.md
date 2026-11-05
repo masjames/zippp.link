@@ -1222,6 +1222,23 @@ Never use `NEXT_PUBLIC_*` for secrets. PostHog public key is the exception.
 - The test APK contains a Preview-only automation bypass header.
 - Do not distribute that APK.
 
+### Android build targets (decided 2026-11-05)
+
+Detail: `android-spec/01-shell-and-navigation.md` section 12.
+
+| Build | `API_BASE_URL` | Bypass header |
+|---|---|---|
+| Debug (`link.zippp.app.debug`) | `https://preview.zippp.link` unless `ZIPPP_API_BASE_URL` overrides | only when `ZIPPP_VERCEL_BYPASS` is set |
+| Release (`link.zippp.app`) | `https://www.zippp.link` (never the apex, which redirects) | never. The release build fails if one is set |
+| Local emulator | `http://10.0.2.2:3000` | none |
+
+Production mobile stays dark (`MOBILE_API_ENABLED` unset) until STORY-102 passes.
+To enable: owner sets `MOBILE_JWT_SECRET` (new, 32+ random bytes) and
+`MOBILE_API_ENABLED=true` in Vercel Production and redeploys. Roll back by setting
+`MOBILE_API_ENABLED=false` and redeploying. The Google OAuth consent screen is the
+production one the web app uses. Android adds Android clients (debug and release
+SHA-1) to the same Cloud project and no new scopes.
+
 ### Test APK
 
 ```text
@@ -1676,6 +1693,14 @@ cd android
 export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
 export ANDROID_HOME="$HOME/Library/Android/sdk"
 ./gradlew :app:assembleDebug
+
+# Android phone build against Preview (values come from Vercel, never commit them)
+ZIPPP_API_BASE_URL=https://preview.zippp.link \
+ZIPPP_VERCEL_BYPASS=<automation bypass value> \
+ZIPPP_GOOGLE_SERVER_CLIENT_ID=<production Web client id> \
+./gradlew :app:assembleSideloadDebug
+# Android compile gates after a code change
+./gradlew :app:compilePlayDebugKotlin :app:compileSideloadDebugKotlin
 
 # Software Factory
 tools/factory/scripts/check.sh

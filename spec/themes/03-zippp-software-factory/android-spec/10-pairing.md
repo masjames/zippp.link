@@ -208,8 +208,10 @@ flowchart TD
 15. At 1.3x font scale nothing is clipped and Connect is reachable by scrolling. Every tappable is at least 48dp (layout inspector).
 16. No text on the screen contains kredit, saldo, Rp, `$`, a price or a purchase link.
 
-## 11. Open questions
+## 11. Decisions log
 
-1. Keep this screen at all after FEAT-113 device proof passes? Google and email link cover most users. Keeping it costs one screen and no backend.
-2. Should the screen show the 10 minute lifetime in text (`android.pairing.where` does), or is that more than the phone needs?
-3. Store the claim `workspace` to avoid the Sheet choose flash, or call `me` only? Spec says call `me` and optionally seed from claim.
+| # | Decision | Owner call or default | Date | Files |
+|---|---|---|---|---|
+| 1 | Keep the pairing screen after FEAT-113 device proof. It costs one screen and no backend, and it is the fallback when Google is unavailable | Default, owner may reverse | 2026-11-05 | 10, 06 |
+| 2 | The screen shows the 10 minute lifetime in text (`android.pairing.where`) | Default | 2026-11-05 | 10 |
+| 3 | After a claim the app calls `me` only. It may seed from the claim `workspace` to avoid a flash of the Sheet choose screen | Default | 2026-11-05 | 10 |

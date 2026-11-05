@@ -400,9 +400,9 @@ Accept invitation
 ## email.cta.accept.id
 Terima undangan
 ## app.review.allDone.en
-All reviewed — open your sheet
+All reviewed. Open your sheet
 ## app.review.allDone.id
-Semua dicek — buka sheet kamu
+Semua dicek. Buka sheet kamu
 ## app.review.prev.en
 Previous receipt
 ## app.review.prev.id
@@ -4609,3 +4609,395 @@ Saya sudah memeriksa nilai ini
 Pick an outlet before sending.
 ## app.check.outletErr.id
 Pilih outlet sebelum mengirim.
+## android.home.today.label.en
+Spent today
+## android.home.today.label.id
+Pengeluaran hari ini
+## android.home.today.receipts.en
+{count} receipts
+## android.home.today.receipts.id
+{count} struk
+## android.home.today.receiptsOne.en
+1 receipt
+## android.home.today.receiptsOne.id
+1 struk
+## android.home.today.empty.en
+Nothing recorded today
+## android.home.today.empty.id
+Belum ada catatan hari ini
+## android.home.today.first.en
+Scan your first receipt to start.
+## android.home.today.first.id
+Pindai struk pertama untuk memulai.
+## android.home.today.mixed.en
+Several currencies today
+## android.home.today.mixed.id
+Beberapa mata uang hari ini
+## android.home.today.a11y.en
+Spent today: {amount} {currency} from {count} receipts
+## android.home.today.a11y.id
+Pengeluaran hari ini: {amount} {currency} dari {count} struk
+## android.home.last.label.en
+Last spending
+## android.home.last.label.id
+Pengeluaran terakhir
+## android.home.last.meta.en
+{date} at {time}
+## android.home.last.meta.id
+{date} pukul {time}
+## android.home.last.none.en
+No spending yet
+## android.home.last.none.id
+Belum ada pengeluaran
+## android.home.scan.en
+Scan receipt
+## android.home.scan.id
+Pindai struk
+## android.home.manual.en
+Enter manually
+## android.home.manual.id
+Catat manual
+## android.home.sheet.open.en
+Open Google Sheets
+## android.home.sheet.open.id
+Buka Google Sheets
+## android.home.drafts.en
+{count} waiting to send
+## android.home.drafts.id
+{count} menunggu dikirim
+## android.home.drafts.review.en
+Review
+## android.home.drafts.review.id
+Periksa
+## android.home.stale.en
+Updated {time}. Showing saved totals.
+## android.home.stale.id
+Diperbarui {time}. Menampilkan total tersimpan.
+## android.home.error.sheet.en
+Could not read your sheet. Try again.
+## android.home.error.sheet.id
+Tidak bisa membaca sheet Anda. Coba lagi.
+## android.home.error.reconsent.en
+Google access ended. Sign in with Google again.
+## android.home.error.reconsent.id
+Akses Google berakhir. Masuk dengan Google lagi.
+## android.home.error.unsupported.en
+Totals are not available for custom sheets.
+## android.home.error.unsupported.id
+Total tidak tersedia untuk sheet kustom.
+## android.home.truncated.en
+Showing the latest rows only.
+## android.home.truncated.id
+Hanya menampilkan baris terbaru.
+## android.home.error.grant.action.en
+Grant access
+## android.home.error.grant.action.id
+Beri akses
+## android.home.retry.en
+Reload
+## android.home.retry.id
+Muat ulang
+## android.home.space.open.en
+Open Space
+## android.home.space.open.id
+Buka Space
+## android.home.space.goal.en
+{name}: {pct}%
+## android.home.space.goal.id
+{name}: {pct}%
+## android.pairing.where.en
+Make a code at zippp.link: Settings, then Pair device. It works for 10 minutes.
+## android.pairing.where.id
+Buat kode di zippp.link: Pengaturan, lalu Hubungkan perangkat. Berlaku 10 menit.
+## android.manual.cancel.en
+Cancel
+## android.manual.cancel.id
+Batal
+## android.manual.fromNotification.en
+Filled from a payment notification. Check it before saving.
+## android.manual.fromNotification.id
+Diisi dari notifikasi pembayaran. Periksa sebelum menyimpan.
+## android.manual.totalErr.en
+Enter an amount greater than zero.
+## android.manual.totalErr.id
+Isi nominal lebih dari nol.
+## android.manual.totalEcho.en
+Reads as {amount}
+## android.manual.totalEcho.id
+Terbaca {amount}
+## android.manual.discard.en
+Discard
+## android.manual.discard.id
+Buang
+## android.manual.keep.en
+Keep editing
+## android.manual.keep.id
+Lanjut mengisi
+## android.manual.discardAsk.en
+Discard what you typed?
+## android.manual.discardAsk.id
+Buang isian ini?
+## android.manual.saved.en
+Saved
+## android.manual.saved.id
+Tersimpan
+## android.error.google_grant_required.en
+Allow access to Google Sheets to continue.
+## android.error.google_grant_required.id
+Izinkan akses ke Google Sheets untuk melanjutkan.
+## android.error.grant_mismatch.en
+That Google account is different from the one you signed in with. Choose {email}.
+## android.error.grant_mismatch.id
+Akun Google itu berbeda dari akun yang Anda pakai untuk masuk. Pilih {email}.
+## android.error.rate_limited.en
+Too many tries. Wait a while and try again.
+## android.error.rate_limited.id
+Terlalu banyak percobaan. Tunggu sebentar lalu coba lagi.
+## android.grant.title.en
+Connect Google Sheets
+## android.grant.title.id
+Hubungkan Google Sheets
+## android.grant.body.en
+Zippp saves each receipt as a row in a Google Sheet in your own Google Drive. Zippp keeps no copy of your receipts.
+## android.grant.body.id
+Zippp menyimpan setiap struk sebagai baris di Google Sheet di Google Drive Anda sendiri. Zippp tidak menyimpan salinan struk Anda.
+## android.grant.item.sheets.en
+Read and add rows in your Google Sheets
+## android.grant.item.sheets.id
+Membaca dan menambah baris di Google Sheets Anda
+## android.grant.item.files.en
+Open only sheets zippp creates or you pick
+## android.grant.item.files.id
+Membuka hanya sheet yang dibuat zippp atau Anda pilih
+## android.grant.item.email.en
+Read your email address
+## android.grant.item.email.id
+Membaca alamat email Anda
+## android.grant.account.en
+Use this Google account: {email}
+## android.grant.account.id
+Pakai akun Google ini: {email}
+## android.grant.allow.en
+Allow access
+## android.grant.allow.id
+Izinkan akses
+## android.grant.working.en
+Opening Google...
+## android.grant.working.id
+Membuka Google...
+## android.grant.notNow.en
+Not now
+## android.grant.notNow.id
+Nanti saja
+## android.grant.cancelled.en
+Access was not allowed. You can try again any time.
+## android.grant.cancelled.id
+Akses tidak diizinkan. Anda bisa mencoba lagi kapan saja.
+## android.grant.scopeMissing.en
+Access was not fully allowed. Tick every box and try again.
+## android.grant.scopeMissing.id
+Akses belum diizinkan penuh. Centang semua kotak lalu coba lagi.
+## android.grant.noPlay.en
+Google Play services are needed to continue.
+## android.grant.noPlay.id
+Layanan Google Play diperlukan untuk melanjutkan.
+## android.error.no_sheet.action.en
+Set up sheet
+## android.error.no_sheet.action.id
+Siapkan sheet
+## android.error.sheet_name_taken.en
+A sheet with that name already exists. Pick another name.
+## android.error.sheet_name_taken.id
+Sheet dengan nama itu sudah ada. Pilih nama lain.
+## android.error.sheet_not_found.en
+We could not find that sheet. Pick another one.
+## android.error.sheet_not_found.id
+Sheet itu tidak ditemukan. Pilih yang lain.
+## android.error.web_only.en
+Use zippp.link in a browser for this.
+## android.error.web_only.id
+Gunakan zippp.link di browser untuk ini.
+## android.error.device_not_found.en
+That device is no longer registered.
+## android.error.device_not_found.id
+Perangkat itu sudah tidak terdaftar.
+## android.error.contribute_failed.en
+Could not send. Try again later.
+## android.error.contribute_failed.id
+Tidak bisa mengirim. Coba lagi nanti.
+## android.settings.quota.none.en
+No plan yet
+## android.settings.quota.none.id
+Belum ada paket
+## android.settings.device.title.en
+This device
+## android.settings.device.title.id
+Perangkat ini
+## android.space.share.en
+Share link
+## android.space.share.id
+Bagikan tautan
+## android.review.deleted.en
+Receipt deleted
+## android.review.deleted.id
+Struk dihapus
+## android.review.undo.en
+Undo
+## android.review.undo.id
+Urungkan
+## android.error.mobile_disabled.en
+This app is not available on this server yet. Try again later.
+## android.error.mobile_disabled.id
+Aplikasi belum tersedia di server ini. Coba lagi nanti.
+## android.capture.upload.en
+Upload a file
+## android.capture.upload.id
+Unggah file
+## android.capture.importing.en
+Preparing the file...
+## android.capture.importing.id
+Menyiapkan file...
+## android.capture.cancel.en
+Cancel
+## android.capture.cancel.id
+Batalkan
+## android.capture.pdfPages.en
+Only the first 5 pages are read.
+## android.capture.pdfPages.id
+Hanya 5 halaman pertama yang dibaca.
+## android.camera.flashShutter.en
+Flash on shot
+## android.camera.flashShutter.id
+Flash saat foto
+## android.error.network.en
+No connection. Check your internet and try again.
+## android.error.network.id
+Tidak ada koneksi. Periksa internet Anda lalu coba lagi.
+## android.error.timeout.en
+This is taking too long. Try again.
+## android.error.timeout.id
+Terlalu lama. Coba lagi.
+## android.error.session_expired.en
+Your session has ended. Sign in again.
+## android.error.session_expired.id
+Sesi Anda berakhir. Masuk lagi.
+## android.error.too_large.en
+This file is too large. Use a smaller photo.
+## android.error.too_large.id
+File ini terlalu besar. Pakai foto yang lebih kecil.
+## android.error.unsupported_type.en
+This file type is not supported. Use a photo or a PDF.
+## android.error.unsupported_type.id
+Jenis file ini tidak didukung. Pakai foto atau PDF.
+## android.error.image_decode.en
+Could not open this image. Try a JPEG or PNG.
+## android.error.image_decode.id
+Gambar tidak bisa dibuka. Coba JPEG atau PNG.
+## android.import.title.en
+Import a file
+## android.import.title.id
+Impor file
+## android.import.mappingTitle.en
+Check the columns
+## android.import.mappingTitle.id
+Periksa kolom
+## android.import.mappingBody.en
+We found these columns. Fix any that look wrong.
+## android.import.mappingBody.id
+Kolom ini ditemukan. Perbaiki yang tampak salah.
+## android.import.field.date.en
+Date
+## android.import.field.date.id
+Tanggal
+## android.import.field.description.en
+Description
+## android.import.field.description.id
+Keterangan
+## android.import.field.debit.en
+Money out
+## android.import.field.debit.id
+Uang keluar
+## android.import.field.credit.en
+Money in
+## android.import.field.credit.id
+Uang masuk
+## android.import.field.amount.en
+Amount
+## android.import.field.amount.id
+Jumlah
+## android.import.field.group.en
+Receipt number
+## android.import.field.group.id
+Nomor struk
+## android.import.field.currency.en
+Currency
+## android.import.field.currency.id
+Mata uang
+## android.import.field.category.en
+Category
+## android.import.field.category.id
+Kategori
+## android.import.field.none.en
+None
+## android.import.field.none.id
+Tidak ada
+## android.import.dateFormat.en
+Date format
+## android.import.dateFormat.id
+Format tanggal
+## android.import.signRule.en
+Spending is shown as
+## android.import.signRule.id
+Pengeluaran ditulis sebagai
+## android.import.sign.negative.en
+Negative numbers
+## android.import.sign.negative.id
+Angka negatif
+## android.import.sign.positive.en
+Positive numbers
+## android.import.sign.positive.id
+Angka positif
+## android.import.continue.en
+Continue
+## android.import.continue.id
+Lanjut
+## android.import.draftsReady.en
+{drafts} to review
+## android.import.draftsReady.id
+{drafts} untuk diperiksa
+## android.import.skipped.en
+{count} rows skipped
+## android.import.skipped.id
+{count} baris dilewati
+## android.import.overLimit.en
+Only the first {max} rows were read. Import again for the rest.
+## android.import.overLimit.id
+Hanya {max} baris pertama yang dibaca. Impor lagi untuk sisanya.
+## android.import.rowRef.en
+Row {row}
+## android.import.rowRef.id
+Baris {row}
+## android.import.empty.en
+No rows with an amount were found.
+## android.import.empty.id
+Tidak ada baris dengan jumlah.
+## android.import.unsupported.en
+This file type is not supported. Use CSV or XLSX.
+## android.import.unsupported.id
+Jenis file ini tidak didukung. Pakai CSV atau XLSX.
+## android.import.tooLarge.en
+This file is too large. The limit is 5 MB.
+## android.import.tooLarge.id
+File ini terlalu besar. Batasnya 5 MB.
+## android.import.unreadable.en
+Could not read this file. Check that it is a CSV or XLSX export.
+## android.import.unreadable.id
+File tidak bisa dibaca. Pastikan ini hasil ekspor CSV atau XLSX.
+## android.import.rateLimited.en
+Too many imports. Try again in an hour.
+## android.import.rateLimited.id
+Terlalu banyak impor. Coba lagi dalam satu jam.
+## android.import.repeat.en
+You imported this file before. Check the rows before sending.
+## android.import.repeat.id
+Anda sudah mengimpor file ini. Periksa barisnya sebelum mengirim.

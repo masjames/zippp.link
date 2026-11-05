@@ -21,7 +21,9 @@ values stay empty (project rules).
 
 1. **Fields are always editable.** There is no "Ubah" toggle on web. The
    current Android code before the FEAT-118 rewrite had one; it must not return.
-2. **Delete is immediate on web**, no confirm dialog. Android copies that.
+2. **Delete is immediate on web**, no confirm dialog and no undo. Android keeps the
+   immediate removal from view but adds a 5 second Undo snackbar (owner decision
+   2026-11-05, section 5 "Delete and Undo"). The web stays immediate.
 3. **Web appends with the client item id as `scanId`** (`scanId: item.id`).
    Mobile must send the **server** `scanId` returned by `/api/extract` (or
    `/api/scan/manual`), because the server records scan ownership against that
@@ -269,10 +271,32 @@ extract `runId` and `lang`. Per field: edited yes or no, flag reasons. No images
 no raw values. Fire and forget; failure is ignored. The acknowledge tap itself is
 not recorded (known gap in the context file).
 
-### Delete
+### Delete and Undo
 
-1. Tap Delete. Remove the draft from the queue immediately, no dialog, no undo.
-2. If the queue is now empty close the sheet; else show the next draft.
+What it means: Delete removes the draft from the sheet and from the queue strip
+straight away. For 5 seconds a snackbar offers Undo. Tapping Undo puts the draft
+back exactly as it was (same position, same edited values, same flags, same
+`scanId`). If the 5 seconds pass, the draft is gone for good. Nothing was sent and
+nothing was spent, because credits and quota are spent only at append, so there is
+nothing to refund when a draft is deleted.
+
+| Step | Behaviour |
+|---|---|
+| 1 | Tap Delete (Danger text, 52 dp). The draft leaves the queue and is held in one memory slot, `pendingDelete`, with its original index |
+| 2 | If the queue is now empty close the sheet; else show the next draft |
+| 3 | A snackbar appears at the bottom, above the system bars, over the sheet or over Capture or Home if the sheet closed. Text `android.review.deleted`, action `android.review.undo` |
+| 4 | The snackbar lasts `UNDO_DELETE_MS = 5000`. With TalkBack or a large accessibility timeout the duration is the larger of 5000 and `AccessibilityManager.getRecommendedTimeoutMillis`. Use `SnackbarDuration.Indefinite` plus a coroutine delay so the time is exact |
+| 5 | Undo (48 dp tall action, full width of the snackbar action area) restores the draft at its original index, reopens the sheet on it, and dismisses the snackbar |
+| 6 | When the time ends, the app goes to the background (`onStop`), the user signs out, or the user deletes another draft, the pending delete is committed at once: the slot is cleared and the image bytes and `runId` are dropped |
+| 7 | Only one Undo exists at a time. Deleting a second draft commits the first and shows a new snackbar for the second |
+
+Rules:
+
+- The deleted draft does not post correction telemetry, with or without Undo.
+- A failed-read card (Retry and Delete) uses the same Delete and Undo.
+- Process death inside the 5 seconds loses the draft. That matches the delete the user asked for.
+- Undo is not offered after Accept. A sent row is edited in the Google Sheet.
+- The web keeps immediate Delete with no undo. This is an allowed Android-only difference (section 8).
 
 ## 6. Touch targets
 
@@ -289,7 +313,7 @@ not recorded (known gap in the context file).
 
 Present in `spec/wording.txt` (en and id), verified:
 `app.review.minimize`, `app.review.prev`, `app.review.next`,
-`app.review.reading`, `app.review.delete`, `app.review.dateAssumed`,
+`app.review.reading`, `app.review.delete`, `android.review.deleted`, `android.review.undo`, `app.review.dateAssumed`,
 `app.review.hardFlagWarning`, `app.review.acknowledge`, `app.review.saved`,
 `app.queue.failed`, `app.queue.retry`, `app.check.merchantFallback`,
 `app.check.category`, `app.check.date`, `app.check.datePlaceholder`,
@@ -326,10 +350,16 @@ parity uses `app.review.delete`.
 
 | Difference | Why |
 |---|---|
+| Delete has a 5 second Undo snackbar | Owner decision 2026-11-05. A thumb on a small screen deletes by accident. The web has a keyboard and a mouse. Cost is one memory slot and one snackbar |
+
+Other differences:
+
+| Difference | Why |
+|---|---|
 | Accept label "Terima", no cost suffix | DEC-002 |
 | Fields at least 48 dp tall, qty 56 dp, amount 96 dp, header buttons 48 dp | Touch targets, small web sizes are too tight |
 | No debug panel (`DebugPanel`) | Web diagnostic only |
-| No "help improve reading" contribute card | `/api/contribute` has no bearer path; revisit with a server change |
+| No "help improve reading" contribute card until FEAT-119 ships bearer on `/api/contribute` | Decision 4 in section 10. The card is added after that route accepts the bearer token |
 | Native dropdown menus instead of `<select>` | Platform control |
 | Drafts are not restored after process death | FEAT-108 owns persistence |
 | Sheet uses `imePadding()` | Android keyboard behaviour |
@@ -380,7 +410,14 @@ Checkable from a phone screenshot, uiautomator dump, or logcat.
 17. Append with no quota: draft returns to the queue with the
     `android.error.no_credits` text, capture shows the out-of-quota card.
 18. Delete removes the draft at once and shows the next one (or closes the
-    sheet when none remain).
+    sheet when none remain). A snackbar "Struk dihapus" with the action "Urungkan"
+    appears and lasts 5 seconds.
+18a. Undo restores the draft at the same position with the same edited values
+    and flags, reopens the sheet on it, and no row was sent.
+18b. After 5 seconds with no tap, the snackbar disappears and Undo no longer
+    exists. Backgrounding the app inside the 5 seconds does the same.
+18c. Deleting two drafts in a row leaves one snackbar, for the second draft.
+18d. The Undo action is at least 48 dp tall (uiautomator bounds).
 19. Open the keyboard on the total field: footer stays visible above the
     keyboard; the body scrolls.
 20. Every tappable on the sheet is at least 48 dp x 48 dp (uiautomator bounds).
@@ -388,19 +425,24 @@ Checkable from a phone screenshot, uiautomator dump, or logcat.
 22. Sheet at 360 dp screen width does not clip any field; at 430 dp and wider
     it stays 430 dp wide, centred.
 
-## 10. Open questions
+## 10. Decisions log
 
-1. `me.workspace` already returns `template_id`, `staff_names`, `outlets`,
-   `default_outlet` and `payment_options`. Confirm the Android `Workspace` model
-   in `Models.kt` decodes all of them (the model currently shows only title,
-   name and sheet id).
-2. ~~Persist drafts across process death now?~~ Decided: no. Persistence belongs
-   to FEAT-108 (also stated in 01 section 7).
-3. Add an undo snackbar on Delete (not on web), or keep it immediate for parity?
-4. Add bearer support to `/api/contribute` so the help-improve card can ship?
-5. The unit price flag has no visible field. Show unit price as an optional
-   fourth line field on both surfaces, or keep acknowledge as the only exit?
-6. Wording fix task W-1: `app.review.allDone` contains an em dash in both
-   languages, which breaks the project rule. Rewrite the copy in
-   `spec/wording.txt` (en and id) before the review sheet ships. Not an open
-   question, it is a task.
+| # | Decision | Owner call or default | Date | Files |
+|---|---|---|---|---|
+| 1 | `Workspace` in `Models.kt` decodes `template_id`, `staff_names`, `outlets`, `default_outlet`, `payment_options` (and `sheet_tab`). Code task, slice RV1 | Default, the server already returns them | 2026-11-05 | 03, 12 |
+| 2 | Drafts do not survive process death. Persistence belongs to FEAT-108 | Owner call | 2026-11-05 | 03, 01 |
+| 3 | Delete has a 5 second Undo snackbar on Android. Web stays immediate | Owner call (the owner asked what undo means and approved the explanation of section 5) | 2026-11-05 | 03, wording |
+| 4 | `/api/contribute` accepts the bearer token as part of FEAT-119 (09 section 4.5). The help-improve card ships after that route does | Default | 2026-11-05 | 03, 09 |
+| 5 | The unit price flag has no visible field in v1. Acknowledge stays the only exit for that flag on both surfaces. Revisit with a unit price field after the first device run | Default, owner may reverse | 2026-11-05 | 03 |
+| 6 | W-1: the em dash in `app.review.allDone` is removed. Done in `spec/wording.txt` | Task, done | 2026-11-05 | wording.txt |
+
+## 11. Slices
+
+| Slice | Scope | Side | Needs |
+|---|---|---|---|
+| RV1 | `Workspace` model fields in `Models.kt` | android | none |
+| RV2 | Delete and Undo (section 5), `android.review.deleted`, `android.review.undo` in the generator map | android | RV1 not required |
+| RV3 | Parity check of the built bottom sheet against sections 3 to 6 and the checklist | android | RV2 |
+| RV4 | Device run, checklist section 9 | owner | RV3 |
+
+Gates: `:app:compilePlayDebugKotlin`, `:app:compileSideloadDebugKotlin`, `npm run android:strings`.

@@ -44,7 +44,7 @@ What the user sees: every failure shows the same line, `error_extract`
 response and any exception into that one string. Only `DEVICE_REVOKED` is
 treated differently (`onSessionLost`, which signs the user out silently).
 
-Fix (words):
+Fix (words), now specified in file 01 section 12:
 1. Build the device APK with `ZIPPP_API_BASE_URL=https://preview.zippp.link` and
    the Preview bypass value. Record the exact build command in context §17.
 2. Make `baseUrl` use `https://www.zippp.link` for production so no cross-host
@@ -60,6 +60,23 @@ Fix (words):
    (`route.ts:12`).
 6. Treat a 401 on `/api/extract` as session lost only after a second check
    (`me`), not on the first response.
+
+## Environments (summary, decided 2026-11-05)
+
+The owner runs the web app and Google OAuth in **production**. The Android build had
+no `ZIPPP_API_BASE_URL`, so it pointed at the apex `https://zippp.link` where the mobile
+API is dark. The full rules are in `01-shell-and-navigation.md` section 12. In short:
+
+| Build | Points to | Notes |
+|---|---|---|
+| Debug (`link.zippp.app.debug`) | `https://preview.zippp.link` by default | Bypass header only when `ZIPPP_VERCEL_BYPASS` is set. Private APK |
+| Release (`link.zippp.app`) | `https://www.zippp.link` | No bypass header. The build fails if the host, scheme or bypass is wrong |
+| Local emulator | `http://10.0.2.2:3000` | Debug only, cleartext allowed in debug only |
+
+Production mobile stays dark until STORY-102 passes (FEAT-110). The app shows a
+distinct `android.error.mobile_disabled` card, not the generic read failure, when the
+server answers `MOBILE_API_DISABLED`. OAuth setup for Android clients is in file 12
+section 17.
 
 ## Defect 1: main screen
 

@@ -282,7 +282,7 @@ Checked against `src/app/api` on 2026-11-05 (`resolveRequestUser`, `resolveBeare
 | **`/api/auth/me`** | web session probe | **cookie only** | not needed (`mobile/me` replaces it) |
 | **`/api/notices`**, **`/api/contribute`** | admin notice, help improve reading | **cookie only** | no, left out |
 
-FEAT-119 (`09-bearer-route-slice.md`) is the backend slice. It makes `sheets/connect`, `sheets/workspace`, `sheets/map`, `notices`, `contribute`, `auth/devices` and `auth/device/revoke` accept the bearer, adds `google-grant`, rejects mobile tokens on `billing/subscribe`, and trims `billing/balance` for mobile. Its rollout order is in 09 section 8. SheetChoose, the Settings device list and Home all wait on it or on the library step inside it (section 7, item 18).
+FEAT-119 (`09-bearer-route-slice.md`) is the backend slice. It makes `sheets/connect`, `sheets/workspace` (GET), `sheets/map`, `notices` and `contribute` accept the bearer, lets `auth/device/revoke` accept the bearer for the caller's own device only, leaves `auth/devices` cookie only, adds `google-grant`, rejects mobile tokens on `billing/subscribe`, and trims `billing/balance` for mobile. Its rollout order is in 09 section 8. SheetChoose and Home wait on it or on the library step inside it (section 7, item 18).
 
 ### 2.4 Trust boundaries and where money is decided
 
@@ -554,33 +554,67 @@ Owned by `07-home-dashboard.md`, which has the full wireframes for normal, first
 +----------------------------------------+
 ```
 
-### 4.7 Capture (02)
+### 4.7 Capture and upload (02)
 
-Ready, no drafts:
+Ready, no drafts. Every tappable is at least 48dp; the sheet pill is the only
+element under 48dp and it is not tappable.
 
 ```
 +----------------------------------------+ page #E8E8E8
-| zippp                 [Home] [Setelan] | header 48dp targets, Home shows, no pill
+| zippp                 [Home] [Setelan] | header, Home and gear 48x48dp, no pill
 |                       +--------------+ |
-|                       | sheet title v| | sheet pill, 28dp visual, read-only, only if title known
+|                       | sheet title  | | sheet pill, 28dp visual, read-only, only if title known
 |                       +--------------+ |
 | +------------------------------------+ | viewfinder, aspect 3:4, radius 14
 | | (  <app.capture.tapToShoot>  )     | | hint pill, black 55%, 12sp white
 | |  +-                          -+    | |
 | |  |  guide frame 9:16, 88%    |    | | corner marks 28dp, 4dp stroke, white 90%
-| |  |  live camera preview      |    | |
+| |  |  live camera preview      |    | | PreviewView COMPATIBLE, STREAMING within 3s
 | |  +-                          -+    | |
 | |    <app.capture.frame>             | | 12sp white 80%
 | +------------------------------------+ |
 |                                        |
-| [<app.capture.upload>]         [Flash] | row, hit boxes 48dp, pills 36dp visual
+| [ <android.capture.upload> ]  ( Flash )| Upload 48dp tall text button, Flash pill 48dp tall
 | +------------------------------------+ |
-| | [Open sheet]  Sheets icon          | | Outline 52dp, only when spreadsheet_id known
+| |  <app.sheets.open>   Sheets icon   | | Outline 52dp, only when spreadsheet_id known
 | +------------------------------------+ |
 +----------------------------------------+
 ```
 
-Extracting, with the draft strip:
+Flash pill states (always words, not only colour):
+
+```
+ off            ( Flash mati )            white, ink text
+ torch on       ( Flash aktif )           orange #EE5329, ink text, light is on
+ shutter flash  ( Flash saat foto )       orange, fallback only, fires on the shot
+```
+
+Preview not streaming after 3s (camera error with Retry):
+
+```
++----------------------------------------+
+| zippp                 [Home] [Setelan] |
+| +------------------------------------+ |
+| | <android.camera.error>             | | viewfinder collapsed to 96dp
+| | [ <app.queue.retry> ]        52dp  | | Mist
+| +------------------------------------+ |
+| [ <android.capture.upload> ]           | upload still works
++----------------------------------------+
+```
+
+Upload: document picker (system screen), then import progress:
+
+```
++----------------------------------------+     +----------------------------------+
+| system document picker                 |     | zippp                            |
+| Recent / Downloads / Drive             | --> | live preview (dimmed, 0.4)       |
+| types: image, PDF  (+ CSV, XLSX later) |     | [spinner] <android.capture.      |
+| up to 10 files                         |     |            importing>   48dp row |
++----------------------------------------+     | [ draft strip appears below ]    |
+                                               +----------------------------------+
+```
+
+Extracting, with the draft strip and a slow read (Cancel after 15s):
 
 ```
 +----------------------------------------+
@@ -588,17 +622,29 @@ Extracting, with the draft strip:
 | +------------------------------------+ |
 | | live preview, shutter enabled      | | up to 3 reads in parallel
 | +------------------------------------+ |
-| [Upload]                        [Flash]|
+| [ Unggah file ]               ( Flash )|
 | +------------------------------------+ | strip: radius 8, 2dp line, white
 | | [<]  [thumb48] <app.review.reading>[>] | prev/next 48x48, centre button fills
 | |               1 <app.review.toReview>| | title 14sp bold, subtitle 12sp muted
+| |                    [ Batalkan ]      | | Cancel 48dp, appears after 15s
 | +------------------------------------+ |
 +----------------------------------------+
 ```
 
-Capture has no Manual pill and no Space or Settings text links (resolved, section 7 item 4). Manual lives on Home.
+Failed draft messages (one mapped key each, never a raw code):
 
-Failed draft (strip title is `<app.queue.failed>`, tapping opens the review sheet in the failed card, see 4.9). Error text is a mapped key, never a raw server string.
+```
+ no network      <android.error.network>          Retry
+ timeout         <android.error.timeout>          Retry
+ session ended   <android.error.session_expired>  sign in again after a second 401
+ mobile off      <android.error.mobile_disabled>  Delete only
+ too large       <android.error.too_large>        Delete only
+ wrong type      <android.error.unsupported_type> toast, no draft
+ cannot open     <android.error.image_decode>     Delete only
+ PDF unreadable  <app.capture.pdfFailed>          Delete only
+ not a receipt   <android.error.extract_failed>   Retry, Delete
+ server error    <android.error.server>           Retry
+```
 
 Out of quota:
 
@@ -620,16 +666,16 @@ No camera permission:
 
 ```
 +----------------------------------------+
-| zippp                         [Setelan]|
+| zippp                 [Home] [Setelan] |
 | +------------------------------------+ |
 | | <android.camera.permission>        | | viewfinder collapsed to 96dp
 | | [ <android.camera.allow> ]   52dp  | | mist
 | +------------------------------------+ |
-| [<app.capture.upload>]                 | gallery still works
+| [ <android.capture.upload> ]           | file upload still works
 +----------------------------------------+
 ```
 
-Flash on: the Flash pill turns orange with `<app.capture.flash> . <app.capture.on>`. Camera error: viewfinder 96dp with `<android.camera.error>`.
+Capture has no Manual pill and no Space or Settings text links. Manual lives on Home.
 
 ### 4.8 Review sheet, collapsed
 
@@ -763,7 +809,7 @@ Behaviour: `POST /api/scan/manual` returns a server `scanId`, then the flow join
 | | <...capture.toggle>        (switch)| | row min 56dp
 | +------------------------------------+ |
 | +------------------------------------+ |
-| | <android.settings.device.title>    | | read-only until devices routes take bearer
+| | <android.settings.device.title>    | | this device only, read only
 | | {model} . {app version}            | |
 | +------------------------------------+ |
 |                                        |  Spacer(weight 1)
@@ -915,12 +961,87 @@ Wording tasks created by this pass:
 | W-2 | Add `android.error.no_sheet.action` (id "Siapkan sheet", en "Set up sheet") | with FEAT-119 on the phone |
 | W-3 | Add the new `android.home.*` and error keys listed in item 20 | S-H1 |
 
-## 8. Open questions for the owner (remaining)
+## 8. Decisions log (all files, 2026-11-05)
 
-The five owner decisions of 2026-11-05 closed the earlier list. What is still open:
+No question is open for the owner after this pass except the items in section 10.
+Each file ends with its own Decisions log. This table is the index.
 
-1. **FEAT-119 (09 section 10), questions 2 to 6.** Revoke another device from the phone or keep it web only. Disconnect sheet web only. Column map editing web only. Rate limit numbers. `drive.file` hides sheets this app did not create or open.
-2. **Home (07 section 20), questions 1 to 4.** Month to date as a third index after FEAT-104. Should Last spending open the Sheet at that row. Pull to refresh or Reload plus resume only. One summary field on `GET /api/spaces` instead of two calls.
-3. **Capture (02 section 10).** PDF upload: rasterise page 1 with `PdfRenderer` or images only. Bearer support on `/api/sheets/connect` so the sheet pill can switch sheets (FEAT-119 makes this possible; decide whether the pill becomes tappable).
-4. **Review (03 section 10).** Confirm the Android `Workspace` model decodes `template_id`, `staff_names`, `outlets`, `default_outlet`, `payment_options`. Undo on Delete or immediate like the web. Bearer on `/api/contribute`. Unit price as a visible optional field on both surfaces.
-5. **Constants file.** AGENTS.md names `src/lib/billing/config.ts` and `sheet-style.ts`. `sheet-style.ts` does not exist, so Home constants go in `billing/config.ts`. Create `sheet-style.ts` instead?
+| # | Decision | Owner call or default | Files |
+|---|---|---|---|
+| 1 | Home dashboard is the Android main screen. Scan and Manual live on it. Space is a card on Home. Capture back returns to Home | Owner call | 07, 01, 02, 05, 11 |
+| 2 | Google access on the phone is Option A, `serverAuthCode` via `google-grant`. The consent screen is the production one the web uses | Owner call | 09, 12, 01 section 12.6 |
+| 3 | 60 second server cache of Sheet aggregates, no rows stored | Owner call | 07, FEAT-120 |
+| 4 | Month to date is deferred until after FEAT-104 (slice S-H9) | Owner call | 07 |
+| 5 | Delete in review has a 5 second Undo snackbar on Android. Web stays immediate | Owner call | 03 |
+| 6 | Home constants stay in `src/lib/billing/config.ts`. No `sheet-style.ts` now (that file is for Google Sheet styling) | Default, explained to the owner | 07 |
+| 7 | Phone revokes this device only. Other devices, disconnect sheet and column map editing stay on the web | Owner call and default | 09, 04, 06 |
+| 8 | Rate limits in 09 section 3.1 accepted | Owner call | 09 |
+| 9 | `drive.file` visibility accepted, with a clear message and a Create button | Owner call | 09, 06 |
+| 10 | Last spending does not open the Sheet in v1. Pull to refresh plus Reload | Default | 07 |
+| 11 | `GET /api/spaces` gets a `summary` field so Home needs one call | Default | 07 |
+| 12 | `Workspace` model fields are added in `Models.kt` (slice RV1) | Default | 03 |
+| 13 | Capture accepts images, PDF, and spreadsheets (CSV, Excel). Spreadsheets go through FEAT-121 | Owner call | 02, FEAT-121 |
+| 14 | Builds: debug to Preview, release to `https://www.zippp.link` with no bypass header. Production mobile stays dark until STORY-102 | Owner call | 01 section 12, 00 |
+| 15 | `me` returns `user.google_granted` | Default, owner may reverse | 12, 09 |
+| 16 | Unit price has no visible field in v1 | Default, owner may reverse | 03 |
+
+## 9. Ordered build plan (one list, all slices, all cards)
+
+A coding agent builds in this order and stops at each gate. One slice at a time.
+Never start a slice before the ones in its Needs column pass their gates. Gate
+names:
+
+| Gate | Command or check |
+|---|---|
+| WEB | `npm test`, `npx tsc --noEmit`, `npm run build` |
+| STR | `npm run android:strings` (needs the generator map entry for any new key) |
+| AND | `cd android && ./gradlew :app:compilePlayDebugKotlin :app:compileSideloadDebugKotlin` |
+| DEV | the numbered device checklist of that file, on the phone against Preview, with screenshots |
+| MARK | every target file has its `// @implements FEAT-xxx` marker |
+
+| Order | Slice | Card or file | What | Needs | Gates |
+|---|---|---|---|---|---|
+| 1 | W-MAP | wording | Map every new key in `scripts/gen-android-strings.mjs` (`android.home.*`, `android.grant.*`, `android.manual.*`, `android.pairing.where`, `android.error.*`, `android.review.deleted`, `android.review.undo`, `android.settings.*`, `android.space.share`). Keys are already in `spec/wording.txt` | none | STR, AND |
+| 2 | E1 | 01 section 12.7 | Build type defaults, release guards, local network security config for debug | none | AND, a release build fails when the bypass is set |
+| 3 | E2 and E3 | 01 section 12.5 | `404 MOBILE_API_DISABLED` handling, generator entry, 401 after a base URL change signs out cleanly | 1, 2 | STR, AND |
+| 4 | C-FIX | 02, 00 | Capture fixes: torch through `CameraControl.enableTorch` and `torchState`, 48dp targets, specific extract error mapping, camera JPEG downscale, Manual pill and nav links removed from Capture, header on Capture | 3 | AND, DEV (file 02 checklist) |
+| 5 | B-1 | FEAT-119 step 1 | Google helpers take explicit `userId`, `hasTokensForUser`, `rateLimit`. No route change | none (parallel with 2 to 4) | WEB |
+| 6 | B-2 | FEAT-119 step 2 | `subscribe` rejects mobile, `balance` trims for mobile | 5 | WEB |
+| 7 | B-3 | FEAT-119 steps 3, 4 | Bearer on `notices`, `sheets/workspace` GET, `sheets/connect`, `sheets/map`, `auth/device/revoke` (own device only), `contribute` | 5, 6 | WEB |
+| 8 | B-4 | FEAT-119 step 5 | `POST /api/auth/mobile/google-grant`, `me.user.google_granted`, boundary test | 7 | WEB, MARK |
+| 9 | G1 to G3 | 12 | `play-services-auth`, `GoogleScopes.kt`, `GoogleGrant`, `GrantScreen`, the three triggers | 8 | STR, AND |
+| 10 | SH-1 | 06 | Sheet choose, grant phase, Sheet connected, Create | 7, 9 | STR, AND |
+| 11 | S-H2 | FEAT-120 | `src/lib/home/summary.ts` parse and aggregate, constants in `billing/config.ts`, tests | none (parallel) | WEB |
+| 12 | S-H3 and S-H3b | FEAT-120 | `readTail`, `GET /api/home/summary`, cache, rate limit, `summary` on `GET /api/spaces`, context section 7 | 5, 11 | WEB |
+| 13 | S-H4 | FEAT-120 | Home screen with fake data and every state, `amberBg` and `amberInk` tokens, button sizes from the canonical table | 1 | STR, AND |
+| 14 | S-H5 | FEAT-120 | `ApiClient.homeSummary`, device cache, Home first, Capture and Manual return to Home | 3, 4, 9, 12, 13 | STR, AND, DEV (file 07 checklist) |
+| 15 | MN-1 | 11 | Manual entry fixes: one line item, `parseMoney` rules, one `scanId` per form | 14 | AND, DEV |
+| 16 | RV1 and RV2 | 03 | `Workspace` model fields, Delete with Undo | 1 | STR, AND |
+| 17 | RV3 | 03 | Review sheet parity check against the spec | 16 | AND, DEV (file 03 checklist) |
+| 18 | ST-1 | 04 | Settings: quota card, this device, Sign out revokes this device | 7 | STR, AND, DEV |
+| 19 | SP-1 | 05 | Space screen parity, 48dp rows, invite base URL | 12 | AND, DEV |
+| 20 | PR-1 | 10 | Pairing screen fixes (letter normalisation) | 1 | AND |
+| 21 | S-H6 | FEAT-120 | Quota and Space cards on Home | 14, 12 | AND |
+| 22 | S9 | FEAT-118 | Web confirm card ops fields (already built, re-verify) | none | WEB |
+| 23 | I-1 to I-4 | FEAT-121 | Import parser, mapping, route, Android flow, web picker | 14 | WEB, AND, DEV |
+| 24 | DEVRUN | FEAT-118 S8 | Owner device run with screenshots next to the web | 4, 14, 17 | DEV all files |
+| 25 | S-H7 and S-H9 | FEAT-120, FEAT-104 | Daily block source, then month to date | FEAT-104 | WEB, AND |
+| 26 | GATE | FEAT-110, STORY-102 | Production mobile enable, only after the device proof (file 01 section 12.4) | 24 | owner |
+
+Parallel lanes that do not touch the same files: server (5 to 8, 11, 12), Android
+shell (2 to 4, 13), review and settings (16 to 19).
+
+Stop rules for an agent:
+
+1. If a gate fails, fix it before the next slice. Never skip a gate to keep going.
+2. Never edit `spec/wording.txt` copy inside a code slice. Change copy in the spec first.
+3. Never put a secret, a bypass value, or a token in a file, a log line, or a commit.
+4. Update the card status and the context file in the same commit as the code that changes a contract.
+
+## 10. Remaining items that need the owner
+
+Only these. Everything else in the earlier open lists has a decision above.
+
+1. A phone test needs a Preview deployment that has `MOBILE_API_ENABLED=true`, a `MOBILE_JWT_SECRET`, and the new bearer routes (FEAT-119) if sheet setup is tested. Until FEAT-119 ships to Preview, a phone-only Google user cannot create a sheet.
+2. The Google Cloud Android clients (file 12 section 17) must exist before the grant flow can be tested. Only the owner can create them.
+3. A real release signing key does not exist yet (FEAT-105 scaffold). A release build for the gate in section 9 row 26 needs it.

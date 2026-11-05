@@ -183,3 +183,12 @@ Money wording: `app.space.items.value` is "Value {amount}" with no currency. Kee
 13. Loading, error and empty list states each render their message, and none leaves a blank screen.
 14. At 1.3x font scale the form fields and buttons do not overlap or clip.
 15. System back from Space lands on Home, whether Space was opened from the Home card or from Settings.
+
+## 10. Decisions log
+
+| # | Decision | Owner call or default | Date | Files |
+|---|---|---|---|---|
+| 1 | Space is a top-level screen. It opens from the Space card on Home and from the Space button in Settings. System back returns to Home | Owner call | 2026-11-05 | 05, 01, 07 |
+| 2 | Invite links use the `www` host | Default | 2026-11-05 | 05 |
+| 3 | The Home Space card reads one summary field on `GET /api/spaces` (file 07 decision 12). The Space screen itself still loads members and items with its own calls | Default | 2026-11-05 | 05, 07 |
+| 4 | No currency symbol next to any amount (DEC-002) | Rule | 2026-11-05 | 05 |

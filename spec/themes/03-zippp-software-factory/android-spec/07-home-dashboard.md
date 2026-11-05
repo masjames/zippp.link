@@ -51,7 +51,7 @@ a slice is not built yet. Visual order is in section 5.
 | P1 | Google Sheets connected card | yes | `me.workspace` |
 | P2 | Drafts waiting | when count > 0 | `BatchStore` (local) |
 | P3 | Quota bar | optional, FEAT-117 | `me.plan` |
-| P4 | Space card with goals snapshot | always shown (empty variant without a Space), FEAT-116 | `GET /api/spaces`, `GET /api/spaces/{id}/assets` |
+| P4 | Space card with goals snapshot | always shown (empty variant without a Space), FEAT-116 | `GET /api/spaces` (one call, `summary` field per Space, decision 12) |
 
 Cut order when space is tight: P4, then P3, then P2 collapses to one line. P0 and
 P1 never get cut.
@@ -82,6 +82,12 @@ P1 never get cut.
     and on `POST /api/auth/mobile/google-grant` for a phone-only Google user. A user
     with no Google grant gets `GOOGLE_GRANT_REQUIRED` (section 7.10).
 11. Button kinds and heights follow the canonical table in file 01 section 3.
+12. The Space card needs one call. `GET /api/spaces` gains a `summary` field per
+    Space with member count and up to 3 goals (owner call 2026-11-05). Slice S-H3b.
+13. Constants stay in `src/lib/billing/config.ts`. No `sheet-style.ts` now.
+14. Month to date is not in v1 (owner call 2026-11-05). It is slice S-H9, after FEAT-104.
+15. Last spending does not open the Sheet at that row in v1.
+16. Pull to refresh is in (section 12 step 7), together with the Reload buttons.
 
 ## 5. Layout tree (top to bottom)
 
@@ -184,8 +190,24 @@ to Home. Title: Space name. Subtitle: member count. Then up to 3 goals, each a r
 goal name `ZipppType.body`, percentage `ZipppType.smallStrong`, bar 8dp. Footer row
 48dp tall: Open Space (`app.space.settings`, same destination as the card tap).
 Empty variant when the user is in no Space: title `app.space.title`, no goals, the
-same footer row. Data: `GET /api/spaces`, then `GET /api/spaces/{id}/assets` for
-the first Space only. A failed Space call shows the empty variant, never an error.
+same footer row. Data: one call, `GET /api/spaces`, whose response carries a
+`summary` object per Space (decision 12, contract below). The card reads the first
+Space. A failed Space call shows the empty variant, never an error.
+
+`summary` contract, added to `GET /api/spaces` by slice S-H3b (PLANNED, context §7
+when built). Existing fields are unchanged, so the web Space page is not affected.
+
+```json
+{ "spaces": [ { "id": "sp_1", "name": "Home", "role": "owner",
+    "summary": { "members": 2,
+      "goals": [ { "id": "g1", "name": "Emergency fund", "target": 50000000,
+                   "progress": 12500000, "pct": 25 } ] } } ] }
+```
+
+- `goals` holds at most 3 active goals, ordered by `pct` descending. Archived goals are excluded.
+- `pct` is `min(100, floor(progress / target * 100))`, and 0 when `target <= 0`.
+- Amounts are plain numbers. No currency symbol is added (DEC-002 and the product rule not to invent values).
+- Bearer or cookie, same auth as the route today. Cost: one extra ledger read per Space, bounded by the 3 goal limit.
 
 ## 6. Touch targets
 
@@ -347,6 +369,26 @@ this card.
 |  +--------------------------------+  |
 |  [ Pindai struk ] [ Catat manual ]   |
 ```
+
+### 7.11 Server not enabled (`MOBILE_API_DISABLED`)
+
+Shown when any Home call answers `404 MOBILE_API_DISABLED`. This is the state of a
+build that points at a server where the mobile API is dark (file 01 section 12.5).
+
+```
++--------------------------------------+
+| zippp                       Pengaturan|   header: wordmark, Settings
+|                                      |
+|  +--------------------------------+  |
+|  | Aplikasi belum tersedia di     |  |  android.error.mobile_disabled
+|  | server ini. Coba lagi nanti.   |  |
+|  |            [ Muat ulang ]      |  |  Mist 52dp, android.home.retry
+|  +--------------------------------+  |
+|  [ Pindai struk ]    [ Catat manual ]|  enabled, they fail with the same text
++--------------------------------------+
+```
+
+The token is kept. No sign out. No retry loop. Reload runs the three calls again.
 
 ### 7.10 Google access needed
 
@@ -671,6 +713,7 @@ Errors, all `{ "ok": false, "code": "..." }`:
 | 409 | `NO_SHEET` | no workspace | Sheet choose |
 | 422 | `NOT_SUPPORTED` | `date` or `amount` not mapped | unsupported line |
 | 403 | `GOOGLE_RECONSENT` | Google refused the token | sign in with Google row |
+| 404 | `MOBILE_API_DISABLED` | the server has the mobile API off | server not enabled card (section 7.11) |
 | 401 | `GOOGLE_GRANT_REQUIRED` | user never granted Drive and Sheets access | grant card (section 7.10) |
 | 429 | `RATE_LIMITED` | too many calls | stale card, retry later |
 | 502 | `SHEET_UNREADABLE` | Google 4xx or 5xx on read | error card with Reload |
@@ -685,9 +728,10 @@ Server rules:
 - Sheets cost: 2 `values.get` calls per uncached request, well inside the Sheets
   per-user quota.
 - Constants (60 s TTL, 400 row window, 30 per minute, `Asia/Jakarta`) go in
-  `src/lib/billing/config.ts` (AGENTS.md rule: constants live there, and in
-  `sheet-style.ts` for Sheets, which does not exist yet). No magic numbers in the
-  route.
+  `src/lib/billing/config.ts` (AGENTS.md rule: constants live there). No
+  `sheet-style.ts` is created now (decision 13): that file is for how the Google
+  Sheet looks (header colours, column widths, number formats). Home timings and
+  row windows are product settings, not Sheet styling. No magic numbers in the route.
 - Privacy: logs may hold the hashed user id, status code, duration and row counts.
   Never log merchant, amount, date, sheet id or any cell value. Do not echo Google
   error bodies to the client. Map them to the codes above.
@@ -874,27 +918,27 @@ One slice at a time. Each ends with the compile and test gates for its side.
 | S-H1 | This spec agreed. Add the `android.home.*` keys to `wording.txt` and the generator. Fix `app.review.allDone` em dash if touched | spec, wording | none |
 | S-H2 | `src/lib/home/summary.ts` pure parse and aggregate, constants in `billing/config.ts`, tests from section 18 | server | S-H1 |
 | S-H3 | `readTail()` in `sheets.ts`, route `/api/home/summary`, cache, rate limit, bust cache on append and manual save, context §7. Returns `GOOGLE_GRANT_REQUIRED` for a user with no Google tokens | server | S-H2, FEAT-119 step 1 (explicit `userId` in the Google helpers) |
+| S-H3b | `summary` field on `GET /api/spaces` (contract in section 5 [G]), test, context §7 | server | FEAT-116 (exists) |
 | S-H4 | Android Home screen with fake data and all states, `ic_camera`, `amberBg` and `amberInk` tokens in `Tokens.kt`, `ZipppButton` sizes from the canonical table in file 01 | android | S-H1 |
 | S-H5 | `ApiClient.homeSummary`, device cache, stale handling, `MainActivity` entry change (Home first, Capture and Manual return to Home), remove Manual pill and Space and Settings links from Capture | android | S-H3, S-H4, FEAT-119 step 5 (`google-grant`) and file 12 grant screen |
 | S-H6 | Optional cards: quota bar and Space snapshot | android | S-H5 |
 | S-H7 | Daily block source after FEAT-104 ships | server | FEAT-104 |
 | S-H8 | Device run with screenshots against section 17 | owner | S-H5 |
+| S-H9 | Month to date as a third index, read from the FEAT-104 Summary row. Wording keys `android.home.month.*` added then | server, android | S-H7 |
 
 S-H2 and S-H3 can run in parallel with S-H4. Server gates: `npm test`,
 `npx tsc --noEmit`, `npm run build`. Android gates:
 `:app:compilePlayDebugKotlin`, `:app:compileSideloadDebugKotlin`.
 
-## 20. Open questions
+## 20. Decisions log
 
-1. Month to date as a third index (P4). Left out of v1: the 400-row window cannot
-   give a correct month figure before FEAT-104. After FEAT-104 the Summary row has
-   it. Add then?
-2. Should Last spending open the sheet at that row? Needs the row number and a
-   `#gid=...&range=` link. Left out of v1.
-3. Pull to refresh, or only Reload and resume refresh?
-4. The Space card needs two calls (`spaces`, then `assets`). Add one summary field
-   on `GET /api/spaces` instead?
-5. ~~FEAT-119 dependency~~ Resolved 2026-11-05: Home depends on FEAT-119 step 1
-   and on `google-grant` (decision 10 in section 4). The earlier note that Home
-   needs no FEAT-119 was wrong, because the Google helpers were bound to the cookie
-   and a phone-only user had no Sheets tokens.
+| # | Decision | Owner call or default | Date | Files |
+|---|---|---|---|---|
+| 1 | Home is a new dashboard and the main screen. Scan and Manual live on it | Owner call | 2026-11-05 | 07, 01, 02, FEAT-120 |
+| 2 | 60 second server cache of Sheet aggregates, no rows stored | Owner call | 2026-11-05 | 07, FEAT-120 |
+| 3 | Month to date is deferred until after FEAT-104 (slice S-H9) | Owner call (agreed with the recommendation) | 2026-11-05 | 07, FEAT-120 |
+| 4 | Last spending does not open the Sheet at that row in v1 | Default, owner may reverse | 2026-11-05 | 07 |
+| 5 | Pull to refresh yes, plus Reload buttons and refresh on resume | Default | 2026-11-05 | 07 |
+| 6 | The Space card uses one call. `GET /api/spaces` gets a `summary` field (slice S-H3b) | Default, owner may reverse | 2026-11-05 | 07, FEAT-120 |
+| 7 | Home constants stay in `src/lib/billing/config.ts`. No `sheet-style.ts` now. That file is reserved for Google Sheet styling such as header colours and column widths | Owner asked what it means, explained, default kept | 2026-11-05 | 07 |
+| 8 | Home depends on FEAT-119 step 1 and on `google-grant` for a phone-only Google user. The earlier note that Home needs no FEAT-119 was wrong | Resolved | 2026-11-05 | 07, FEAT-119 |

@@ -90,7 +90,7 @@ Behaviour: unchanged from the current code. Toggle on requests `POST_NOTIFICATIO
 
 ### 3.5 This device card (replaces Pair and Connected devices)
 
-Web `ConnectedDevices` calls `GET /api/auth/devices` and `POST /api/auth/device/revoke`. Both routes accept the cookie only (they do not call `resolveRequestUser`), so Android cannot list or revoke devices today. Until that changes the card is read only.
+Web `ConnectedDevices` lists every device and can revoke any of them. Android v1 shows **this device only** (owner call 2026-11-05). The card is read only: title `android.settings.device.title` ("This device"), the device name and platform from the stored pairing data. It never lists other devices and never revokes another device. Sign out (below) revokes this device through `POST /api/auth/device/revoke` with the caller's own device id (file 09 section 4.7), best effort, then clears the token whatever the answer is.
 
 ```
 ZipppSectionCard
@@ -98,7 +98,7 @@ ZipppSectionCard
   Text "{model} · {app version}"         ZipppType.small, muted   from Build.MODEL and BuildConfig
 ```
 
-When bearer support is added to the devices routes, extend this card to the web list: device name 14sp semibold, `platform · version` 12sp muted, paired and last seen 12sp muted, Revoke 48dp row in danger, Revoke all in the card header. Confirm with the system dialog and `web.devices.confirmRevoke`.
+Managing other devices stays on the web (Connected devices). A list with Revoke on the phone is not planned for v1.
 
 ### 3.6 Bottom stack
 
@@ -141,7 +141,7 @@ Contradiction to resolve: `app.plan.body` reads "Subscribe on the web. Android o
 | No Top up button | DEC-002 |
 | No language, Telegram, WhatsApp, referral, admin | Web-only flows or Android is Indonesian only |
 | Notification capture card | FEAT-115, device only |
-| This device card instead of Connected devices | Devices routes are cookie only |
+| This device card instead of Connected devices | Owner call 2026-11-05: this device only, other devices are managed on the web |
 | Sign out is the last and darkest button | Same as web |
 
 ## 7. Acceptance checklist
@@ -159,3 +159,13 @@ Contradiction to resolve: `app.plan.body` reads "Subscribe on the web. Android o
 11. Tapping Sign out lands on Sign in. Reopening the app stays on Sign in.
 12. With the plan null the card shows the status "No plan yet" and one neutral line, no bar.
 13. Layout inspector: no tappable element under 48dp.
+
+## 8. Decisions log
+
+| # | Decision | Owner call or default | Date | Files |
+|---|---|---|---|---|
+| 1 | Quota shows as a percentage with a bar, no credit counts, no purchase path | Owner call | 2026-11-05 | 04, FEAT-117 |
+| 2 | Settings shows this device only. Other devices are managed on the web | Owner call (this device only) | 2026-11-05 | 04, 09 |
+| 3 | Sign out revokes this device best effort, then clears the token | Default | 2026-11-05 | 04, 09 |
+| 4 | Disconnect sheet and column map editing stay on the web | Default (recommended) | 2026-11-05 | 04, 06, 09 |
+| 5 | `app.plan.body`, `app.settings.soon`, `app.credits.balance` are never shown on Android (DEC-002). The plan-null line uses `android.settings.quota.none` | Decision from the audit | 2026-11-05 | 04, wording |

@@ -195,20 +195,17 @@ stays web only.
 | | |
 |---|---|
 | Current auth | Cookie only. Comment says mobile must not manage other devices. |
-| Change | Bearer allowed for **listing only**. Add `current: boolean` per device (true when `device_id` equals the token's device). Do not return `jti`. The route already omits it. |
-
-Response device fields unchanged plus `current`. Android shows device name, platform,
-last seen, and a Revoke button on every row except the current one, where it shows
-"This device".
+| v1 decision | **No bearer support in v1.** The phone shows "This device" only, from `me` (`device_id` and the device name it already holds). It never lists other devices (owner call 2026-11-05: this device only). |
+| Later | If a phone device list is wanted after v1, allow bearer for listing only, add `current: boolean`, never return `jti`. Not part of this slice. |
 
 ### 4.7 `POST /api/auth/device/revoke`
 
 | | |
 |---|---|
 | Current auth | Cookie only. |
-| Change | Bearer allowed for **one device id at a time**. `revoke_all: true` stays web only (403 `WEB_ONLY` for bearer). Revoking the caller's own device is allowed and means sign out (the app clears its token). |
-| Binding | `revokeDevice(deviceId, user.userId)` already refuses a device that belongs to another user and returns 404 `DEVICE_NOT_FOUND`. Return 404, not 403, so ids cannot be probed. |
-| Alert | After a bearer revoke of a different device, send the existing Telegram user alert (pairing alert style): "Device X was revoked from Device Y". A stolen phone revoking the owner's other phones is the main risk of this route, and the alert gives the owner a signal. |
+| v1 change | Bearer allowed for the **caller's own device id only**. Used by Settings, Sign out, as a best-effort revoke before the app clears its token. Any other device id from a bearer answers 403 `WEB_ONLY`. `revoke_all: true` stays web only (403 `WEB_ONLY` for bearer). |
+| Binding | `revokeDevice(deviceId, user.userId)` already refuses a device that belongs to another user and returns 404 `DEVICE_NOT_FOUND`. Return 404, not 403, for an unknown id, so ids cannot be probed. The own-device check compares the id with the device in the token before the store call. |
+| Alert | None needed. A phone cannot revoke another device, so the stolen phone risk in the earlier draft no longer exists. |
 | Limit | 10 per minute per user. |
 
 Errors: 400 `DEVICE_ID_REQUIRED`, 404 `DEVICE_NOT_FOUND`, 403 `WEB_ONLY`,
@@ -393,8 +390,8 @@ Gates after the slice: `npm test`, `npx tsc --noEmit`, `npm run build`, all pass
    `rateLimit`. No route change. Existing tests stay green.
 2. Hardening that is safe on its own: `subscribe` rejects mobile, `balance` trims for
    mobile. Ship first because it closes the DEC-002 gap.
-3. Read routes: `notices`, `sheets/workspace` GET, `auth/devices` GET.
-4. Write routes: `sheets/connect`, `sheets/map`, `auth/device/revoke`, `contribute`.
+3. Read routes: `notices`, `sheets/workspace` GET. (`auth/devices` GET stays cookie only in v1.)
+4. Write routes: `sheets/connect`, `sheets/map`, `auth/device/revoke` (own device only), `contribute`.
 5. `auth/mobile/google-grant`, with the Android client change.
 6. Update context 7.5 and 7.6 and the route list, then the Android screens in `04` and
    `06`.
@@ -408,19 +405,18 @@ Gates after the slice: `npm test`, `npx tsc --noEmit`, `npm run build`, all pass
   with the same change, since the bearer fix removes it from the shared code.
 - `GET /api/notices` returns `notice:null` for signed-out callers on the cookie path.
 
-## 10. Open questions for the owner
+## 10. Decisions log
 
-1. ~~Grant flow~~ Decided 2026-11-05: `serverAuthCode` via `google-grant` (section 6.1).
-2. **Revoke from the phone:** allow revoking one other device from a phone, with a
-   Telegram alert, or keep revoke web only? A stolen unlocked phone could revoke the
-   owner's other devices.
-3. **Disconnect sheet on Android:** keep `DELETE /api/sheets/workspace` web only
-   (recommended), or allow it?
-4. **Column map editing on Android:** web only (recommended), or add it later?
-5. **Rate limits:** are the numbers in section 3.1 acceptable?
-6. **Drive scope:** `drive.file` only shows sheets this app created or opened. A user
-   with an older sheet made elsewhere cannot pick it from Android. Accept this, or
-   add a web step "open this sheet with zippp" first?
+| # | Decision | Owner call or default | Date | Files |
+|---|---|---|---|---|
+| 1 | Grant flow is Option A, `serverAuthCode` via `google-grant`. Option B (web Custom Tab) is rejected: it has the account mismatch gap | Owner call | 2026-11-05 | 09, 12 |
+| 2 | The phone can revoke **this device only** (used by Sign out). It cannot list or revoke other devices. Device list and revoke-other stay on the web | Owner call (this device only) | 2026-11-05 | 09 (4.6, 4.7), 04 |
+| 3 | Disconnect sheet stays web only. `DELETE /api/sheets/workspace` rejects bearer with 403 `WEB_ONLY` | Default (recommended) | 2026-11-05 | 09, 06 |
+| 4 | Column map editing stays web only. `PUT /api/sheets/map` bearer support is kept only for the create-time default mapping from the phone, no editor screen | Default (recommended) | 2026-11-05 | 09, 06 |
+| 5 | Rate limits in section 3.1 are accepted as proposed | Owner call | 2026-11-05 | 09 |
+| 6 | `drive.file` visibility is accepted. A sheet made elsewhere is not listed on the phone. The app shows a clear message (`android.error.no_sheet` with the action `android.error.no_sheet.action`, and the empty-state copy in 06) that tells the user to create a sheet in the app or open the existing one through zippp on the web first | Owner call | 2026-11-05 | 09, 06, 12 |
+| 7 | `/api/contribute` accepts the bearer token in this slice | Default | 2026-11-05 | 09, 03 |
+| 8 | `me` returns `user.google_granted` so the app can offer the grant before the first failing call | Default, owner may reverse | 2026-11-05 | 09, 12 |
 
 ## 11. Acceptance checklist
 
@@ -430,7 +426,7 @@ Gates after the slice: `npm test`, `npx tsc --noEmit`, `npm run build`, all pass
    grant, and the next connect call succeeds.
 3. A grant with a different Google account is rejected and saves nothing.
 4. A user with no sheet can create one from the phone and `me` then returns it.
-5. `device/revoke` with a bearer for another user's device returns 404.
+5. `device/revoke` with a bearer for another user's device returns 404. A bearer revoke of a different device of the same user returns 403 `WEB_ONLY`. A bearer revoke of its own device succeeds.
 6. A revoked device gets 401 `DEVICE_REVOKED` on every route in section 4.
 7. `subscribe` and `balance` meet the DEC-002 rules for a bearer caller.
 8. Web cookie behaviour of every route is unchanged (existing web flows pass).
