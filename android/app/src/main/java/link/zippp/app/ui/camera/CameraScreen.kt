@@ -70,6 +70,7 @@ import kotlinx.coroutines.withContext
 import link.zippp.app.R
 import link.zippp.app.data.ApiClient
 import link.zippp.app.data.ApiException
+import link.zippp.app.data.PlanInfo
 import link.zippp.app.data.Receipt
 import link.zippp.app.ui.batch.BatchDraft
 import link.zippp.app.ui.batch.BatchStore
@@ -94,7 +95,7 @@ private const val FLASH_OVERLAY_MS = 140L
 fun CameraScreen(
     api: ApiClient,
     token: String,
-    initialCredits: Int,
+    initialCredits: Int?,
     onCreditsChanged: (Int) -> Unit,
     onOpenSettings: () -> Unit,
     onOpenManual: () -> Unit,
@@ -110,6 +111,7 @@ fun CameraScreen(
 
     var sheetTitle by remember { mutableStateOf<String?>(null) }
     var sheetId by remember { mutableStateOf<String?>(null) }
+    var plan by remember { mutableStateOf<PlanInfo?>(null) }
 
     var hasPermission by remember {
         mutableStateOf(
@@ -122,6 +124,7 @@ fun CameraScreen(
             .onSuccess { me ->
                 sheetTitle = me.workspace?.spreadsheetTitle ?: me.workspace?.spreadsheetName
                 sheetId = me.workspace?.spreadsheetId
+                plan = me.plan
             }
             .onFailure { err ->
                 if (err is ApiException && err.code == "DEVICE_REVOKED") onSessionLost()
@@ -139,7 +142,10 @@ fun CameraScreen(
     var flashOn by remember { mutableStateOf(false) }
     var shutterFlash by remember { mutableStateOf(false) }
     var stripIndex by remember { mutableIntStateOf(0) }
-    val outOfCredits = initialCredits <= 0
+    // Unknown balance is not empty: after a relaunch the credit count is not
+    // loaded yet, so only block when the plan or the balance says so.
+    val outOfCredits = plan?.let { it.included > 0 && it.used >= it.included }
+        ?: (initialCredits != null && initialCredits <= 0)
 
     /**
      * The single extract path: the shutter and the gallery picker both hand
@@ -426,7 +432,13 @@ private fun Viewfinder(
         if (hasPermission) {
             AndroidView(
                 modifier = Modifier.fillMaxSize(),
-                factory = { ctx -> PreviewView(ctx).also(onPreview) },
+                factory = { ctx ->
+                    PreviewView(ctx).also {
+                        // TextureView keeps the preview visible under the rounded clip.
+                        it.implementationMode = PreviewView.ImplementationMode.COMPATIBLE
+                        onPreview(it)
+                    }
+                },
             )
             GuideFrame()
             Text(

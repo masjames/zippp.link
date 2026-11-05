@@ -127,7 +127,7 @@ private fun ZipppRoot(
     val store = remember { SecureTokenStore(context) }
     val api = remember { ApiClient() }
     var token by remember { mutableStateOf(store.loadToken()) }
-    var credits by remember { mutableStateOf(0) }
+    var credits by remember { mutableStateOf<Int?>(null) }
     var plan by remember { mutableStateOf<PlanInfo?>(null) }
     var screen by remember { mutableStateOf(RootScreen.Camera) }
     var manualSeed by remember { mutableStateOf(manualPrefill) }
