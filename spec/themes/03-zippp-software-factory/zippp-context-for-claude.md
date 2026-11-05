@@ -1273,7 +1273,7 @@ short branches named `feat/<id>-<slug>` and `factory/<topic>` that branch from
   the cap, Paddle checkout behind `PADDLE_PLAN_PRICE_ID`, web meter card, Android
   usage line. Prices stay outside the repo. Legacy credits still run.
 - **FEAT-118** Android web parity: slices S1 (tokens, shell, header, icons) and
-  S2 (header wired, Settings restyled) compile. S3 to S9 open. See the card.
+  S2, S3 to S7 and S9 are built and merged (all gates pass, no device run). S8, the phone screenshots, is the owner's. See the card.
 - FEAT-112 parked per DEC-003; do not treat companion-only docs as north star.
 - FEAT-102 flags: editing a flagged field or the acknowledge button clears the
   block. Correction telemetry posts per-field edited/flagged state; the

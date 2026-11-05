@@ -1,3 +1,4 @@
+// @implements FEAT-118
 import { parseMoney, type Draft } from "@/components/app/draft";
 import type { Receipt, ReceiptFlag } from "@/types/receipt";
 

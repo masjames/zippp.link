@@ -16,6 +16,8 @@ verification:
     - "android/app/src/main/java/link/zippp/app/ui/camera/CameraScreen.kt"
     - "android/app/src/main/java/link/zippp/app/ui/review/ReviewScreen.kt"
     - "android/app/src/main/java/link/zippp/app/ui/space/SpaceScreen.kt"
+    - "src/lib/review-ops.ts"
+    - "src/lib/mobile/me-workspace.ts"
   test_command: "npm run android:strings"
   prod_endpoint: ""
 ---
@@ -61,12 +63,12 @@ One slice at a time. Each ends with a green compile and a commit.
 |---|---|---|
 | S1 | Tokens, theme, Shell, header, 4 icon drawables, fonts | Done (compiles) |
 | S2 | Header wired in `MainActivity`; Settings restyled | Done (compiles) |
-| S3 | `me` payload adds `spreadsheet_title` to `workspace`. Plan used/included already ships. Update context §7. Server test. | Todo |
-| S4 | Space screen restyled to the web layout | Todo |
-| S5 | `CameraScreen` rewrite: guide frame, hint pill, tools row, flash, out-of-credits card, inline strip, Open sheet button, sheet-title pill | Todo |
-| S6 | `ReviewScreen` becomes the bottom sheet (88% max height, minimize, prev/next, confirm card, footer). Keep hard flags, ack, corrections, ops. | Todo |
-| S9 | Web `ConfirmCard` shows template ops fields, flags and assumed date per FEAT-102. Wording in `wording.txt`. | Todo |
-| S7 | Delete `BatchScreen` and `RootScreen.Batch`. Remove dead strings. | Todo |
+| S3 | `me` payload adds `spreadsheet_title` to `workspace`. Plan used/included already ships. Update context §7. Server test. | Built, compiles |
+| S4 | Space screen restyled to the web layout | Built, compiles |
+| S5 | `CameraScreen` rewrite: guide frame, hint pill, tools row, flash, out-of-credits card, inline strip, Open sheet button, sheet-title pill | Built, compiles |
+| S6 | `ReviewScreen` becomes the bottom sheet (88% max height, minimize, prev/next, confirm card, footer). Keep hard flags, ack, corrections, ops. | Built, compiles |
+| S9 | Web `ConfirmCard` shows template ops fields, flags and assumed date per FEAT-102. Wording in `wording.txt`. | Built, compiles |
+| S7 | Delete `BatchScreen` and `RootScreen.Batch`. Remove dead strings. | Built, compiles |
 | S8 | Device run with screenshots next to the web | Yours (needs a phone) |
 
 # Acceptance criteria
@@ -74,13 +76,13 @@ One slice at a time. Each ends with a green compile and a commit.
 - [x] Shared tokens match `globals.css` and `tailwind.config.ts`
 - [x] Header with Home and Settings on Settings and Space
 - [x] Settings uses web section cards and buttons
-- [ ] Settings shows quota as a percentage of the plan, with a bar
-- [ ] Web confirm card shows the ops fields
+- [x] Settings shows quota as a percentage of the plan, with a bar
+- [x] Web confirm card shows the ops fields
 - [ ] Sheet-title pill on the capture screen (needs S3)
-- [ ] Space screen matches the web layout
-- [ ] Capture screen matches the web layout
-- [ ] Review is a bottom sheet over capture, ops fields kept
-- [ ] `BatchScreen` removed
+- [x] Space screen matches the web layout
+- [x] Capture screen matches the web layout
+- [x] Review is a bottom sheet over capture, ops fields kept
+- [x] `BatchScreen` removed
 - [ ] Two side-by-side screenshot sets (web, phone) for capture, review, settings, Space
 - [ ] No Android string mentions kredit, saldo, Rp or $
 
@@ -110,3 +112,11 @@ same product, and the compile, string and test gates pass.
 Implementation note (2026-11-05): S1 and S2 built and compiled
 (`:app:compilePlayDebugKotlin`). No device run. `Tokens.kt` still carries
 `@implements FEAT-113`; add `FEAT-118` to the marker before moving to verify.
+
+Implementation note (2026-11-05, later): S3 to S7 and S9 built on three parallel
+branches and merged. Gates on the merged tree: `npm test` 79 pass, `npx tsc --noEmit`
+clean, `npm run build` ok, `:app:compilePlayDebugKotlin` and
+`:app:compileSideloadDebugKotlin` ok. No browser or device run. Auto-snap left out
+(FEAT-107). The capture screen has small Space and Settings links because the header
+is hidden there. `/api/auth/mobile/me` must return `spreadsheet_id` for the Open sheet
+button; it now does. S8 (screenshots on a phone) is the remaining step and is the owner's.
