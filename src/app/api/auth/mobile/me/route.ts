@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { resolveBearerUser } from "@/lib/auth/mobile-auth";
 import { mobileApiEnabled } from "@/lib/mobile/config";
 import { loadWorkspaceForUser } from "@/lib/google/workspace-store";
-import { PAYMENT_OPTIONS } from "@/lib/google/templates";
+import { mobileWorkspace, type MobileWorkspace } from "@/lib/mobile/me-workspace";
 import { getPlanUsage } from "@/lib/billing/plan";
 import { listSpacesForUser } from "@/lib/space/space-store";
 
@@ -42,30 +42,10 @@ export async function GET(req: Request) {
     spaces = [];
   }
 
-  let workspace: {
-    ready: boolean;
-    template_id: string;
-    payment_options: string[];
-    staff_names: string[];
-    outlets: string[];
-    default_outlet: string | null;
-    photo_proof: boolean;
-  } | null = null;
+  let workspace: MobileWorkspace | null = null;
   try {
     const ws = await loadWorkspaceForUser(auth.user.userId);
-    if (ws) {
-      workspace = {
-        ready:
-          Boolean(ws.spreadsheet_id) &&
-          Boolean(ws.column_map && Object.keys(ws.column_map).length > 0),
-        template_id: ws.template_id,
-        payment_options: [...(PAYMENT_OPTIONS[ws.template_id] ?? [])],
-        staff_names: ws.staff_names,
-        outlets: ws.outlets,
-        default_outlet: ws.default_outlet,
-        photo_proof: Boolean(ws.photo_proof),
-      };
-    }
+    if (ws) workspace = mobileWorkspace(ws);
   } catch {
     workspace = null;
   }

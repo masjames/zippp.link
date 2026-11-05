@@ -19,6 +19,12 @@ export type Draft = {
     tax: string;
     total: string;
     lines: DraftLine[];
+    /** Template ops fields. Empty means not set. */
+    payment?: string;
+    customer?: string;
+    purpose?: string;
+    /** User confirmed the hard-flagged values as they are. */
+    acknowledged?: boolean;
     /** Set when the date could not be read and was filled from the capture time. */
     dateAssumed?: boolean;
 };
