@@ -50,10 +50,13 @@ shell card, same type scale, same colours, same capture and review flow.
 | 1 | Web wins on layout, spacing, type and colour. | The user compares the two visually. |
 | 2 | Keep the FEAT-102 ops fields in the review sheet, styled like web fields, shown only when the template needs them. | The web card is behind the contract (§4.6). Parity must not drop contract fields. |
 | 3 | Drop `BatchScreen`. Queue lives in the inline strip and the review sheet. | Web has no batch screen. |
-| 4 | Header on every screen except capture: wordmark, Home, Settings. No credit pill on Android. | Owner call 2026-11-05. |
+| 4 | Header on every screen except sign in, sheet choose and the review overlay: wordmark, Home (hidden on Home), Settings (hidden on Settings). Capture shows it. No credit pill on Android. | Owner call 2026-11-05. Web shows the header on capture. |
 | 5 | Quota shows on Settings as a percentage of the fair-use plan, like Claude Code usage. No numbers of credits, no purchase path. | DEC-002, FEAT-117. |
 | 8 | Web confirm card gets the FEAT-102 ops fields so both surfaces match. | Owner call 2026-11-05. |
 | 6 | Android settings shows only sections that exist on Android: balance, Space, notification capture, plan usage, open sheet, sign out. No Telegram, WhatsApp, language or referral. | Those need web-only flows. |
+| 9 | Home dashboard is the main screen (FEAT-120). Capture is entered from Home and back always returns to Home. Manual lives on Home only. Space is a top-level screen reached from a Home card and from Settings. | Owner calls 2026-11-05. |
+| 10 | One canonical button table in `android-spec/01`: Primary 56, Brand 56, Mist 52, Outline 52, Danger text 52, minimum target 48dp. | Resolves conflicting heights across the screen specs. |
+| 11 | Google access on a phone uses `serverAuthCode` and `POST /api/auth/mobile/google-grant` (FEAT-119). | Owner call 2026-11-05. |
 | 7 | No new user-visible strings outside `spec/wording.txt`. Android strings come from `npm run android:strings`. | Project rule. |
 
 # Screen specs
@@ -135,6 +138,7 @@ Implementation note (2026-11-05, later): S3 to S7 and S9 built on three parallel
 branches and merged. Gates on the merged tree: `npm test` 79 pass, `npx tsc --noEmit`
 clean, `npm run build` ok, `:app:compilePlayDebugKotlin` and
 `:app:compileSideloadDebugKotlin` ok. No browser or device run. Auto-snap left out
-(FEAT-107). The capture screen has small Space and Settings links because the header
-is hidden there. `/api/auth/mobile/me` must return `spreadsheet_id` for the Open sheet
+(FEAT-107). The capture screen has small Space and Settings text links in that build. The
+spec removes them: Capture shows the header with Home and Settings, and the
+rebuilt screen follows `android-spec/02-capture.md`. `/api/auth/mobile/me` must return `spreadsheet_id` for the Open sheet
 button; it now does. S8 (screenshots on a phone) is the remaining step and is the owner's.

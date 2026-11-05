@@ -75,7 +75,8 @@ Sheet                         bottom aligned, max height 88% of screen, width mi
   - Prev and next: circle buttons. Web 32 dp; Android 48 x 48 dp. Glyph "‹" and
     "›" 18 sp Bold, alpha 0.3 when disabled (first / last), labels
     `app.review.prev`, `app.review.next`.
-  - Index: `{i}/{n}` (1-based), 11 sp SemiBold `ZipppColors.muted`, minimum
+  - Index: `{i}/{n}` (1-based, same list and same snapshot as the strip subtitle in
+  file 02 section 4 [E]: drafts not `accepted` or `sending`), 11 sp SemiBold `ZipppColors.muted`, minimum
     width 72 dp, centred.
 
 ### ReadingState (draft has no `draft` yet and is not failed)
@@ -183,12 +184,12 @@ menu items 48 dp.
 **Footer** (inside ConfirmCard, not scrolling): top border 1 dp line, background
 white, padding horizontal 12, vertical 8. `Row`, gap 8:
 
-- Accept: weight 1, 52 dp tall, `RoundedCornerShape(50)`, background
-  `ZipppColors.btn`, text white 14 sp SemiBold, alpha 0.4 and not clickable
+- Accept: Primary kind from the canonical button table in 01 section 3: weight 1,
+  56 dp tall, `RoundedCornerShape(50)`, background `ZipppColors.btn`, text white 14 sp SemiBold, alpha 0.4 and not clickable
   while blocked by hard flags. Label `android.review.accept` ("Terima"); while
   sending `android.review.accepting`.
-- Delete: 52 dp tall, minimum width 96, `RoundedCornerShape(50)`, 1 dp border
-  `ZipppColors.line`, background transparent, text danger 14 sp SemiBold, label
+- Delete: Danger text kind (01 canonical table): 52 dp tall, minimum width 96,
+  `RoundedCornerShape(50)`, background mist, text danger 14 sp SemiBold, label
   `app.review.delete`.
 
 ## 4. States
@@ -277,7 +278,8 @@ not recorded (known gap in the context file).
 
 - Every tappable is at least 48 dp x 48 dp: header pill, prev, next, checkbox
   row, dropdown fields, each input row, Retry, Delete, Accept.
-- Primary footer buttons 52 dp. Failed card buttons 48 dp.
+- Footer heights follow the canonical table in 01 section 3: Accept 56 dp,
+  Delete 52 dp. Failed card buttons 48 dp.
 - Vertical gap between two stacked inputs at least 6 dp, between adjacent hit
   boxes at least 8 dp where they sit side by side.
 - Inputs are at least 48 dp tall even though the web inputs are about 32 dp.
@@ -374,7 +376,7 @@ Checkable from a phone screenshot, uiautomator dump, or logcat.
     response, and `staff`, `outlet`, `payment`, `purpose`, `customer` as in the
     table. Sheet row appears. Toast "Tersimpan".
 16. Accept the last draft: sheet closes and the toast `app.review.allDone` shows
-    on capture.
+    on capture (copy fixed under W-1, no em dash). Back from Capture lands on Home.
 17. Append with no quota: draft returns to the queue with the
     `android.error.no_credits` text, capture shows the out-of-quota card.
 18. Delete removes the draft at once and shows the next one (or closes the
@@ -392,10 +394,13 @@ Checkable from a phone screenshot, uiautomator dump, or logcat.
    `default_outlet` and `payment_options`. Confirm the Android `Workspace` model
    in `Models.kt` decodes all of them (the model currently shows only title,
    name and sheet id).
-2. Persist drafts across process death now (Room or DataStore) or leave to
-   FEAT-108?
+2. ~~Persist drafts across process death now?~~ Decided: no. Persistence belongs
+   to FEAT-108 (also stated in 01 section 7).
 3. Add an undo snackbar on Delete (not on web), or keep it immediate for parity?
 4. Add bearer support to `/api/contribute` so the help-improve card can ship?
 5. The unit price flag has no visible field. Show unit price as an optional
    fourth line field on both surfaces, or keep acknowledge as the only exit?
-6. `app.review.allDone` contains an em dash in both languages; fix the copy.
+6. Wording fix task W-1: `app.review.allDone` contains an em dash in both
+   languages, which breaks the project rule. Rewrite the copy in
+   `spec/wording.txt` (en and id) before the review sheet ships. Not an open
+   question, it is a task.

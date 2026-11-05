@@ -1,6 +1,6 @@
 # 04 Settings
 
-Android spec for FEAT-118. Conversion table, tokens and touch-target rules are in `01-shell-and-navigation.md`.
+Android spec for FEAT-118. Conversion table, tokens, touch-target rules and the canonical button table are in `01-shell-and-navigation.md`. Button kinds and heights below follow that table.
 
 Web sources: `src/app/app/settings/page.tsx`, `src/components/app/PlanCard.tsx`, `ConnectedDevices.tsx`, `PairDeviceModal.tsx`, `TopUpClient.tsx` (read only to know what to leave out).
 Android source: `ui/settings/SettingsScreen.kt`.
@@ -37,7 +37,7 @@ ZipppShell(Card)                       padding 24 / 16 / 48, gap 16
     ThisDeviceCard                     3.5
   Spacer(weight 1)                     web: mt-auto
   Column(spacedBy 12)
-    Button "Sheet connected"           Mist, 56dp                   web: py-4 mist
+    Button "Sheet connected"           Mist, 52dp                   web: py-4 mist
     Button "Keluar"                    Primary (maroon, white text), 56dp   web: bg-btn text-btntext
 ```
 
@@ -104,7 +104,7 @@ When bearer support is added to the devices routes, extend this card to the web 
 
 | Button | Kind | Height | Action |
 |---|---|---|---|
-| Sheet connected (`app.sheets.connected`) | Mist | 56dp | Open Sheet connected screen (file 06) |
+| Sheet connected (`app.sheets.connected`) | Mist | 52dp | Open Sheet connected screen (file 06) |
 | Sign out (`android.settings.signOut`, value `Keluar`) | Primary | 56dp | Clear token, go to Sign in |
 
 Web order is Admin, Top up, Sheet, Sign out, with 12dp between. Android drops Admin and Top up.
@@ -117,7 +117,7 @@ Current code delta: the existing Settings screen uses a `Danger` kind (mist with
 |---|---|---|
 | Open screen | `GET /api/auth/mobile/me` (cached from Home, refresh on resume) | plan for the quota card |
 | Sign out | `POST /api/auth/logout` (accepts bearer) then `SecureTokenStore.clear()` | Sign in |
-| Space | none | navigate |
+| Space | none | navigate to the top-level Space screen (file 05). Space is also reached from the Space card on Home; system back from Space returns to Home, not to Settings |
 | Sheet connected | none | navigate |
 
 If the logout call fails, still clear the local token. A failed network call must never trap the user signed in.
@@ -154,7 +154,7 @@ Contradiction to resolve: `app.plan.body` reads "Subscribe on the web. Android o
 6. The Space button is mist, full width, 52dp high.
 7. The notification capture card shows the access status, the open-access button and the toggle. The toggle is disabled when access is off.
 8. Returning from system notification settings refreshes the access status without leaving the screen.
-9. Sheet connected is mist and 56dp. Sign out is maroon with white text and 56dp, last on the page.
+9. Sheet connected is mist and 52dp. Sign out is maroon with white text and 56dp, last on the page.
 10. With a 1.3x font scale nothing is clipped and the bottom buttons are still reachable by scrolling.
 11. Tapping Sign out lands on Sign in. Reopening the app stays on Sign in.
 12. With the plan null the card shows the status "No plan yet" and one neutral line, no bar.

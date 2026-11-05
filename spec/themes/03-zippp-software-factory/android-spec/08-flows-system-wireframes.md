@@ -2,7 +2,7 @@
 
 Android spec for FEAT-118. This file draws the whole app on one page: how a user moves through it, how the pieces talk to the server, what one scan leaves behind, what every screen looks like at 360dp, and a table of every screen with its entry points and exits.
 
-It does not redefine anything. Layout values, wording keys and acceptance checks live in the per-screen files. When this file and a per-screen file disagree, the per-screen file wins and the disagreement is listed in section 7.
+It does not redefine anything. Layout values, wording keys and acceptance checks live in the per-screen files. When this file and a per-screen file disagree, the per-screen file wins. The 20 disagreements found on the first pass are resolved in section 7; section 8 lists what is still open.
 
 Sources of truth, in order:
 
@@ -17,6 +17,9 @@ Sources of truth, in order:
 | `07-home-dashboard.md` | Home dashboard (new main screen, `GET /api/home/summary`) |
 | `09-bearer-route-slice.md` | FEAT-119: bearer on sheet, device, notice and contribute routes, Google grant |
 | `00-audit-and-defects.md` | phone audit, root causes |
+| `10-pairing.md` | Pairing screen (legacy 8 character code) |
+| `11-manual-entry.md` | Manual entry screen |
+| `12-google-grant.md` | Google grant screen (`serverAuthCode`) |
 
 Conventions in the drawings:
 
@@ -54,15 +57,17 @@ INSTALL
 |              HOME                  |<+
 |  today, last, sheet card, quota    |
 |  [Scan] [Manual]  drafts card      |
+|  Space card, Sheets card           |
 |  GET /api/home/summary + me        |
 +---+---------+----------+-----------+
     |         |          |
-    | Scan    | Manual   | gear
-    v         v          v
-+---------+ +--------+ +----------+--> Space --> (back) Settings
-| Capture | | Manual | | Settings |--> Sheet connected
-+----+----+ +---+----+ +----+-----+--> Sign out --> SignIn
+    | Scan    | Manual   | gear      Space card
+    v         v          v           v
++---------+ +--------+ +----------+  +-------+
+| Capture | | Manual | | Settings |->| Space |  Settings also links to Space;
++----+----+ +---+----+ +----+-----+  +-------+  back from Space always goes Home
      |          |           |
+     |          |           +--> Sheet connected, Sign out --> SignIn
      | shutter  | save      +--> notification capture card
      | or gallery
      v          |
@@ -114,7 +119,9 @@ flowchart TD
     I -->|Scan| J[Capture]
     I -->|Manual| K[Manual entry]
     I -->|gear| L[Settings]
-    L --> M[Space]
+    I -->|Space card| M[Space]
+    L -->|Space button| M
+    M -->|back| I
     L --> N[Sheet connected]
     L -->|Sign out| C
     J -->|shutter or gallery| O[POST /api/extract]
@@ -412,7 +419,7 @@ Screens follow the order a user meets them. Home is a placeholder that points to
 | [ <android.signin.google>            ] | 56dp, maroon, white text, full width
 |                                        | 16dp
 | [ <android.signin.emailHint>         ] | 52dp, white, radius 6, 1dp line
-| [ <android.signin.sendLink>          ] | 56dp, mist
+| [ <android.signin.sendLink>          ] | 52dp, mist
 |                                        |
 | <android.signin.linkSent>              | shown after send, 12sp
 | [ <android.signin.tokenHint>         ] | 52dp, after link sent
@@ -459,7 +466,7 @@ Choose source:
 |                                        |
 |                                        |  Spacer(weight 1)
 | [ <app.sheets.create>                ] | 56dp, maroon
-| [ <app.sheets.useExisting>           ] | 56dp, mist
+| [ <app.sheets.useExisting>           ] | 52dp, mist
 | [ <app.auth.signout>                 ] | 48dp text row
 +----------------------------------------+
 ```
@@ -478,7 +485,7 @@ Wizard (template chips):
 | | sheet header + one sample row      | | preview, may be hidden in first pass
 | +------------------------------------+ |
 | [ <app.sheets.wizard.continue>       ] | 56dp maroon
-| [ <app.sheets.cancel>                ] | 56dp mist
+| [ <app.sheets.cancel>                ] | 52dp mist
 +----------------------------------------+
 ```
 
@@ -513,10 +520,10 @@ Naming, picking and creating are drawn in 06 section 3.2. Error state: centred `
 | {spreadsheet_title} . {tab}            | body muted
 | <app.sheets.template> {name}           | 12sp muted
 |                                        |
-| [ <app.sheets.open>      Sheets icon ] | 56dp brand orange
-| [ <app.sheets.create>                ] | 56dp mist
-| [ <app.sheets.choose>                ] | 56dp mist
-| [ <app.sheets.reconnect>             ] | 56dp mist
+| [ <app.sheets.open>      Sheets icon ] | Outline 52dp
+| [ <app.sheets.create>                ] | 52dp mist
+| [ <app.sheets.choose>                ] | 52dp mist
+| [ <app.sheets.reconnect>             ] | 52dp mist
 | [ <app.sheets.continue>              ] | 56dp maroon, goes to Home
 +----------------------------------------+
 ```
@@ -535,14 +542,14 @@ Owned by `07-home-dashboard.md`, which has the full wireframes for normal, first
 | +------------------------------------+ |
 | | [B] Last spending card             | | merchant, amount, date and time
 | +------------------------------------+ |
-| | [C] Drafts card (only if drafts)   | | <android.home.drafts>  [Review 48dp]
+| | [C] Drafts card (only if drafts)   | | <android.home.drafts>  [Review 52dp]
 | [ [D] Scan receipt  56dp, maroon     ] | <android.home.scan>
 | [ [D] Manual        52dp, mist       ] | <android.home.manual>
 | +------------------------------------+ |
 | | [E] Google Sheets card             | | title, tab, [Open Google Sheets 52dp]
 | +------------------------------------+ |
 | | [F] Quota bar (optional)           | |
-| | [G] Space goals (optional)         | |
+| | [G] Space card (always, opens Space)| |
 | +------------------------------------+ |
 +----------------------------------------+
 ```
@@ -553,7 +560,7 @@ Ready, no drafts:
 
 ```
 +----------------------------------------+ page #E8E8E8
-| zippp                         [Setelan]| header 48dp targets, no Home, no pill
+| zippp                 [Home] [Setelan] | header 48dp targets, Home shows, no pill
 |                       +--------------+ |
 |                       | sheet title v| | sheet pill, 28dp visual, read-only, only if title known
 |                       +--------------+ |
@@ -566,9 +573,9 @@ Ready, no drafts:
 | |    <app.capture.frame>             | | 12sp white 80%
 | +------------------------------------+ |
 |                                        |
-| [<app.capture.upload>]  [Flash][Manual]| row, hit boxes 48dp, pills 36dp visual
+| [<app.capture.upload>]         [Flash] | row, hit boxes 48dp, pills 36dp visual
 | +------------------------------------+ |
-| | [Open sheet]  Sheets icon          | | 56dp mist, only when spreadsheet_id known
+| | [Open sheet]  Sheets icon          | | Outline 52dp, only when spreadsheet_id known
 | +------------------------------------+ |
 +----------------------------------------+
 ```
@@ -577,11 +584,11 @@ Extracting, with the draft strip:
 
 ```
 +----------------------------------------+
-| zippp                         [Setelan]|
+| zippp                 [Home] [Setelan] |
 | +------------------------------------+ |
 | | live preview, shutter enabled      | | up to 3 reads in parallel
 | +------------------------------------+ |
-| [Upload]                  [Flash][Man.]|
+| [Upload]                        [Flash]|
 | +------------------------------------+ | strip: radius 8, 2dp line, white
 | | [<]  [thumb48] <app.review.reading>[>] | prev/next 48x48, centre button fills
 | |               1 <app.review.toReview>| | title 14sp bold, subtitle 12sp muted
@@ -589,7 +596,7 @@ Extracting, with the draft strip:
 +----------------------------------------+
 ```
 
-07 decision 5 removes the Manual pill and the Space and Settings text links from Capture. The pill is still drawn above because `02` still lists it; see section 7, item 4.
+Capture has no Manual pill and no Space or Settings text links (resolved, section 7 item 4). Manual lives on Home.
 
 Failed draft (strip title is `<app.queue.failed>`, tapping opens the review sheet in the failed card, see 4.9). Error text is a mapped key, never a raw server string.
 
@@ -597,14 +604,14 @@ Out of quota:
 
 ```
 +----------------------------------------+
-| zippp                         [Setelan]|
+| zippp                 [Home] [Setelan] |
 | +------------------------------------+ |
 | | live preview, shutter disabled     | |
 | +------------------------------------+ |
 | +------------------------------------+ | card radius 8, white, padding 12
 | | <android.error.no_credits>         | | 14sp, centred, no number, no price
-| | [ <...no_credits.refresh> ]  48dp  | | outline
-| | [ <...no_credits.support> ]  48dp  | | outline
+| | [ <...no_credits.refresh> ]  52dp  | | mist
+| | [ <...no_credits.support> ]  52dp  | | outline
 | +------------------------------------+ |
 +----------------------------------------+
 ```
@@ -616,9 +623,9 @@ No camera permission:
 | zippp                         [Setelan]|
 | +------------------------------------+ |
 | | <android.camera.permission>        | | viewfinder collapsed to 96dp
-| | [ <android.camera.allow> ]   48dp  | |
+| | [ <android.camera.allow> ]   52dp  | | mist
 | +------------------------------------+ |
-| [<app.capture.upload>]          [Manual]| gallery and manual still work
+| [<app.capture.upload>]                 | gallery still works
 +----------------------------------------+
 ```
 
@@ -708,7 +715,7 @@ Numbers go through `parseMoney` (Indonesian and US grouping). Unit price has no 
 
 ### 4.13 Manual entry
 
-Source: `ui/manual/ManualEntryScreen.kt`. There is no `*-manual.md` spec yet; this wireframe applies 01 tokens and the 48dp rule to the current fields. See section 7, item 14.
+Source: `ui/manual/ManualEntryScreen.kt`. The full spec is file 11. This wireframe is the overview; file 11 wins on detail. Entry is from Home only and from the notification prompt; back always returns to Home.
 
 ```
 +----------------------------------------+ white card
@@ -760,7 +767,7 @@ Behaviour: `POST /api/scan/manual` returns a server `scanId`, then the flow join
 | | {model} . {app version}            | |
 | +------------------------------------+ |
 |                                        |  Spacer(weight 1)
-| [ <app.sheets.connected>       56dp  ] | mist
+| [ <app.sheets.connected>       52dp  ] | mist
 | [ Keluar                       56dp  ] | maroon, white text, last
 +----------------------------------------+
 ```
@@ -803,7 +810,7 @@ Detail card, members and invite:
 | |                       [ Remove 48 ]| | owner, other members only, danger 12sp
 | | <app.space.invite.title>           | | owner only
 | | [ email                       52dp ] | |
-| | [ <app.space.invite.button>   56dp ] | | mist
+| | [ <app.space.invite.button>   52dp ] | | mist
 | | link (selectable)  [Copy 48][Share]| |
 | |   or: [ <app.space.leave.button> ] | | member only, mist, danger text
 | +------------------------------------+ |
@@ -838,14 +845,14 @@ Route names are proposed for the Compose navigation and replace the current `Roo
 |---|---|---|---|---|---|
 | `splash` | Spinner while token and `me` load | 01 | cold start, resume with no cached state | `signin`, `sheet/choose`, `home`, retry card | exits app |
 | `signin` | Google, magic link, token | 06 A | no token, `DEVICE_REVOKED`, sign out | `pairing`, `sheet/choose`, `home` | exits app |
-| `pairing` | 8 character legacy code | 06 A (mapping only) | `signin` | `signin`, `sheet/choose`, `home` | back to `signin` |
-| `sheet/choose` | Choose source, grant, wizard, naming, creating, picking, error | 06 B, 09 section 6 | token with `workspace == null` | `sheet/connected`, `signin` (sign out) | exits app |
-| `home` | Dashboard, main screen | 07 | after `me` with a workspace, header wordmark, header Home | `capture`, `manual`, `settings`, `review` (drafts card Review), Sheets app; Space only through `settings` | exits app |
-| `capture` | Camera, strip, open sheet | 02 | Home Scan | `review` overlay, `settings` (gear), Home | back to `home` |
+| `pairing` | 8 character legacy code | 10 | `signin` | `signin`, `sheet/choose`, `home` | back to `signin` |
+| `sheet/choose` | Checking, grant (12), choose source, wizard, naming, creating, picking, error | 06 B, 09 section 6, 12 | token with `workspace == null` | `sheet/connected`, `signin` (sign out) | exits app |
+| `home` | Dashboard, main screen | 07 | after `me` with a workspace, header wordmark, header Home | `capture`, `manual`, `settings`, `space` (Space card), `review` (drafts card Review), grant screen, Sheets app | exits app |
+| `capture` | Camera, strip, open sheet | 02 | Home Scan, notification prompt Camera action | `review` overlay, `settings` (gear), Home | back to `home`, always |
 | `review` | Bottom sheet overlay on `capture` | 03 | tap strip, first read lands, tap failed draft, Home drafts card Review | minimise to `capture`, Accept, Delete | minimises, never discards |
-| `manual` | Manual entry | none (see section 7) | Home Manual, capture Manual pill, notification prompt from `CaptureListener` | `review`, Home | back to `home` |
+| `manual` | Manual entry | 11 | Home Manual, notification prompt from `CaptureListener` | `review`, Home | back to `home`, always |
 | `settings` | Quota, Space button, capture card, device, bottom stack | 04 | header gear | `space`, `sheet/connected`, `signin` (sign out) | back to `home` |
-| `space` | Create, list, detail, assets, goals, invite | 05 | Settings Space button, Home Space card footer (goes through Settings, 07 section 5 [G]) | Home, Settings | back to `settings` (see section 7, item 7) |
+| `space` | Create, list, detail, assets, goals, invite | 05 | Home Space card, Settings Space button | Home, Settings | back to `home`, from either entry |
 | `sheet/connected` | Sheet connected, open, switch | 06 B | Settings button, end of setup | `home`, `sheet/choose`, external Sheets app | back to `settings` |
 
 Entry rules that apply to every route: no token goes to `signin`; `DEVICE_REVOKED` from any call clears the token and goes to `signin`; zero quota never redirects.
@@ -863,37 +870,57 @@ Entry rules that apply to every route: no token goes to `signin`; `DEVICE_REVOKE
 | Credential Manager | Google id token | Sign in | `POST /api/auth/mobile/google` |
 | CameraX | preview, still capture, torch | Capture | none |
 
-## 7. Contradictions and gaps found between files 00 to 09
+## 7. Resolved contradictions (track R1, 2026-11-05)
 
-Each item names the files, says which side I would keep, and says what needs an owner call. Items marked "07" or "09" came from reading those files after they landed.
+The first pass found 20 disagreements between files 00 to 09. All are resolved
+below. Owner decisions used: Google grant is Option A (`serverAuthCode`); Manual lives
+on Home only; Space is a card on Home that opens a top-level Space screen; the 60
+second aggregate cache is accepted; Capture back always returns to Home. Where the
+owner gave no rule, the option closest to the web was chosen and is marked "web".
 
-1. **Header on the capture screen.** `01` table says Capture has no header and mentions "a small back control defined in file 02". `02` fact 1 and its layout show the header (wordmark, gear, no Home, no pill) and define no back control. `03` fact 8 says the header is visible behind the scrim. Keep `02`: the web shows its header on capture. Fix the `01` table row.
-2. **`01` is partly superseded by `07` and not updated.** `07` section 4 item 1 says Home replaces the two options in `01` section 6. The `01` header table (Home row), guard step 4, section 6 and the section 9 line "Space is a top-level destination" still describe the old options. `06` "Continue returns to Home" now has a target, so that rule stands.
-3. **Spending source (resolved by 07, one policy check left).** `07` reads today and last spending live from the user's Sheet through `GET /api/home/summary` and caches totals for 60 seconds. AGENTS.md says the Sheet is the system of record and zippp keeps no receipt ledger, and that the credit ledger is the only record of money and credits. `07` argues totals are not receipts. The owner should confirm that a 60 second aggregate cache in Upstash is acceptable.
-4. **Manual placement.** `07` decision 5 says Manual lives on Home and "Capture shows no Manual pill (file 02 updated)". `02` was not updated: it still lists the Manual pill (section 3 [C], section 4 No permission row, section 8, section 10 question 2). Also `07` disables Manual at zero quota because it spends from the same quota, while `02` keeps Upload and Manual usable. Manual still has no spec file. Pick one rule and update `02`.
-5. **Quota card key.** `01` and `07` use `android.error.no_credits.short`. `02` and `03` use `android.error.no_credits`. Pick one key for the card text and keep `.refresh` and `.support` for the buttons.
-6. **Button heights and kinds.** `01` section 3: primary 56dp, secondary 52dp, Mist 52dp. `04` follows it for the Space button but makes Sheet connected Mist 56dp. `05` makes Invite and Leave (Mist) 56dp. `06` makes every Mist button 56dp. `03` makes Accept 52dp where `01` calls Accept a primary (56dp). Open sheet is Mist 56dp in `02`, Brand 56dp in `06`, and Outline 52dp ("Open Google Sheets") in `07`. Fix one rule and one kind for "open the Sheet".
-7. **Space is a top-level screen and also a Settings child.** `01` section 9 says top-level and keeps the gear; `01` section 5 says back goes to Settings. `07` section 5 [G] says the Home Space footer "goes to Settings then Space, same as web". Keep one rule: Space is reached through Settings and back returns to Settings, unless the owner wants a direct Home link.
-8. **Draft persistence.** `01` section 7 says drafts persist if `BatchStore` is persisted "(file 03)". `03` fact 4 and section 8 say drafts are not restored and persistence is FEAT-108. Keep `03`. Fix the `01` sentence. `07` section 12 adds a device cache for Home totals only; that is separate.
-9. **Base URL.** `05` section 5 builds invite links from `https://zippp.link`. `00` found the apex host answers a POST with a `308` to `www` and that production should use `https://www.zippp.link`. Use one `BuildConfig` base URL everywhere.
-10. **`00` points to a file that does not exist.** `00` refers to `01-screen-specs.md`. The file is `01-shell-and-navigation.md` (and the Home proposal now lives in `07`).
-11. **Capture entry and exit.** `07` section 9 sends Capture, Manual and Settings back to Home. `02` section 2 fact 7 and section 10 question 1 still call the entry screen open and describe no back behaviour. Update `02`.
-12. **Counters.** `02` strip subtitle writes `{count} to review` plus `i/n` when more than one; `03` header writes `{i}/{n}`. Both must update together when a draft is deleted or accepted.
-13. **`app.review.allDone` has an em dash** in both languages (`02` acceptance 17, `03` open question 6, `07` slice S-H1). Fix it in `wording.txt`.
-14. **Pairing, Manual and the Google grant screen have no spec.** `06` covers pairing only as a mapping row, Manual has no file, and the grant step from `09` section 6.1 has no screen or keys. Section 4 of this file wireframes them from current code and `09`.
-15. **Unknown quota.** `02` says unknown quota is not empty. `07` section 7.7 and acceptance 19 say the same. `01` section 5 step 5 does not. Add the sentence to `01`.
-16. **Amber colours are gone (07).** `07` section 7.5 uses `AmberBg` and `AmberInk` for the stale card. Both were deleted from `Shell.kt` when the credit pill was removed. Move them into `Tokens.kt` before slice S-H4.
-17. **DEC-002 gaps in existing routes (09).** `billing/subscribe` accepts a mobile bearer and `billing/balance` returns credits, referral and invite data to bearer callers. `01` section 8 and `02` fact 6 correctly say the phone does not call them, but the server still allows it until FEAT-119 step 2.
-18. **`07` says Home does not need FEAT-119; `09` says otherwise.** `07` section 20 question 5 and slice S-H3 assume `getAuthenticatedClient(userId)` is ready. `09` section 2 item 1 says the Google helpers are cookie bound except `appendRows`, and item 3 says a phone-only user has no Sheets tokens until `google-grant`. So `readTail()` needs 09 rollout step 1, and a never-granted user gets `GOOGLE_GRANT_REQUIRED`, which is not in the `07` error table. Add the dependency and the code.
-19. **Sheet setup states differ.** `06` lists `checking`, `choose-source`, `wizard`, `naming`, `creating`, `picking`, `connected`, `error`. `09` section 6 lists `CHECK`, `CHOOSE`, `EMPTY`, `GRANT`, `DONE`. `06` has no GRANT phase. `09` section 5 also says to reword `android.error.no_sheet` so it leads to setup, while `02` section 4 uses it for an append `NO_SHEET`.
-20. **Home keys do not exist yet.** The `android.home.*` keys in `07` section 13 are not in `wording.txt`, while `01`, `02` and `04` say "Missing: none" for their own screens. Not a conflict, but S-H1 must land before any Home code.
+| # | Issue | Resolution | Files changed |
+|---|---|---|---|
+| 1 | Header on Capture | Header shows on Capture (web shows it). Contents: wordmark, Home, gear. Home shows because Capture is a child of Home on Android (the web hides Home only on its own home). No pill | 01, 02, 03 (no change needed), 08 |
+| 2 | 01 superseded by 07 | 01 section 6 states Home is decided, header table and nav graph updated, Space and Manual rules aligned, stale "drafts persist" line fixed | 01 |
+| 3 | Spending source vs "no receipt ledger" | Owner accepted a 60 second server cache of aggregates. Aggregates only, never rows. Recorded as a decision | 07 (decision 8), FEAT-120 card |
+| 4 | Manual placement | Manual lives on Home only. Scan and Manual are disabled only when the quota is known exhausted (`used >= included`, or `NO_CREDITS` or `PLAN_LIMIT` seen). Unknown quota never disables them | 02, 07, 08, 01 |
+| 5 | Quota card key | Card text is `android.error.no_credits`. `android.error.no_credits.short` ("Kuota scan habis.") stays for one-line uses such as the Settings bar. `.refresh` and `.support` are the buttons | 01, 07, 08 |
+| 6 | Button heights and kinds | One canonical table in 01 section 3: Primary 56, Brand 56 (where web uses `bg-brand`), Mist 52, Outline 52, Danger text 52. Open Google Sheets is Outline 52 everywhere. Sign out is Primary 56 (web). Buttons in one row share the tallest height | 01, 02, 03, 04, 05, 06, 07, 08 |
+| 7 | Space top-level or Settings child | Top-level screen. Entry from the Home Space card and from Settings. System back and header Home return to Home | 01, 04, 05, 07, 08 |
+| 8 | Draft persistence | Drafts do not survive process death. Persistence is FEAT-108. 03 was right | 01, 03 |
+| 9 | Base URL for invite links | `BuildConfig` API base on the `www` host (`https://www.zippp.link`, or `https://preview.zippp.link` for Preview). Never the apex | 05 |
+| 10 | 00 points to a missing file | Reference now names `01-shell-and-navigation.md` and `07-home-dashboard.md` | 00 |
+| 11 | Capture entry and exit | Entry from Home Scan or the notification prompt. Back always lands on Home, never on the notification or another app | 01, 02, 08 |
+| 12 | Counters | `n` is drafts whose status is not `accepted` or `sending`, in list order, `i` is the shown draft's 1-based position. Strip subtitle (02) and review header (03) read the same snapshot | 02, 03 |
+| 13 | `app.review.allDone` em dash | Wording task W-1: rewrite the copy in `wording.txt` (en and id) before the review sheet ships | 03 (open question 6 became a task) |
+| 14 | Pairing, Manual, grant have no spec | Track R2 wrote them: file 10 Pairing, 11 Manual entry, 12 Google grant screen. The section 4 wireframes are overviews; the per-screen files win on detail | 08 (pointers) |
+| 15 | Unknown quota | 01 section 5 step 5 now says unknown balance or plan is never zero | 01 |
+| 16 | Amber colours deleted from `Shell.kt` | Specified as `ZipppColors.amberBg = #FEF3C7` and `amberInk = #78350F`, added in slice S-H4 before Home code | 01, 07 |
+| 17 | DEC-002 gaps in existing routes | Closed by FEAT-119 step 2 (`subscribe` refuses bearer, `balance` strips credits, referral and invite). Android already does not call them. Ship gate: 09 acceptance item 7 | none (09 already covers it) |
+| 18 | 07 says Home needs no FEAT-119 | Wrong. Home depends on FEAT-119 step 1 (explicit `userId` in the Google helpers) and on `google-grant`. `GOOGLE_GRANT_REQUIRED` added to the 07 error table, with wireframe 7.10 and wording | 07, FEAT-120 card |
+| 19 | Sheet setup phases differ | Android adds a `grant` phase (06). 09 names map: `CHECK` is `checking`, `GRANT` is `grant`, `CHOOSE` and `EMPTY` are `choose-source` or `picking`, `DONE` is `connected`. `android.error.no_sheet` keeps its text and always carries a Mist 52 button `android.error.no_sheet.action` that opens setup (wording task W-2) | 06, 02, 09 |
+| 20 | Home keys not in `wording.txt` | Not a conflict. Wording task W-3: add all `android.home.*` keys, `android.error.google_grant_required`, `android.error.sheet_name_taken`, `android.error.no_sheet.action`, `android.home.error.grant.action`, mapped in `scripts/gen-android-strings.mjs`. Lands with S-H1 | 07, 06, 09 |
 
-## 8. Open questions for the owner
+Extra mismatches found while resolving, also fixed: the duplicate-name key was
+`android.sheets.duplicateName` in 06 and `android.error.sheet_name_taken` in 09 (now the
+09 key); Review footer buttons in 03 (Accept 52, Delete outline) now follow the table
+(Accept Primary 56, Delete Danger text 52); Space Invite and Leave in 05 were 56 and
+are now 52.
 
-1. Is a 60 second aggregate cache of Sheet totals in Upstash acceptable under "zippp keeps no receipt ledger"?
-2. Manual: remove the pill from Capture and disable it at zero quota, as `07` says, or keep it on Capture too?
-3. Does Home link straight to Space, or only through Settings?
-4. Google grant on the phone: Option A (`serverAuthCode`) or Option B (web Custom Tab)? This decides whether SheetChoose and Home work for a phone-only user.
-5. Should Capture's back always return to Home, or to where the user came from (for example the notification prompt)?
-6. Write short specs now for Pairing, Manual and the grant screen, or leave them until they are rebuilt?
-7. Add FEAT-119 step 1 (thread `userId` through the Google helpers) as a dependency of `07` slice S-H3?
+Wording tasks created by this pass:
+
+| Task | What | Where it lands |
+|---|---|---|
+| W-1 | Remove the em dash from `app.review.allDone` (en and id) | before the review sheet ships |
+| W-2 | Add `android.error.no_sheet.action` (id "Siapkan sheet", en "Set up sheet") | with FEAT-119 on the phone |
+| W-3 | Add the new `android.home.*` and error keys listed in item 20 | S-H1 |
+
+## 8. Open questions for the owner (remaining)
+
+The five owner decisions of 2026-11-05 closed the earlier list. What is still open:
+
+1. **FEAT-119 (09 section 10), questions 2 to 6.** Revoke another device from the phone or keep it web only. Disconnect sheet web only. Column map editing web only. Rate limit numbers. `drive.file` hides sheets this app did not create or open.
+2. **Home (07 section 20), questions 1 to 4.** Month to date as a third index after FEAT-104. Should Last spending open the Sheet at that row. Pull to refresh or Reload plus resume only. One summary field on `GET /api/spaces` instead of two calls.
+3. **Capture (02 section 10).** PDF upload: rasterise page 1 with `PdfRenderer` or images only. Bearer support on `/api/sheets/connect` so the sheet pill can switch sheets (FEAT-119 makes this possible; decide whether the pill becomes tappable).
+4. **Review (03 section 10).** Confirm the Android `Workspace` model decodes `template_id`, `staff_names`, `outlets`, `default_outlet`, `payment_options`. Undo on Delete or immediate like the web. Bearer on `/api/contribute`. Unit price as a visible optional field on both surfaces.
+5. **Constants file.** AGENTS.md names `src/lib/billing/config.ts` and `sheet-style.ts`. `sheet-style.ts` does not exist, so Home constants go in `billing/config.ts`. Create `sheet-style.ts` instead?

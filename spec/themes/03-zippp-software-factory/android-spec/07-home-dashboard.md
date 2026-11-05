@@ -51,7 +51,7 @@ a slice is not built yet. Visual order is in section 5.
 | P1 | Google Sheets connected card | yes | `me.workspace` |
 | P2 | Drafts waiting | when count > 0 | `BatchStore` (local) |
 | P3 | Quota bar | optional, FEAT-117 | `me.plan` |
-| P4 | Space snapshot with goals | optional, FEAT-116 | `GET /api/spaces`, `GET /api/spaces/{id}/assets` |
+| P4 | Space card with goals snapshot | always shown (empty variant without a Space), FEAT-116 | `GET /api/spaces`, `GET /api/spaces/{id}/assets` |
 
 Cut order when space is tight: P4, then P3, then P2 collapses to one line. P0 and
 P1 never get cut.
@@ -70,6 +70,18 @@ P1 never get cut.
 5. Manual entry lives on Home. Capture shows no Manual pill (file 02 updated).
 6. No credit counts and no purchase paths. Quota shows as a percentage (owner call
    2026-11-05).
+7. Space is a card on Home (owner call 2026-11-05). Tapping it opens the top-level
+   Space screen (file 05). The card is always shown, with an empty variant when the
+   user is in no Space.
+8. The 60 second server cache of Sheet aggregates is accepted (owner call
+   2026-11-05). It holds aggregates only, never rows, so it is not a receipt ledger
+   under AGENTS.md. Recorded in the FEAT-120 card.
+9. Scan and Manual are disabled only when the quota is known to be exhausted
+   (section 7.7). An unknown quota never disables them.
+10. Home depends on FEAT-119 step 1 (the Google helpers take an explicit `userId`)
+    and on `POST /api/auth/mobile/google-grant` for a phone-only Google user. A user
+    with no Google grant gets `GOOGLE_GRANT_REQUIRED` (section 7.10).
+11. Button kinds and heights follow the canonical table in file 01 section 3.
 
 ## 5. Layout tree (top to bottom)
 
@@ -89,7 +101,7 @@ AppFrame(showHome = false, showSettings = true)
             ZipppButton(Mist, 52dp)      Manual
       [E] SheetCard
       [F] QuotaCard             optional (P3)
-      [G] SpaceCard             optional (P4)
+      [G] SpaceCard             always shown (P4), opens Space
 ```
 
 Max content width 430dp, centred (same as the header).
@@ -126,7 +138,7 @@ description instead; if that is also empty the row shows the amount only.
 ### [C] DraftsCard (P2)
 
 White card, padding 16dp, `Row`: text `ZipppType.bodyStrong` "{count} waiting to send",
-then `ZipppButton(Mist, 48dp wide-min 96dp)` Review. Review opens the review sheet
+then `ZipppButton(Mist, 52dp, min width 96dp)` Review. Review opens the review sheet
 over capture for the first draft (file 03). Mirrors the `SnapScreen` queue strip.
 
 ### [D] Actions
@@ -137,9 +149,11 @@ over capture for the first draft (file 03). Mirrors the `SnapScreen` queue strip
 | Manual | `Mist` | 52dp | Enter manually | Open Manual entry |
 
 Full width, 8dp apart. A 24dp camera icon (`ic_camera`, new drawable) leads the
-Scan label with 8dp gap. When quota is exhausted both stay visible but the Scan
-button is disabled (alpha 0.4) and the neutral card in [F] explains why. Manual is
-also disabled, because it spends from the same quota.
+Scan label with 8dp gap. Both buttons stay visible. Both are disabled (alpha 0.4)
+only when the quota is known to be exhausted (section 7.7), because Manual spends
+from the same quota as Scan, and the neutral card explains why. When the quota is
+unknown, not loaded yet or the plan is null, both stay enabled and the server
+answers (owner decision 2026-11-05).
 
 ### [E] SheetCard
 
@@ -162,13 +176,16 @@ track `ZipppColors.mist`, fill `ZipppColors.orange`, fill `ZipppColors.danger`
 at 100%. Data: `me.plan` (`used_pct`). Hidden when `plan` is null. Same widget as
 Settings; reuse the composable.
 
-### [G] SpaceCard (optional, P4)
+### [G] SpaceCard (P4)
 
-`ZipppSectionCard`. Title: Space name. Subtitle: member count. Then up to 3 goals,
-each a row: goal name `ZipppType.body`, percentage `ZipppType.smallStrong`, bar
-8dp. Footer link row 48dp: Open Space (goes to Settings then Space, same as web).
-Hidden when the user is in no Space. Data: `GET /api/spaces`, then
-`GET /api/spaces/{id}/assets` for the first Space only.
+`ZipppSectionCard`, always shown. The whole card is one 48dp-minimum tap target and
+opens the top-level Space screen (file 05) directly. System back from Space returns
+to Home. Title: Space name. Subtitle: member count. Then up to 3 goals, each a row:
+goal name `ZipppType.body`, percentage `ZipppType.smallStrong`, bar 8dp. Footer row
+48dp tall: Open Space (`app.space.settings`, same destination as the card tap).
+Empty variant when the user is in no Space: title `app.space.title`, no goals, the
+same footer row. Data: `GET /api/spaces`, then `GET /api/spaces/{id}/assets` for
+the first Space only. A failed Space call shows the empty variant, never an error.
 
 ## 6. Touch targets
 
@@ -177,10 +194,10 @@ Hidden when the user is in no Space. Data: `GET /api/spaces`, then
 | Scan receipt | 56dp x full width | primary |
 | Manual | 52dp x full width | secondary |
 | Open Google Sheets | 52dp x full width | secondary |
-| Review (drafts) | 48dp x min 96dp | |
+| Review (drafts) | 52dp x min 96dp | Mist |
 | Header Settings | 48dp x 48dp hit area | file 01 |
-| Retry / Reload in error cards | 48dp | |
-| Open Space row | 48dp tall | |
+| Retry / Reload in error cards | 52dp | Mist |
+| Space card and Open Space row | 48dp tall minimum | whole card taps |
 
 Space between tappables is at least 8dp.
 
@@ -278,8 +295,8 @@ The currency code comes from the last receipt when there is one.
 
 ```
 |  +--------------------------------+  |
-|  | Diperbarui 10.02. Menampilkan  |  |  amber card: AmberBg / AmberInk
-|  | total tersimpan.   [ Muat ulang ]| |  48dp
+|  | Diperbarui 10.02. Menampilkan  |  |  amber card: ZipppColors.amberBg / amberInk (tokens, file 01)
+|  | total tersimpan.   [ Muat ulang ]| |  Mist 52dp
 |  +--------------------------------+  |
 |  ( today and last cards from the device cache, label unchanged )
 |  [ Pindai struk ]  [ Catat manual ]  |  stay enabled
@@ -306,7 +323,7 @@ button.
 
 ```
 |  +--------------------------------+  |
-|  | Sisa kuota scan Anda telah     |  |  existing android.error.no_credits.short
+|  | Sisa kuota scan Anda telah     |  |  android.error.no_credits
 |  | habis.        [ Muat Ulang ]   |  |  existing refresh key
 |  +--------------------------------+  |
 |  ( today and last cards still shown: reading the sheet costs no quota )
@@ -316,17 +333,39 @@ button.
 
 No purchase link, no "buy on the web" text (DEC-002). Quota is exhausted when
 `plan.included > 0 && plan.used >= plan.included`, or after a `NO_CREDITS` or
-`PLAN_LIMIT` response. Unknown quota never counts as exhausted.
+`PLAN_LIMIT` response. Unknown quota never counts as exhausted: when `plan` is null
+or not loaded, Scan and Manual stay enabled. `android.error.no_credits.short`
+("Kuota scan habis.") is the one-line form, used by the Settings quota bar, not by
+this card.
 
 ### 7.8 Drafts waiting
 
 ```
 |  ( Today card, Last card )           |
 |  +--------------------------------+  |
-|  | 2 menunggu dikirim [ Periksa ] |  |  48dp button
+|  | 2 menunggu dikirim [ Periksa ] |  |  Mist 52dp button
 |  +--------------------------------+  |
 |  [ Pindai struk ] [ Catat manual ]   |
 ```
+
+### 7.10 Google access needed
+
+Shown when the summary returns `GOOGLE_GRANT_REQUIRED`: a phone-only Google user
+who has not yet granted Sheets and Drive access (FEAT-119, file 09 section 6.1).
+Not an error of the sheet itself, so the actions and the quota card stay.
+
+```
+|  +--------------------------------+  |
+|  | Beri akses Google Sheets agar  |  |  card, ZipppType.body
+|  | total pengeluaran bisa tampil. |  |  key android.error.google_grant_required
+|  | [ Beri akses ]  Mist 52dp      |  |  key android.home.error.grant.action
+|  +--------------------------------+  |
+|  ( today and last cards hidden; actions, sheet card stay )
+```
+
+The button opens the grant screen (file 12), which requests the `serverAuthCode`
+and posts it to `google-grant`. On success Home refetches the summary.
+`GOOGLE_RECONSENT` (token refused) shows `android.home.error.reconsent` instead.
 
 ### 7.9 Sheet lost during a session
 
@@ -493,7 +532,9 @@ Sign in ok
     |                     send queue -> append -> bust summary cache
     +--Manual--> Manual entry --save--> (back to Home, refresh)
     +--Open Google Sheets--> external app
-    +--Settings--> Settings --Home--> HOME
+    +--Space card--> Space (top level) --back/Home--> HOME
+    +--Settings--> Settings --Home--> HOME   (Settings also links to Space)
+    +--GOOGLE_GRANT_REQUIRED--> grant screen (file 12) --ok--> refetch summary
     +--Review (drafts)--> Review sheet over Capture
 ```
 
@@ -523,9 +564,13 @@ flowchart TD
     H -- Open Google Sheets --> U["External Sheets app"]
     H -- Settings --> V["Settings"]
     V -- Home --> H
+    H -- Space card --> W["Space"]
+    W -- back or Home --> H
+    L -- GOOGLE_GRANT_REQUIRED --> X["Grant screen"]
+    X -- ok --> L
 ```
 
-Navigation rule: Capture, Manual and Settings return to Home. System back on Home
+Navigation rule: Capture, Manual, Settings and Space return to Home. System back on Home
 exits the app. After any append that succeeds, Home refreshes when it next resumes.
 
 ## 10. System diagram
@@ -626,6 +671,7 @@ Errors, all `{ "ok": false, "code": "..." }`:
 | 409 | `NO_SHEET` | no workspace | Sheet choose |
 | 422 | `NOT_SUPPORTED` | `date` or `amount` not mapped | unsupported line |
 | 403 | `GOOGLE_RECONSENT` | Google refused the token | sign in with Google row |
+| 401 | `GOOGLE_GRANT_REQUIRED` | user never granted Drive and Sheets access | grant card (section 7.10) |
 | 429 | `RATE_LIMITED` | too many calls | stale card, retry later |
 | 502 | `SHEET_UNREADABLE` | Google 4xx or 5xx on read | error card with Reload |
 
@@ -653,7 +699,7 @@ Server rules:
 > Reads the user's own Sheet: today's spend by currency, receipt count, and the last
 > receipt. Row spend is Amount plus Tax. 60 second aggregate cache, rate limit 30
 > per minute. Errors: UNAUTHORIZED, DEVICE_REVOKED, MOBILE_API_DISABLED, NO_SHEET,
-> NOT_SUPPORTED, GOOGLE_RECONSENT, RATE_LIMITED, SHEET_UNREADABLE.
+> NOT_SUPPORTED, GOOGLE_RECONSENT, GOOGLE_GRANT_REQUIRED, RATE_LIMITED, SHEET_UNREADABLE.
 
 ## 12. Client behaviour (Android)
 
@@ -700,12 +746,14 @@ hype words, none of kredit, saldo, Rp, or a currency symbol.
 | `android.home.error.reconsent` | Google access ended. Sign in with Google again. | Akses Google berakhir. Masuk dengan Google lagi. |
 | `android.home.error.unsupported` | Totals are not available for custom sheets. | Total tidak tersedia untuk sheet kustom. |
 | `android.home.truncated` | Showing the latest rows only. | Hanya menampilkan baris terbaru. |
+| `android.home.error.grant.action` | Grant access | Beri akses |
 | `android.home.retry` | Reload | Muat ulang |
 | `android.home.space.open` | Open Space | Buka Space |
 | `android.home.space.goal` | {name}: {pct}% | {name}: {pct}% |
 
 Reused as they are: `android.settings.quota.title`, `android.settings.quota.pct`,
-`android.error.no_credits.short`, `android.error.no_credits.refresh`,
+`android.error.no_credits` (card text), `android.error.no_credits.refresh`,
+`android.error.google_grant_required` (new, file 09 section 8),
 `android.error.device_revoked`, `android.error.server`, `app.settings.title`.
 `app.sheets.open` already exists with the same text as `android.home.sheet.open`;
 use `app.sheets.open` and drop the duplicate row.
@@ -721,7 +769,7 @@ use `app.sheets.open` and drop the duplicate row.
 4. At 200 percent font scale nothing is clipped: the amount drops to 24sp when the
    formatted text is over 12 characters, cards grow in height, the bar stays 8dp.
 5. Contrast: `ZipppColors.ink` on `ZipppColors.surface`, ink on card white, and
-   `AmberInk` on `AmberBg` must each reach 4.5:1. Measure them in S-H4 and record
+   `amberInk` on `amberBg` must each reach 4.5:1. Measure them in S-H4 and record
    the ratios in the card.
 6. Error and stale states are shown in text, never by colour alone.
 7. Skeleton shimmer respects the system "remove animations" setting.
@@ -825,9 +873,9 @@ One slice at a time. Each ends with the compile and test gates for its side.
 |---|---|---|---|
 | S-H1 | This spec agreed. Add the `android.home.*` keys to `wording.txt` and the generator. Fix `app.review.allDone` em dash if touched | spec, wording | none |
 | S-H2 | `src/lib/home/summary.ts` pure parse and aggregate, constants in `billing/config.ts`, tests from section 18 | server | S-H1 |
-| S-H3 | `readTail()` in `sheets.ts`, route `/api/home/summary`, cache, rate limit, bust cache on append and manual save, context §7 | server | S-H2 |
-| S-H4 | Android Home screen with fake data and all states, `ic_camera`, `ZipppButton` sizes (56 and 52dp) | android | S-H1 |
-| S-H5 | `ApiClient.homeSummary`, device cache, stale handling, `MainActivity` entry change (Home first, Capture and Manual return to Home), remove Manual pill and Space and Settings links from Capture | android | S-H3, S-H4 |
+| S-H3 | `readTail()` in `sheets.ts`, route `/api/home/summary`, cache, rate limit, bust cache on append and manual save, context §7. Returns `GOOGLE_GRANT_REQUIRED` for a user with no Google tokens | server | S-H2, FEAT-119 step 1 (explicit `userId` in the Google helpers) |
+| S-H4 | Android Home screen with fake data and all states, `ic_camera`, `amberBg` and `amberInk` tokens in `Tokens.kt`, `ZipppButton` sizes from the canonical table in file 01 | android | S-H1 |
+| S-H5 | `ApiClient.homeSummary`, device cache, stale handling, `MainActivity` entry change (Home first, Capture and Manual return to Home), remove Manual pill and Space and Settings links from Capture | android | S-H3, S-H4, FEAT-119 step 5 (`google-grant`) and file 12 grant screen |
 | S-H6 | Optional cards: quota bar and Space snapshot | android | S-H5 |
 | S-H7 | Daily block source after FEAT-104 ships | server | FEAT-104 |
 | S-H8 | Device run with screenshots against section 17 | owner | S-H5 |
@@ -846,5 +894,7 @@ S-H2 and S-H3 can run in parallel with S-H4. Server gates: `npm test`,
 3. Pull to refresh, or only Reload and resume refresh?
 4. The Space card needs two calls (`spaces`, then `assets`). Add one summary field
    on `GET /api/spaces` instead?
-5. FEAT-119 (bearer on sheet and device routes) is a separate card. Home does not need it (it reads the sheet with the
-   stored Google token), but Sheet choose and "connect a sheet" on Android do.
+5. ~~FEAT-119 dependency~~ Resolved 2026-11-05: Home depends on FEAT-119 step 1
+   and on `google-grant` (decision 10 in section 4). The earlier note that Home
+   needs no FEAT-119 was wrong, because the Google helpers were bound to the cookie
+   and a phone-only user had no Sheets tokens.

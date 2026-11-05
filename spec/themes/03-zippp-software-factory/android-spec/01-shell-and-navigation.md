@@ -1,6 +1,6 @@
 # 01 Shell and navigation
 
-Android spec for FEAT-118. Web is the visual reference. Files 02 and 03 (capture and review) are written by another track. This file defines the frame every screen sits in, the navigation graph, and the entry rules.
+Android spec for FEAT-118. Web is the visual reference. Files 02 and 03 cover capture and review, 07 covers Home. This file defines the frame every screen sits in, the navigation graph, and the entry rules.
 
 Web sources: `src/components/app/AppShell.tsx`, `PhoneShell.tsx`, `src/app/globals.css`, `tailwind.config.ts`.
 Android sources: `ui/theme/Tokens.kt`, `ui/theme/Shell.kt`, `MainActivity.kt`.
@@ -36,17 +36,39 @@ The web uses a half-size radius scale (`tailwind.config.ts`). 1 Tailwind spacing
 
 Colours (identical to `globals.css`): orange `#EE5329`, ink `#1C0B09`, maroon `#3E0F0C`, peach/surface `#F6D3C5`, mist `#C9CFD9`, page `#E8E8E8`, card `#FFFFFF`, muted `#5E4640`, line `#E4B9A8`, btn `#3E0F0C`, btn text `#FFFFFF`, accent `#C73A12`, danger `#B3261E`.
 
+Tokens to add to `ZipppColors` in `Tokens.kt` (slice S-H4, before any Home code):
+`amberBg = #FEF3C7` and `amberInk = #78350F`. They match the web `bg-amber-100` and
+`text-amber-900` used for the low-balance state. The private `AmberBg` and
+`AmberInk` that lived in `Shell.kt` were deleted with the credit pill. Home (file 07)
+uses the new tokens for the stale-data card.
+
 ## 3. Touch targets (Android rule, stricter than web)
 
 Web buttons are `py-3` (about 44dp) for secondary and `py-4` (about 56dp) for primary. On Android:
 
 - Every tappable element is at least 48dp high and 48dp wide, including text links and icon buttons. A visually smaller element gets padding or a 48dp hit area.
-- Primary and full-width buttons are 56dp high (web `py-4`).
-- Secondary full-width buttons are 52dp.
+- Button heights come from the canonical table below. Other files reference it
+  and must not restate other numbers.
 - Inline text actions (web `text-xs font-semibold`, for example Edit, Archive, Remove) become 48dp-high tap rows. The text stays 12sp.
 - Space between two tappable elements is at least 8dp.
 
-Current code check: `ZipppButton` is 48dp fixed. Required change: 56dp for `Primary` and `Brand`, 52dp for `Mist`, `Danger`, `Outline`.
+### Canonical button table (single source, all files reference this)
+
+| Kind | Height | Fill | Text | Use |
+|---|---|---|---|---|
+| Primary | 56dp | btn `#3E0F0C` | white | Accept, Scan, Sign in, Sign out, Save, Create, Connect |
+| Brand | 56dp | orange `#EE5329` | ink | Strongest action where the web uses `bg-brand`: Sign in on the Brand shell, Space create and Save |
+| Mist | 52dp | mist `#C9CFD9` | ink | Secondary actions: Invite, Leave, Manual, Review, Reload |
+| Outline | 52dp | transparent, 1dp `line` border | ink | Neutral navigation: Open Google Sheets, Help, Cancel |
+| Danger text | 52dp | mist | danger `#B3261E` | Delete, Archive, destructive confirms |
+
+All kinds: pill radius, 14sp semibold label, disabled alpha 0.4, minimum width 48dp.
+Buttons side by side in one row share the height of the tallest one in that row.
+"Open Google Sheets" is Outline 52dp everywhere (Home, Settings, Sheet connected).
+Sign out uses Primary 56dp, like the web (the earlier Danger style is dropped).
+
+Current code check: `ZipppButton` is 48dp fixed. Required change: heights from the
+table above, in slice S-H4. Review footer Accept is Primary 56dp.
 
 ## 4. Layout tree
 
@@ -79,11 +101,11 @@ Header contents per screen:
 | Sign in | no header | no | no | Brand tone shell |
 | Sheet choose (no workspace) | no header | no | no | Web hides Home when there is no workspace |
 | Home | yes | no (it is home) | yes | |
-| Capture | no header (full-bleed chrome per file 02) | n/a | n/a | Small back control defined in file 02 |
-| Review sheet | no header | n/a | n/a | Overlay |
+| Capture | yes | yes | yes | Capture is a child of Home on Android, so Home shows. System back returns to Home. File 02 owns the layout. The web hides Home only on `/app/snap`, which is the web home |
+| Review sheet | header of the screen behind it, under the scrim | n/a | n/a | Overlay on Capture |
 | Manual entry | yes | yes | yes | |
 | Settings | yes | yes | no | Web hides the gear on `/app/settings*` |
-| Space | yes | yes | yes | Web nests Space under settings, so the gear is hidden on web. Android keeps the gear visible, see section 9 |
+| Space | yes | yes | yes | Web nests Space under settings, so the gear is hidden on web. Android keeps the gear visible, see section 9. Space is a top-level destination reached from Home and linked from Settings |
 | Sheet connect screens | yes | yes only if a workspace exists | yes only if a workspace exists | Same rule as web |
 
 Omitted on Android, on purpose (section 9): credit pill, admin button, invite banner.
@@ -114,7 +136,7 @@ Android guard order, same shape, with the payment redirect replaced:
 2. No token: Sign in (file 06).
 3. Token, `me.workspace == null`: Sheet choose (file 06), no header.
 4. Token, workspace set: Home (section 6, file 07).
-5. Zero quota (plan `used >= included`, or the server returns `NO_CREDITS` or `PLAN_LIMIT`): stay on the current screen. Show the neutral status card and Reload. There is no redirect and no purchase link (DEC-002).
+5. Zero quota (plan `used >= included`, or the server returns `NO_CREDITS` or `PLAN_LIMIT`): stay on the current screen. An unknown balance or plan (not loaded yet, or `plan == null`) is never treated as zero; the app allows the action and lets the server answer. Show the neutral status card and Reload. There is no redirect and no purchase link (DEC-002).
 6. `DEVICE_REVOKED` from any call: clear the token and go to Sign in.
 
 ```
@@ -126,14 +148,16 @@ Android guard order, same shape, with the payment redirect replaced:
         me.workspace?  <---------------+
           |no        |yes
           v          v
-     SheetChoose   Home --------+--------+---------+
-          |          |          |        |         |
-          +--------> |       Capture  Manual   Settings --> Space
-            connected          |                    |   \--> SheetConnected
-                            Review(overlay)         \--> Sign out --> SignIn
+     SheetChoose   Home -----+--------+---------+--------+
+          |          |       |        |         |        |
+          +--------> |    Capture  Manual   Settings   Space (card)
+            connected       |                 |  \          ^
+                       Review(overlay)        |   \---------+ (also from Settings)
+                                              +--> SheetConnected
+                                              \--> Sign out --> SignIn
 ```
 
-Back button (system): Capture, Manual, Settings go back to Home. Space and SheetConnected go back to Settings. Home exits the app. SheetChoose exits the app.
+Back button (system): Capture, Manual, Settings and Space go back to Home. SheetConnected goes back to Settings. Home exits the app. SheetChoose exits the app. Capture back always returns to Home, even when Capture was opened from the notification prompt (owner decision 2026-11-05).
 
 ## 6. The Android home screen (decided)
 
@@ -150,7 +174,7 @@ Home replaces both earlier proposals. What was kept from each:
 | Alternative A (Space home) | Quota percentage bar | Quota card, optional P3 |
 | Alternative A | Space name and up to 3 goals with progress | Space card, optional P4 |
 | Alternative A | Drafts waiting strip | Drafts card, shown when count > 0 |
-| Alternative A | Primary Scan button 56dp, secondary Manual 52dp | Actions block |
+| Alternative A | Primary Scan button 56dp (Primary), Manual 52dp (Mist) | Actions block |
 | New | Today spending and Last spending from the user's Sheet | Hero card and Last card, P1 |
 
 Header on Home: wordmark and Settings. Home button is hidden. No credit pill.
@@ -159,8 +183,8 @@ Navigation consequences:
 
 - Guard step 4 lands on Home (section 5 already says so).
 - Capture, Manual and Settings return to Home on system back.
-- Capture loses the Manual pill and the Space and Settings text links (file 02).
-- Space is reached from Settings, as on web, and from the Space card on Home.
+- Capture has no Manual pill and no Space or Settings text links (file 02). Manual lives on Home only. Capture shows the header with Home and Settings.
+- Space is a top-level screen. It opens from the Space card on Home and from the Space button in Settings. System back from Space returns to Home.
 - `ZipppButton` gets the sizes from section 3 (56dp primary, 52dp secondary) in
   slice S-H4.
 
@@ -171,8 +195,8 @@ Navigation consequences:
 | Loading me | Spinner screen, no header |
 | Offline | Header stays. Body shows `android.error.server` and a Retry 52dp button |
 | `DEVICE_REVOKED` | Clear token, Sign in |
-| Zero quota | Neutral card with `android.error.no_credits.short`, Reload (`android.error.no_credits.refresh`) and Help (`android.error.no_credits.support`). No purchase link |
-| Process death | Token persists. `me` reloads. Drafts persist if `BatchStore` is persisted (file 03) |
+| Zero quota | Neutral card with `android.error.no_credits`, Reload (`android.error.no_credits.refresh`) and Help (`android.error.no_credits.support`). No purchase link |
+| Process death | Token persists. `me` reloads. Drafts do not survive process death. Persistence belongs to FEAT-108 (file 03 section 8) |
 
 ## 8. Network calls (all bearer, `Authorization: Bearer <token>`)
 
@@ -189,14 +213,14 @@ Navigation consequences:
 | No credit pill in the header | Owner decision 2026-11-05. DEC-002: no credit numbers or purchase path on Android |
 | No admin button | Admin is a web panel |
 | No invite banner (`balance.invite`) | It quotes Rp prices (DEC-002) |
-| Gear stays visible on Space | On Android, Space is a top-level destination, not a settings child |
+| Gear stays visible on Space | On Android, Space is a top-level destination reached from Home, not a settings child. Settings also links to it |
 | No `/app/topup` redirect at zero quota | DEC-002 |
 | Language select omitted | Android strings are Indonesian only (`values/strings.xml`) |
 | System back replaces the web Back link | Platform convention |
 
 ## 10. Wording keys
 
-All present in `spec/wording.txt`: `app.nav.home`, `app.nav.back`, `app.settings.title`, `android.error.server`, `android.error.no_credits.short`, `android.error.no_credits.refresh`, `android.error.no_credits.support`, `android.error.device_revoked`.
+All present in `spec/wording.txt`: `app.nav.home`, `app.nav.back`, `app.settings.title`, `android.error.server`, `android.error.no_credits` (card text), `android.error.no_credits.short` (one-line uses such as the Settings quota bar), `android.error.no_credits.refresh`, `android.error.no_credits.support`, `android.error.device_revoked`.
 
 Home keys are listed in `07-home-dashboard.md` section 13 (`android.home.*`). `android.home.title` is not needed.
 
@@ -204,13 +228,13 @@ Home keys are listed in `07-home-dashboard.md` section 13 (`android.home.*`). `a
 
 1. Header shows the wordmark in orange Archivo Black at 24sp on the page grey `#E8E8E8`, left aligned at 16dp.
 2. Header right side shows Home and Settings with 20dp icons and 14sp muted labels, 12dp apart. No credit pill is present.
-3. On Settings the gear is absent. On Home the Home button is absent.
+3. On Settings the gear is absent. On Home the Home button is absent. On Capture both Home and the gear are present.
 4. Shell content is 24dp from both screen edges, 16dp below the header, 16dp between blocks.
 5. No content is wider than 430dp on a tablet or a landscape screen. It is centred.
-6. Every button and link is at least 48dp high (measure in layout inspector). Full-width primary buttons are 56dp.
+6. Every button and link is at least 48dp high (measure in layout inspector). Heights match the canonical button table: Primary and Brand 56dp, Mist, Outline and Danger text 52dp.
 7. Cards have 8dp corners, 16dp padding, white on the grey page.
 8. Cold start with a stored token shows the spinner, then Home, with no flash of the sign in screen.
 9. Cold start with no workspace shows Sheet choose and no header.
 10. Zero quota shows the neutral card. No screen contains the words kredit, saldo, Rp or a price.
-11. System back from Settings returns to Home. System back from Home exits.
+11. System back from Settings, Capture, Manual and Space returns to Home. System back from Home exits.
 12. A revoked token returns to Sign in and clears stored data.

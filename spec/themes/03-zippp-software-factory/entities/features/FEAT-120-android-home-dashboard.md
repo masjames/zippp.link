@@ -21,8 +21,8 @@ verification:
 
 A new Android Home screen: the main dashboard of a personal wealth app. It shows
 today spending and last spending read from the user's own Google Sheet, a Google
-Sheets connected card, and quick access to Scan and Manual entry. Quota and a Space
-goals line are optional cards. The full design is in
+Sheets connected card, and quick access to Scan and Manual entry. A Space card
+opens the Space screen. A quota bar is an optional card. The full design is in
 `android-spec/07-home-dashboard.md`.
 
 # Goal
@@ -40,9 +40,20 @@ the next receipt in two taps. The scan screen is no longer the first screen.
   Amounts show as grouped numbers plus the ISO code from the sheet.
 - FEAT-104 (month tabs, daily totals) is not built. Home reads the single tab with
   a 400 row window until then, and switches to the daily block when it ships.
-- FEAT-119 (bearer on sheet and device routes) is a separate card. Home does not
-  need it, because it reads the sheet with the stored Google token. "Connect a
-  sheet" on Android does.
+- Depends on FEAT-119: step 1 (the Google helpers take an explicit `userId`) and
+  `POST /api/auth/mobile/google-grant` for a phone-only Google user. A user with no
+  Google grant gets `GOOGLE_GRANT_REQUIRED` and sees the grant card (spec 7.10).
+
+# Decisions (owner, 2026-11-05)
+
+- The 60 second server cache of Sheet aggregates is accepted. It holds aggregates
+  only, never receipt rows, so it is not a receipt ledger under AGENTS.md.
+- Space is a card on Home that opens the top-level Space screen. Settings also links
+  to Space. Back from Space returns to Home.
+- Manual lives on Home only. Capture back always returns to Home.
+- Scan and Manual are disabled only when the quota is known to be exhausted.
+  Unknown quota never disables them.
+- Google access on the phone is the `serverAuthCode` flow (Option A).
 
 # Slices
 
@@ -58,9 +69,11 @@ Details and dependencies are in section 19 of the spec file.
 - [ ] A multi-line receipt counts once and its total is not multiplied
 - [ ] Last spending shows the receipt with the latest Captured at
 - [ ] `12.500` as text reads as 12,500
-- [ ] Scan 56dp, Manual 52dp, every tappable at least 48dp
+- [ ] Scan 56dp, Manual 52dp, Open Google Sheets 52dp outline, every tappable at least 48dp (canonical table in `android-spec/01`)
+- [ ] Space card opens Space, and back from Space lands on Home
+- [ ] A user with no Google grant sees the grant card, not an error
 - [ ] Stale card with saved time when offline after one good load
-- [ ] Quota exhausted dims Scan and Manual with no purchase link
+- [ ] Quota exhausted dims Scan and Manual with no purchase link; unknown quota leaves them enabled
 - [ ] No Android string contains kredit, saldo, Rp or a currency symbol
 - [ ] First frame with a cache under 300 ms
 - [ ] Capture has no Manual pill and no Space or Settings text links

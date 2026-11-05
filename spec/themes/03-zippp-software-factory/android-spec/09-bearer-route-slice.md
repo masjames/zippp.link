@@ -249,7 +249,7 @@ added in the build slice, `en` and `id`, no em dashes.
 | `INVALID_TOKEN`, `DEVICE_REVOKED` | `android.error.device_revoked` | exists |
 | `GOOGLE_RECONSENT` | `android.error.google_reconsent` | exists |
 | `GOOGLE_GRANT_REQUIRED` | `android.error.google_grant_required` | to add |
-| `NO_SHEET`, `NONE_FOUND` | `android.error.no_sheet` (reword: it must lead to the setup screen) | exists, reword |
+| `NO_SHEET`, `NONE_FOUND` | `android.error.no_sheet` plus button `android.error.no_sheet.action` that opens the setup screen (decided; the message text itself needs no reword) | message exists, button key to add (W-2) |
 | `SHEET_NAME_REQUIRED` | `app.sheets.name.required` | exists |
 | `SHEET_NAME_TAKEN` | `android.error.sheet_name_taken` | to add |
 | `SHEET_NOT_FOUND` | `android.error.sheet_not_found` | to add |
@@ -287,21 +287,15 @@ with the template header row. This is the web "create" path, called with a beare
 
 ### 6.1 Granting Drive and Sheets access from the phone
 
-Recommended (Option A): Android requests offline access through the Google
+Decided (owner, 2026-11-05): Android requests offline access through the Google
 authorization API with scopes `spreadsheets`, `drive.file` and `userinfo.email`,
 using the Web client id as the server client id. It receives a `serverAuthCode` and
 posts it to `POST /api/auth/mobile/google-grant`. No browser, one consent sheet.
 Needs the Android OAuth client and the Web client both in the same Google Cloud
 project, and the project's sensitive scope verification (already needed for web).
 
-Fallback (Option B): open the web consent in a Custom Tab
-(`/api/auth/login?return=zippp://grant`), then deep link back and run CHECK again.
-The web callback saves tokens under the Google `sub`. If the user picked a different
-Google account than the one signed in on the phone, tokens land under another user
-and CHECK still returns `GOOGLE_GRANT_REQUIRED`. The app must tell the user which
-account to choose. Option B needs no new route but has this account mismatch gap.
-
-Open question for the owner: A or B (section 10).
+The web Custom Tab alternative was rejected: it can store tokens under a different
+Google account than the one signed in on the phone.
 
 ### 6.2 Sequence diagram
 
@@ -416,8 +410,7 @@ Gates after the slice: `npm test`, `npx tsc --noEmit`, `npm run build`, all pass
 
 ## 10. Open questions for the owner
 
-1. **Grant flow:** Option A (`serverAuthCode`, recommended) or Option B (web Custom
-   Tab)?
+1. ~~Grant flow~~ Decided 2026-11-05: `serverAuthCode` via `google-grant` (section 6.1).
 2. **Revoke from the phone:** allow revoking one other device from a phone, with a
    Telegram alert, or keep revoke web only? A stolen unlocked phone could revoke the
    owner's other devices.

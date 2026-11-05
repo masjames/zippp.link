@@ -81,8 +81,12 @@ An Android user can finish sheet setup and basic account upkeep without the web 
 
 # Open questions
 
-See `android-spec/09-bearer-route-slice.md` section 10: grant flow A or B, revoke from
-the phone, disconnect on Android, rate limit numbers, `drive.file` visibility.
+Decided 2026-11-05: the Google grant on the phone is the `serverAuthCode` flow through
+`POST /api/auth/mobile/google-grant`. The web Custom Tab option was rejected.
+
+Still open, see `android-spec/09-bearer-route-slice.md` section 10: revoke from the
+phone, disconnect on Android, column map editing, rate limit numbers, `drive.file`
+visibility.
 
 # Definition of done
 

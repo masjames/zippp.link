@@ -4,8 +4,8 @@ Parent card: FEAT-118. Web reference: `src/components/app/screens/SnapScreen.tsx
 (`SnapScreen`, `GuideFrame`), `PhoneShell.tsx`, `AppShell.tsx`,
 `AppProvider.tsx` (`extractItem`, `addBlob`), `useReceiptDetector.ts`.
 Android target: `ui/camera/CameraScreen.kt`. Shell and header live in
-`01-shell-and-navigation.md` (another track); this file only states what capture
-needs from them.
+`01-shell-and-navigation.md`; this file only states what capture needs from
+them. Button heights come from the canonical button table in 01 section 3.
 
 Unit rule used below: 1 CSS px = 1 dp, 1 rem = 16 dp, text sizes in sp. The
 project Tailwind scale is halved: `rounded-lg` 4 dp, `rounded-xl` 6 dp,
@@ -17,10 +17,11 @@ project Tailwind scale is halved: `rounded-lg` 4 dp, `rounded-xl` 6 dp,
 
 Take a photo of a receipt, send it to `/api/extract`, queue the result for
 review. The screen is also the place where the user sees how many receipts are
-waiting, opens the Google Sheet, and reaches Settings.
+waiting, opens the Google Sheet, and reaches Settings through the header.
 
 Capture is not the entry screen. The user reaches it from Home (file 07) with
-Scan receipt, and system back or the shutter flow returns to Home. Manual entry
+Scan receipt, and system back always returns to Home, including when Capture was
+opened from the notification prompt (owner decision 2026-11-05). Manual entry
 does not live here, it lives on Home.
 
 ## 2. Facts that correct earlier plans
@@ -29,7 +30,8 @@ does not live here, it lives on Home.
    wordmark, the credit pill and the gear on `/app/snap`. Only the Home link is
    hidden there (`pathname !== "/app/snap"`). Earlier text saying "header hidden
    on capture" is wrong. Android shows the header on capture, without the credit
-   pill (owner call 2026-11-05, DEC-002) and without Home.
+   pill (owner call 2026-11-05, DEC-002). Because Capture is a child of Home on
+   Android, the header shows Home and the gear (01 header table).
 2. **There is no Space link on web capture.** Space is reached from Settings
    (`/app/settings/space`). The two text links under the controls on the current
    Android screen (Space, Pengaturan) have no web counterpart. Remove both. The
@@ -59,7 +61,7 @@ Root: `ZipppShell(tone = Page)`; background `#E8E8E8` (`ZipppColors.page`).
 Content column width is `min(screen, 430 dp)`, centred.
 
 ```text
-ZipppHeader                       (01 spec: wordmark left; gear right; no Home, no pill)
+ZipppHeader                       (01 spec: wordmark left; Home and gear right; no pill)
 PhoneShell content column         px 24, pt 16, pb 48, gap 16, scrollable
   [A] SheetPill row               only when workspace title known; see below
   [B] Viewfinder
@@ -146,8 +148,9 @@ fixes the sizes.
   title SemiBold ink; a maroon "Top up" pill below.
 - Android: same card. Title key `android.error.no_credits` ("Sisa kuota scan Anda
   telah habis. Pemindaian baru belum tersedia."). Two buttons below, gap 8:
-  `android.error.no_credits.refresh` (Muat Ulang) and
-  `android.error.no_credits.support` (Bantuan). Both 48 dp tall, outline style.
+  `android.error.no_credits.refresh` (Muat Ulang, Mist 52 dp) and
+  `android.error.no_credits.support` (Bantuan, Outline 52 dp). Heights from the
+  canonical table in file 01 section 3.
   No purchase link, no "buy on the web" text (DEC-002).
 - Shown only when the plan or balance says empty. Unknown is not empty. See
   state table.
@@ -166,6 +169,10 @@ fixes the sizes.
   dp, `RoundedCornerShape(4.dp)`, 1 dp `ZipppColors.line` outline, `ContentScale.Crop`;
   text column, gap 12 from thumbnail: title 14 sp Bold ink, one line ellipsis;
   subtitle 12 sp `ZipppColors.muted`: `{count} to review` plus ` · i/n` when n > 1.
+  `n` is the number of drafts in `BatchStore` whose status is not `accepted` or
+  `sending`, in list order, and `i` is the 1-based position of the shown draft. The
+  review sheet header (file 03) writes the same `{i}/{n}` from the same list, so both
+  recompute on one snapshot whenever a draft is accepted, deleted or added.
 - Title rule (web `miniTitle`): merchant if non-blank; else `app.review.reading`
   while the read is in flight; else `app.queue.failed` if failed; else
   `app.review.openCard`.
@@ -173,8 +180,8 @@ fixes the sizes.
 ### [F] Open sheet button
 
 - Shown when `workspace.spreadsheet_id` is known.
-- `Row` centred, gap 8, `RoundedCornerShape(50)`, background mist `#C9CFD9`,
-  padding horizontal 24, vertical 16 (height 56 dp), text SemiBold ink 14 sp,
+- Outline button, 52 dp (01 canonical table), full width, `RoundedCornerShape(50)`,
+  1 dp `line` border, transparent background, text SemiBold ink 14 sp, gap 8,
   icon `ic_sheets` 20 dp (green, not tinted), key `app.sheets.open`.
 - Tap opens `https://docs.google.com/spreadsheets/d/{id}/edit` with
   `ACTION_VIEW`.
@@ -194,7 +201,7 @@ fixes the sizes.
 
 | State | Trigger | Viewfinder | Controls | Notes |
 |---|---|---|---|---|
-| No permission | `CAMERA` not granted | 96 dp, centre text `android.camera.permission`, button `android.camera.allow` (48 dp) | Upload still works | Gallery path stays usable |
+| No permission | `CAMERA` not granted | 96 dp, centre text `android.camera.permission`, button `android.camera.allow` (Mist, 52 dp) | Upload still works | Gallery path stays usable |
 | Starting | camera provider binding | 96 dp, `app.capture.starting` | shutter disabled | |
 | Ready | bound, `ImageCapture` set | 3:4 live preview, guide, hint | all enabled | |
 | Capturing | shutter tapped | flash overlay 160 ms, then "reading" overlay | shutter disabled until bytes ready | |
@@ -220,7 +227,7 @@ Error codes shown on a failed draft (mapped, never raw server strings):
 | append 402 / `NO_CREDITS` | | `android.error.no_credits` and [D] |
 | append `PLAN_LIMIT` | | `android.plan.limit` |
 | append `GOOGLE_RECONSENT` | | `android.error.google_reconsent` |
-| append `NO_SHEET` | | `android.error.no_sheet` |
+| append `NO_SHEET` | | `android.error.no_sheet` plus a Mist 52dp button `android.error.no_sheet.action` that opens sheet setup (file 06, wording task W-2) |
 | append other | | `android.error.append` |
 
 ## 5. Behaviour, step by step
@@ -229,7 +236,8 @@ Error codes shown on a failed draft (mapped, never raw server strings):
 
 1. Entry is only from Home: the Scan receipt button (56dp) opens this screen.
    It is never the first screen after sign in.
-2. System back, and the header wordmark, return to Home. Opening a draft from
+2. System back, and the header wordmark and Home button, return to Home. Back never
+   returns to the notification or another app; it always lands on Home. Opening a draft from
    Home (Review) shows this screen with the review sheet over it; closing the
    sheet leaves the user on Capture, back returns to Home.
 3. After an accepted receipt is queued, the user stays on Capture to take the next
@@ -293,7 +301,7 @@ Not ported. See section 8.
   `Modifier.minimumInteractiveComponentSize()` or an explicit `heightIn(48.dp)`.
   A visual that is smaller (pills at 36 dp, strip arrows) keeps its look inside
   the larger hit box.
-- Primary and full-width buttons: 52 to 56 dp tall. Open sheet is 56 dp.
+- Button heights follow the canonical table in 01 section 3. Open sheet is Outline, 52 dp.
 - Viewfinder is one large target and satisfies the rule by size.
 - Gap between two adjacent hit boxes is at least 8 dp.
 
@@ -345,7 +353,7 @@ a Flash on/off `stateDescription` pair. The Manual label moved to Home
 
 Each item can be checked from a phone screenshot or logcat.
 
-1. Header is visible on the capture screen: wordmark left, gear right, no Home,
+1. Header is visible on the capture screen: wordmark left, Home and gear right,
    no pill, no credit number. Screenshot.
 2. No "Space" or "Pengaturan" text links and no Manual pill under the controls. Screenshot.
 3. Viewfinder has a 14 dp rounded corner, ratio 3:4, and the live camera image
@@ -374,7 +382,7 @@ Each item can be checked from a phone screenshot or logcat.
 14. Take 3 photos in a row without waiting: three drafts, `1/3` style counter,
     at most 3 concurrent extract requests in logcat.
 15. Strip arrows are 48 dp, disabled at the ends at 30% alpha.
-16. Open sheet button is 56 dp tall, mist background, green Sheets icon; tapping
+16. Open sheet button is 52 dp tall, outline style (1 dp line border), green Sheets icon; tapping
     it opens the Google Sheet. When the queue empties it flashes green 3 times.
 17. Toast shows "Tersimpan" (`app.review.saved`) for about 1.8 s after an
     accepted receipt is appended. When the queue empties it shows

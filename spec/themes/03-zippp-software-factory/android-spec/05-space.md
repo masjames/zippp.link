@@ -1,8 +1,10 @@
 # 05 Space
 
-Android spec for FEAT-118. Conversion table, tokens and touch-target rules are in `01-shell-and-navigation.md`.
+Android spec for FEAT-118. Conversion table, tokens, touch-target rules and the canonical button table are in `01-shell-and-navigation.md`. Button kinds and heights below follow that table.
 
 Web source: `src/app/app/settings/space/page.tsx` (route `/app/settings/space`).
+
+Navigation on Android: Space is a top-level screen. Entry points are the Space card on Home (file 07) and the Space button in Settings (file 04). System back and the header Home button return to Home, whichever entry was used (owner decision 2026-11-05, 01 section 5).
 Android source: `ui/space/SpaceScreen.kt`.
 
 ## 1. Purpose
@@ -40,7 +42,7 @@ ZipppSectionCard
   Text app.space.create.name            ZipppType.smallStrong, muted      (label)
   TextField                             height 52dp, radius 6dp, 1dp border line, background page, text 14sp,
                                         placeholder app.space.create.placeholder, maxLength 80
-  Button app.space.create.button        Brand (orange, ink text), 56dp, full width
+  Button app.space.create.button        Brand (orange, ink text, as on web), 56dp, full width
                                         busy: app.space.create.busy, disabled
 ```
 
@@ -91,16 +93,16 @@ ZipppSectionCard (padding 16)
     TextField name                        52dp, maxLength 80
     Row(spacedBy 8): amount (weight 1, decimal keyboard) and, for goal, progress (weight 1)
     TextField note                        52dp, maxLength 280
-    Row(spacedBy 8): Save or Add (weight 1, Brand, 52dp), Cancel (only when editing, Mist, 52dp)
+    Row(spacedBy 8): Save or Add (weight 1, Brand, 56dp), Cancel (only when editing, Mist, 52dp); buttons in one row share the tallest height (01 section 3)
     Text error                            small danger
   Owner: divider 1dp line, padding top 16
     Text app.space.invite.title           bodyStrong
     Text app.space.invite.emailLabel      smallStrong muted
     TextField email                       52dp, keyboard email
-    Button app.space.invite.button        Mist, 56dp, busy app.space.invite.busy
+    Button app.space.invite.button        Mist, 52dp, busy app.space.invite.busy
     Text invite notice                    small muted
     Invite link block: label, selectable text (break all), Copy 48dp row, orange; copied state app.space.invite.copied
-  Member: Button app.space.leave.button   Mist with danger text, 56dp
+  Member: Button app.space.leave.button   Danger text kind, 52dp
   Text actionError                        small danger
 ```
 
@@ -123,7 +125,7 @@ ZipppSectionCard (padding 16)
 | Load list | `GET /api/spaces` |
 | Create | `POST /api/spaces` `{ display_name }`, then reload list and select the new id |
 | Load detail | `GET /api/spaces/{id}` |
-| Invite | `POST /api/spaces/{id}/invite` `{ email }`, response `path`, `emailed`. Build link as `https://zippp.link` plus `path` (use the configured base URL, not the device origin) |
+| Invite | `POST /api/spaces/{id}/invite` `{ email }`, response `path`, `emailed`. Build link as the configured base URL plus `path`. The base URL is the `BuildConfig` API base, which must be the `www` host (`https://www.zippp.link` in production, `https://preview.zippp.link` for Preview), never the apex `zippp.link`, because the apex answers with a 308 redirect that drops the Authorization header (file 00). Never use the device origin |
 | Remove member | `DELETE /api/spaces/{id}/members/{userId}` |
 | Leave | `POST /api/spaces/{id}/leave` |
 | List items | `GET /api/spaces/{id}/assets` |
@@ -167,7 +169,7 @@ Money wording: `app.space.items.value` is "Value {amount}" with no currency. Kee
 ## 9. Acceptance checklist
 
 1. Header shows wordmark, Home and Settings. Title "Zippp Space" is 30sp Archivo ExtraBold.
-2. The create card is white, 8dp corners, with a 52dp name field and an orange 56dp button.
+2. The create card is white, 8dp corners, with a 52dp name field and an orange 56dp button. Invite is mist 52dp, Leave is danger text 52dp.
 3. The Space list shows one card per Space. The selected card is mist, the others white. Name is 18sp ExtraBold, role is 12sp muted at the right.
 4. The detail card shows name 20sp, role, Members, Assets and goals, the form, then Invite (owner) or Leave (member).
 5. Remove, Edit, Archive, Copy are each at least 48dp tall.
@@ -180,3 +182,4 @@ Money wording: `app.space.items.value` is "Value {amount}" with no currency. Kee
 12. The same Space and the same items appear on web and on the phone for the same account.
 13. Loading, error and empty list states each render their message, and none leaves a blank screen.
 14. At 1.3x font scale the form fields and buttons do not overlap or clip.
+15. System back from Space lands on Home, whether Space was opened from the Home card or from Settings.

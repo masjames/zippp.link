@@ -70,8 +70,8 @@ Facts:
   capture. The header Home button is hidden on `/app/snap` (`AppShell.tsx:130`).
 - So Android matches web today. The owner wants a different main screen.
 
-Decision needed (not guessed here): what the Android main screen shows. See
-`01-screen-specs.md` for the proposal.
+Decided 2026-11-05: Android opens on a new Home dashboard. See
+`01-shell-and-navigation.md` section 6 and `07-home-dashboard.md`.
 
 ## Defect 2: flash
 
@@ -92,7 +92,7 @@ off when the screen leaves composition or the app stops.
 ## Defect 3: button sizes
 
 Rule for the spec: every tappable is at least 48dp tall and 48dp wide.
-`ZipppButton` is 48dp (`Shell.kt`), which is fine.
+`ZipppButton` is 48dp (`Shell.kt`). Superseded: heights now follow the canonical button table in `01-shell-and-navigation.md` section 3 (56dp Primary and Brand, 52dp Mist, Outline and Danger text).
 
 | Tappable | File:line | Approx size | Verdict |
 |---|---|---|---|
@@ -103,7 +103,7 @@ Rule for the spec: every tappable is at least 48dp tall and 48dp wide.
 | Review minimize pill | `ReviewScreen.kt:476-481` | text with small padding | Too small |
 | Review prev/next | `ReviewScreen.kt:520` | `size(32.dp)` | Too small |
 | Review month/category selects | `ReviewScreen.kt:635` | not measured | Check |
-| ZipppButton (all screens) | `Shell.kt` | 48dp | OK |
+| ZipppButton (all screens) | `Shell.kt` | 48dp | Meets the 48dp floor; must change to the canonical table heights |
 | Settings switch | `SettingsScreen.kt` | Material default | OK |
 | Sign-in and pairing buttons | `SignInScreen.kt`, `PairingScreen.kt` | not measured | Check |
 

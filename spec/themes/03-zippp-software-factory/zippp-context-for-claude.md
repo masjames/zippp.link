@@ -1072,7 +1072,7 @@ Goal: no Play Billing / IAP; checkout stays on the web (strategy, not a legal gu
   - `play`: no GitHub APK install, no `REQUEST_INSTALL_PACKAGES`; future Play IAU
   - `sideload`: `REQUEST_INSTALL_PACKAGES`; future GitHub OTA via `/api/app-version`
 
-### Current app flow (as built, device run pending)
+### Current app flow (as built today, device run pending)
 
 ```text
 MainActivity
@@ -1083,15 +1083,32 @@ MainActivity
               -> ReviewScreen as an overlay (ops, line edits, flags, corrections)
                  -> Accept -> send queue -> POST /api/sheets/append
                  -> Delete -> discard
-            Header (all screens except capture): Home, Settings
-            Settings -> balance, notification capture, sign out
+            Settings -> quota, notification capture, sign out
             Space    -> members, invites, assets, goals
             Manual   -> POST /api/scan/manual
 ```
 
-Per-screen Android specs live in `android-spec/` (index in the FEAT-118 card). FEAT-118 is rebuilding the chrome and screens to match the web (web is the visual
-reference). Slices S1 and S2 are built: tokens, `Shell.kt`, header, Settings.
-Capture, Review sheet, Space and the `me` payload change are still open.
+### Target app flow (FEAT-118, FEAT-120; specs in `android-spec/`)
+
+```text
+Sign in -> sheet check (grant, choose, create) -> HOME (main dashboard)
+HOME: today and last spending read from the user's Sheet, Sheets card, quota bar,
+      Space card, drafts card, Scan and Manual buttons
+  Scan   -> Capture (back always returns Home) -> Review sheet -> send queue
+  Manual -> Manual entry (Home only, not on Capture)
+  Space card -> Space (also linked from Settings; back returns Home)
+  gear   -> Settings
+Header on every screen except sign in and sheet choose: wordmark, Home (not on Home),
+Settings (not on Settings). No credit pill on Android (DEC-002).
+```
+
+Per-screen Android specs live in `android-spec/` (index in the FEAT-118 card). FEAT-118
+is rebuilding the chrome and screens to match the web (web is the visual reference).
+Built and compiling: tokens, `Shell.kt`, header, Settings quota, Space, Capture and
+Review rewrite from the earlier plan. Not built: the Home dashboard (FEAT-120), the
+bearer sheet and device routes with the Google grant (FEAT-119), and the screen
+changes listed in `android-spec/02` to `07`. Button heights follow the canonical table
+in `android-spec/01` section 3.
 
 `ApiClient`: claim, extract, append. Preview builds may send a Vercel bypass
 header — keep that APK private.
