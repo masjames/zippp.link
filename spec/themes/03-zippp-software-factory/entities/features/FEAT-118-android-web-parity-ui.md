@@ -75,6 +75,12 @@ numbered screenshot checklist). Code agents implement from these files only.
 | `android-spec/05-space.md` | Space |
 | `android-spec/06-sheet-choose-and-sign-in.md` | Sheet setup and sign-in |
 | `android-spec/07-home-dashboard.md` | Home dashboard (FEAT-120) |
+| `android-spec/08-flows-system-wireframes.md` | User flow, system diagram, wireframes, contradictions resolved |
+| `android-spec/09-bearer-route-slice.md` | Bearer auth for sheet and device routes (FEAT-119) |
+| `android-spec/10-pairing.md` | Pairing code screen |
+| `android-spec/11-manual-entry.md` | Manual entry |
+| `android-spec/12-google-grant.md` | Google Drive and Sheets grant |
+| `android-spec/07-home-dashboard.md` | Home dashboard (FEAT-120) |
 
 # Slices
 
