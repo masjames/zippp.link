@@ -1,4 +1,4 @@
-// @implements FEAT-102
+// @implements FEAT-102, FEAT-118
 package link.zippp.app.ui.review
 
 import androidx.compose.foundation.BorderStroke
@@ -29,6 +29,16 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import link.zippp.app.ui.theme.ZipppButton
+import link.zippp.app.ui.theme.ZipppButtonKind
+import link.zippp.app.ui.theme.ZipppType
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -80,10 +90,13 @@ fun ReviewScreen(
     token: String,
     receipt: Receipt,
     scanId: String,
-    credits: Int,
+    index: Int,
+    count: Int,
+    onPrev: () -> Unit,
+    onNext: () -> Unit,
+    onMinimize: () -> Unit,
     onDiscard: () -> Unit,
     onAccept: (AppendRequest) -> Unit,
-    overlay: Boolean = false,
     onSessionLost: () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
@@ -111,7 +124,7 @@ fun ReviewScreen(
     var payment by remember(receipt) { mutableStateOf("") }
     var purpose by remember(receipt) { mutableStateOf("") }
     var customer by remember(receipt) { mutableStateOf("") }
-    var editing by remember { mutableStateOf(false) }
+    val editing = true
     var busy by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<Int?>(null) }
     var outOfCredits by remember { mutableStateOf(false) }
@@ -159,54 +172,44 @@ fun ReviewScreen(
     val blocked = unresolved.isNotEmpty() && !acknowledged
     val showOps = showStaff || showOutlet || showPayment || showPurpose || showCustomer
 
-    Box(
-        modifier = if (overlay) {
-            Modifier
-                .fillMaxSize()
-                .background(Color(0x99000000))
+    BoxWithConstraints(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0x73000000))
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+                onClick = onMinimize,
+            ),
+        contentAlignment = Alignment.BottomCenter,
+    ) {
+        val maxSheetHeight = maxHeight * SHEET_MAX_HEIGHT
+        Column(
+            modifier = Modifier
+                .widthIn(max = 430.dp)
+                .fillMaxWidth()
+                .heightIn(max = maxSheetHeight)
+                .clip(RoundedCornerShape(topStart = ZipppRadius.phone, topEnd = ZipppRadius.phone))
+                .background(ZipppColors.card)
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null,
-                ) { }
-        } else {
-            Modifier
-                .fillMaxSize()
-                .background(ZipppColors.page)
-        },
-        contentAlignment = Alignment.TopCenter,
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .widthIn(max = 430.dp)
-                .verticalScroll(rememberScrollState())
-                .padding(ZipppSpace.page),
-            verticalArrangement = Arrangement.spacedBy(ZipppSpace.gap),
+                ) { },
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = stringResource(R.string.review_title),
-                    modifier = Modifier.weight(1f),
-                    style = MaterialTheme.typography.titleMedium,
-                    color = ZipppColors.ink,
-                )
-                Text(
-                    text = "${stringResource(R.string.scan_balance_label)}: $credits",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = ZipppColors.muted,
-                )
-            }
+            SheetHeader(
+                index = index,
+                count = count,
+                onPrev = onPrev,
+                onNext = onNext,
+                onMinimize = onMinimize,
+            )
+            Hairline()
 
             Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(ZipppRadius.card))
-                    .background(ZipppColors.card)
-                    .border(1.dp, ZipppColors.line, RoundedCornerShape(ZipppRadius.card))
-                    .padding(16.dp),
+                    .weight(1f, fill = false)
+                    .verticalScroll(rememberScrollState())
+                    .padding(12.dp),
                 verticalArrangement = Arrangement.spacedBy(ZipppSpace.gap),
             ) {
                 ReviewField(
@@ -214,8 +217,8 @@ fun ReviewScreen(
                     value = merchant,
                     onChange = { merchant = it },
                     editing = editing,
-                    textStyle = MaterialTheme.typography.headlineMedium,
-                    valueColor = ZipppColors.maroon,
+                    textStyle = ZipppType.h3,
+                    valueColor = ZipppColors.ink,
                 )
 
                 Row(
@@ -223,99 +226,81 @@ fun ReviewScreen(
                     horizontalArrangement = Arrangement.spacedBy(ZipppSpace.gap),
                 ) {
                     ReviewField(
+                        label = stringResource(R.string.review_category),
+                        value = category,
+                        onChange = { category = it },
+                        editing = editing,
+                        modifier = Modifier.weight(1f),
+                    )
+                    ReviewField(
                         label = stringResource(R.string.review_date),
                         value = date,
                         onChange = { date = it },
                         editing = editing,
                         modifier = Modifier.weight(1f),
                     )
-                    ReviewField(
-                        label = stringResource(R.string.review_total),
-                        value = total,
-                        onChange = { total = it },
-                        editing = editing,
-                        modifier = Modifier.weight(1f),
-                        textStyle = MaterialTheme.typography.titleMedium
-                            .copy(fontFeatureSettings = "tnum"),
-                        align = TextAlign.End,
-                    )
                 }
-
                 if (dateAssumed) {
                     Text(
                         text = stringResource(R.string.review_date_assumed),
-                        style = MaterialTheme.typography.bodySmall,
+                        style = ZipppType.small,
                         color = ZipppColors.muted,
                     )
                 }
 
                 ReviewField(
-                    label = stringResource(R.string.review_category),
-                    value = category,
-                    onChange = { category = it },
+                    label = stringResource(R.string.review_total),
+                    value = total,
+                    onChange = { total = it },
                     editing = editing,
+                    textStyle = ZipppType.h3.copy(fontFeatureSettings = "tnum"),
+                    align = TextAlign.End,
                 )
 
                 if (lines.isNotEmpty()) {
-                    Hairline()
-
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        lines.forEachIndexed { index, line ->
-                            if (editing) {
-                                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        lines.forEachIndexed { lineIndex, line ->
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .border(
+                                        1.dp,
+                                        ZipppColors.line,
+                                        RoundedCornerShape(ZipppRadius.sheet),
+                                    )
+                                    .padding(6.dp),
+                                verticalArrangement = Arrangement.spacedBy(6.dp),
+                            ) {
+                                ReviewField(
+                                    label = stringResource(R.string.review_description),
+                                    value = line.description,
+                                    onChange = { lines[lineIndex] = line.copy(description = it) },
+                                    editing = true,
+                                )
+                                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                     ReviewField(
-                                        label = stringResource(R.string.review_description),
-                                        value = line.description,
-                                        onChange = { lines[index] = line.copy(description = it) },
+                                        label = stringResource(R.string.review_qty),
+                                        value = line.qty,
+                                        onChange = { lines[lineIndex] = line.copy(qty = it) },
                                         editing = true,
-                                    )
-                                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                        ReviewField(
-                                            label = stringResource(R.string.review_qty),
-                                            value = line.qty,
-                                            onChange = { lines[index] = line.copy(qty = it) },
-                                            editing = true,
-                                            modifier = Modifier.weight(1f),
-                                        )
-                                        ReviewField(
-                                            label = stringResource(R.string.review_amount),
-                                            value = line.amount,
-                                            onChange = { lines[index] = line.copy(amount = it) },
-                                            editing = true,
-                                            modifier = Modifier.weight(1f),
-                                            textStyle = MaterialTheme.typography.bodyMedium
-                                                .copy(fontFeatureSettings = "tnum"),
-                                            align = TextAlign.End,
-                                        )
-                                    }
-                                }
-                            } else {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                ) {
-                                    Text(
-                                        text = line.description.ifBlank { "-" },
                                         modifier = Modifier.weight(1f),
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        color = ZipppColors.ink,
                                     )
-                                    Text(
-                                        text = line.amount.ifBlank { "-" },
-                                        style = MaterialTheme.typography.bodyMedium
-                                            .copy(fontFeatureSettings = "tnum"),
-                                        color = ZipppColors.ink,
-                                        textAlign = TextAlign.End,
+                                    ReviewField(
+                                        label = stringResource(R.string.review_amount),
+                                        value = line.amount,
+                                        onChange = { lines[lineIndex] = line.copy(amount = it) },
+                                        editing = true,
+                                        modifier = Modifier.weight(1f),
+                                        textStyle = ZipppType.body.copy(fontFeatureSettings = "tnum"),
+                                        align = TextAlign.End,
                                     )
                                 }
                             }
-                            if (index != lines.lastIndex) Hairline()
                         }
                     }
                 }
 
                 if (showOps) {
-                    Hairline()
                     if (showStaff) {
                         ChoiceField(
                             label = stringResource(R.string.review_staff),
@@ -362,36 +347,22 @@ fun ReviewScreen(
                 }
 
                 if (hardFlags.isNotEmpty()) {
-                    Hairline()
                     Text(
                         text = stringResource(R.string.review_hard_flags),
                         color = ZipppColors.danger,
-                        style = MaterialTheme.typography.bodySmall,
-                        fontWeight = FontWeight.Medium,
+                        style = ZipppType.smallStrong,
                     )
                     if (unresolved.isNotEmpty() && !acknowledged) {
-                        OutlinedButton(
+                        ZipppButton(
+                            text = stringResource(R.string.review_acknowledge),
                             onClick = { acknowledged = true },
                             modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(ZipppRadius.pill),
-                            border = BorderStroke(1.dp, ZipppColors.line),
-                            colors = ButtonDefaults.outlinedButtonColors(
-                                contentColor = ZipppColors.ink,
-                            ),
-                            contentPadding = PaddingValues(
-                                horizontal = 16.dp,
-                                vertical = 10.dp,
-                            ),
-                        ) {
-                            Text(
-                                text = stringResource(R.string.review_acknowledge),
-                                maxLines = 1,
-                            )
-                        }
+                            kind = ZipppButtonKind.Outline,
+                        )
                     } else if (acknowledged) {
                         Text(
                             text = stringResource(R.string.review_acknowledge),
-                            style = MaterialTheme.typography.bodySmall,
+                            style = ZipppType.small,
                             color = ZipppColors.muted,
                         )
                     }
@@ -401,154 +372,163 @@ fun ReviewScreen(
                     Text(
                         text = stringResource(it),
                         color = ZipppColors.danger,
-                        style = MaterialTheme.typography.bodySmall,
+                        style = ZipppType.small,
                     )
                 }
 
                 if (outOfCredits) {
                     Text(
                         text = stringResource(R.string.no_credits_message),
-                        style = MaterialTheme.typography.bodySmall,
+                        style = ZipppType.small,
                         color = ZipppColors.muted,
                     )
                 }
+            }
 
-                Hairline()
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Button(
-                        enabled = !blocked,
-                        onClick = {
-                            error = null
-                            val editedReceipt = receipt.copy(
-                                merchant = merchant.trim().ifBlank { null },
-                                date = date.trim().ifBlank { null },
-                                category = category.trim().ifBlank { null },
-                                total = total.trim().toDoubleOrNull(),
-                                lineItems = lines.mapIndexed { index, line ->
-                                    LineItem(
-                                        description = line.description.trim().ifBlank { null },
-                                        qty = line.qty.trim().toDoubleOrNull(),
-                                        unitPrice = receipt.lineItems.getOrNull(index)?.unitPrice,
-                                        amount = line.amount.trim().toDoubleOrNull(),
-                                    )
-                                },
-                            )
-                            val correction = CorrectionRequest(
-                                runId = scanId,
-                                countChanged = false,
-                                fields = buildCorrectionFields(
-                                    receipt = receipt,
-                                    merchant = merchant,
-                                    date = date,
-                                    dateAssumed = dateAssumed,
-                                    total = total,
-                                    lines = lines,
-                                ),
-                            )
-                            scope.launch {
-                                runCatching { api.logCorrections(token, correction) }
-                            }
-                            onAccept(
-                                AppendRequest(
-                                    scanId = scanId,
-                                    receipt = editedReceipt,
-                                    staff = if (showStaff) staff.trim().ifBlank { null } else null,
-                                    outlet = if (showOutlet) outlet.trim().ifBlank { null } else null,
-                                    payment = if (showPayment) payment.trim().ifBlank { null } else null,
-                                    purpose = if (showPurpose) purpose.trim().ifBlank { null } else null,
-                                    customer = if (showCustomer) customer.trim().ifBlank { null } else null,
+            Hairline()
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .navigationBarsPadding()
+                    .padding(horizontal = 12.dp, vertical = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                ZipppButton(
+                    text = stringResource(R.string.review_accept),
+                    onClick = {
+                        error = null
+                        val editedReceipt = receipt.copy(
+                            merchant = merchant.trim().ifBlank { null },
+                            date = date.trim().ifBlank { null },
+                            category = category.trim().ifBlank { null },
+                            total = total.trim().toDoubleOrNull(),
+                            lineItems = lines.mapIndexed { i, line ->
+                                LineItem(
+                                    description = line.description.trim().ifBlank { null },
+                                    qty = line.qty.trim().toDoubleOrNull(),
+                                    unitPrice = receipt.lineItems.getOrNull(i)?.unitPrice,
+                                    amount = line.amount.trim().toDoubleOrNull(),
                                 )
-                            )
-                        },
-                        modifier = Modifier.weight(1.4f),
-                        shape = RoundedCornerShape(ZipppRadius.pill),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = ZipppColors.orange,
-                            contentColor = ZipppColors.ink,
-                            disabledContainerColor = ZipppColors.mist,
-                            disabledContentColor = ZipppColors.muted,
-                        ),
-                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 10.dp),
-                    ) {
-                        if (busy) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(18.dp),
-                                color = ZipppColors.ink,
-                                strokeWidth = 2.dp,
-                            )
-                        } else {
-                            Text(
-                                text = stringResource(R.string.review_accept),
-                                fontWeight = FontWeight.SemiBold,
-                                maxLines = 1,
-                            )
+                            },
+                        )
+                        val correction = CorrectionRequest(
+                            runId = scanId,
+                            countChanged = false,
+                            fields = buildCorrectionFields(
+                                receipt = receipt,
+                                merchant = merchant,
+                                date = date,
+                                dateAssumed = dateAssumed,
+                                total = total,
+                                lines = lines,
+                            ),
+                        )
+                        scope.launch {
+                            runCatching { api.logCorrections(token, correction) }
                         }
-                    }
-                    OutlinedButton(
-                        onClick = { editing = !editing },
-                        enabled = !busy,
-                        modifier = Modifier.weight(1f),
-                        shape = RoundedCornerShape(ZipppRadius.pill),
-                        border = BorderStroke(1.dp, ZipppColors.line),
-                        colors = ButtonDefaults.outlinedButtonColors(
-                            contentColor = ZipppColors.ink,
-                            disabledContentColor = ZipppColors.muted,
-                        ),
-                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 10.dp),
-                    ) {
-                        Text(
-                            text = stringResource(R.string.review_edit),
-                            fontWeight = FontWeight.SemiBold,
-                            maxLines = 1,
+                        onAccept(
+                            AppendRequest(
+                                scanId = scanId,
+                                receipt = editedReceipt,
+                                staff = if (showStaff) staff.trim().ifBlank { null } else null,
+                                outlet = if (showOutlet) outlet.trim().ifBlank { null } else null,
+                                payment = if (showPayment) payment.trim().ifBlank { null } else null,
+                                purpose = if (showPurpose) purpose.trim().ifBlank { null } else null,
+                                customer = if (showCustomer) customer.trim().ifBlank { null } else null,
+                            )
                         )
-                    }
-                    OutlinedButton(
-                        onClick = onDiscard,
-                        enabled = !busy,
-                        modifier = Modifier.weight(1f),
-                        shape = RoundedCornerShape(ZipppRadius.pill),
-                        border = BorderStroke(1.dp, ZipppColors.line),
-                        colors = ButtonDefaults.outlinedButtonColors(
-                            contentColor = ZipppColors.danger,
-                            disabledContentColor = ZipppColors.muted,
-                        ),
-                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 10.dp),
-                    ) {
-                        Text(
-                            text = stringResource(R.string.review_discard),
-                            fontWeight = FontWeight.SemiBold,
-                            maxLines = 1,
-                        )
-                    }
-                }
-
-                if (outOfCredits) {
-                    Button(
-                        onClick = onDiscard,
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(ZipppRadius.pill),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = ZipppColors.orange,
-                            contentColor = ZipppColors.ink,
-                        ),
-                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 10.dp),
-                    ) {
-                        Text(
-                            text = stringResource(R.string.no_credits_refresh),
-                            fontWeight = FontWeight.SemiBold,
-                            maxLines = 1,
-                        )
-                    }
-                }
+                    },
+                    modifier = Modifier.weight(1f),
+                    enabled = !blocked && !busy,
+                )
+                ZipppButton(
+                    text = if (outOfCredits) {
+                        stringResource(R.string.no_credits_refresh)
+                    } else {
+                        stringResource(R.string.review_discard)
+                    },
+                    onClick = onDiscard,
+                    kind = ZipppButtonKind.Danger,
+                    enabled = !busy,
+                    modifier = Modifier.widthIn(min = 112.dp),
+                )
             }
         }
     }
 }
+
+/** Minimize pill on the left, previous / index / next on the right. */
+@Composable
+private fun SheetHeader(
+    index: Int,
+    count: Int,
+    onPrev: () -> Unit,
+    onNext: () -> Unit,
+    onMinimize: () -> Unit,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 12.dp, vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            text = "↓ " + stringResource(R.string.review_minimize),
+            modifier = Modifier
+                .clip(RoundedCornerShape(ZipppRadius.pill))
+                .background(ZipppColors.mist)
+                .clickable(onClick = onMinimize)
+                .padding(horizontal = 12.dp, vertical = 6.dp),
+            style = ZipppType.smallStrong,
+            color = ZipppColors.ink,
+            maxLines = 1,
+        )
+        Spacer(Modifier.weight(1f))
+        SheetStep(
+            glyph = "‹",
+            description = stringResource(R.string.review_prev),
+            enabled = index > 0,
+            onClick = onPrev,
+        )
+        Text(
+            text = "${index + 1} / $count",
+            modifier = Modifier.widthIn(min = 72.dp),
+            style = ZipppType.smallStrong,
+            color = ZipppColors.muted,
+            textAlign = TextAlign.Center,
+            maxLines = 1,
+        )
+        SheetStep(
+            glyph = "›",
+            description = stringResource(R.string.review_next),
+            enabled = index < count - 1,
+            onClick = onNext,
+        )
+    }
+}
+
+@Composable
+private fun SheetStep(
+    glyph: String,
+    description: String,
+    enabled: Boolean,
+    onClick: () -> Unit,
+) {
+    Box(
+        modifier = Modifier
+            .size(32.dp)
+            .clip(RoundedCornerShape(ZipppRadius.pill))
+            .alpha(if (enabled) 1f else 0.3f)
+            .clickable(enabled = enabled, onClick = onClick)
+            .semantics { contentDescription = description },
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(text = glyph, style = ZipppType.h3, color = ZipppColors.ink)
+    }
+}
+
+private const val SHEET_MAX_HEIGHT = 0.88f
 
 /** Muted 12sp label above every value, like the web card's field labels. */
 @Composable

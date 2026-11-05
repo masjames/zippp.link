@@ -31,6 +31,8 @@ data class PairUser(
 data class Workspace(
     val ready: Boolean = false,
     @SerialName("spreadsheet_name") val spreadsheetName: String? = null,
+    @SerialName("spreadsheet_title") val spreadsheetTitle: String? = null,
+    @SerialName("spreadsheet_id") val spreadsheetId: String? = null,
     @SerialName("template_id") val templateId: String? = null,
     val headers: List<String> = emptyList(),
     @SerialName("column_map") val columnMap: Map<String, String> = emptyMap(),
