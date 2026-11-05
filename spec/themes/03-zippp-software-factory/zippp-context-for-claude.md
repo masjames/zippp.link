@@ -1055,7 +1055,7 @@ MainActivity
             Manual   -> POST /api/scan/manual
 ```
 
-FEAT-118 is rebuilding the chrome and screens to match the web (web is the visual
+Per-screen Android specs live in `android-spec/` (index in the FEAT-118 card). FEAT-118 is rebuilding the chrome and screens to match the web (web is the visual
 reference). Slices S1 and S2 are built: tokens, `Shell.kt`, header, Settings.
 Capture, Review sheet, Space and the `me` payload change are still open.
 

@@ -46,6 +46,7 @@ shell card, same type scale, same colours, same capture and review flow.
 
 | # | Decision | Why |
 |---|---|---|
+| 0 | Spec before code. No slice is built until its screen spec is agreed. | Owner call 2026-11-05. |
 | 1 | Web wins on layout, spacing, type and colour. | The user compares the two visually. |
 | 2 | Keep the FEAT-102 ops fields in the review sheet, styled like web fields, shown only when the template needs them. | The web card is behind the contract (§4.6). Parity must not drop contract fields. |
 | 3 | Drop `BatchScreen`. Queue lives in the inline strip and the review sheet. | Web has no batch screen. |
@@ -54,6 +55,22 @@ shell card, same type scale, same colours, same capture and review flow.
 | 8 | Web confirm card gets the FEAT-102 ops fields so both surfaces match. | Owner call 2026-11-05. |
 | 6 | Android settings shows only sections that exist on Android: balance, Space, notification capture, plan usage, open sheet, sign out. No Telegram, WhatsApp, language or referral. | Those need web-only flows. |
 | 7 | No new user-visible strings outside `spec/wording.txt`. Android strings come from `npm run android:strings`. | Project rule. |
+
+# Screen specs
+
+Spec first, code second. Each Android screen is specified from the web source in
+`android-spec/` (layout in dp, states, calls, 48dp touch targets, wording keys, and a
+numbered screenshot checklist). Code agents implement from these files only.
+
+| File | Screen |
+|---|---|
+| `android-spec/00-audit-and-defects.md` | Phone audit, root causes |
+| `android-spec/01-shell-and-navigation.md` | Header, navigation graph, home screen options |
+| `android-spec/02-capture.md` | Capture |
+| `android-spec/03-review-sheet.md` | Review bottom sheet |
+| `android-spec/04-settings.md` | Settings |
+| `android-spec/05-space.md` | Space |
+| `android-spec/06-sheet-choose-and-sign-in.md` | Sheet setup and sign-in |
 
 # Slices
 
