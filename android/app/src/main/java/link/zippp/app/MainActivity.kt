@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -24,7 +25,7 @@ import link.zippp.app.ui.camera.CameraScreen
 import link.zippp.app.ui.manual.ManualEntryScreen
 import link.zippp.app.ui.settings.SettingsScreen
 import link.zippp.app.ui.space.SpaceScreen
-import link.zippp.app.ui.batch.BatchScreen
+import link.zippp.app.ui.batch.BatchDraft
 import link.zippp.app.ui.batch.BatchStore
 import link.zippp.app.ui.review.ReviewScreen
 import link.zippp.app.data.AppendRequest
@@ -41,7 +42,7 @@ data class ManualPrefill(
     val merchant: String?,
 )
 
-private enum class RootScreen { Camera, Settings, Manual, Space, Batch, Review }
+private enum class RootScreen { Camera, Settings, Manual, Space, Review }
 
 class MainActivity : ComponentActivity() {
     private var pendingMagicToken = mutableStateOf<String?>(null)
@@ -215,15 +216,6 @@ private fun ZipppRoot(
                 },
             )
         }
-        RootScreen.Batch -> BatchScreen(
-            store = batch,
-            onCaptureMore = { screen = RootScreen.Camera },
-            onOpenDraft = { id ->
-                currentDraftId = id
-                screen = RootScreen.Review
-            },
-            onClose = { screen = RootScreen.Camera },
-        )
         RootScreen.Space -> AppFrame(
             showSettings = true,
             onHome = { screen = RootScreen.Camera },
@@ -270,7 +262,6 @@ private fun ZipppRoot(
                     onOpenSettings = {},
                     onOpenManual = {},
                     onOpenSpace = {},
-                    onOpenBatch = {},
                     batch = batch,
                     onOpenDraft = { },
                     onExtracted = { _, _ -> },
@@ -280,28 +271,42 @@ private fun ZipppRoot(
                 if (draft == null) {
                     screen = nextDraft()
                 } else {
-                    ReviewScreen(
-                        api = api,
-                        token = token!!,
-                        receipt = draft.receipt,
-                        scanId = draft.scanId,
-                        credits = credits,
-                        onDiscard = {
-                            batch.remove(draft.id)
-                            screen = nextDraft()
-                        },
-                        onAccept = { request ->
-                            batch.markAccepted(draft.id)
-                            outbox.trySend(draft.id to request)
-                            screen = nextDraft()
-                        },
-                        onSessionLost = {
-                            store.clear()
-                            token = null
-                            screen = RootScreen.Camera
-                        },
-                        overlay = true,
-                    )
+                    val reviewable = batch.items.filter {
+                        it.status == BatchDraft.STATUS_PENDING ||
+                            it.status == BatchDraft.STATUS_READY
+                    }
+                    val position = reviewable.indexOfFirst { it.id == draft.id }.coerceAtLeast(0)
+                    key(draft.id) {
+                        ReviewScreen(
+                            api = api,
+                            token = token!!,
+                            receipt = draft.receipt,
+                            scanId = draft.scanId,
+                            index = position,
+                            count = reviewable.size.coerceAtLeast(1),
+                            onPrev = {
+                                reviewable.getOrNull(position - 1)?.let { currentDraftId = it.id }
+                            },
+                            onNext = {
+                                reviewable.getOrNull(position + 1)?.let { currentDraftId = it.id }
+                            },
+                            onMinimize = { screen = RootScreen.Camera },
+                            onDiscard = {
+                                batch.remove(draft.id)
+                                screen = nextDraft()
+                            },
+                            onAccept = { request ->
+                                batch.markAccepted(draft.id)
+                                outbox.trySend(draft.id to request)
+                                screen = nextDraft()
+                            },
+                            onSessionLost = {
+                                store.clear()
+                                token = null
+                                screen = RootScreen.Camera
+                            },
+                        )
+                    }
                 }
             }
         }
@@ -313,7 +318,6 @@ private fun ZipppRoot(
             onOpenSettings = { screen = RootScreen.Settings },
             onOpenManual = { screen = RootScreen.Manual },
             onOpenSpace = { screen = RootScreen.Space },
-            onOpenBatch = { screen = RootScreen.Batch },
             batch = batch,
             onOpenDraft = { id ->
                 currentDraftId = id
