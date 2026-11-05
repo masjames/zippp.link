@@ -1005,20 +1005,26 @@ Goal: no Play Billing / IAP; checkout stays on the web (strategy, not a legal gu
   - `play`: no GitHub APK install, no `REQUEST_INSTALL_PACKAGES`; future Play IAU
   - `sideload`: `REQUEST_INSTALL_PACKAGES`; future GitHub OTA via `/api/app-version`
 
-### Current app flow (as shipped)
+### Current app flow (as built, device run pending)
 
 ```text
 MainActivity
   -> token in SecureTokenStore?
-     no  -> PairingScreen (manual 8-char code; no QR yet)
-     yes -> CameraScreen
-              -> capture
-              -> POST /api/extract
-              -> ReviewScreen
-                 -> Terima -> POST /api/sheets/append
-                 -> Ubah   -> edit merchant/total only
-                 -> Buang  -> discard
+     no  -> SignInScreen (Google, magic link, or pairing code)
+     yes -> CameraScreen (capture, inline draft strip)
+              -> POST /api/extract -> draft in BatchStore
+              -> ReviewScreen as an overlay (ops, line edits, flags, corrections)
+                 -> Accept -> send queue -> POST /api/sheets/append
+                 -> Delete -> discard
+            Header (all screens except capture): Home, Settings
+            Settings -> balance, notification capture, sign out
+            Space    -> members, invites, assets, goals
+            Manual   -> POST /api/scan/manual
 ```
+
+FEAT-118 is rebuilding the chrome and screens to match the web (web is the visual
+reference). Slices S1 and S2 are built: tokens, `Shell.kt`, header, Settings.
+Capture, Review sheet, Space and the `me` payload change are still open.
 
 `ApiClient`: claim, extract, append. Preview builds may send a Vercel bypass
 header — keep that APK private.
@@ -1146,10 +1152,21 @@ Never use `NEXT_PUBLIC_*` for secrets. PostHog public key is the exception.
 - pairing confirmed on a real device
 - capture / review / append **not** confirmed end to end
 
-### Repo state (2026-10-24)
+### Repo state (2026-11-05)
 
 | Item | Value |
 |---|---|
+| Working branch | `factory/software-factory` (to be retired, see below) |
+| `main` | Ancestor of the working branch. 0 commits behind, 66 ahead. |
+| `origin/main` | 10 commits behind local `main`. Nothing from FEAT-102 to FEAT-117 is pushed. |
+| Uncommitted | FEAT-118 S1 and S2 Android files, `scripts/gen-android-strings.mjs`, `strings.xml`, FEAT-118 card |
+| Rule | Commit with **explicit pathspecs**. Never `git add -A`. |
+
+Branch plan: fast-forward `main` to the working branch, push `main`, then work on
+short branches named `feat/<id>-<slug>` and `factory/<topic>` that branch from
+`main`. Factory tooling and product code are separate commits, but share `main`.
+
+---|---|
 | Branch | `factory/software-factory` |
 | HEAD | `d58f38a` — `factory: record FEAT-102 diagram and groom gate` |
 | Factory commits | M0–M7 + post-M7 UI/grooming (summarized in §16) |
@@ -1222,6 +1239,8 @@ Never use `NEXT_PUBLIC_*` for secrets. PostHog public key is the exception.
 - **FEAT-117** plan meter built: period and counter in Upstash, append blocks at
   the cap, Paddle checkout behind `PADDLE_PLAN_PRICE_ID`, web meter card, Android
   usage line. Prices stay outside the repo. Legacy credits still run.
+- **FEAT-118** Android web parity: slices S1 (tokens, shell, header, icons) and
+  S2 (header wired, Settings restyled) compile. S3 to S9 open. See the card.
 - FEAT-112 parked per DEC-003; do not treat companion-only docs as north star.
 - FEAT-102 flags: editing a flagged field or the acknowledge button clears the
   block. Correction telemetry posts per-field edited/flagged state; the
@@ -1631,19 +1650,18 @@ Re-run `assembleRelease` before shipping.
 
 Follow **ROAD-001**. Do not revive companion credit E2E as the main gate.
 
-1. **Phase 3 verification** — FEAT-113 / FEAT-114 code is complete and committed.
-   Prove Android sign-in and two-account Space on a device; reopen only if it fails.
-2. **FEAT-102 / FEAT-115** — both built, in Factory verify, and both need a
-   device run. Manual entry now gets a server-issued scan id, so credits and
-   idempotency behave exactly like a camera scan.
-3. **FEAT-117** — fair-use meter, Paddle checkout, Android usage built and in
-   Factory verify. Open: Paddle cancel UI, legacy credit migration. Then STORY-102
-   needs a real phone, so the rest of Phase 7 is yours.
-4. **STORY-102** — Space device proof (Phase 7).
-5. **FEAT-110** — Production mobile enable only after STORY-102.
-6. Keep distribution hygiene as needed: FEAT-105/106/108; FEAT-107 after auth.
-7. Commit with explicit pathspecs, never `git add -A`. Worktree is clean as of
-   2026-11-03.
+1. **FEAT-118** — Android web parity, one slice at a time (S3 to S7). Card has the
+   slice table. Owner answered the open questions (no pill, quota % on Settings, ops on web).
+2. **Phase 3 verification** — prove Android sign-in and two-account Space on a
+   device; reopen only if it fails.
+3. **FEAT-102 / FEAT-115** — built, in Factory verify, need a device run. Run them
+   together with the FEAT-118 screenshots.
+4. **FEAT-117** — fair-use meter, Paddle checkout, Android usage built and in
+   Factory verify. Open: Paddle cancel UI, legacy credit migration.
+5. **STORY-102** — Space device proof (Phase 7). Needs a real phone.
+6. **FEAT-110** — Production mobile enable only after STORY-102.
+7. Distribution hygiene as needed: FEAT-105/106/108; FEAT-107 after auth.
+8. Commit with explicit pathspecs, never `git add -A`.
 
 Parked: STORY-101, FEAT-109, FEAT-112 (blocked; decisions live in DEC-*).
 

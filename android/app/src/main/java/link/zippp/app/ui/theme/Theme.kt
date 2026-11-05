@@ -1,21 +1,11 @@
 package link.zippp.app.ui.theme
 
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Shapes
 import androidx.compose.material3.Typography
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.ui.unit.sp
-import androidx.compose.ui.text.font.Font
-import link.zippp.app.R
-
-/** Archivo for heads, Inter for body, bundled from the same OFL sources as web. */
-private val Head = FontFamily(Font(R.font.archivo))
-private val Body = FontFamily(Font(R.font.inter))
 
 private val Light = lightColorScheme(
     primary = ZipppColors.orange,
@@ -26,47 +16,24 @@ private val Light = lightColorScheme(
     onBackground = ZipppColors.ink,
     surface = ZipppColors.card,
     onSurface = ZipppColors.ink,
-    surfaceVariant = ZipppColors.peach,
+    surfaceVariant = ZipppColors.surface,
     onSurfaceVariant = ZipppColors.muted,
     outline = ZipppColors.line,
     error = ZipppColors.danger,
 )
 
-/**
- * Archivo is not bundled, so headlines use the condensed system face with the
- * same tight tracking as the web. Body stays system sans, like Inter fallback.
- */
+/** Same families and scale the web uses; screens read ZipppType directly. */
 private val Type = Typography(
-    headlineLarge = TextStyle(
-        fontFamily = Head,
-        fontWeight = FontWeight.Black,
-        fontSize = 32.sp,
-        lineHeight = 34.sp,
-        letterSpacing = (-1.0).sp,
-    ),
-    headlineMedium = TextStyle(
-        fontFamily = Head,
-        fontWeight = FontWeight.Black,
-        fontSize = 26.sp,
-        lineHeight = 28.sp,
-        letterSpacing = (-0.8).sp,
-    ),
-    titleMedium = TextStyle(
-        fontFamily = Head,
-        fontWeight = FontWeight.Bold,
-        fontSize = 16.sp,
-        lineHeight = 20.sp,
-    ),
-    bodyMedium = TextStyle(
-        fontFamily = Body,
-        fontSize = 14.sp,
-        lineHeight = 20.sp,
-    ),
-    bodySmall = TextStyle(
-        fontFamily = Body,
-        fontSize = 12.sp,
-        lineHeight = 16.sp,
-    ),
+    headlineLarge = ZipppType.h1,
+    headlineMedium = ZipppType.h2,
+    headlineSmall = ZipppType.h3,
+    titleMedium = ZipppType.h4,
+    bodyLarge = ZipppType.body,
+    bodyMedium = ZipppType.body,
+    bodySmall = ZipppType.small,
+    labelLarge = ZipppType.bodyStrong,
+    labelMedium = ZipppType.smallStrong,
+    labelSmall = ZipppType.label,
 )
 
 private val Shapes = Shapes(

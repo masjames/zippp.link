@@ -27,7 +27,7 @@ Without phases, every FEAT looks equally urgent.
 1. **Orient** — DIR/DEC/ROAD visible in Factory. **Done.**
 2. **Rewrite contracts** — living specs + backlog match DIR. **Done.**
 3. **Auth + Space spine** — FEAT-113, FEAT-114.
-4. **Capture loop** — FEAT-102 (reshape), FEAT-115; camera + manual + notify prompt.
+4. **Capture loop** — FEAT-102 (reshape), FEAT-115; camera + manual + notify prompt. FEAT-118 gives it the web look.
 5. **Assets + goals** — FEAT-116.
 6. **Fair-use meter** — FEAT-117 (web checkout; Android status only).
 7. **Device proof → prod** — STORY-102, then FEAT-110.

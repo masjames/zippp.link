@@ -54,6 +54,7 @@
     <string name="camera_gallery">Galeri</string>
     <string name="camera_manual">Manual</string>
     <string name="settings_title">Pengaturan</string>
+    <string name="nav_home">Beranda</string>
     <string name="settings_capture_title">Catat dari notifikasi</string>
     <string name="settings_capture_body">Zippp membaca notifikasi pembayaran hanya di perangkat ini, lalu meminta izin sebelum menyimpan. Tidak ada yang dikirim dari notifikasi.</string>
     <string name="settings_capture_access_on">Akses notifikasi aktif</string>

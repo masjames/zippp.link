@@ -68,6 +68,7 @@ const map = {
   camera_gallery: "android.camera.gallery",
   camera_manual: "android.camera.manual",
   settings_title: "android.settings.title",
+  nav_home: "app.nav.home",
   settings_capture_title: "android.settings.capture.title",
   settings_capture_body: "android.settings.capture.body",
   settings_capture_access_on: "android.settings.capture.accessOn",

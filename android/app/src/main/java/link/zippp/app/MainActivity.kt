@@ -5,7 +5,9 @@ import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
 import androidx.compose.runtime.Composable
@@ -28,6 +30,8 @@ import link.zippp.app.ui.review.ReviewScreen
 import link.zippp.app.data.AppendRequest
 import link.zippp.app.data.ApiException
 import kotlinx.coroutines.channels.Channel
+import link.zippp.app.ui.theme.ZipppColors
+import link.zippp.app.ui.theme.ZipppHeader
 import link.zippp.app.ui.theme.ZipppTheme
 
 /** Values carried from a capture prompt into manual entry. */
@@ -88,6 +92,25 @@ class MainActivity : ComponentActivity() {
         const val EXTRA_MANUAL = "zippp_manual"
         const val EXTRA_AMOUNT = "zippp_amount"
         const val EXTRA_MERCHANT = "zippp_merchant"
+    }
+}
+
+/** Web AppShell: header above the screen on every screen except capture. */
+@Composable
+private fun AppFrame(
+    showSettings: Boolean,
+    onHome: () -> Unit,
+    onSettings: () -> Unit,
+    content: @Composable () -> Unit,
+) {
+    Column(modifier = Modifier.fillMaxSize().background(ZipppColors.page)) {
+        ZipppHeader(
+            showHome = true,
+            showSettings = showSettings,
+            onHome = onHome,
+            onSettings = onSettings,
+        )
+        Box(modifier = Modifier.weight(1f)) { content() }
     }
 }
 
@@ -169,15 +192,20 @@ private fun ZipppRoot(
     }
 
     when (screen) {
-        RootScreen.Settings -> SettingsScreen(
-            credits = credits,
-            onSignOut = {
-                store.clear()
-                token = null
-                screen = RootScreen.Camera
-            },
-            onBack = { screen = RootScreen.Camera },
-        )
+        RootScreen.Settings -> AppFrame(
+            showSettings = false,
+            onHome = { screen = RootScreen.Camera },
+            onSettings = { screen = RootScreen.Settings },
+        ) {
+            SettingsScreen(
+                credits = credits,
+                onSignOut = {
+                    store.clear()
+                    token = null
+                    screen = RootScreen.Camera
+                },
+            )
+        }
         RootScreen.Batch -> BatchScreen(
             store = batch,
             onCaptureMore = { screen = RootScreen.Camera },
@@ -187,16 +215,22 @@ private fun ZipppRoot(
             },
             onClose = { screen = RootScreen.Camera },
         )
-        RootScreen.Space -> SpaceScreen(
-            api = api,
-            token = token!!,
-            onBack = { screen = RootScreen.Camera },
-            onSessionLost = {
-                store.clear()
-                token = null
-                screen = RootScreen.Camera
-            },
-        )
+        RootScreen.Space -> AppFrame(
+            showSettings = true,
+            onHome = { screen = RootScreen.Camera },
+            onSettings = { screen = RootScreen.Settings },
+        ) {
+            SpaceScreen(
+                api = api,
+                token = token!!,
+                onBack = { screen = RootScreen.Camera },
+                onSessionLost = {
+                    store.clear()
+                    token = null
+                    screen = RootScreen.Camera
+                },
+            )
+        }
         RootScreen.Manual -> ManualEntryScreen(
             api = api,
             token = token!!,
