@@ -19,6 +19,10 @@ Take a photo of a receipt, send it to `/api/extract`, queue the result for
 review. The screen is also the place where the user sees how many receipts are
 waiting, opens the Google Sheet, and reaches Settings.
 
+Capture is not the entry screen. The user reaches it from Home (file 07) with
+Scan receipt, and system back or the shutter flow returns to Home. Manual entry
+does not live here, it lives on Home.
+
 ## 2. Facts that correct earlier plans
 
 1. **The web header is shown on the capture screen.** `AppShell` renders the
@@ -44,9 +48,10 @@ waiting, opens the Google Sheet, and reaches Settings.
    `/api/corrections` accept the mobile bearer. `/api/sheets/connect`,
    `/api/sheets/workspace` and `/api/notices` do not.** The web sheet picker and
    admin notice therefore cannot be ported without server work.
-7. **Entry screen is an open question.** On web, bare `/app` redirects to
-   `/app/snap` (admins to `/admin`). The owner said the Android main screen
-   should not be the scan screen. See section 10, question 1.
+7. **Entry screen is decided: Home.** On web, bare `/app` redirects to
+   `/app/snap`. The owner decided on 2026-11-05 that Android opens on a Home
+   dashboard (file 07), and Capture is entered from its Scan receipt button.
+   Manual moves to Home. This file no longer carries a Manual pill.
 
 ## 3. Layout tree (top to bottom)
 
@@ -118,8 +123,8 @@ fixes the sizes.
   underline offset 4 dp. Opens the system photo picker (`image/*`). Hit target
   48 dp tall, at least 48 dp wide.
 - Right: `Row`, gap 8 dp, three pills in this order: Flash (only if the device
-  has a flash unit), Manual (Android only, FEAT-115). Auto-snap is not shown
-  until FEAT-107.
+  has a flash unit). There is no Manual pill (it lives on Home, file 07).
+  Auto-snap is not shown until FEAT-107.
 - Pill visual: `RoundedCornerShape(50)`, padding horizontal 12, vertical 4 on
   web (about 28 dp tall). Android visual height 36 dp, inside a 48 dp tall hit
   box, 12 sp SemiBold. Hit box width at least 48 dp.
@@ -189,7 +194,7 @@ fixes the sizes.
 
 | State | Trigger | Viewfinder | Controls | Notes |
 |---|---|---|---|---|
-| No permission | `CAMERA` not granted | 96 dp, centre text `android.camera.permission`, button `android.camera.allow` (48 dp) | Upload, Manual still work | Gallery path stays usable |
+| No permission | `CAMERA` not granted | 96 dp, centre text `android.camera.permission`, button `android.camera.allow` (48 dp) | Upload still works | Gallery path stays usable |
 | Starting | camera provider binding | 96 dp, `app.capture.starting` | shutter disabled | |
 | Ready | bound, `ImageCapture` set | 3:4 live preview, guide, hint | all enabled | |
 | Capturing | shutter tapped | flash overlay 160 ms, then "reading" overlay | shutter disabled until bytes ready | |
@@ -219,6 +224,16 @@ Error codes shown on a failed draft (mapped, never raw server strings):
 | append other | | `android.error.append` |
 
 ## 5. Behaviour, step by step
+
+### Entry and exit
+
+1. Entry is only from Home: the Scan receipt button (56dp) opens this screen.
+   It is never the first screen after sign in.
+2. System back, and the header wordmark, return to Home. Opening a draft from
+   Home (Review) shows this screen with the review sheet over it; closing the
+   sheet leaves the user on Capture, back returns to Home.
+3. After an accepted receipt is queued, the user stays on Capture to take the next
+   one (same as web). Home refreshes when the user returns to it.
 
 ### Open the screen
 
@@ -307,8 +322,8 @@ Web keys that must NOT appear on Android (DEC-002): `app.credits.none`
 "Terima · 1 kredit"). Android uses `android.review.accept` ("Terima").
 
 Missing: none from the lists above. Candidates to add if the owner wants them:
-an Android label for the Manual pill (check existing `android.*` manual entry
-keys before adding), and a Flash on/off `stateDescription` pair.
+a Flash on/off `stateDescription` pair. The Manual label moved to Home
+(`android.home.manual`, file 07).
 
 ## 8. Android-only differences, allowed
 
@@ -319,7 +334,7 @@ keys before adding), and a Flash on/off `stateDescription` pair.
 | Accept label `Terima` without "· 1 kredit" | DEC-002 |
 | No auto-snap pill, no blur gate, no "Hold steady" line | No detector until FEAT-107 |
 | No automatic torch from brightness | Same reason; torch is manual |
-| Manual pill | FEAT-115 manual entry has no web twin |
+| No Manual pill on this screen | FEAT-115 manual entry has no web twin, so it lives on Home (file 07) |
 | Sheet pill is read-only, no sheet picker | `/api/sheets/connect` has no bearer path |
 | No admin notice modal | `/api/notices` has no bearer path |
 | Upload accepts images only | Web rasterises PDF page 1 in the browser; no Android equivalent decided |
@@ -332,7 +347,7 @@ Each item can be checked from a phone screenshot or logcat.
 
 1. Header is visible on the capture screen: wordmark left, gear right, no Home,
    no pill, no credit number. Screenshot.
-2. No "Space" or "Pengaturan" text links under the controls. Screenshot.
+2. No "Space" or "Pengaturan" text links and no Manual pill under the controls. Screenshot.
 3. Viewfinder has a 14 dp rounded corner, ratio 3:4, and the live camera image
    is visible (not black) with the phone held up. Screenshot.
 4. Four white 28 dp corner marks at 88% of the viewfinder height, 9:16. Screenshot.
@@ -374,11 +389,9 @@ Each item can be checked from a phone screenshot or logcat.
 
 ## 10. Open questions
 
-1. **What is the Android home screen?** Web lands on capture. The owner wants
-   Android to land somewhere else. Proposed options: (a) a Home with queue count,
-   plan usage bar and a large Scan button; (b) the Space screen; (c) the
-   sheet-first screen. Needs a decision and its own spec file (`01` or `00`).
-2. Should the Manual pill live here or only under the Home option above?
+1. ~~What is the Android home screen?~~ Decided 2026-11-05: Home dashboard,
+   file 07.
+2. ~~Should the Manual pill live here?~~ Decided: no, it lives on Home.
 3. PDF upload: rasterise page 1 on Android (`PdfRenderer`), or images only?
 4. Add bearer support to `/api/sheets/connect` so the sheet pill can switch
    sheets, or keep it read-only?

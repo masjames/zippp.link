@@ -665,6 +665,40 @@ Pure shaping lives in `src/lib/mobile/me-workspace.ts` (tested).
 on purpose: Android shows fair-use percent (`plan.used_pct`), never a balance
 (DEC-002). `spreadsheet_title` feeds the sheet pill on the capture screen.
 
+#### PLANNED: bearer auth for sheet, device, notice and contribute routes (FEAT-119)
+
+Not built. Full design in `android-spec/09-bearer-route-slice.md`. Today these
+routes read the web cookie only, so a phone cannot set up a sheet:
+
+```text
+POST /api/sheets/connect        list | find | create | pick by spreadsheetId
+GET  /api/sheets/workspace      DELETE stays web only
+PUT  /api/sheets/map            add input caps
+GET  /api/notices, POST /api/notices/read
+POST /api/contribute
+GET  /api/auth/devices          list only, adds current:true
+POST /api/auth/device/revoke    one device id; revoke_all stays web only
+POST /api/auth/mobile/google-grant   new: server_auth_code, stores Drive and Sheets tokens
+```
+
+Rules for the slice:
+
+- Use `resolveRequestUser` and pass `user.userId` into every store and Google helper.
+  The helpers in `src/lib/google/sheets.ts` (`findZippSpreadsheets`,
+  `getSpreadsheetMeta`, `getHeaderRow`, `writeHeaderRow`, `createSpreadsheet`,
+  `createTemplateSpreadsheet`) currently read the cookie and need a `userId`
+  parameter. Remove the `"google-user"` fallback in `sheets/connect`.
+- A phone-only Google user has no Drive or Sheets tokens (`/api/auth/mobile/google`
+  stores none). `google-grant` exchanges an Android `serverAuthCode` and saves tokens
+  only when the Google `sub` equals the bearer user id.
+- Responses carry a stable `code`; Android never shows the English `error` text.
+- Close two DEC-002 gaps: `POST /api/billing/subscribe` rejects mobile tokens, and
+  `GET /api/billing/balance` drops `credits`, `refCode`, `referralEarned` and `invite`
+  for mobile callers.
+- Rate limit create, pick, map, revoke, contribute and grant. No shared limiter exists
+  today; add one in `src/lib/billing/redis.ts`.
+- `/api/extract` keeps `mobile-auth.ts`. The data-boundary test must stay green.
+
 ### 7.7 Extract
 
 `POST /api/extract`

@@ -71,6 +71,7 @@ numbered screenshot checklist). Code agents implement from these files only.
 | `android-spec/04-settings.md` | Settings |
 | `android-spec/05-space.md` | Space |
 | `android-spec/06-sheet-choose-and-sign-in.md` | Sheet setup and sign-in |
+| `android-spec/07-home-dashboard.md` | Home dashboard (FEAT-120) |
 
 # Slices
 

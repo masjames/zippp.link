@@ -113,7 +113,7 @@ Android guard order, same shape, with the payment redirect replaced:
 1. Token load: while `SecureTokenStore.loadToken()` and the first `GET /api/auth/mobile/me` are pending, show the spinner screen (same spinner as web).
 2. No token: Sign in (file 06).
 3. Token, `me.workspace == null`: Sheet choose (file 06), no header.
-4. Token, workspace set: Home (section 6).
+4. Token, workspace set: Home (section 6, file 07).
 5. Zero quota (plan `used >= included`, or the server returns `NO_CREDITS` or `PLAN_LIMIT`): stay on the current screen. Show the neutral status card and Reload. There is no redirect and no purchase link (DEC-002).
 6. `DEVICE_REVOKED` from any call: clear the token and go to Sign in.
 
@@ -135,44 +135,34 @@ Android guard order, same shape, with the payment redirect replaced:
 
 Back button (system): Capture, Manual, Settings go back to Home. Space and SheetConnected go back to Settings. Home exits the app. SheetChoose exits the app.
 
-## 6. Open question: the Android home screen
+## 6. The Android home screen (decided)
 
-The owner says the Android main screen should not be the scan screen. On web, `/app` redirects to `/app/snap`, so web opens on capture. The web has no home page to copy. Two proposals, each built only from web elements that already exist.
+Decision, owner, 2026-11-05: Android opens on a new **Home dashboard** for a
+personal wealth app. It is specified in full in `07-home-dashboard.md` (layout,
+wireframes for every state, user flow, system diagram, the `GET /api/home/summary`
+contract, wording, acceptance checklist, slices). Build card: FEAT-120.
 
-### Alternative A: Space home (recommended)
+Home replaces both earlier proposals. What was kept from each:
 
-Header: wordmark, Settings. Page tone shell.
-
-| Block | Shows | Mirrors on web | Data (bearer) |
-|---|---|---|---|
-| Sheet row | Sheet title and tab, `Open Google Sheets` link button | `settings/sheet` connected state, line 353 and 363 | `GET /api/auth/mobile/me` `workspace` |
-| Quota card | Percentage used and bar | `PlanCard` meter | `me.plan` |
-| Space card | Space name, member count, then up to 3 goals with progress bars and total of assets | `settings/space` detail items list | `GET /api/spaces`, `GET /api/spaces/{id}/assets` |
-| Recent drafts | Drafts waiting to send, same strip as capture | `SnapScreen` queue strip | `BatchStore` (local) |
-| Primary button, 56dp | `Scan receipt` | `SnapScreen` capture entry | none |
-| Secondary button, 52dp | `Manual` | Android only (FEAT-115) | none |
-
-Why: DIR-001 says zippp is a finance OS for a Space, not only a receipt inbox. Every block above already has a bearer endpoint. One tap reaches the camera.
-
-Cost: new screen, new strings (title, empty states), `Scan receipt` wording key.
-
-### Alternative B: Sheet home
-
-Header: wordmark, Settings. Card tone shell. This is the web `settings/sheet` connected state promoted to home.
-
-| Block | Shows | Mirrors on web |
+| Kept from | Piece | Where it ends up on Home |
 |---|---|---|
-| Title | `Sheet connected` (h1) | line 351 |
-| Sheet line | `{spreadsheet_title} · {sheet_tab}` | line 354 |
-| Template line | `Template: {name}` | line 357 |
-| Buttons | `Open Google Sheets` (brand 56dp), `Continue` becomes `Scan receipt` (primary 56dp), `Manual` | lines 363 and 396 |
-| Quota card | Percentage and bar | `PlanCard` |
+| Alternative B (Sheet home) | Sheet title and tab, Open Google Sheets button | Sheet card, priority P1 |
+| Alternative A (Space home) | Quota percentage bar | Quota card, optional P3 |
+| Alternative A | Space name and up to 3 goals with progress | Space card, optional P4 |
+| Alternative A | Drafts waiting strip | Drafts card, shown when count > 0 |
+| Alternative A | Primary Scan button 56dp, secondary Manual 52dp | Actions block |
+| New | Today spending and Last spending from the user's Sheet | Hero card and Last card, P1 |
 
-Why: cheapest, almost no new copy, closest to what the web already has. Weakness: it hides Space and goals, which are the product direction.
+Header on Home: wordmark and Settings. Home button is hidden. No credit pill.
 
-### Recommendation
+Navigation consequences:
 
-Alternative A. It carries the Space and goals story, and it still reaches the camera in one tap. If scope must shrink, ship B first (sheet row, quota, two buttons) and add the Space card as a later slice. Owner decision needed before file 02 can fix how Capture is entered and left.
+- Guard step 4 lands on Home (section 5 already says so).
+- Capture, Manual and Settings return to Home on system back.
+- Capture loses the Manual pill and the Space and Settings text links (file 02).
+- Space is reached from Settings, as on web, and from the Space card on Home.
+- `ZipppButton` gets the sizes from section 3 (56dp primary, 52dp secondary) in
+  slice S-H4.
 
 ## 7. States
 
@@ -208,7 +198,7 @@ Alternative A. It carries the Space and goals story, and it still reaches the ca
 
 All present in `spec/wording.txt`: `app.nav.home`, `app.nav.back`, `app.settings.title`, `android.error.server`, `android.error.no_credits.short`, `android.error.no_credits.refresh`, `android.error.no_credits.support`, `android.error.device_revoked`.
 
-Missing, to add for Alternative A: `android.home.scan` (Scan receipt), `android.home.manual` (Manual, can reuse `android.camera.manual`), `android.home.spaceEmpty`, `android.home.draftsTitle`, `android.home.title` if a heading is wanted. For Alternative B: none beyond existing `app.sheets.*` keys, but `app.sheets.continue` reads as "Continue" and should become a scan label.
+Home keys are listed in `07-home-dashboard.md` section 13 (`android.home.*`). `android.home.title` is not needed.
 
 ## 11. Acceptance checklist (screenshot checkable)
 
