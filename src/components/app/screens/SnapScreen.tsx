@@ -9,6 +9,15 @@ import { useReceiptDetector } from "../useReceiptDetector";
 import { fill, type T } from "@/lib/t";
 import { toDraft, type Draft } from "../draft";
 import type { BatchItem } from "@/lib/batch-db";
+import { PAYMENT_OPTIONS } from "@/lib/google/templates";
+import type { TemplateId } from "@/lib/google/workspace-store";
+import {
+    acceptBlocked,
+    hasHardFlags,
+    opsFor,
+    outletMissing,
+    unresolvedHardFlags,
+} from "@/lib/review-ops";
 
 /** Green Google Sheets mark, for the open-sheet action. */
 function SheetsIcon() {
@@ -31,6 +40,7 @@ const INPUT_BASE =
     "min-w-0 rounded-lg border bg-surface px-2 py-1.5 text-sm text-body focus:outline-none";
 const INPUT = `${INPUT_BASE} w-full border-line focus:border-brand`;
 const INPUT_ASSUMED = `${INPUT_BASE} w-full border-amber-400 focus:border-amber-500`;
+const INPUT_FLAGGED = `${INPUT_BASE} w-full border-danger focus:border-danger`;
 const INPUT_INLINE = `${INPUT_BASE} border-line focus:border-brand`;
 const LABEL = "text-[10px] font-semibold leading-none text-muted";
 
@@ -919,9 +929,26 @@ function ConfirmCard({
     onRemove: () => void;
 }) {
     const draft = item.draft ?? (item.receipt ? toDraft(item.receipt) : null);
+    const { workspace } = useApp();
     const [showErrors, setShowErrors] = useState(false);
     if (!draft) return null;
     const d: Draft = draft;
+
+    const ops = opsFor(workspace?.template_id);
+    const staffNames = workspace?.staff_names ?? [];
+    const outlets = workspace?.outlets ?? [];
+    const defaultOutlet = workspace?.default_outlet ?? null;
+    const paymentOptions =
+        PAYMENT_OPTIONS[workspace?.template_id as TemplateId] ?? [];
+    const outletValue = d.outlet || defaultOutlet || "";
+    const noOutlet = outletMissing(outlets, defaultOutlet, d.outlet);
+
+    const unresolved = unresolvedHardFlags(item.receipt, d);
+    const flaggedPaths = new Set(unresolved.map((flag) => flag.path));
+    const blocked = acceptBlocked(item.receipt, d);
+    const showFlagBanner = hasHardFlags(item.receipt);
+    const inputFor = (path: string, base = INPUT) =>
+        flaggedPaths.has(path) ? INPUT_FLAGGED : base;
 
     const noLines = !d.lines.some(
         (l) =>
@@ -946,7 +973,7 @@ function ConfirmCard({
     }
     function tryAccept() {
         setShowErrors(true);
-        if (noLines || noPrice) return;
+        if (noLines || noPrice || noOutlet || blocked) return;
         onAccept();
     }
 
@@ -957,8 +984,26 @@ function ConfirmCard({
                     value={d.merchant}
                     onChange={(e) => patch({ merchant: e.target.value })}
                     placeholder={t("app.check.merchantFallback")}
-                    className={`${INPUT} font-head text-base font-extrabold`}
+                    className={`${inputFor("merchant")} font-head text-base font-extrabold`}
                 />
+
+                {showFlagBanner ? (
+                    <div className="mt-1.5 grid gap-1 rounded-lg border border-danger p-1.5">
+                        <span className="text-[11px] font-medium text-danger">
+                            {t("app.review.hardFlagWarning")}
+                        </span>
+                        <label className="flex items-center gap-1.5 text-[11px] font-semibold text-body">
+                            <input
+                                type="checkbox"
+                                checked={Boolean(d.acknowledged)}
+                                onChange={(e) =>
+                                    patch({ acknowledged: e.target.checked })
+                                }
+                            />
+                            {t("app.review.acknowledge")}
+                        </label>
+                    </div>
+                ) : null}
 
                 <div className="mt-1.5 grid grid-cols-2 gap-1.5">
                     <label className="grid gap-0.5">
@@ -978,7 +1023,13 @@ function ConfirmCard({
                                 patch({ date: e.target.value, dateAssumed: false })
                             }
                             placeholder={t("app.check.datePlaceholder")}
-                            className={d.dateAssumed ? INPUT_ASSUMED : INPUT}
+                            className={
+                                flaggedPaths.has("date")
+                                    ? INPUT_FLAGGED
+                                    : d.dateAssumed
+                                      ? INPUT_ASSUMED
+                                      : INPUT
+                            }
                         />
                     </label>
                     <label className="grid gap-0.5">
@@ -987,7 +1038,7 @@ function ConfirmCard({
                             value={d.subtotal}
                             onChange={(e) => patch({ subtotal: e.target.value })}
                             inputMode="decimal"
-                            className={`${INPUT} text-right tabular-money`}
+                            className={`${inputFor("subtotal")} text-right tabular-money`}
                         />
                     </label>
                     <label className="grid gap-0.5">
@@ -996,7 +1047,7 @@ function ConfirmCard({
                             value={d.tax}
                             onChange={(e) => patch({ tax: e.target.value })}
                             inputMode="decimal"
-                            className={`${INPUT} text-right tabular-money`}
+                            className={`${inputFor("tax")} text-right tabular-money`}
                         />
                     </label>
                     <label className="col-span-2 grid gap-0.5">
@@ -1005,10 +1056,101 @@ function ConfirmCard({
                             value={d.total}
                             onChange={(e) => patch({ total: e.target.value })}
                             inputMode="decimal"
-                            className={`${INPUT} text-right font-extrabold tabular-money`}
+                            className={`${inputFor("total")} text-right font-extrabold tabular-money`}
                         />
                     </label>
                 </div>
+
+                {d.dateAssumed ? (
+                    <span className="mt-1 block text-[11px] font-medium text-amber-700">
+                        {t("app.review.dateAssumed")}
+                    </span>
+                ) : null}
+
+                {ops.staff && staffNames.length > 0 ? (
+                    <label className="mt-1.5 grid gap-0.5">
+                        <span className={LABEL}>{t("app.check.staff")}</span>
+                        <select
+                            value={d.staff}
+                            onChange={(e) => patch({ staff: e.target.value })}
+                            className={INPUT}
+                        >
+                            <option value="" />
+                            {staffNames.map((name) => (
+                                <option key={name} value={name}>
+                                    {name}
+                                </option>
+                            ))}
+                        </select>
+                    </label>
+                ) : null}
+                {ops.outlet && outlets.length > 1 ? (
+                    <label className="mt-1.5 grid gap-0.5">
+                        <span className={LABEL}>{t("app.check.outlet")}</span>
+                        <select
+                            value={outletValue}
+                            onChange={(e) => patch({ outlet: e.target.value })}
+                            className={
+                                showErrors && noOutlet ? INPUT_FLAGGED : INPUT
+                            }
+                        >
+                            <option value="" />
+                            {outlets.map((name) => (
+                                <option key={name} value={name}>
+                                    {name}
+                                </option>
+                            ))}
+                        </select>
+                        {showErrors && noOutlet ? (
+                            <span className="text-[11px] font-medium text-danger">
+                                {t("app.check.outletErr")}
+                            </span>
+                        ) : null}
+                    </label>
+                ) : null}
+                {ops.payment && paymentOptions.length > 0 ? (
+                    <label className="mt-1.5 grid gap-0.5">
+                        <span className={LABEL}>
+                            {t("app.check.payment")} ({t("app.check.optional")})
+                        </span>
+                        <select
+                            value={d.payment ?? ""}
+                            onChange={(e) => patch({ payment: e.target.value })}
+                            className={INPUT}
+                        >
+                            <option value="" />
+                            {paymentOptions.map((name) => (
+                                <option key={name} value={name}>
+                                    {name}
+                                </option>
+                            ))}
+                        </select>
+                    </label>
+                ) : null}
+                {ops.customer ? (
+                    <label className="mt-1.5 grid gap-0.5">
+                        <span className={LABEL}>
+                            {t("app.check.customer")} ({t("app.check.optional")})
+                        </span>
+                        <input
+                            value={d.customer ?? ""}
+                            onChange={(e) => patch({ customer: e.target.value })}
+                            className={INPUT}
+                        />
+                    </label>
+                ) : null}
+                {ops.purpose ? (
+                    <label className="mt-1.5 grid gap-0.5">
+                        <span className={LABEL}>
+                            {t("app.check.purpose")} ({t("app.check.optional")})
+                        </span>
+                        <input
+                            value={d.purpose ?? ""}
+                            onChange={(e) => patch({ purpose: e.target.value })}
+                            className={INPUT}
+                        />
+                    </label>
+                ) : null}
 
                 <div className="mt-1.5 grid gap-1">
                     {d.lines.map((line, i) => (
@@ -1022,7 +1164,7 @@ function ConfirmCard({
                                     patchLine(i, { description: e.target.value })
                                 }
                                 placeholder={t("app.check.item")}
-                                className={INPUT}
+                                className={inputFor(`line_items[${i}].description`)}
                             />
                             <input
                                 value={line.qty}
@@ -1032,7 +1174,7 @@ function ConfirmCard({
                                 placeholder={t("app.check.qty")}
                                 inputMode="decimal"
                                 aria-label={t("app.check.qty")}
-                                className={`${INPUT_INLINE} text-center`}
+                                className={`${flaggedPaths.has(`line_items[${i}].qty`) ? INPUT_FLAGGED : INPUT_INLINE} text-center`}
                             />
                             <input
                                 value={line.amount}
@@ -1042,7 +1184,7 @@ function ConfirmCard({
                                 placeholder={t("app.check.amt")}
                                 inputMode="decimal"
                                 aria-label={t("app.check.amt")}
-                                className={`${INPUT_INLINE} text-right tabular-money`}
+                                className={`${flaggedPaths.has(`line_items[${i}].amount`) ? INPUT_FLAGGED : INPUT_INLINE} text-right tabular-money`}
                             />
                         </div>
                     ))}
@@ -1068,7 +1210,8 @@ function ConfirmCard({
                     <button
                         type="button"
                         onClick={tryAccept}
-                        className="flex-1 rounded-full bg-btn px-4 py-2.5 text-sm font-semibold text-btntext"
+                        disabled={blocked}
+                        className="flex-1 rounded-full bg-btn px-4 py-2.5 text-sm font-semibold text-btntext disabled:opacity-40"
                     >
                         {t("app.review.acceptCost")}
                     </button>

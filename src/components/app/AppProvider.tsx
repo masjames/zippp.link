@@ -484,6 +484,9 @@ export default function AppProvider({
                     receipt: edited,
                     staff: (item.draft?.staff ?? "").trim(),
                     outlet: (item.draft?.outlet ?? "").trim() || null,
+                    payment: (item.draft?.payment ?? "").trim() || null,
+                    purpose: (item.draft?.purpose ?? "").trim() || null,
+                    customer: (item.draft?.customer ?? "").trim() || null,
                     scanId: item.id,
                 }),
             });

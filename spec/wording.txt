@@ -4589,3 +4589,15 @@ Buat Kode Baru
 Generating…
 ## web.pairing.generating.id
 Membuat…
+## app.review.hardFlagWarning.en
+One or more values could not be verified. Edit them or confirm below.
+## app.review.hardFlagWarning.id
+Satu atau lebih nilai tidak dapat diverifikasi. Ubah atau konfirmasi di bawah.
+## app.review.acknowledge.en
+I have checked these values
+## app.review.acknowledge.id
+Saya sudah memeriksa nilai ini
+## app.check.outletErr.en
+Pick an outlet before sending.
+## app.check.outletErr.id
+Pilih outlet sebelum mengirim.

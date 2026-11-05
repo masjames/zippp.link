@@ -637,6 +637,34 @@ Routes using it:
 /api/corrections
 ```
 
+#### GET /api/auth/mobile/me
+
+Bearer only, `Cache-Control: no-store`. Dark (404) unless the mobile API is on.
+Pure shaping lives in `src/lib/mobile/me-workspace.ts` (tested).
+
+```json
+{
+  "ok": true,
+  "user": { "email": "a@b.co" },
+  "plan": { "status": "active", "used": 12, "included": 200, "used_pct": 6, "period_end": 1795276800 },
+  "device_id": "uuid",
+  "spaces": [{ "id": "…", "display_name": "…", "role": "owner" }],
+  "workspace": {
+    "ready": true,
+    "template_id": "sales-recap",
+    "spreadsheet_id": "…",
+    "spreadsheet_title": "Pengeluaran 2026",
+    "payment_options": ["Cash", "QRIS", "Transfer"],
+    "staff_names": [], "outlets": [], "default_outlet": null,
+    "photo_proof": false
+  }
+}
+```
+
+`plan` and `workspace` are `null` when absent. The response has no credit count
+on purpose: Android shows fair-use percent (`plan.used_pct`), never a balance
+(DEC-002). `spreadsheet_title` feeds the sheet pill on the capture screen.
+
 ### 7.7 Extract
 
 `POST /api/extract`
@@ -711,14 +739,19 @@ Rules:
 - If the receipt date is null, the client fills the capture date and marks it
   `tanggal diasumsikan`.
 
-Current Android review is partial:
+Review card status (FEAT-102, FEAT-118 S9):
 
-- merchant and total edit
-- hard-flag acknowledgement
-- no template ops
-- no correction telemetry
-- no line-item edit
-- no assumed-date pill
+- Web `ConfirmCard` (`SnapScreen.tsx`) shows template ops per `src/lib/review-ops.ts`:
+  T1 staff and outlet, T2 payment, T3 payment and customer, T4 purpose.
+  Staff and outlet are dropdowns from the workspace; payment is a dropdown from
+  `PAYMENT_OPTIONS`; customer and purpose are free text. Multiple outlets with no
+  default require a pick (`app.check.outletErr`).
+- Hard flags (`missing`, `not_in_ocr`, `ungrounded`, `arithmetic`) outline the
+  field and show a banner with an acknowledge checkbox. Accept stays disabled
+  until each flagged field is edited or the box is ticked.
+- An assumed date shows `app.review.dateAssumed` under the grid.
+- `sendOne` posts `payment`, `purpose` and `customer` as well as staff and outlet.
+- Android review is built to the same contract (see section 11); device run pending.
 
 ### 7.10 Append
 
