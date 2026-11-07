@@ -1,4 +1,7 @@
 import type { LineItem, Receipt } from "@/types/receipt";
+import { parseMoney } from "@/lib/money";
+
+export { parseMoney };
 
 /** Editable form state for the Check screen (all values are strings). */
 export type DraftLine = {
@@ -57,22 +60,7 @@ export function toDraft(receipt: Receipt): Draft {
     };
 }
 
-/**
- * Parse a money/qty string. Accepts plain numbers, Indonesian grouping
- * (1.234.567 or 1.234,56) and US grouping (1,234.56).
- */
-export function parseMoney(input: string): number | null {
-    const s = input.trim();
-    if (s === "") return null;
-    if (/^\d{1,3}(\.\d{3})+(,\d+)?$/.test(s)) {
-        return Number(s.replace(/\./g, "").replace(",", "."));
-    }
-    if (/^\d{1,3}(,\d{3})+(\.\d+)?$/.test(s)) {
-        return Number(s.replace(/,/g, ""));
-    }
-    const n = Number(s.replace(",", "."));
-    return Number.isFinite(n) ? n : null;
-}
+// parseMoney is exported from @/lib/money
 
 /** Turn the edited draft back into the Receipt the Sheets API expects. */
 export function fromDraft(draft: Draft): Receipt {
