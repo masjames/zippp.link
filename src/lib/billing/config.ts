@@ -21,6 +21,48 @@ export const PLAN_INCLUDED_CAPTURES = Number(
 );
 export const PLAN_PERIOD_DAYS = 30;
 
+/**
+ * DEC-006: Subscription Tiers, Allowances, and Feature Limits.
+ * Pricing and allowances marked "OWNER TO SET".
+ */
+export type SubscriptionTier = "standard" | "pro";
+
+/** Monthly fair-use allowances in Usage Units (OWNER TO SET). */
+export const PLAN_STANDARD_UNITS = Number(
+  process.env.PLAN_STANDARD_UNITS || 300
+); // OWNER TO SET
+export const PLAN_PRO_UNITS = Number(
+  process.env.PLAN_PRO_UNITS || 1000
+); // OWNER TO SET
+
+/** Monthly tier pricing in IDR and USD (OWNER TO SET). */
+export const PLAN_STANDARD_PRICE_IDR = Number(
+  process.env.PLAN_STANDARD_PRICE_IDR || 0
+); // OWNER TO SET
+export const PLAN_PRO_PRICE_IDR = Number(
+  process.env.PLAN_PRO_PRICE_IDR || 0
+); // OWNER TO SET
+export const PLAN_STANDARD_PRICE_USD = Number(
+  process.env.PLAN_STANDARD_PRICE_USD || 0
+); // OWNER TO SET
+export const PLAN_PRO_PRICE_USD = Number(
+  process.env.PLAN_PRO_PRICE_USD || 0
+); // OWNER TO SET
+
+/** Feature gating boundaries by tier (DEC-006). */
+export const TIER_LIMITS = {
+  standard: {
+    maxPagesPerDoc: 1,
+    maxFilesPerUpload: 1,
+    canImportStatements: true,
+  },
+  pro: {
+    maxPagesPerDoc: 20,
+    maxFilesPerUpload: 10,
+    canImportStatements: true,
+  },
+} as const;
+
 export const INTL_PACK_CREDITS = 100;
 export const INTL_PACK_USD = 9;
 /** Suggested IDR top-up amounts shown on the public pricing page and in the app. */

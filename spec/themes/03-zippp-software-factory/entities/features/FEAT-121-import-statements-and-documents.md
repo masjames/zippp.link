@@ -45,8 +45,13 @@ it into their zippp Sheet without retyping, with no invented values.
 - Related: FEAT-102 (review contract, hard flags), FEAT-104 (daily totals, so imported
   rows must use the same `Amount + Tax` shape), FEAT-118 and `02-capture.md`
   (picker and drafts), FEAT-119 (rate limiter, bearer helpers).
-- No spreadsheet library is in `package.json` today. A dependency choice is part of
-  slice S-I1 and must be reviewed (licence, size, zip safety).
+- No spreadsheet library is in `package.json` today. A dependency research document
+  is completed in `android-spec/14-spreadsheet-library-research.md` proposing
+  `read-excel-file@9.3.14` (MIT) for XLSX and `csv-parse@7.0.3` (MIT) for CSV (sync API
+  `csv-parse/sync`), pending owner sign-off.
+- File size limit is aligned to Vercel's 4.5 MB request ceiling: max 4 MB file cap (with
+  headroom for multipart framing). Legacy `.xls` and Google Drive conversion are rejected
+  for V1.
 
 # Scope: V1 and later
 
@@ -105,8 +110,10 @@ flowchart TD
 
 | Constant | Value |
 |---|---|
-| `IMPORT_MAX_BYTES` | 5 MiB |
-| `IMPORT_MAX_UNZIPPED_BYTES` | 20 MiB (zip bomb guard for XLSX) |
+| `IMPORT_MAX_BYTES` | 4 MiB (matches Vercel 4.5 MB request ceiling with multipart margin) |
+| `IMPORT_MAX_UNZIPPED_BYTES` | 50 MiB (zip uncompressed size cap for XLSX) |
+| `IMPORT_MAX_ZIP_ENTRIES` | 200 entries |
+| `IMPORT_MAX_ZIP_RATIO` | 100 to 1 per entry |
 | `IMPORT_MAX_ROWS_READ` | 2,000 |
 | `IMPORT_MAX_COLS` | 50 |
 | `IMPORT_MAX_DRAFTS_V1` | 25 |
@@ -278,7 +285,7 @@ Android (`ImportFlow.kt`, called from `CameraScreen`):
 3. `status: needs_mapping`: open the mapping sheet (below). On Continue, post again
    with `mapping`.
 4. Errors map to keys in section 12. Never show a raw code.
-5. A file over 5 MiB is refused before upload with `android.import.tooLarge`.
+5. A file over 4 MiB is refused before upload with `android.import.tooLarge`.
 
 Mapping sheet (bottom sheet, same shell as the review sheet, 88% max height):
 
@@ -380,7 +387,7 @@ not copy.
 
 | Slice | Scope | Phase |
 |---|---|---|
-| S-I1 | Choose and review the spreadsheet dependency; `parse-table.ts` (CSV, XLSX, limits); shared `parseMoney` module; fixtures and tests | V1 |
+| S-I1 | Spreadsheet dependency research completed in `android-spec/14-spreadsheet-library-research.md` (`read-excel-file@9.3.14` and `csv-parse@7.0.3`); implement `parse-table.ts` (CSV, XLSX, limits); shared `parseMoney` module; fixtures and tests | V1 |
 | S-I2 | `map-columns.ts`, `rows-to-receipts.ts`, `POST /api/import/parse`, auth, rate limit, constants, route tests | V1 |
 | S-I3 | Android `ImportFlow.kt`, mapping sheet, `IMPORT_ENABLED` flag, strings from `wording.txt`, picker MIME wiring in capture | V1 |
 | S-I4 | Web picker, mapping step in `SnapScreen.tsx`, `app.import.*` copy | V1 |
@@ -399,8 +406,11 @@ not copy.
    negative amount?
 4. **V1 limit.** 25 drafts per file in the one-by-one review sheet, or wait for the bulk
    review list before shipping any import?
-5. **Spreadsheet library.** Choose in S-I1 (candidates: a maintained XLSX reader with a
-   safe licence and zip limits, plus a CSV reader). The choice needs sign-off.
+5. **Spreadsheet library.** Decision proposed in `android-spec/14-spreadsheet-library-research.md`:
+   `read-excel-file@9.3.14` (MIT) for XLSX and `csv-parse@7.0.3` (MIT, sync API) for CSV.
+   SheetJS on public npm is rejected (vulnerable 0.18.5) and CDN is emergency fallback only;
+   Google Drive conversion is rejected for privacy/latency/quota; legacy `.xls` is excluded
+   from V1. The proposal needs owner sign-off.
 
 # Definition of done
 
