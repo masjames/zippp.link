@@ -1,0 +1,22 @@
+# OPTIONAL project-level settings example for <repo>/.omp/config.yml.
+# Do not overwrite an existing .omp/config.yml. Merge consciously.
+modelRoles:
+  default: openai-codex/gpt-6-luna
+  smol: openai-codex/gpt-6-luna
+  slow: openai-codex/gpt-6-luna
+  plan: openai-codex/gpt-6-luna
+  commit: openai-codex/gpt-6-luna
+  task: openai-codex/gpt-6-luna
+retry:
+  modelFallback: false
+  fallbackChains:
+    default: []
+    smol: []
+    slow: []
+    plan: []
+    commit: []
+    task: []
+advisor:
+  enabled: false
+cycleOrder:
+  - default

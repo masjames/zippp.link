@@ -1,0 +1,1694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>zippp — Web vs Android Screen Parity Audit</title>
+<style>
+  :root {
+    --orange: #EE5329;
+    --page: #E8E8E8;
+    --card: #FFFFFF;
+    --muted: #5E4640;
+    --gap-red: #C0392B;
+    --gap-yellow: #E67E22;
+    --gap-green: #27AE60;
+    --gap-blue: #2980B9;
+    --bg: #1a1a1a;
+    --surface: #2a2a2a;
+    --border: #3a3a3a;
+    --text: #e8e8e8;
+    --text-dim: #999;
+    --font-mono: 'Courier New', Courier, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  /* ── TOP NAV ─────────────────────────────────────────── */
+  .top-nav {
+    background: #111;
+    border-bottom: 2px solid var(--orange);
+    padding: 12px 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .top-nav .logo {
+    font-size: 20px;
+    font-weight: 900;
+    color: var(--orange);
+    letter-spacing: -1px;
+    font-style: italic;
+  }
+  .top-nav .subtitle {
+    color: var(--text-dim);
+    font-size: 12px;
+  }
+  .top-nav .badge {
+    margin-left: auto;
+    background: var(--orange);
+    color: #fff;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+  }
+
+  /* ── LEGEND ─────────────────────────────────────────── */
+  .legend {
+    display: flex;
+    gap: 20px;
+    padding: 12px 24px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+  }
+  .dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .dot-red    { background: var(--gap-red); }
+  .dot-yellow { background: var(--gap-yellow); }
+  .dot-green  { background: var(--gap-green); }
+  .dot-blue   { background: var(--gap-blue); }
+
+  /* ── SECTION ─────────────────────────────────────────── */
+  .section {
+    padding: 32px 24px 0;
+  }
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 10px;
+  }
+  .section-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--orange);
+  }
+  .section-route {
+    font-size: 11px;
+    color: var(--text-dim);
+    font-family: var(--font-mono);
+  }
+  .section-status {
+    margin-left: auto;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-weight: 600;
+  }
+  .status-gap     { background: rgba(192,57,43,0.25);  color: #e74c3c; }
+  .status-par     { background: rgba(39,174,96,0.25);  color: #2ecc71; }
+  .status-design  { background: rgba(41,128,185,0.25); color: #3498db; }
+  .status-missing { background: rgba(230,126,34,0.25); color: #e67e22; }
+
+  /* ── COLUMNS ─────────────────────────────────────────── */
+  .columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 24px;
+  }
+  @media (max-width: 900px) {
+    .columns { grid-template-columns: 1fr; }
+  }
+
+  /* ── PLATFORM CARD ─────────────────────────────────── */
+  .platform-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .platform-header {
+    padding: 8px 14px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .web-header {
+    background: rgba(238,83,41,0.15);
+    border-bottom: 1px solid rgba(238,83,41,0.3);
+    color: var(--orange);
+  }
+  .android-header {
+    background: rgba(61,220,132,0.1);
+    border-bottom: 1px solid rgba(61,220,132,0.2);
+    color: #3DDC84;
+  }
+  .platform-src {
+    margin-left: auto;
+    font-weight: 400;
+    opacity: 0.6;
+    font-family: var(--font-mono);
+    text-transform: none;
+    letter-spacing: 0;
+    font-size: 10px;
+  }
+  .mockup {
+    padding: 14px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    line-height: 1.6;
+    white-space: pre;
+    color: var(--text);
+    overflow-x: auto;
+  }
+  .mockup-absent {
+    padding: 32px 14px;
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 13px;
+    font-style: italic;
+  }
+
+  /* ── GAP BOX ─────────────────────────────────────────── */
+  .gap-box {
+    margin-bottom: 28px;
+    padding: 14px 18px;
+    border-radius: 8px;
+    border-left: 4px solid;
+  }
+  .gap-box h4 {
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .gap-box ul {
+    padding-left: 18px;
+  }
+  .gap-box li {
+    font-size: 12px;
+    margin-bottom: 4px;
+    color: var(--text-dim);
+  }
+  .gap-box li strong { color: var(--text); }
+  .gap-critical {
+    background: rgba(192,57,43,0.1);
+    border-color: var(--gap-red);
+  }
+  .gap-critical h4 { color: #e74c3c; }
+  .gap-warn {
+    background: rgba(230,126,34,0.1);
+    border-color: var(--gap-yellow);
+  }
+  .gap-warn h4 { color: #e67e22; }
+  .gap-ok {
+    background: rgba(39,174,96,0.1);
+    border-color: var(--gap-green);
+  }
+  .gap-ok h4 { color: #2ecc71; }
+  .gap-info {
+    background: rgba(41,128,185,0.1);
+    border-color: var(--gap-blue);
+  }
+  .gap-info h4 { color: #3498db; }
+
+  /* ── SUMMARY TABLE ─────────────────────────────────── */
+  .summary-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    margin-bottom: 32px;
+  }
+  .summary-table th {
+    text-align: left;
+    padding: 8px 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .summary-table td {
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    vertical-align: top;
+  }
+  .summary-table tr:hover td { background: rgba(255,255,255,0.03); }
+  .pill {
+    display: inline-block;
+    padding: 1px 8px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 700;
+  }
+  .pill-red    { background: rgba(192,57,43,0.25);  color: #e74c3c; }
+  .pill-yellow { background: rgba(230,126,34,0.25); color: #e67e22; }
+  .pill-green  { background: rgba(39,174,96,0.25);  color: #2ecc71; }
+  .pill-blue   { background: rgba(41,128,185,0.25); color: #3498db; }
+  .pill-gray   { background: rgba(150,150,150,0.2); color: #aaa; }
+
+  hr.sep { border: none; border-top: 1px solid var(--border); margin: 32px 24px 0; }
+
+  .toc {
+    padding: 20px 24px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+  }
+  .toc h3 { font-size: 13px; color: var(--text-dim); margin-bottom: 10px; }
+  .toc-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .toc-links a {
+    color: var(--orange);
+    text-decoration: none;
+    font-size: 12px;
+    padding: 3px 10px;
+    border: 1px solid rgba(238,83,41,0.3);
+    border-radius: 20px;
+  }
+  .toc-links a:hover { background: rgba(238,83,41,0.1); }
+
+  .meta-row {
+    display: flex;
+    gap: 24px;
+    padding: 12px 24px;
+    background: #111;
+    border-bottom: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--text-dim);
+    flex-wrap: wrap;
+  }
+  .meta-row span strong { color: var(--text); }
+
+  .phone-frame {
+    display: inline-block;
+    border: 2px solid #555;
+    border-radius: 24px;
+    padding: 8px 10px;
+    background: #0a0a0a;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    white-space: pre;
+    color: var(--text);
+    max-width: 100%;
+    overflow-x: auto;
+  }
+  .browser-frame {
+    display: inline-block;
+    border: 2px solid #555;
+    border-radius: 8px;
+    overflow: hidden;
+    max-width: 100%;
+  }
+  .browser-chrome {
+    background: #333;
+    padding: 5px 10px;
+    font-size: 10px;
+    color: #aaa;
+    border-bottom: 1px solid #555;
+    font-family: var(--font-mono);
+  }
+  .browser-body {
+    background: #111;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    white-space: pre;
+    color: var(--text);
+    padding: 10px;
+    overflow-x: auto;
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════
+     TOP NAV
+══════════════════════════════════════════════════════ -->
+<nav class="top-nav">
+  <span class="logo">zippp</span>
+  <div>
+    <div style="font-weight:700; font-size:13px;">Web vs Android — Screen Parity Audit</div>
+    <div class="subtitle">Branch: feat/121-import-statements · Generated from source (no live screenshots)</div>
+  </div>
+  <span class="badge">11 screens audited</span>
+</nav>
+
+<div class="meta-row">
+  <span><strong>Web:</strong> Next.js App Router · src/app/app/</span>
+  <span><strong>Android:</strong> Kotlin Compose · android/app/src/main/java/link/zippp/app/ui/</span>
+  <span><strong>Device:</strong> Samsung Galaxy M12 · link.zippp.app.debug</span>
+  <span><strong>Branch:</strong> feat/121-import-statements (off feat/118-android-parity)</span>
+  <span><strong>Tokens:</strong> orange #EE5329 · page #E8E8E8 · muted #5E4640 ✓ matched</span>
+</div>
+
+<!-- LEGEND -->
+<div class="legend">
+  <div class="legend-item"><div class="dot dot-red"></div> Critical gap — user-visible regression or missing flow</div>
+  <div class="legend-item"><div class="dot dot-yellow"></div> Minor gap — cosmetic or spec-intentional difference</div>
+  <div class="legend-item"><div class="dot dot-green"></div> At parity</div>
+  <div class="legend-item"><div class="dot dot-blue"></div> By design — intentional platform difference (DEC-00x)</div>
+</div>
+
+<!-- TOC -->
+<div class="toc">
+  <h3>Sections</h3>
+  <div class="toc-links">
+    <a href="#s0">Summary Table</a>
+    <a href="#s1">Shell / Nav</a>
+    <a href="#s2">Sign In</a>
+    <a href="#s3">Pairing</a>
+    <a href="#s4">Capture</a>
+    <a href="#s5">Review Sheet</a>
+    <a href="#s6">Settings</a>
+    <a href="#s7">Space</a>
+    <a href="#s8">Manual Entry</a>
+    <a href="#s9">Home Dashboard</a>
+    <a href="#s10">Google Grant</a>
+    <a href="#s11">Top-up / Billing</a>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════
+     SUMMARY TABLE
+══════════════════════════════════════════════════════ -->
+<div class="section" id="s0">
+  <div class="section-header">
+    <span class="section-title">Gap Summary</span>
+  </div>
+  <table class="summary-table">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Screen</th>
+        <th>Web Route</th>
+        <th>Android File</th>
+        <th>Status</th>
+        <th>Top Gap</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>1</td>
+        <td>Shell / Nav</td>
+        <td><code>AppShell.tsx</code></td>
+        <td><code>Shell.kt</code></td>
+        <td><span class="pill pill-yellow">Minor gap</span></td>
+        <td>Credit pill present on web; absent on Android (DEC-002)</td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td>Sign In</td>
+        <td><code>/</code> → OAuth</td>
+        <td><code>SignInScreen.kt</code></td>
+        <td><span class="pill pill-yellow">Minor gap</span></td>
+        <td>Android adds pairing code fallback; web is Google-only</td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td>Pairing Screen</td>
+        <td>—</td>
+        <td><code>PairingScreen.kt</code></td>
+        <td><span class="pill pill-red">Critical</span></td>
+        <td>No web equivalent of XXXX-XXXX pairing flow</td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td>Capture (Camera)</td>
+        <td><code>/app/snap</code></td>
+        <td><code>CameraScreen.kt</code></td>
+        <td><span class="pill pill-yellow">Minor gap</span></td>
+        <td>Web: credit pill in header. Android: none. Tool pills differ.</td>
+      </tr>
+      <tr>
+        <td>5</td>
+        <td>Review Sheet</td>
+        <td><code>/app/snap</code> (bottom sheet)</td>
+        <td><code>ReviewScreen.kt</code></td>
+        <td><span class="pill pill-yellow">Minor gap</span></td>
+        <td>Android has 5s undo snackbar on discard; web does not</td>
+      </tr>
+      <tr>
+        <td>6</td>
+        <td>Settings</td>
+        <td><code>/app/settings</code></td>
+        <td><code>SettingsScreen.kt</code></td>
+        <td><span class="pill pill-red">Critical</span></td>
+        <td>Web: credit count + Telegram + language + referral. Android: none of these.</td>
+      </tr>
+      <tr>
+        <td>7</td>
+        <td>Space</td>
+        <td><code>/app/settings/space</code></td>
+        <td><code>SpaceScreen.kt</code></td>
+        <td><span class="pill pill-green">Near parity</span></td>
+        <td>Minor layout diffs; functionally equivalent</td>
+      </tr>
+      <tr>
+        <td>8</td>
+        <td>Manual Entry</td>
+        <td><code>/app/snap</code> (inline panel)</td>
+        <td><code>ManualEntryScreen.kt</code></td>
+        <td><span class="pill pill-yellow">Minor gap</span></td>
+        <td>Web: inline panel inside Snap. Android: standalone screen.</td>
+      </tr>
+      <tr>
+        <td>9</td>
+        <td>Home Dashboard</td>
+        <td><code>/app/snap</code> (camera IS home)</td>
+        <td>—</td>
+        <td><span class="pill pill-red">Critical</span></td>
+        <td>Android has no Home Dashboard (FEAT-120 todo)</td>
+      </tr>
+      <tr>
+        <td>10</td>
+        <td>Google Grant</td>
+        <td><code>/app/settings</code> (inline)</td>
+        <td>—</td>
+        <td><span class="pill pill-red">Critical</span></td>
+        <td>Android cannot grant Drive/Sheets access (FEAT-119/122 todo)</td>
+      </tr>
+      <tr>
+        <td>11</td>
+        <td>Top-up / Billing</td>
+        <td><code>/app/topup</code></td>
+        <td>—</td>
+        <td><span class="pill pill-blue">By design</span></td>
+        <td>DEC-002: no Android billing UI (Paddle / DOKU)</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════
+     1. SHELL / NAV
+══════════════════════════════════════════════════════ -->
+<div class="section" id="s1">
+  <div class="section-header">
+    <span class="section-title">1. App Shell / Navigation</span>
+    <span class="section-route">AppShell.tsx · Shell.kt</span>
+    <span class="section-status status-gap">Minor gap</span>
+  </div>
+  <div class="columns">
+    <div class="platform-card">
+      <div class="platform-header web-header">
+        Web
+        <span class="platform-src">src/components/app/AppShell.tsx</span>
+      </div>
+      <div class="mockup">
+┌─────────────────────────────────────────────────┐
+│  ⚡ 42   [zippp]   🏠               ⚙           │
+│  └─credit pill─┘  └─wordmark─┘    └─settings─┘  │
+├─────────────────────────────────────────────────┤
+│                                                  │
+│              page content area                   │
+│                                                  │
+└─────────────────────────────────────────────────┘
+
+Header items (left → right):
+  ⚡ 42   Credit bolt icon + count (Tailwind: text-orange)
+  zippp   Wordmark (italic, font-black) — links to /app/snap
+  🏠      Home icon (lucide Home) — links to /app/snap
+  ⚙       Settings gear (lucide Settings) — links to /app/settings
+
+Credit pill: shown when user has credits loaded.
+Color: bg-orange-50 text-orange border border-orange/20
+Responsive: hides credit label on mobile, shows icon only.
+
+No bottom nav bar on web.
+</div>
+    </div>
+    <div class="platform-card">
+      <div class="platform-header android-header">
+        Android
+        <span class="platform-src">ui/theme/Shell.kt</span>
+      </div>
+      <div class="mockup">
+┌─────────────────────────────────────────────────┐
+│  [zippp]                       🏠       ⚙       │
+│  └─wordmark─┘                 home   settings    │
+├─────────────────────────────────────────────────┤
+│                                                  │
+│              page content area                   │
+│                                                  │
+└──────────────────────────┬──────────────────────┘
+                            │  ● pill (sheet title)
+                            │  shown via ZipppShell
+
+ZipppHeader items:
+  zippp   Wordmark (italic, FontWeight.Black)
+          onClick → navigate to Camera (home)
+  🏠      Home icon — same as wordmark tap
+  ⚙       Settings icon
+
+NO credit pill anywhere in the Android shell.
+(Removed: DEC-002, FEAT-118 decision §2)
+
+Bottom pill (ZipppShell):
+  Shown below content in AppFrame.
+  Displays active Google Sheet name or placeholder.
+  Web equivalent: sheet-title pill ABOVE camera feed.
+</div>
+    </div>
+  </div>
+  <div class="gap-box gap-info">
+    <h4>Gap 1A — Credit pill (By design · DEC-002)</h4>
+    <ul>
+      <li>Web shows <strong>bolt icon + credit count</strong> in top-left header corner.</li>
+      <li>Android <strong>has no credit display anywhere</strong> in the shell. Removed per DEC-002 / FEAT-118 §2.</li>
+      <li>Android Settings shows quota % bar instead of raw credit count.</li>
+      <li><strong>Action:</strong> Web should eventually migrate to quota % too (pending spec decision).</li>
+    </ul>
+  </div>
+  <div class="gap-box gap-warn">
+    <h4>Gap 1B — Sheet-title pill position</h4>
+    <ul>
+      <li>Web: pill appears <strong>above the camera viewfinder</strong> inside SnapScreen.</li>
+      <li>Android: pill appears <strong>below the page content</strong> via ZipppShell in AppFrame.</li>
+      <li>Functionally equivalent (same label, same tap → Sheet picker); visually inverted position.</li>
+    </ul>
+  </div>
+</div>
+
+<hr class="sep">
+
+<!-- ══════════════════════════════════════════════════════
+     2. SIGN IN
+══════════════════════════════════════════════════════ -->
+<div class="section" id="s2">
+  <div class="section-header">
+    <span class="section-title">2. Sign In</span>
+    <span class="section-route">/ (landing) · ui/auth/SignInScreen.kt</span>
+    <span class="section-status status-gap">Minor gap</span>
+  </div>
+  <div class="columns">
+    <div class="platform-card">
+      <div class="platform-header web-header">
+        Web
+        <span class="platform-src">src/app/(public)/page.tsx or similar</span>
+      </div>
+      <div class="mockup">
+┌─────────────────────────────────────────────────┐
+│                                                  │
+│              [zippp]                             │
+│              Foto struk → Google Sheet           │
+│                                                  │
+│  ┌──────────────────────────────────────────┐    │
+│  │  Masuk dengan Google                     │    │
+│  │  [G] Continue with Google                │    │
+│  └──────────────────────────────────────────┘    │
+│                                                  │
+│       — atau —                                   │
+│                                                  │
+│  ┌──────────────────────────────────────────┐    │
+│  │  email@domain.com               [Kirim]  │    │
+│  └──────────────────────────────────────────┘    │
+│  Kami kirim magic link ke emailmu                │
+│                                                  │
+└─────────────────────────────────────────────────┘
+
+Auth flows:
+  1. Google OAuth (NextAuth signIn("google"))
+  2. Email magic link (NextAuth signIn("email"))
+
+No pairing code entry on web.
+Redirect after sign-in: /app/snap
+</div>
+    </div>
+    <div class="platform-card">
+      <div class="platform-header android-header">
+        Android
+        <span class="platform-src">ui/auth/SignInScreen.kt</span>
+      </div>
+      <div class="mockup">
+┌─────────────────────────────────────────────────┐
+│                                                  │
+│              [zippp]                             │
+│                                                  │
+│  ┌──────────────────────────────────────────┐    │
+│  │  email@domain.com                        │    │
+│  └──────────────────────────────────────────┘    │
+│                                                  │
+│  ┌──────────────────────────────────────────┐    │
+│  │      Kirim magic link            [→]     │    │
+│  └──────────────────────────────────────────┘    │
+│                                                  │
+│  ┌──────────────────────────────────────────┐    │
+│  │  [G]  Masuk dengan Google                │    │
+│  └──────────────────────────────────────────┘    │
+│                                                  │
+│  Punya kode pairing? → Hubungkan perangkat       │
+│                                                  │
+└─────────────────────────────────────────────────┘
+
+Auth flows:
+  1. Email magic link (email field + "Kirim magic link" button)
+  2. Google Sign-In (Google Identity button)
+  3. Pairing code deep link → PairingScreen
+
+Strings from strings.xml:
+  sign_in_title, btn_send_magic_link, btn_google_signin,
+  hint_have_pairing_code
+</div>
+    </div>
+  </div>
+  <div class="gap-box gap-warn">
+    <h4>Gap 2A — Pairing code option</h4>
+    <ul>
+      <li>Android shows <strong>"Punya kode pairing?"</strong> link at bottom of SignIn screen.</li>
+      <li>Web has <strong>no pairing entry point</strong> on sign-in page (device management is in Settings after login).</li>
+      <li>This is by design: Android needs pairing for new device association; web users are always the primary device.</li>
+    </ul>
+  </div>
+  <div class="gap-box gap-warn">
+    <h4>Gap 2B — Button order</h4>
+    <ul>
+      <li>Web: Google button first, then magic link.</li>
+      <li>Android: Magic link field first, Google button second.</li>
+      <li>Minor UX inconsistency. Consider aligning order (magic link first is more universal).</li>
+    </ul>
+  </div>
+</div>
+
+<hr class="sep">
+
+<!-- ══════════════════════════════════════════════════════
+     3. PAIRING SCREEN
+══════════════════════════════════════════════════════ -->
+<div class="section" id="s3">
+  <div class="section-header">
+    <span class="section-title">3. Pairing Screen</span>
+    <span class="section-route">— (web) · ui/pairing/PairingScreen.kt</span>
+    <span class="section-status status-gap">Critical gap</span>
+  </div>
+  <div class="columns">
+    <div class="platform-card">
+      <div class="platform-header web-header">Web</div>
+      <div class="mockup-absent">
+        No standalone pairing screen on web.
+        Device management is embedded in Settings after sign-in.
+        Web users generate a pairing code in Settings &gt; Devices;
+        they cannot enter a code to pair to another device.
+      </div>
+    </div>
+    <div class="platform-card">
+      <div class="platform-header android-header">
+        Android
+        <span class="platform-src">ui/pairing/PairingScreen.kt</span>
+      </div>
+      <div class="mockup">
+┌─────────────────────────────────────────────────┐
+│  ← Hubungkan perangkat                           │
+├─────────────────────────────────────────────────┤
+│                                                  │
+│  Masukkan kode pairing dari web zippp            │
+│                                                  │
+│  ┌──────────────────────────────────────────┐    │
+│  │   X X X X  -  X X X X                   │    │
+│  │   (8-char code, auto-hyphen at pos 4)    │    │
+│  └──────────────────────────────────────────┘    │
+│                                                  │
+│  ┌──────────────────────────────────────────┐    │
+│  │            Hubungkan              [→]    │    │
+│  └──────────────────────────────────────────┘    │
+│                                                  │
+│  Kode ditemukan di Pengaturan &gt; Perangkat      │
+│                                                  │
+│  Error state: "Kode tidak valid atau kedaluwarsa"│
+│                                                  │
+└─────────────────────────────────────────────────┘
+
+Flow: enter 8-char alphanumeric pairing code
+      → POST /api/devices/pair
+      → success: navigate to Camera screen
+      → error: inline error message shown
+</div>
+    </div>
+  </div>
+  <div class="gap-box gap-critical">
+    <h4>Gap 3A — No web pairing entry point (Critical)</h4>
+    <ul>
+      <li>Android has a full standalone screen for entering a pairing code.</li>
+      <li>Web <strong>generates</strong> pairing codes in Settings &gt; Devices but has no screen to <strong>consume</strong> one.</li>
+      <li>This means: a user who wants to pair a second phone has no web flow to generate a code easily visible to the Android app.</li>
+      <li><strong>Recommend:</strong> Add a "Generate pairing code" button in web Settings &gt; Devices with a large, legible XXXX-XXXX display.</li>
+    </ul>
+  </div>
+</div>
+
+<hr class="sep">
+
+<!-- ══════════════════════════════════════════════════════
+     4. CAPTURE SCREEN
+══════════════════════════════════════════════════════ -->
+<div class="section" id="s4">
+  <div class="section-header">
+    <span class="section-title">4. Capture Screen</span>
+    <span class="section-route">/app/snap · ui/camera/CameraScreen.kt</span>
+    <span class="section-status status-gap">Minor gap</span>
+  </div>
+  <div class="columns">
+    <div class="platform-card">
+      <div class="platform-header web-header">
+        Web
+        <span class="platform-src">src/app/app/snap/page.tsx · SnapScreen.tsx (1229 ln)</span>
+      </div>
+      <div class="mockup">
+┌─────────────────────────────────────────────────┐
+│  ⚡ 42   [zippp]   🏠               ⚙           │  ← AppShell header
+├─────────────────────────────────────────────────┤
+│                                                  │
+│  ┌── Toko Mitra ──────────────────── ▼ ──────┐   │  ← sheet-title pill
+│  │  Laporan Feb 2025 · Sheet 2               │   │
+│  └───────────────────────────────────────────┘   │
+│                                                  │
+│  ╔═══════════════════════════════════════════╗   │
+│  ║                                           ║   │
+│  ║          CAMERA VIEWFINDER                ║   │
+│  ║                                           ║   │
+│  ║  ┌─┐                           ┌─┐        ║   │
+│  ║  │ │   GUIDE FRAME CORNERS     │ │        ║   │
+│  ║  │ │                           │ │        ║   │
+│  ║  │ │                           │ │        ║   │
+│  ║  │ │                           │ │        ║   │
+│  ║  └─┘                           └─┘        ║   │
+│  ║                                           ║   │
+│  ╚═══════════════════════════════════════════╝   │
+│                                                  │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐       │
+│  │  🔆 Auto │  │ ⚡ Flash │  │ 📷 Galeri│       │  ← tool pills
+│  └──────────┘  └──────────┘  └──────────┘       │
+│                                                  │
+│       ○  ━━━━━━━━━ [●] ━━━━━━━━━  ○              │  ← draft strip
+│            Belum dikirim: 3                       │
+│                                                  │
+│  ┌──────────────────────────────────────────┐    │
+│  │ ◎  Ambil foto              [ Buka Sheet ]│    │  ← shutter + open
+│  └──────────────────────────────────────────┘    │
+└─────────────────────────────────────────────────┘
+
+After capture: transitions to Review bottom sheet (88% height)
+covering the camera viewfinder.
+
+Auto-snap toggle: switches between manual shutter and
+auto-trigger on stable frame detection.
+</div>
+    </div>
+    <div class="platform-card">
+      <div class="platform-header android-header">
+        Android
+        <span class="platform-src">ui/camera/CameraScreen.kt</span>
+      </div>
+      <div class="mockup">
+┌─────────────────────────────────────────────────┐
+│  [zippp]                        🏠       ⚙      │  ← ZipppHeader
+├─────────────────────────────────────────────────┤
+│                                                  │
+│  ╔═══════════════════════════════════════════╗   │
+│  ║                                           ║   │
+│  ║          CAMERA VIEWFINDER                ║   │
+│  ║          (CameraX preview)                ║   │
+│  ║                                           ║   │
+│  ║  ┌─┐                           ┌─┐        ║   │
+│  ║  │ │   GUIDE FRAME CORNERS     │ │        ║   │
+│  ║  │ │   (page tone: #E8E8E8)    │ │        ║   │
+│  ║  │ │                           │ │        ║   │
+│  ║  └─┘                           └─┘        ║   │
+│  ║                                           ║   │
+│  ╚═══════════════════════════════════════════╝   │
+│                                                  │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐       │
+│  │ 🔦 Flash │  │  🌐 Auto │  │ 🖼 Galeri│       │  ← tool pills
+│  └──────────┘  └──────────┘  └──────────┘       │    (order differs)
+│                                                  │
+│  ┌────────────────────────────────────────────┐  │
+│  │  ○  ○  ● ━━━━━━━━━━━━━━━━━ ○  ○           │  │  ← batch strip
+│  └────────────────────────────────────────────┘  │    (BatchStore, now
+│                                                  │     BatchScreen removed)
+│  ┌──────────────────────────────────────────┐    │
+│  │   [Buka Lembar]        ◎  Ambil foto     │    │  ← shutter row
+│  └──────────────────────────────────────────┘    │
+├─────────────────────────────────────────────────┤
+│  ● Laporan Feb 2025                              │  ← ZipppShell pill
+└─────────────────────────────────────────────────┘
+</div>
+    </div>
+  </div>
+  <div class="gap-box gap-info">
+    <h4>Gap 4A — Credit display (By design · DEC-002)</h4>
+    <ul>
+      <li>Web: <strong>⚡ 42</strong> credit pill in AppShell header visible on capture screen.</li>
+      <li>Android: <strong>no credit display</strong>. Removed per DEC-002 / FEAT-118 §2.</li>
+    </ul>
+  </div>
+  <div class="gap-box gap-warn">
+    <h4>Gap 4B — Tool pill order and icons</h4>
+    <ul>
+      <li>Web order: Auto | Flash | Gallery</li>
+      <li>Android order: Flash | Auto | Gallery</li>
+      <li>Web uses "🔆 Auto" (brightness icon); Android uses "🌐 Auto" (globe/auto icon) — confirm icon consistency.</li>
+    </ul>
+  </div>
+  <div class="gap-box gap-warn">
+    <h4>Gap 4C — Sheet-title pill position</h4>
+    <ul>
+      <li>Web: pill above camera viewfinder (inside SnapScreen, below header).</li>
+      <li>Android: pill below page content (ZipppShell at bottom of AppFrame).</li>
+    </ul>
+  </div>
+  <div class="gap-box gap-warn">
+    <h4>Gap 4D — BatchScreen removed on Android</h4>
+    <ul>
+      <li><code>BatchScreen.kt</code> was deleted in FEAT-118. <code>BatchStore.kt</code> still exists and the batch strip UI is in <code>CameraScreen</code>.</li>
+      <li>Web still has draft strip with batch navigation (prev/next dots).</li>
+      <li>Need to verify Android batch strip tap behavior without BatchScreen — currently taps may be no-ops.</li>
+    </ul>
+  </div>
+</div>
+
+<hr class="sep">
+
+<!-- ══════════════════════════════════════════════════════
+     5. REVIEW SHEET
+══════════════════════════════════════════════════════ -->
+<div class="section" id="s5">
+  <div class="section-header">
+    <span class="section-title">5. Review Sheet (Bottom Sheet)</span>
+    <span class="section-route">/app/snap (overlay) · ui/review/ReviewScreen.kt</span>
+    <span class="section-status status-gap">Minor gap</span>
+  </div>
+  <div class="columns">
+    <div class="platform-card">
+      <div class="platform-header web-header">
+        Web
+        <span class="platform-src">src/app/app/snap/page.tsx — bottom sheet section</span>
+      </div>
+      <div class="mockup">
+┌─────────────────────────────────────────────────┐
+│          (camera visible behind, dimmed)         │
+│                                                  │
+│  ╔═══════════════════════════════════════════╗   │
+│  ║  ◁  Struk 2 / 3  ▷           [✕]        ║   │  ← nav + close
+│  ╠═══════════════════════════════════════════╣   │
+│  ║                                           ║   │
+│  ║  Toko ABC                                 ║   │  ← merchant
+│  ║  12 Feb 2025                              ║   │  ← date
+│  ║  Rp 45.000                                ║   │  ← total
+│  ║                                           ║   │
+│  ║  Kategori:    [ Makanan      ▼ ]          ║   │  ← category
+│  ║  Pembayaran:  [ Tunai        ▼ ]          ║   │  ← payment
+│  ║  Ops/Catatan: [ ____________ ]            ║   │  ← ops field
+│  ║                                           ║   │
+│  ║  ⚠ Hard flag detected:                   ║   │  ← flag warning
+│  ║    "Total tidak terbaca jelas"            ║   │
+│  ║  [ ] Saya sudah cek dan setuju            ║   │  ← ack checkbox
+│  ║                                           ║   │
+│  ╠═══════════════════════════════════════════╣   │
+│  ║  [Buang]      [Ubah]           [Terima]   ║   │  ← action bar
+│  ╚═══════════════════════════════════════════╝   │
+│                                                  │
+│  On "Buang": item removed immediately.           │
+│  No undo snackbar on web.                        │
+└─────────────────────────────────────────────────┘
+Height: ~88vh, draggable handle at top.
+</div>
+    </div>
+    <div class="platform-card">
+      <div class="platform-header android-header">
+        Android
+        <span class="platform-src">ui/review/ReviewScreen.kt</span>
+      </div>
+      <div class="mockup">
+┌─────────────────────────────────────────────────┐
+│          (camera visible behind, dimmed)         │
+│                                                  │
+│  ╔═══════════════════════════════════════════╗   │
+│  ║  ◁  Struk 2 / 3  ▷           [✕]        ║   │  ← nav + close
+│  ╠═══════════════════════════════════════════╣   │
+│  ║                                           ║   │
+│  ║  Toko ABC                                 ║   │  ← merchant
+│  ║  12 Feb 2025                              ║   │  ← date
+│  ║  Rp 45.000                                ║   │  ← total
+│  ║                                           ║   │
+│  ║  Kategori:    [ Makanan      ▼ ]          ║   │  ← category
+│  ║  Pembayaran:  [ Tunai        ▼ ]          ║   │  ← payment
+│  ║  Ops/Catatan: [ ____________ ]            ║   │  ← ops field
+│  ║                                           ║   │
+│  ║  ⚠ Peringatan tanda keras:               ║   │  ← flag warning
+│  ║    "Total tidak terbaca jelas"            ║   │    (string from xml)
+│  ║  [ ] Saya sudah cek dan setuju            ║   │  ← ack checkbox
+│  ║                                           ║   │
+│  ╠═══════════════════════════════════════════╣   │
+│  ║  [Buang]      [Ubah]           [Terima]   ║   │
+│  ╚═══════════════════════════════════════════╝   │
+│                                                  │
+│  On "Buang": shows Snackbar for 5 seconds:       │
+│  "Struk dihapus  [Urungkan]"                     │
+│  → Snackbar action "Urungkan" restores item.     │
+└─────────────────────────────────────────────────┘
+(FEAT-118 decision §13: 5-second undo on Android)
+</div>
+    </div>
+  </div>
+  <div class="gap-box gap-warn">
+    <h4>Gap 5A — Discard undo behaviour</h4>
+    <ul>
+      <li>Android: 5-second Snackbar with <strong>"Urungkan"</strong> (undo) after Buang/discard (FEAT-118 §13).</li>
+      <li>Web: discard is <strong>immediate and permanent</strong> — no undo affordance.</li>
+      <li>Recommend: add a brief toast undo to web for consistency.</li>
+    </ul>
+  </div>
+  <div class="gap-box gap-ok">
+    <h4>Parity — Fields and flags</h4>
+    <ul>
+      <li>Both platforms: merchant, date, total, category, payment, ops/notes fields.</li>
+      <li>Both: hard flag warning + acknowledge checkbox gate.</li>
+      <li>Both: Terima / Ubah / Buang button trio.</li>
+      <li>Both: prev / next navigation across batched drafts.</li>
+    </ul>
+  </div>
+</div>
+
+<hr class="sep">
+
+<!-- ══════════════════════════════════════════════════════
+     6. SETTINGS
+══════════════════════════════════════════════════════ -->
+<div class="section" id="s6">
+  <div class="section-header">
+    <span class="section-title">6. Settings</span>
+    <span class="section-route">/app/settings · ui/settings/SettingsScreen.kt</span>
+    <span class="section-status status-gap">Critical gap</span>
+  </div>
+  <div class="columns">
+    <div class="platform-card">
+      <div class="platform-header web-header">
+        Web
+        <span class="platform-src">src/app/app/settings/page.tsx</span>
+      </div>
+      <div class="mockup">
+┌─────────────────────────────────────────────────┐
+│  ⚡ 42   [zippp]   🏠               ⚙           │
+├─────────────────────────────────────────────────┤
+│  Pengaturan                                      │
+│                                                  │
+│  ┌─ Saldo ───────────────────────────────────┐   │
+│  │  42 kredit tersisa                        │   │  ← credit count
+│  │  [ Isi ulang kredit ]                     │   │  ← top-up button
+│  └───────────────────────────────────────────┘   │
+│                                                  │
+│  ┌─ Paket ────────────────────────────────────┐  │
+│  │  Paket Gratis · 100 kredit/bln            │   │
+│  │  [ Upgrade paket ]                        │   │
+│  └───────────────────────────────────────────┘   │
+│                                                  │
+│  ┌─ Perangkat ────────────────────────────────┐  │
+│  │  MacBook Pro (browser saat ini)  [Aktif]  │   │
+│  │  Samsung Galaxy M12              [Cabut]  │   │
+│  │  Kode pairing: ABCD-1234  [Buat baru]    │   │
+│  └───────────────────────────────────────────┘   │
+│                                                  │
+│  ┌─ Google Sheet ─────────────────────────────┐  │
+│  │  Laporan Feb 2025                          │   │
+│  │  [ Putus koneksi sheet ]                  │   │
+│  └───────────────────────────────────────────┘   │
+│                                                  │
+│  ┌─ Ruang ─────────────────────────────────── ┐  │
+│  │  Toko Mitra → [ Kelola Ruang ]            │   │
+│  └───────────────────────────────────────────┘   │
+│                                                  │
+│  ┌─ Telegram ─────────────────────────────────┐  │
+│  │  Belum terhubung  [ Hubungkan Telegram ]  │   │  ← NOT on Android
+│  └───────────────────────────────────────────┘   │
+│                                                  │
+│  ┌─ Bahasa ───────────────────────────────────┐  │
+│  │  🇮🇩 Bahasa Indonesia ▼                   │   │  ← NOT on Android
+│  └───────────────────────────────────────────┘   │
+│                                                  │
+│  ┌─ Referral ─────────────────────────────────┐  │
+│  │  Kode referralmu: ZIPMMXYZ  [Salin]       │   │  ← NOT on Android
+│  └───────────────────────────────────────────┘   │
+│                                                  │
+│  [ Keluar ]                                      │
+└─────────────────────────────────────────────────┘
+</div>
+    </div>
+    <div class="platform-card">
+      <div class="platform-header android-header">
+        Android
+        <span class="platform-src">ui/settings/SettingsScreen.kt</span>
+      </div>
+      <div class="mockup">
+┌─────────────────────────────────────────────────┐
+│  [zippp]                        🏠       ⚙      │
+├─────────────────────────────────────────────────┤
+│  Pengaturan                                      │
+│                                                  │
+│  ┌─ Paket & Penggunaan ───────────────────────┐  │
+│  │  Paket Gratis                              │   │
+│  │  Penggunaan bulan ini:                    │   │
+│  │  ████████░░░░░░░░░░░  42%                 │   │  ← quota % bar
+│  │  (NO raw credit count)                    │   │
+│  └───────────────────────────────────────────┘   │
+│                                                  │
+│  ┌─ Ruang ─────────────────────────────────── ┐  │
+│  │  Toko Mitra → [ Kelola Ruang ]            │   │
+│  └───────────────────────────────────────────┘   │
+│                                                  │
+│  ┌─ Tangkap Notifikasi ───────────────────────┐  │
+│  │  Aktifkan tangkap via notifikasi  [ ○ ]   │   │  ← NOT on web
+│  └───────────────────────────────────────────┘   │
+│                                                  │
+│  ┌─ Google Sheet ─────────────────────────────┐  │
+│  │  Laporan Feb 2025                          │   │
+│  │  [ Buka Lembar ]                           │   │  ← open only, no disconnect
+│  └───────────────────────────────────────────┘   │
+│                                                  │
+│  (No Telegram section)                           │
+│  (No Language section)                           │
+│  (No Referral section)                           │
+│  (No top-up / Isi Ulang button)                  │
+│  (No Device list / pairing code)                 │
+│                                                  │
+│  [ Keluar ]                                      │
+│                                                  │
+├─────────────────────────────────────────────────┤
+│  ● Laporan Feb 2025                              │  ← ZipppShell pill
+└─────────────────────────────────────────────────┘
+</div>
+    </div>
+  </div>
+  <div class="gap-box gap-critical">
+    <h4>Gap 6A — Credit count vs quota % (Critical)</h4>
+    <ul>
+      <li>Web: shows raw <strong>42 kredit</strong> + "Isi ulang kredit" button.</li>
+      <li>Android: shows <strong>quota % progress bar</strong> — no raw count, no top-up button.</li>
+      <li>Spec (FEAT-118 §5): Android should show %. Web should eventually migrate. This creates user confusion.</li>
+    </ul>
+  </div>
+  <div class="gap-box gap-critical">
+    <h4>Gap 6B — Android missing: Telegram, Language, Referral, Devices (Critical)</h4>
+    <ul>
+      <li><strong>Telegram:</strong> Web connects bot; Android has no Telegram section at all.</li>
+      <li><strong>Language:</strong> Web allows locale switch; Android uses system locale.</li>
+      <li><strong>Referral:</strong> Web shows referral code; Android has none.</li>
+      <li><strong>Devices:</strong> Web lists connected devices + pairing code generator; Android has none.</li>
+      <li>Some of these are spec-intentional (Android = lean); others may be spec gaps.</li>
+    </ul>
+  </div>
+  <div class="gap-box gap-warn">
+    <h4>Gap 6C — Sheet disconnect missing on Android</h4>
+    <ul>
+      <li>Web: "Putus koneksi sheet" button in Settings &gt; Sheet.</li>
+      <li>Android: only shows "Buka Lembar" (open in browser). No disconnect.</li>
+      <li>Users cannot re-connect to a different Sheet from Android Settings.</li>
+    </ul>
+  </div>
+  <div class="gap-box gap-warn">
+    <h4>Gap 6D — Notification capture toggle (Android only)</h4>
+    <ul>
+      <li>Android: "Aktifkan tangkap via notifikasi" toggle in Settings.</li>
+      <li>Web: no equivalent (web cannot receive push notifications for capture).</li>
+      <li>This is by design — Android-only feature.</li>
+    </ul>
+  </div>
+</div>
+
+<hr class="sep">
+
+<!-- ══════════════════════════════════════════════════════
+     7. SPACE SCREEN
+══════════════════════════════════════════════════════ -->
+<div class="section" id="s7">
+  <div class="section-header">
+    <span class="section-title">7. Space Screen</span>
+    <span class="section-route">/app/settings/space · ui/space/SpaceScreen.kt</span>
+    <span class="section-status status-par">Near parity</span>
+  </div>
+  <div class="columns">
+    <div class="platform-card">
+      <div class="platform-header web-header">
+        Web
+        <span class="platform-src">src/app/app/settings/space/page.tsx</span>
+      </div>
+      <div class="mockup">
+┌─────────────────────────────────────────────────┐
+│  ⚡ 42   [zippp]   🏠               ⚙           │
+├─────────────────────────────────────────────────┤
+│  ← Ruang                                         │
+│                                                  │
+│  ┌─ Info Ruang ───────────────────────────────┐  │
+│  │  Nama: Toko Mitra                         │   │
+│  │  [ Ubah nama ]                            │   │
+│  └───────────────────────────────────────────┘   │
+│                                                  │
+│  ┌─ Anggota ──────────────────────────────────┐  │
+│  │  👤 budi@email.com        (pemilik)       │   │
+│  │  👤 siti@email.com        [Hapus]         │   │
+│  │                                           │   │
+│  │  Undang anggota baru:                     │   │
+│  │  [ email@domain.com   ] [Undang]          │   │
+│  └───────────────────────────────────────────┘   │
+│                                                  │
+│  ┌─ Bahaya ───────────────────────────────────┐  │
+│  │  [ Tinggalkan Ruang ]                     │   │
+│  └───────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────┘
+</div>
+    </div>
+    <div class="platform-card">
+      <div class="platform-header android-header">
+        Android
+        <span class="platform-src">ui/space/SpaceScreen.kt</span>
+      </div>
+      <div class="mockup">
+┌─────────────────────────────────────────────────┐
+│  [zippp]                        🏠       ⚙      │
+├─────────────────────────────────────────────────┤
+│  Ruang                                           │
+│                                                  │
+│  ┌─ Info Ruang ───────────────────────────────┐  │
+│  │  Nama: Toko Mitra                         │   │
+│  │  [ Ubah nama ]                            │   │
+│  └───────────────────────────────────────────┘   │
+│                                                  │
+│  ┌─ Anggota ──────────────────────────────────┐  │
+│  │  👤 budi@email.com        (pemilik)       │   │
+│  │  👤 siti@email.com        [Hapus]         │   │
+│  │                                           │   │
+│  │  Undang anggota baru:                     │   │
+│  │  [ email@domain.com   ] [Undang]          │   │
+│  └───────────────────────────────────────────┘   │
+│                                                  │
+│  ┌─ Bahaya ───────────────────────────────────┐  │
+│  │  [ Tinggalkan Ruang ]                     │   │
+│  └───────────────────────────────────────────┘   │
+│                                                  │
+├─────────────────────────────────────────────────┤
+│  ● Laporan Feb 2025                              │  ← ZipppShell pill
+└─────────────────────────────────────────────────┘
+</div>
+    </div>
+  </div>
+  <div class="gap-box gap-ok">
+    <h4>Parity — Space screen is functionally equivalent</h4>
+    <ul>
+      <li>Both platforms: space name, rename, member list, invite by email, leave space.</li>
+      <li>Layout differences are cosmetic (shell chrome only).</li>
+      <li>Minor: web uses "Hapus" for member removal; confirm Android uses same string.</li>
+    </ul>
+  </div>
+</div>
+
+<hr class="sep">
+
+<!-- ══════════════════════════════════════════════════════
+     8. MANUAL ENTRY
+══════════════════════════════════════════════════════ -->
+<div class="section" id="s8">
+  <div class="section-header">
+    <span class="section-title">8. Manual Entry</span>
+    <span class="section-route">/app/snap (inline panel) · ui/manual/ManualEntryScreen.kt</span>
+    <span class="section-status status-gap">Minor gap</span>
+  </div>
+  <div class="columns">
+    <div class="platform-card">
+      <div class="platform-header web-header">
+        Web
+        <span class="platform-src">src/app/app/snap/page.tsx — ManualPanel</span>
+      </div>
+      <div class="mockup">
+┌─────────────────────────────────────────────────┐
+│  ⚡ 42   [zippp]   🏠               ⚙           │
+├─────────────────────────────────────────────────┤
+│  ┌── Toko Mitra ───────────────── ▼ ──────────┐  │
+│  └───────────────────────────────────────────┘   │
+│                                                  │
+│  ╔═══════════════════════════════════════════╗   │
+│  ║          CAMERA VIEWFINDER                ║   │
+│  ╚═══════════════════════════════════════════╝   │
+│                                                  │
+│  ┌─ Entri Manual ─────────────────────────────┐  │
+│  │  Nama toko: [ ______________________ ]    │   │
+│  │  Jumlah:    [ Rp _________________ ]      │   │
+│  │  Tanggal:   [ DD/MM/YYYY           ]      │   │
+│  │  Kategori:  [ Makanan       ▼      ]      │   │
+│  │  Catatan:   [ ______________________ ]    │   │
+│  │                           [ Simpan ]      │   │
+│  └───────────────────────────────────────────┘   │
+│                                                  │
+│  Panel slides up over camera on tab switch.      │
+│  Tabs: [📷 Foto]  [✏️ Manual]  (toggle bar)      │
+└─────────────────────────────────────────────────┘
+Entry is part of the SnapScreen; no route change.
+Camera remains in background (paused).
+</div>
+    </div>
+    <div class="platform-card">
+      <div class="platform-header android-header">
+        Android
+        <span class="platform-src">ui/manual/ManualEntryScreen.kt</span>
+      </div>
+      <div class="mockup">
+┌─────────────────────────────────────────────────┐
+│  [zippp]                        🏠       ⚙      │
+├─────────────────────────────────────────────────┤
+│  ← Entri Manual                                  │
+│                                                  │
+│  ┌─────────────────────────────────────────────┐ │
+│  │  Nama toko                                 │ │
+│  │  [ ______________________________ ]        │ │
+│  └─────────────────────────────────────────────┘ │
+│                                                  │
+│  ┌─────────────────────────────────────────────┐ │
+│  │  Jumlah (Rp)                               │ │
+│  │  [ ______________________________ ]        │ │
+│  └─────────────────────────────────────────────┘ │
+│                                                  │
+│  ┌─────────────────────────────────────────────┐ │
+│  │  Tanggal                                   │ │
+│  │  [ DD / MM / YYYY      ]  📅               │ │
+│  └─────────────────────────────────────────────┘ │
+│                                                  │
+│  ┌─────────────────────────────────────────────┐ │
+│  │  Kategori    [ Makanan              ▼ ]    │ │
+│  └─────────────────────────────────────────────┘ │
+│                                                  │
+│  ┌─────────────────────────────────────────────┐ │
+│  │  Catatan (opsional)                        │ │
+│  │  [ ______________________________ ]        │ │
+│  └─────────────────────────────────────────────┘ │
+│                                                  │
+│  ┌──────────────────────────────────────────┐    │
+│  │                 Simpan               [→] │    │
+│  └──────────────────────────────────────────┘    │
+│                                                  │
+├─────────────────────────────────────────────────┤
+│  ● Laporan Feb 2025                              │
+└─────────────────────────────────────────────────┘
+Full standalone screen. Camera is NOT in background.
+Navigates back to CameraScreen on success.
+</div>
+    </div>
+  </div>
+  <div class="gap-box gap-warn">
+    <h4>Gap 8A — Manual entry as panel vs standalone screen</h4>
+    <ul>
+      <li>Web: manual entry is an <strong>inline sliding panel</strong> within SnapScreen. Camera stays loaded (paused).</li>
+      <li>Android: manual entry is a <strong>separate navigation destination</strong> (ManualEntryScreen). Camera is dismissed.</li>
+      <li>UX impact: Android users lose camera context when doing manual entry.</li>
+      <li>Consider: Android could use a bottom sheet (like ReviewScreen) to keep camera context.</li>
+    </ul>
+  </div>
+  <div class="gap-box gap-ok">
+    <h4>Parity — Fields match</h4>
+    <ul>
+      <li>Both: nama toko, jumlah, tanggal, kategori, catatan/notes.</li>
+      <li>Both: Simpan/submit action.</li>
+    </ul>
+  </div>
+</div>
+
+<hr class="sep">
+
+<!-- ══════════════════════════════════════════════════════
+     9. HOME DASHBOARD
+══════════════════════════════════════════════════════ -->
+<div class="section" id="s9">
+  <div class="section-header">
+    <span class="section-title">9. Home Dashboard</span>
+    <span class="section-route">/app/snap (web) · — (Android, FEAT-120 todo)</span>
+    <span class="section-status status-missing">Critical — Android missing</span>
+  </div>
+  <div class="columns">
+    <div class="platform-card">
+      <div class="platform-header web-header">
+        Web
+        <span class="platform-src">/app/snap doubles as Home</span>
+      </div>
+      <div class="mockup">
+┌─────────────────────────────────────────────────┐
+│  ⚡ 42   [zippp]   🏠               ⚙           │
+├─────────────────────────────────────────────────┤
+│  ┌── Toko Mitra ──── ▼ ──────────────────────┐   │
+│  └───────────────────────────────────────────┘   │
+│                                                  │
+│  The web "home" IS the camera screen.            │
+│  There is no separate dashboard view.            │
+│                                                  │
+│  Users land directly on the camera               │
+│  with the draft strip showing pending items.     │
+│                                                  │
+│  ╔═══════════════════════════════════════════╗   │
+│  ║          CAMERA VIEWFINDER                ║   │
+│  ║          (immediately active)             ║   │
+│  ╚═══════════════════════════════════════════╝   │
+│                                                  │
+│  Pending: 3 struk belum dikirim                  │
+│  ○  ━━━━━━━━━ [●] ━━━━━━━━━  ○                  │
+└─────────────────────────────────────────────────┘
+Default landing after sign-in: /app/snap
+</div>
+    </div>
+    <div class="platform-card">
+      <div class="platform-header android-header">Android</div>
+      <div class="mockup-absent">
+        No Home Dashboard screen built on Android.
+
+        FEAT-120 is in the backlog.
+
+        The Android "home" is the Camera screen
+        (RootScreen.Camera in MainActivity.kt).
+        This is equivalent to the web behavior today,
+        but once FEAT-120 ships, Android will have a
+        dashboard and web will not — reversing the gap.
+
+        Current default after sign-in: CameraScreen.
+        No stats, no summary, no history list.
+      </div>
+    </div>
+  </div>
+  <div class="gap-box gap-critical">
+    <h4>Gap 9A — FEAT-120: Android Home Dashboard not built</h4>
+    <ul>
+      <li>Both platforms currently land on Camera as home — this is <strong>at parity today</strong>.</li>
+      <li>FEAT-120 plans a Home Dashboard for Android (stats, recent receipts, quota). Web has no equivalent.</li>
+      <li>When FEAT-120 ships, the gap will <strong>reverse</strong>: Android will have more than web.</li>
+      <li><strong>Action:</strong> Plan a web home/dashboard view before or alongside FEAT-120.</li>
+    </ul>
+  </div>
+</div>
+
+<hr class="sep">
+
+<!-- ══════════════════════════════════════════════════════
+     10. GOOGLE GRANT
+══════════════════════════════════════════════════════ -->
+<div class="section" id="s10">
+  <div class="section-header">
+    <span class="section-title">10. Google Drive / Sheets Grant</span>
+    <span class="section-route">/app/settings (inline) · — (Android, FEAT-119/122 todo)</span>
+    <span class="section-status status-missing">Critical — Android missing</span>
+  </div>
+  <div class="columns">
+    <div class="platform-card">
+      <div class="platform-header web-header">
+        Web
+        <span class="platform-src">src/app/app/settings/sheet/page.tsx</span>
+      </div>
+      <div class="mockup">
+┌─────────────────────────────────────────────────┐
+│  Hubungkan Google Sheet                          │
+│                                                  │
+│  Zippp perlu akses ke Google Drive dan           │
+│  Google Sheets untuk menyimpan struk.            │
+│                                                  │
+│  [ Izinkan akses Google ]                        │
+│    → redirects to Google OAuth consent           │
+│       scope: drive.file + spreadsheets          │
+│                                                  │
+│  Setelah izin:                                   │
+│  ┌─────────────────────────────────────────────┐ │
+│  │  Pilih sheet yang ada:                     │ │
+│  │  ○ Buat sheet baru                         │ │
+│  │  ● Gunakan sheet yang ada: [__________ ▼] │ │
+│  │  [ Hubungkan ]                             │ │
+│  └─────────────────────────────────────────────┘ │
+└─────────────────────────────────────────────────┘
+</div>
+    </div>
+    <div class="platform-card">
+      <div class="platform-header android-header">Android</div>
+      <div class="mockup-absent">
+        No Google Grant / Sheet connection screen on Android.
+
+        FEAT-119 and FEAT-122 are in the backlog.
+
+        Without this screen, Android users CANNOT:
+        - Connect a Google Sheet from the phone
+        - Grant Drive/Sheets OAuth scopes
+        - Switch to a different sheet
+
+        Current workaround: user must connect sheet
+        via the web app, then use Android for capture only.
+
+        This is a critical onboarding gap for Android-first users.
+      </div>
+    </div>
+  </div>
+  <div class="gap-box gap-critical">
+    <h4>Gap 10A — Android cannot connect a Google Sheet (Critical)</h4>
+    <ul>
+      <li>Web: full Google OAuth consent flow with Drive.file + Sheets scopes, sheet picker, create-or-select.</li>
+      <li>Android: <strong>no sheet connection UI</strong>. FEAT-119 / FEAT-122 pending.</li>
+      <li>Impact: Android-first users are <strong>blocked at onboarding</strong>. Must use web to connect sheet first.</li>
+      <li><strong>Priority:</strong> This should be FEAT-119/122 — high priority before any new Android features.</li>
+    </ul>
+  </div>
+</div>
+
+<hr class="sep">
+
+<!-- ══════════════════════════════════════════════════════
+     11. TOP-UP / BILLING
+══════════════════════════════════════════════════════ -->
+<div class="section" id="s11">
+  <div class="section-header">
+    <span class="section-title">11. Top-up / Billing</span>
+    <span class="section-route">/app/topup · — (Android, DEC-002)</span>
+    <span class="section-status status-design">By design</span>
+  </div>
+  <div class="columns">
+    <div class="platform-card">
+      <div class="platform-header web-header">
+        Web
+        <span class="platform-src">src/app/app/topup/page.tsx</span>
+      </div>
+      <div class="mockup">
+┌─────────────────────────────────────────────────┐
+│  Isi Ulang Kredit                                │
+│                                                  │
+│  ┌── Pilih paket ─────────────────────────────┐  │
+│  │  ○  50 kredit   — Rp 15.000               │   │
+│  │  ●  150 kredit  — Rp 35.000  (populer)    │   │
+│  │  ○  500 kredit  — Rp 99.000               │   │
+│  └───────────────────────────────────────────┘   │
+│                                                  │
+│  ┌── Metode pembayaran ───────────────────────┐  │
+│  │  ● DOKU (transfer bank, e-wallet)         │   │  ← Indonesia
+│  │  ○ Paddle (kartu kredit internasional)    │   │  ← International
+│  └───────────────────────────────────────────┘   │
+│                                                  │
+│  ┌──────────────────────────────────────────┐    │
+│  │  Total: Rp 35.000           [ Bayar ]    │    │
+│  └──────────────────────────────────────────┘    │
+│                                                  │
+│  → Paddle sandbox checkout redirect              │
+│  → DOKU Checkout redirect                        │
+│  → Webhook: credits granted (idempotency key)   │
+└─────────────────────────────────────────────────┘
+</div>
+    </div>
+    <div class="platform-card">
+      <div class="platform-header android-header">Android</div>
+      <div class="mockup-absent">
+        No billing / top-up UI on Android.
+
+        DEC-002: Android billing deliberately excluded.
+        Rationale: Paddle/DOKU SDKs not integrated on Android.
+        Play Billing not in scope.
+
+        Android users who need to top up must use
+        the web app at zippp.link.
+
+        Note: Android Settings shows quota % bar only;
+        no "Isi ulang" button appears anywhere on Android.
+      </div>
+    </div>
+  </div>
+  <div class="gap-box gap-info">
+    <h4>By design — DEC-002: No Android billing</h4>
+    <ul>
+      <li>Web: full DOKU + Paddle billing flow with order history at <code>/app/topup/order/[id]</code>.</li>
+      <li>Android: explicitly excluded. No top-up button, no billing screen.</li>
+      <li>Users are directed to web for any credit purchase.</li>
+      <li><strong>UX note:</strong> Android should show a clear message pointing to zippp.link when credits are low, rather than silently failing.</li>
+    </ul>
+  </div>
+</div>
+
+<hr class="sep">
+
+<!-- ══════════════════════════════════════════════════════
+     FINAL SUMMARY
+══════════════════════════════════════════════════════ -->
+<div class="section" style="padding-bottom: 48px;">
+  <div class="section-header">
+    <span class="section-title">Gap Priority Matrix</span>
+  </div>
+  <table class="summary-table">
+    <thead>
+      <tr>
+        <th>Priority</th>
+        <th>Gap ID</th>
+        <th>Description</th>
+        <th>Effort</th>
+        <th>Linked Feature</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="pill pill-red">P0 — Blocker</span></td>
+        <td>10A</td>
+        <td>Android cannot connect Google Sheet — users blocked at onboarding</td>
+        <td>High</td>
+        <td>FEAT-119 / FEAT-122</td>
+      </tr>
+      <tr>
+        <td><span class="pill pill-red">P1 — Critical</span></td>
+        <td>6A</td>
+        <td>Settings: credit count (web) vs quota % (Android) — user confusion</td>
+        <td>Medium</td>
+        <td>Migrate web to % display</td>
+      </tr>
+      <tr>
+        <td><span class="pill pill-red">P1 — Critical</span></td>
+        <td>6B</td>
+        <td>Settings: Telegram / Language / Referral / Devices absent on Android</td>
+        <td>High</td>
+        <td>Spec review needed</td>
+      </tr>
+      <tr>
+        <td><span class="pill pill-red">P1 — Critical</span></td>
+        <td>3A</td>
+        <td>No web pairing code generator display (XXXX-XXXX large format)</td>
+        <td>Low</td>
+        <td>Settings &gt; Devices enhancement</td>
+      </tr>
+      <tr>
+        <td><span class="pill pill-yellow">P2 — Important</span></td>
+        <td>9A</td>
+        <td>FEAT-120 Home Dashboard will reverse parity — plan web equivalent</td>
+        <td>High</td>
+        <td>FEAT-120</td>
+      </tr>
+      <tr>
+        <td><span class="pill pill-yellow">P2 — Important</span></td>
+        <td>6C</td>
+        <td>Android Settings cannot disconnect / change sheet</td>
+        <td>Low</td>
+        <td>Android Settings update</td>
+      </tr>
+      <tr>
+        <td><span class="pill pill-yellow">P2 — Important</span></td>
+        <td>5A</td>
+        <td>Discard undo: Android has 5s snackbar, web does not</td>
+        <td>Low</td>
+        <td>Web SnapScreen enhancement</td>
+      </tr>
+      <tr>
+        <td><span class="pill pill-yellow">P2 — Important</span></td>
+        <td>8A</td>
+        <td>Manual entry: Android is standalone screen, web is inline panel</td>
+        <td>Medium</td>
+        <td>Android ManualEntry → bottom sheet</td>
+      </tr>
+      <tr>
+        <td><span class="pill pill-yellow">P3 — Minor</span></td>
+        <td>4B</td>
+        <td>Tool pill order and icons differ between platforms</td>
+        <td>Low</td>
+        <td>Android CameraScreen</td>
+      </tr>
+      <tr>
+        <td><span class="pill pill-yellow">P3 — Minor</span></td>
+        <td>1B</td>
+        <td>Sheet-title pill above camera on web; below content on Android</td>
+        <td>Low</td>
+        <td>Design consistency</td>
+      </tr>
+      <tr>
+        <td><span class="pill pill-yellow">P3 — Minor</span></td>
+        <td>2B</td>
+        <td>Button order on Sign In differs (Google first vs magic link first)</td>
+        <td>Low</td>
+        <td>Web sign-in page</td>
+      </tr>
+      <tr>
+        <td><span class="pill pill-blue">By design</span></td>
+        <td>1A</td>
+        <td>Credit pill in web header; absent on Android (DEC-002)</td>
+        <td>—</td>
+        <td>DEC-002</td>
+      </tr>
+      <tr>
+        <td><span class="pill pill-blue">By design</span></td>
+        <td>11</td>
+        <td>No top-up / billing UI on Android (DEC-002)</td>
+        <td>—</td>
+        <td>DEC-002</td>
+      </tr>
+      <tr>
+        <td><span class="pill pill-blue">By design</span></td>
+        <td>6D</td>
+        <td>Notification capture toggle on Android only</td>
+        <td>—</td>
+        <td>Android-native feature</td>
+      </tr>
+      <tr>
+        <td><span class="pill pill-green">At parity</span></td>
+        <td>7</td>
+        <td>Space screen — functionally equivalent on both platforms</td>
+        <td>—</td>
+        <td>—</td>
+      </tr>
+      <tr>
+        <td><span class="pill pill-green">At parity</span></td>
+        <td>5B</td>
+        <td>Review Sheet fields (merchant, date, total, category, ops, flags)</td>
+        <td>—</td>
+        <td>—</td>
+      </tr>
+      <tr>
+        <td><span class="pill pill-green">At parity</span></td>
+        <td>tokens</td>
+        <td>Color tokens: orange #EE5329, page #E8E8E8, card #FFFFFF, muted #5E4640</td>
+        <td>—</td>
+        <td>—</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div style="padding: 16px 0; color: var(--text-dim); font-size: 12px; line-height: 1.8;">
+    <strong style="color: var(--text);">Notes:</strong><br>
+    · All mockups derived from source code — no live screenshots available (device was locked during session).<br>
+    · Android strings from <code>android/app/src/main/res/values/strings.xml</code>.<br>
+    · Web strings from <code>spec/wording.txt</code> and inline TSX (need audit to ensure full migration).<br>
+    · Branch: <code>feat/121-import-statements</code> (off <code>feat/118-android-parity</code>). HEAD: <code>04268ef</code>.<br>
+    · Next task: FEAT-121 Slice S-I2 — column mapping, row-to-receipt transform, POST /api/import/parse route.
+  </div>
+</div>
+
+</body>
+</html>
