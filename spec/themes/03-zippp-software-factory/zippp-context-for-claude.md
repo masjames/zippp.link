@@ -50,7 +50,8 @@ factory as-built, backlog, risks, env names, and next work are all inlined below
    read-only Home/Inbox, account-scoped AES-GCM draft storage, and browser
    identity checks. The 114-test, TypeScript, isolated web build, and synthetic
    browser gates pass. No real Google or production calls; native build/device
-   proof remains for the owner's Mac. Changes remain uncommitted.
+   proof remains for the owner's Mac. Commit `6984759d08cdfcc384640aadef41adf28ea765d0`
+   was pushed to `origin/v2`; the Mac checkout still needs to pull.
 
 ---
 
@@ -1312,8 +1313,8 @@ SHA-1) to the same Cloud project and no new scopes.
 
 - Working branch: `v2` (owner-confirmed).
 - Canonical baseline: `9799859786d238c3796910cbacbe01cb62d51d78`.
-- Local pivot changes are uncommitted. Preserve unrelated changes; do not assume
-  the worktree is clean or stage broadly.
+- v2 task changes are committed and pushed to `origin/v2`. Preserve unrelated
+  changes; the Mac checkout must pull before running. Do not assume it is clean.
 - This task used isolated local web checks only. No real Google account, Sheet,
   Drive, billing, Preview, or Production calls were made.
 - Native Android build and device checks are deferred to the owner's Mac.

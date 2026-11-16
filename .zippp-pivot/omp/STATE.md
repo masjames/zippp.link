@@ -4,6 +4,7 @@
 - **Phase:** Phase 4 Android verification (FEAT-102 + FEAT-115), owner Mac required
 - **Status:** TASK-012 COMPLETE — 114 tests, TypeScript check, isolated web build, and synthetic browser persistence/account checks passed.
 - **Canonical baseline:** `v2` at `9799859786d238c3796910cbacbe01cb62d51d78` (owner confirmed).
+- **Synced commit:** `6984759d08cdfcc384640aadef41adf28ea765d0` pushed to `origin/v2`; the Mac checkout still needs to pull the branch.
 - **P0.2 evidence:** `.zippp-pivot/outputs/TASK-002-BASELINE.md` — 79 tests and TypeScript check passed.
 - **P0.3 decisions:** `.zippp-pivot/outputs/TASK-003-DECISION-RECORD-DRAFT.md` — planning directions accepted; protected gates remain closed.
 - **P1.1 models:** `src/lib/cashflow/model.ts`; evidence in `.zippp-pivot/outputs/TASK-004-P1-1-RESULTS.md`.
