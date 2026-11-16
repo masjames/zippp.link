@@ -19,6 +19,7 @@
 | Expo TypeScript check | Passed |
 | Expo prebuild config | Passed; SQLCipher plugin option and camera/photo permission copy resolve. This does not compile native code. |
 | Expo dependency compatibility | `npx expo install --check`: dependencies up to date. |
+| Expo Doctor | Passed all 20 project checks; no issues detected. |
 | Expo static web export and `/rn` copy | Passed |
 | Expo Android/iOS JS bundle exports | Passed; Metro bundled Android (1,205 modules) and iOS (1,211 modules) to `/tmp`. This is not native compilation or device verification. |
 | Root `npx tsc --noEmit` | Passed |
