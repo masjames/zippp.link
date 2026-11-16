@@ -18,3 +18,14 @@
 - Expo typecheck, SDK compatibility, and web export pass.
 - Native SQLCipher/key-store/camera behavior is documented and verified on the owner's Mac before this slice is called fully cross-platform.
 - Record results and update `STATE.md`.
+
+## Mac verification procedure
+
+Run from `apps/expo-compat` on the owner's Mac using a native development build, not Expo Go. The SQLCipher plugin requires native configuration.
+
+```sh
+npx expo run:ios
+npx expo run:android
+```
+
+For each platform, confirm encrypted storage opens without an error, capture or pick a synthetic photo, open it in Inbox, force-quit and relaunch, and confirm the draft still opens. Use a physical phone for camera permission and capture behavior; a simulator can verify build, storage, and photo-picker behavior only. Stop if encrypted storage reports unavailable. Record OS/device, build output, camera permission result, and persistence result. Do not use real receipts or test OCR, Drive, Sheets, billing, or production.
