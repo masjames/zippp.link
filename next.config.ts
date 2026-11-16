@@ -3,6 +3,12 @@ import type { NextConfig } from "next";
 import { REGION_COOKIE } from "./src/lib/region";
 
 const nextConfig: NextConfig = {
+  allowedDevOrigins:
+    process.env.NODE_ENV === "development" &&
+    process.env.ZIPPP_LOCAL_DUMMY_AUTH === "1" &&
+    process.env.ZIPPP_LOCAL_DUMMY_HOST
+      ? [process.env.ZIPPP_LOCAL_DUMMY_HOST]
+      : [],
   agentRules: false,
   turbopack: {
     root: path.join(__dirname),

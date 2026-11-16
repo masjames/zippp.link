@@ -1,4 +1,5 @@
 import { isAdmin } from "./billing/config";
+import { isLocalPreviewAuthEnabled } from "./auth/local-preview";
 import {
     hasTokens,
     loadTokens,
@@ -15,6 +16,9 @@ export type CurrentUser = {
 
 /** Server-side view of the signed-in user. Never trusts the browser. */
 export async function currentUser(): Promise<CurrentUser> {
+    if (isLocalPreviewAuthEnabled()) {
+        return { signedIn: false, userId: null, email: null, admin: false };
+    }
     if (!(await hasTokens())) {
         return { signedIn: false, userId: null, email: null, admin: false };
     }

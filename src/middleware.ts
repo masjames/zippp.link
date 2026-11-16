@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { COOKIE_MAX_AGE, REGION_COOKIE } from "@/lib/region";
+import { isLocalPreviewAuthEnabled } from "@/lib/auth/local-preview";
 
 const REF_COOKIE = "zippp_ref";
 const INVITE_COOKIE = "zippp_invite";
@@ -16,6 +17,39 @@ const INVITE_COOKIE = "zippp_invite";
 export function middleware(request: NextRequest) {
     const { nextUrl } = request;
     const path = nextUrl.pathname;
+
+    if (isLocalPreviewAuthEnabled()) {
+        if (path.startsWith("/api/")) {
+            const authBootstrap =
+                request.method === "GET" &&
+                (path === "/api/auth/me" || path === "/api/auth/session");
+            if (authBootstrap) return NextResponse.next();
+            return NextResponse.json(
+                { ok: false, code: "LOCAL_PREVIEW_READ_ONLY" },
+                { status: 403 }
+            );
+        }
+        if (request.method !== "GET" && request.method !== "HEAD") {
+            return NextResponse.json(
+                { ok: false, code: "LOCAL_PREVIEW_READ_ONLY" },
+                { status: 403 }
+            );
+        }
+        if (
+            path === "/" ||
+            path === "/id" ||
+            path === "/app" ||
+            path === "/app/home" ||
+            path.startsWith("/app/settings") ||
+            path.startsWith("/app/topup") ||
+            path.startsWith("/admin")
+        ) {
+            return NextResponse.redirect(new URL("/app/inbox", request.url));
+        }
+    }
+
+    if (path.startsWith("/api/")) return NextResponse.next();
+
     const existing = request.cookies.get(REGION_COOKIE)?.value;
     const ref = nextUrl.searchParams.get("ref");
     const invite = nextUrl.searchParams.get("invite");
@@ -80,5 +114,8 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-    matcher: ["/((?!_next/static|_next/image|api|.*\\..*).*)"],
+    matcher: [
+        "/api/:path*",
+        "/((?!_next/static|_next/image|api|.*\\..*).*)",
+    ],
 };

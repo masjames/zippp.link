@@ -48,10 +48,14 @@ factory as-built, backlog, risks, env names, and next work are all inlined below
    `9799859786d238c3796910cbacbe01cb62d51d78`. Local pivot added cashflow
    models, default-template candidates, synthetic balance projection,
    read-only Home/Inbox, account-scoped AES-GCM draft storage, and browser
-   identity checks. The 114-test, TypeScript, isolated web build, and synthetic
+   identity checks. The 117-test, TypeScript, isolated web build, and synthetic
    browser gates pass. No real Google or production calls; native build/device
    proof remains for the owner's Mac. Commit `6984759d08cdfcc384640aadef41adf28ea765d0`
    was pushed to `origin/v2`; the Mac checkout still needs to pull.
+8. **Local dummy preview:** `ZIPPP_LOCAL_DUMMY_AUTH=1` in Next development mode
+   exposes `local-preview-user` only on loopback or the configured tailnet host.
+   Server auth remains signed out; all non-bootstrap APIs and non-GET actions
+   are blocked. Production/Vercel never issue this identity.
 
 ---
 
@@ -391,6 +395,11 @@ Home shows a count of locally queued receipts. `/app/inbox` lists their
 statuses and opens a selected item in the existing review flow without sending
 it. When credits are exhausted, the list remains readable but review and
 capture retain the top-up guard.
+Local dummy preview is for UI inspection only. It requires development mode and
+an explicit server-only flag; it never creates a Google session or authorizes a
+server operation. The banner identifies the synthetic account, and middleware
+blocks all application API calls except the two auth-bootstrap reads. The
+tailnet preview is credential-free and uses a temporary self-signed certificate.
 
 ### Android capture (legacy pairing build; FEAT-113 replaces entry auth)
 
@@ -1315,8 +1324,11 @@ SHA-1) to the same Cloud project and no new scopes.
 - Canonical baseline: `9799859786d238c3796910cbacbe01cb62d51d78`.
 - v2 task changes are committed and pushed to `origin/v2`. Preserve unrelated
   changes; the Mac checkout must pull before running. Do not assume it is clean.
-- This task used isolated local web checks only. No real Google account, Sheet,
-  Drive, billing, Preview, or Production calls were made.
+- Local verification used sanitized isolated web workspaces. No real Google
+  account, Sheet, Drive, billing, Preview, or Production calls were made.
+- Tailnet dummy preview: `https://susi.tail6078b4.ts.net:39876/app/inbox`.
+  It uses no `.env` credentials; self-signed certificate warning may require
+  manual bypass. Tailscale ping succeeded, but Mac browser access was not observed.
 - Native Android build and device checks are deferred to the owner's Mac.
 - Commit with explicit pathspecs. Never `git add -A`.
 
@@ -1346,9 +1358,10 @@ SHA-1) to the same Cloud project and no new scopes.
 - Local v2 web pivot: cashflow models, default-template receipt candidates,
   synthetic balance projection, read-only Home/Inbox, and per-owner encrypted
   receipt drafts. Actual workbook layouts and opening balances remain unverified.
-- Local gates on 2026-11-16: `npm test` **114 passing**;
-  `npx tsc --noEmit` and isolated `npm run build` **pass**. Native Android
-  compile/device checks remain for the owner's Mac.
+- Local gates on 2026-11-16: `npm test` **117 passing**;
+  `npx tsc --noEmit` and isolated `npm run build` **pass**. The dev-only dummy
+  preview has a visible synthetic-user banner and blocks all application APIs.
+  Native Android compile/device checks remain for the owner's Mac.
 
 ### Done and verified (Software Factory)
 

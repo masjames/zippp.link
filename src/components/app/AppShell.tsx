@@ -78,7 +78,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
             router.replace(region === "id" ? "/id" : "/");
             return;
         }
-        if (!workspace && !onSheet) {
+        if (!workspace && !onSheet && !auth?.localPreview) {
             router.replace("/app/settings/sheet");
             return;
         }
@@ -97,7 +97,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
         }
         // Admins land on the admin panel from the app entry point.
         if (pathname === "/app") {
-            router.replace(balance?.admin ? "/admin" : "/app/home");
+            router.replace(auth?.localPreview ? "/app/inbox" : balance?.admin ? "/admin" : "/app/home");
         }
     }, [authChecked, auth, workspace, balance, pathname, router, region]);
 
@@ -125,7 +125,9 @@ export default function AppShell({ children }: { children: ReactNode }) {
                     <button
                         type="button"
                         onClick={() =>
-                            router.push(workspace ? "/app/home" : "/app/settings/sheet")
+                            auth?.localPreview
+                                ? router.push("/app/inbox")
+                                : router.push(workspace ? "/app/home" : "/app/settings/sheet")
                         }
                         className="font-head text-2xl font-black tracking-tight text-brand"
                         aria-label="zippp"
@@ -169,7 +171,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
                                 })}
                             </button>
                         ) : null}
-                        {!pathname.startsWith("/app/settings") ? (
+                        {!auth?.localPreview && !pathname.startsWith("/app/settings") ? (
                             <button
                                 type="button"
                                 onClick={() => router.push("/app/settings")}
@@ -189,6 +191,13 @@ export default function AppShell({ children }: { children: ReactNode }) {
                             </button>
                         ) : null}
                     </div>
+                </div>
+            ) : null}
+            {signedIn && auth?.localPreview ? (
+                <div className="mx-auto w-full max-w-[430px] px-4 pb-2" role="status">
+                    <p className="rounded-xl bg-brand px-3 py-2 text-xs font-semibold text-ink">
+                        {t("app.localPreview.banner")}
+                    </p>
                 </div>
             ) : null}
             {signedIn && storageError ? (

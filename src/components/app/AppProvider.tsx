@@ -31,6 +31,7 @@ export type AuthState = {
     oauthConfigured: boolean;
     googleUserId: string | null;
     mobileApiEnabled?: boolean;
+    localPreview?: boolean;
 };
 
 export type Workspace = {
@@ -262,6 +263,11 @@ export default function AppProvider({
                     return;
                 }
                 if (!data.signedIn) return;
+                if (data.localPreview) {
+                    setWorkspace(null);
+                    setBalance(null);
+                    return;
+                }
                 const [wsRes, balRes] = await Promise.all([
                     fetch("/api/sheets/workspace", { cache: "no-store" }),
                     fetch("/api/billing/balance", { cache: "no-store" }),

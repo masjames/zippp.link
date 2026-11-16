@@ -5,10 +5,26 @@ import { billingConfigured } from "@/lib/billing/redis";
 import { googleOAuthConfigured } from "@/lib/google/oauth";
 import { mobileApiEnabled } from "@/lib/mobile/config";
 import { hasTokens, peekGoogleEmail, peekGoogleUserId } from "@/lib/google/token-store";
+import { isLocalPreviewAuthEnabled, localPreviewIdentity } from "@/lib/auth/local-preview";
 
 export const runtime = "nodejs";
 
-export async function GET() {
+export async function GET(request: Request) {
+  if (isLocalPreviewAuthEnabled()) {
+    const preview = localPreviewIdentity(request);
+    return NextResponse.json(
+      {
+        signedIn: Boolean(preview),
+        googleUserId: preview?.googleUserId ?? null,
+        email: preview?.email ?? null,
+        oauthConfigured: false,
+        mobileApiEnabled: false,
+        localPreview: Boolean(preview),
+      },
+      { headers: { "Cache-Control": "no-store" } }
+    );
+  }
+
   const signedIn = await hasTokens();
   const userId = signedIn ? await peekGoogleUserId() : null;
   const email = signedIn ? await peekGoogleEmail() : null;

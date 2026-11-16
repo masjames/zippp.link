@@ -2690,6 +2690,10 @@ Kesalahan jaringan. Coba lagi.
 Browser storage is unavailable. Drafts may not be saved if you leave this page.
 ## app.error.storage.id
 Penyimpanan browser tidak tersedia. Draf mungkin tidak tersimpan jika Anda meninggalkan halaman ini.
+## app.localPreview.banner.en
+Local dummy user. This browser stores drafts locally; Google, Sheets, billing, and server actions are disabled.
+## app.localPreview.banner.id
+Pengguna tiruan lokal. Browser ini menyimpan draf secara lokal; Google, Sheets, penagihan, dan tindakan server dinonaktifkan.
 ## app.error.failed.en
 Failed.
 ## app.error.failed.id

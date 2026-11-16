@@ -1,6 +1,7 @@
 import { mobileApiEnabled } from "@/lib/mobile/config";
 import { resolveBearerUser } from "./mobile-auth";
 import { currentUser } from "../auth";
+import { isLocalPreviewAuthEnabled } from "./local-preview";
 
 export type RequestUser = {
     userId: string;
@@ -23,6 +24,9 @@ export type ResolveUserResult =
       };
 
 export async function resolveRequestUser(req: Request): Promise<ResolveUserResult> {
+    if (isLocalPreviewAuthEnabled()) {
+        return { user: null, error: "UNAUTHORIZED" };
+    }
     const authHeader = req.headers.get("authorization");
     const hasBearer = Boolean(authHeader?.toLowerCase().startsWith("bearer "));
 
