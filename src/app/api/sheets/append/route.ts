@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
 import { resolveRequestUser } from "@/lib/auth/request-user";
+import { matchesAppendOwner } from "@/lib/auth/append-owner";
 import { balance, refundScan, spend } from "@/lib/billing/ledger";
 import { LOW_CREDITS_WARN } from "@/lib/billing/config";
 import { getPlanUsage, recordCapture } from "@/lib/billing/plan";
@@ -30,6 +31,8 @@ type AppendBody = {
   customer?: string | null;
   /** Server-issued scanId from POST /api/extract. Idempotency key. */
   scanId?: string;
+  /** Web drafts are bound to the Google account that created them. */
+  expectedUserId?: unknown;
 };
 
 function isFiniteNumber(v: unknown): v is number {
@@ -109,6 +112,8 @@ export async function POST(req: Request) {
   } catch {
     return fail("INVALID_JSON", 400);
   }
+  // Bind web writes to the account that created the local draft, before any spend or Sheet operation.
+  if (!matchesAppendOwner(user, body.expectedUserId)) return fail("OWNER_MISMATCH", 403);
 
   const receipt = parseReceipt(body.receipt);
   if (!receipt) return fail("RECEIPT_INVALID", 400);

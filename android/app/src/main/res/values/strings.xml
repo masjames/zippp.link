@@ -52,7 +52,6 @@
     <string name="review_description">Item</string>
     <string name="review_qty">Jumlah</string>
     <string name="review_amount">Nominal</string>
-    <string name="review_date_assumed">tanggal diasumsikan</string>
     <string name="camera_flash_on">Flash aktif</string>
     <string name="camera_flash_off">Flash mati</string>
     <string name="camera_gallery">Galeri</string>

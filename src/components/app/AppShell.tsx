@@ -62,11 +62,11 @@ function BoltIcon() {
  * Guard + chrome for the /app routes.
  *
  * Guard order (stop at first failure): loading -> no session -> landing
- * (`/` or `/id`); no sheet -> /app/settings/sheet; ready -> /app/snap. Bare
- * /app also lands on /app/snap.
+ * (`/` or `/id`); no sheet -> /app/settings/sheet; ready -> /app/home. Capture
+ * remains available at /app/snap and keeps the existing credit guard.
  */
 export default function AppShell({ children }: { children: ReactNode }) {
-    const { t, auth, authChecked, workspace, balance, region } = useApp();
+    const { t, auth, authChecked, workspace, balance, region, storageError, sessionChecking, sessionCheckFailed } = useApp();
     const pathname = usePathname();
     const router = useRouter();
 
@@ -82,20 +82,22 @@ export default function AppShell({ children }: { children: ReactNode }) {
             router.replace("/app/settings/sheet");
             return;
         }
-        // No credits: send to Top up (settings stays reachable).
+        // No credits: keep Home, Inbox and settings readable, but guard capture.
         const noCredits = balance?.configured === true && balance.credits <= 0;
         // The order page lives under /app/topup/order/[id]; keep the whole
         // top-up flow reachable while the user still has 0 credits.
         const onTopup = pathname.startsWith("/app/topup");
         const inSettings = pathname.startsWith("/app/settings");
         const onWaMock = pathname.startsWith("/app/wa-mock");
-        if (noCredits && !onTopup && !inSettings && !onWaMock) {
+        const onHome = pathname === "/app" || pathname === "/app/home";
+        const onInbox = pathname === "/app/inbox";
+        if (noCredits && !onTopup && !inSettings && !onWaMock && !onHome && !onInbox) {
             router.replace("/app/topup");
             return;
         }
         // Admins land on the admin panel from the app entry point.
         if (pathname === "/app") {
-            router.replace(balance?.admin ? "/admin" : "/app/snap");
+            router.replace(balance?.admin ? "/admin" : "/app/home");
         }
     }, [authChecked, auth, workspace, balance, pathname, router, region]);
 
@@ -113,13 +115,17 @@ export default function AppShell({ children }: { children: ReactNode }) {
     const signedIn = auth?.signedIn === true;
 
     return (
-        <div className="flex min-h-screen flex-col bg-page sm:py-8">
+        <div className="relative min-h-screen bg-page">
+            <div
+                aria-hidden={sessionChecking || sessionCheckFailed}
+                className={`flex min-h-screen flex-col bg-page sm:py-8 ${sessionChecking || sessionCheckFailed ? "invisible" : ""}`}
+            >
             {signedIn ? (
                 <div className="mx-auto flex w-full max-w-[430px] items-center justify-between gap-3 px-4 pb-5 pt-4">
                     <button
                         type="button"
                         onClick={() =>
-                            router.push(workspace ? "/app/snap" : "/app/settings/sheet")
+                            router.push(workspace ? "/app/home" : "/app/settings/sheet")
                         }
                         className="font-head text-2xl font-black tracking-tight text-brand"
                         aria-label="zippp"
@@ -127,10 +133,10 @@ export default function AppShell({ children }: { children: ReactNode }) {
                         zippp
                     </button>
                     <div className="flex items-center gap-3">
-                        {pathname !== "/app/snap" && workspace ? (
+                        {pathname !== "/app/home" && workspace ? (
                             <button
                                 type="button"
-                                onClick={() => router.push("/app/snap")}
+                                onClick={() => router.push("/app/home")}
                                 className="flex items-center gap-2 text-sm font-semibold text-muted hover:text-body"
                             >
                                 <HomeIcon />
@@ -185,6 +191,13 @@ export default function AppShell({ children }: { children: ReactNode }) {
                     </div>
                 </div>
             ) : null}
+            {signedIn && storageError ? (
+                <div className="mx-auto w-full max-w-[430px] px-4 pb-2" role="alert">
+                    <p className="rounded-xl bg-amber-100 px-3 py-2 text-xs font-semibold text-amber-900">
+                        {t("app.error.storage")}
+                    </p>
+                </div>
+            ) : null}
             {signedIn && balance?.invite ? (
                 <div className="mx-auto w-full max-w-[430px] px-4 pb-2">
                     <div className="rounded-xl bg-brand px-3 py-2 text-xs font-semibold text-ink">
@@ -205,6 +218,21 @@ export default function AppShell({ children }: { children: ReactNode }) {
                 </div>
             ) : null}
             {children}
+        </div>
+            {sessionChecking ? (
+                <div role="status" className="fixed inset-0 z-[100] flex flex-col items-center justify-center gap-3 bg-page px-6 text-center">
+                    <span className="h-8 w-8 animate-spin rounded-full border-4 border-line border-t-brand" aria-hidden />
+                    <p className="text-sm text-muted">{t("app.session.checking")}</p>
+                </div>
+            ) : null}
+            {sessionCheckFailed ? (
+                <div role="alert" className="fixed inset-0 z-[100] flex flex-col items-center justify-center gap-3 bg-page px-6 text-center">
+                    <p className="text-sm text-body">{t("app.session.failed")}</p>
+                    <button type="button" onClick={() => window.location.reload()} className="rounded-full bg-maroon px-5 py-3 font-semibold text-white">
+                        {t("app.session.reload")}
+                    </button>
+                </div>
+            ) : null}
         </div>
     );
 }

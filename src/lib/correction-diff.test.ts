@@ -87,13 +87,13 @@ test("a wrong value that was not flagged is the signal we want", () => {
     assert.equal(merchant?.flagged, false);
 });
 
-test("an assumed date is excluded", () => {
+test("a user-entered date is recorded when extraction found none", () => {
     const record = buildCorrectionRecord({
         receipt: receipt({ date: null }),
-        draft: draft({ date: "2026-10-06", dateAssumed: true }),
+        draft: draft({ date: "2026-10-06" }),
         runId: null,
     });
-    assert.equal(field(record, "date"), undefined);
+    assert.equal(field(record, "date")?.edited, true);
 });
 
 test("line count changes are recorded", () => {

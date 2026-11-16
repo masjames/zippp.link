@@ -70,10 +70,7 @@ export type ExtractOptions = {
 const MAX_PREVIEW = 800;
 const MAX_MODEL_RAW = 4000;
 
-/**
- * A usable receipt needs an item and a price. A missing date is not fatal: the
- * capture date is filled in client-side and marked as assumed.
- */
+/** A usable receipt needs an item and a price; a missing date stays empty. */
 function hasEssentials(raw: {
     line_items?: LineItem[] | null;
     total?: number | null;

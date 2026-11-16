@@ -52,7 +52,7 @@ function reviewText(r: Receipt, mockLabel: boolean): string {
  * Accept uses real /api/sheets/append when sheet + credits exist.
  */
 export default function WaMockClient() {
-    const { t } = useApp();
+    const { t, auth } = useApp();
     const router = useRouter();
     const fileRef = useRef<HTMLInputElement>(null);
     const [bubbles, setBubbles] = useState<Bubble[]>([
@@ -123,7 +123,7 @@ export default function WaMockClient() {
             const res = await fetch("/api/sheets/append", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ receipt, scanId }),
+                body: JSON.stringify({ receipt, scanId, expectedUserId: auth?.googleUserId }),
             });
             const data = (await res.json()) as {
                 ok?: boolean;

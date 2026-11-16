@@ -66,7 +66,6 @@ const map = {
   review_description: "android.review.description",
   review_qty: "android.review.qty",
   review_amount: "android.review.amount",
-  review_date_assumed: "android.review.dateAssumed",
   camera_flash_on: "android.camera.flashOn",
   camera_flash_off: "android.camera.flashOff",
   camera_gallery: "android.camera.gallery",

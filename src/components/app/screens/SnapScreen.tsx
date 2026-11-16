@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import PhoneShell from "../PhoneShell";
 import DebugPanel from "../DebugPanel";
@@ -39,7 +40,6 @@ function SheetsIcon() {
 const INPUT_BASE =
     "min-w-0 rounded-lg border bg-surface px-2 py-1.5 text-sm text-body focus:outline-none";
 const INPUT = `${INPUT_BASE} w-full border-line focus:border-brand`;
-const INPUT_ASSUMED = `${INPUT_BASE} w-full border-amber-400 focus:border-amber-500`;
 const INPUT_FLAGGED = `${INPUT_BASE} w-full border-danger focus:border-danger`;
 const INPUT_INLINE = `${INPUT_BASE} border-line focus:border-brand`;
 const LABEL = "text-[10px] font-semibold leading-none text-muted";
@@ -70,6 +70,8 @@ export default function SnapScreen() {
         t,
         workspace,
         batch,
+        draftsReady,
+        storageError,
         autoSnap,
         setAutoSnap,
         autoCooldownUntil,
@@ -102,6 +104,7 @@ export default function SnapScreen() {
     const [reviewExpanded, setReviewExpanded] = useState(false);
     const [reviewIndex, setReviewIndex] = useState(0);
     const pendingMinimize = useRef(false);
+    const requestedReview = useRef<string | null>(null);
     // White flash on shutter.
     const [flash, setFlash] = useState(false);
     const flashTimer = useRef<number | null>(null);
@@ -148,10 +151,24 @@ export default function SnapScreen() {
     const prevQueueLen = useRef(0);
     useEffect(() => {
         if (unaccepted.length > prevQueueLen.current) {
-            setReviewIndex(unaccepted.length - 1);
+            setReviewIndex(0);
         }
         prevQueueLen.current = unaccepted.length;
     }, [unaccepted.length]);
+
+    // Inbox links select a specific pending item without accepting or sending it.
+    useEffect(() => {
+        const id = new URLSearchParams(window.location.search).get("review");
+        if (!id || requestedReview.current === id) return;
+        const index = batch
+            .filter((item) => item.status !== "accepted" && item.status !== "sending")
+            .findIndex((item) => item.id === id);
+        if (index < 0) return;
+        requestedReview.current = id;
+        pendingMinimize.current = false;
+        setReviewIndex(index);
+        setReviewExpanded(true);
+    }, [batch]);
 
     /** Reading → expand; once draft lands, minimize so the user can snap again. */
     useEffect(() => {
@@ -163,7 +180,11 @@ export default function SnapScreen() {
         const stillReading = !current.draft && current.status !== "failed";
         if (stillReading) {
             setReviewExpanded(true);
-            pendingMinimize.current = true;
+            pendingMinimize.current = current.id !== requestedReview.current;
+            return;
+        }
+        if (requestedReview.current === current.id) {
+            pendingMinimize.current = false;
             return;
         }
         if (
@@ -266,13 +287,13 @@ export default function SnapScreen() {
         []
     );
 
-    /** Open the camera as soon as Snap loads. */
+    /** Open the camera after account-scoped draft storage is ready. */
     useEffect(() => {
-        if (cameraBooted.current) return;
+        if (!draftsReady || cameraBooted.current) return;
         cameraBooted.current = true;
         void openCamera();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [draftsReady]);
 
     async function openCamera() {
         if (typeof navigator === "undefined" || !navigator.mediaDevices?.getUserMedia) {
@@ -412,7 +433,7 @@ export default function SnapScreen() {
     }, [detection.steady]);
 
     useEffect(() => {
-        if (!autoSnap || mode !== "live" || outOfCredits || reviewBlocking)
+        if (!draftsReady || !autoSnap || mode !== "live" || outOfCredits || reviewBlocking)
             return;
         const { steady, sharp } = detection;
         if (!steady || !sharp) return;
@@ -425,6 +446,7 @@ export default function SnapScreen() {
         })();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [
+        draftsReady,
         autoSnap,
         mode,
         detection,
@@ -519,7 +541,7 @@ export default function SnapScreen() {
                     type="button"
                     aria-label={t("app.capture.shutter")}
                     onClick={shutter}
-                    disabled={outOfCredits || mode === "starting" || reviewBlocking}
+                    disabled={!draftsReady || outOfCredits || mode === "starting" || reviewBlocking}
                     className="absolute inset-0 z-20 cursor-pointer disabled:cursor-not-allowed"
                 />
                 {flash ? (
@@ -530,12 +552,13 @@ export default function SnapScreen() {
                 ) : null}
             </div>
 
-            <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" className="hidden"
+            <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" className="hidden" disabled={!draftsReady}
                 onChange={(e) => { pick(e.target.files, true); e.target.value = ""; }} />
             <input
                 ref={uploadInputRef}
                 type="file"
                 accept="image/*,application/pdf,.pdf"
+                disabled={!draftsReady}
                 className="hidden"
                 onChange={(e) => {
                     pick(e.target.files, false);
@@ -544,8 +567,8 @@ export default function SnapScreen() {
             />
 
             <div className="flex items-center justify-between text-xs">
-                <button type="button" onClick={() => uploadInputRef.current?.click()}
-                    className="font-medium text-ink underline underline-offset-4">
+                <button type="button" onClick={() => uploadInputRef.current?.click()} disabled={!draftsReady}
+                    className="font-medium text-ink underline underline-offset-4 disabled:opacity-50">
                     {t("app.capture.upload")}
                 </button>
                 <div className="flex items-center gap-2">
@@ -569,6 +592,11 @@ export default function SnapScreen() {
                     </button>
                 </div>
             </div>
+            {!draftsReady && !storageError ? <p role="status" className="text-sm text-muted">{t("app.inbox.loading")}</p> : null}
+
+            <Link href="/app/inbox" className="text-sm font-semibold text-ink underline underline-offset-4">
+                {t("app.inbox.title")}
+            </Link>
 
             {outOfCredits ? (
                 <div className="rounded-2xl bg-card p-3 text-center text-sm shadow-sm">
@@ -1019,17 +1047,9 @@ function ConfirmCard({
                         <span className={LABEL}>{t("app.check.date")}</span>
                         <input
                             value={d.date}
-                            onChange={(e) =>
-                                patch({ date: e.target.value, dateAssumed: false })
-                            }
+                            onChange={(e) => patch({ date: e.target.value })}
                             placeholder={t("app.check.datePlaceholder")}
-                            className={
-                                flaggedPaths.has("date")
-                                    ? INPUT_FLAGGED
-                                    : d.dateAssumed
-                                      ? INPUT_ASSUMED
-                                      : INPUT
-                            }
+                            className={flaggedPaths.has("date") ? INPUT_FLAGGED : INPUT}
                         />
                     </label>
                     <label className="grid gap-0.5">
@@ -1061,11 +1081,6 @@ function ConfirmCard({
                     </label>
                 </div>
 
-                {d.dateAssumed ? (
-                    <span className="mt-1 block text-[11px] font-medium text-amber-700">
-                        {t("app.review.dateAssumed")}
-                    </span>
-                ) : null}
 
                 {ops.staff && staffNames.length > 0 ? (
                     <label className="mt-1.5 grid gap-0.5">

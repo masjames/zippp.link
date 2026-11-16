@@ -59,7 +59,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import java.time.LocalDate
 import kotlin.math.abs
 import kotlinx.coroutines.launch
 import link.zippp.app.R
@@ -104,8 +103,7 @@ fun ReviewScreen(
     var merchant by remember(receipt) { mutableStateOf(receipt.merchant.orEmpty()) }
     var category by remember(receipt) { mutableStateOf(receipt.category.orEmpty()) }
     var total by remember(receipt) { mutableStateOf(receipt.total?.toString().orEmpty()) }
-    val dateAssumed = receipt.date.isNullOrBlank()
-    var date by remember(receipt) { mutableStateOf(receipt.date ?: LocalDate.now().toString()) }
+    var date by remember(receipt) { mutableStateOf(receipt.date.orEmpty()) }
     var lines by remember(receipt) {
         mutableStateOf(
             receipt.lineItems
@@ -149,7 +147,7 @@ fun ReviewScreen(
 
     val editedPaths = buildSet {
         if (!sameText(merchant, receipt.merchant)) add("merchant")
-        if (!dateAssumed && !sameText(date, receipt.date)) add("date")
+        if (!sameText(date, receipt.date)) add("date")
         if (!sameMoney(total, receipt.total)) add("total")
         val count = maxOf(lines.size, receipt.lineItems.size)
         for (i in 0 until count) {
@@ -238,13 +236,6 @@ fun ReviewScreen(
                         onChange = { date = it },
                         editing = editing,
                         modifier = Modifier.weight(1f),
-                    )
-                }
-                if (dateAssumed) {
-                    Text(
-                        text = stringResource(R.string.review_date_assumed),
-                        style = ZipppType.small,
-                        color = ZipppColors.muted,
                     )
                 }
 
@@ -419,7 +410,6 @@ fun ReviewScreen(
                                 receipt = receipt,
                                 merchant = merchant,
                                 date = date,
-                                dateAssumed = dateAssumed,
                                 total = total,
                                 lines = lines,
                             ),
@@ -668,7 +658,6 @@ private fun buildCorrectionFields(
     receipt: Receipt,
     merchant: String,
     date: String,
-    dateAssumed: Boolean,
     total: String,
     lines: SnapshotStateList<LineDraft>,
 ): List<CorrectionField> {
@@ -688,8 +677,7 @@ private fun buildCorrectionFields(
     }
 
     add("merchant", !sameText(merchant, receipt.merchant))
-    // An assumed date comes from the capture time, not from extraction.
-    if (!dateAssumed) add("date", !sameText(date, receipt.date))
+    add("date", !sameText(date, receipt.date))
     add("total", !sameMoney(total, receipt.total))
 
     val count = maxOf(lines.size, receipt.lineItems.size)

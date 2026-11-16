@@ -31,7 +31,6 @@ export type CorrectionDraft = {
     date: string;
     total: string;
     lines: { description: string; qty: string; amount: string }[];
-    dateAssumed?: boolean;
 };
 
 function normText(value: string | null | undefined): string {
@@ -71,11 +70,7 @@ export function buildCorrectionRecord(args: {
 
     add("merchant", !sameText(draft.merchant, receipt.merchant ?? ""));
 
-    // An assumed date was filled by the client from the capture time, so it is
-    // not an extraction error and is excluded.
-    if (!draft.dateAssumed) {
-        add("date", !sameText(draft.date, receipt.date ?? ""));
-    }
+    add("date", !sameText(draft.date, receipt.date ?? ""));
 
     add("total", !sameNumber(parseMoney(draft.total), receipt.total));
 

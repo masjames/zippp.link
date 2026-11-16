@@ -21,6 +21,7 @@ export async function POST(req: Request) {
     let consent: string;
     let reason: string | null;
     let lang: string | null;
+    let expectedUserId: string;
     try {
         const form = await req.formData();
         const file = form.get("image");
@@ -31,8 +32,13 @@ export async function POST(req: Request) {
         consent = typeof form.get("consent") === "string" ? String(form.get("consent")) : "";
         reason = typeof form.get("reason") === "string" ? String(form.get("reason")) : null;
         lang = typeof form.get("lang") === "string" ? String(form.get("lang")) : null;
+        expectedUserId = typeof form.get("expectedUserId") === "string" ? String(form.get("expectedUserId")) : "";
     } catch {
         return NextResponse.json({ ok: false }, { status: 400 });
+    }
+
+    if (!user.userId || expectedUserId !== user.userId) {
+        return NextResponse.json({ ok: false, code: "OWNER_MISMATCH" }, { status: 403 });
     }
 
     if (consent !== "true") {

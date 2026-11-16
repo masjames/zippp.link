@@ -369,11 +369,10 @@ export function verifyReceipt(raw: RawReceipt, ocr: OcrGrounding): VerifyResult 
         }
     }
 
-    // Date. A missing date is not flagged here: the client fills the capture
-    // date and flags it as assumed.
+    // A missing date stays empty; it is not a hallucination.
     let date = asString(raw.date);
     if (date === null) {
-        /* no flag: the client handles the assumed date */
+        /* no date was extracted */
     } else if (!grounded) {
         flags.push({ path: "date", reason: "ungrounded" });
     } else if (!dateMatches(date, candidates)) {

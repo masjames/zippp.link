@@ -427,10 +427,6 @@ Ubah
 Tap a value to edit
 ## app.review.tapToEdit.id
 Ketuk nilai untuk mengubah
-## app.review.dateAssumed.en
-Date assumed from the photo time. Check it.
-## app.review.dateAssumed.id
-Tanggal diasumsikan dari waktu foto. Periksa.
 ## app.review.captureMore.en
 Capture more
 ## app.review.captureMore.id
@@ -2690,6 +2686,10 @@ Kredit habis.
 Network error. Try again.
 ## app.error.network.id
 Kesalahan jaringan. Coba lagi.
+## app.error.storage.en
+Browser storage is unavailable. Drafts may not be saved if you leave this page.
+## app.error.storage.id
+Penyimpanan browser tidak tersedia. Draf mungkin tidak tersimpan jika Anda meninggalkan halaman ini.
 ## app.error.failed.en
 Failed.
 ## app.error.failed.id
@@ -4383,10 +4383,6 @@ Ada notifikasi pembayaran. Belum ada yang tercatat.
 Notifications are off for Zippp, so prompts cannot appear.
 ## android.error.capture.permission.id
 Notifikasi Zippp mati, jadi pengingat tidak bisa muncul.
-## android.review.dateAssumed.en
-date assumed
-## android.review.dateAssumed.id
-tanggal diasumsikan
 ## android.review.acknowledge.en
 I have checked these values
 ## android.review.acknowledge.id
@@ -5001,3 +4997,143 @@ Terlalu banyak impor. Coba lagi dalam satu jam.
 You imported this file before. Check the rows before sending.
 ## android.import.repeat.id
 Anda sudah mengimpor file ini. Periksa barisnya sebelum mengirim.
+
+## app.home.title.en
+Home
+## app.home.title.id
+Beranda
+## app.home.legacyNotice.en
+Receipt totals from your connected personal-expense sheet. Income and account balances are not included.
+## app.home.legacyNotice.id
+Total resi dari sheet pengeluaran pribadi yang terhubung. Pemasukan dan saldo akun belum termasuk.
+## app.home.loading.en
+Loading receipt totals...
+## app.home.loading.id
+Memuat total resi...
+## app.home.unsupported.en
+Receipt totals are available for personal-expense sheets. Your current sheet is still connected.
+## app.home.unsupported.id
+Total resi tersedia untuk sheet pengeluaran pribadi. Sheet Anda saat ini tetap terhubung.
+## app.home.sheetSettings.en
+Sheet settings
+## app.home.sheetSettings.id
+Pengaturan sheet
+## app.home.error.en
+Could not load receipt totals.
+## app.home.error.id
+Total resi tidak dapat dimuat.
+## app.home.retry.en
+Try again
+## app.home.retry.id
+Coba lagi
+## app.home.partial.en
+Some rows could not be read or have future dates. Totals may be incomplete.
+## app.home.partial.id
+Beberapa baris tidak dapat dibaca atau bertanggal mendatang. Total mungkin belum lengkap.
+## app.home.today.en
+Spent today
+## app.home.today.id
+Pengeluaran hari ini
+## app.home.week.en
+This week
+## app.home.week.id
+Minggu ini
+## app.home.weekNote.en
+Monday to today
+## app.home.weekNote.id
+Senin sampai hari ini
+## app.home.balance.en
+Balance
+## app.home.balance.id
+Saldo
+## app.home.balanceUnavailable.en
+Not available from this sheet
+## app.home.balanceUnavailable.id
+Tidak tersedia dari sheet ini
+## app.home.noTotals.en
+No readable receipts
+## app.home.noTotals.id
+Belum ada resi yang dapat dibaca
+## app.home.latest.en
+Latest receipts
+## app.home.latest.id
+Resi terbaru
+## app.home.empty.en
+No readable receipts yet.
+## app.home.empty.id
+Belum ada resi yang dapat dibaca.
+## app.home.receipt.en
+Receipt
+## app.home.receipt.id
+Resi
+## app.home.capture.en
+Capture receipt
+## app.home.capture.id
+Foto resi
+
+## app.inbox.title.en
+Receipt inbox
+## app.inbox.title.id
+Kotak masuk resi
+## app.inbox.empty.en
+No receipts linked to this account.
+## app.inbox.empty.id
+Belum ada resi yang terhubung ke akun ini.
+## app.inbox.receipt.en
+Receipt
+## app.inbox.receipt.id
+Resi
+## app.inbox.one.en
+1 receipt in your inbox
+## app.inbox.one.id
+1 resi di kotak masuk
+## app.inbox.many.en
+{count} receipts in your inbox
+## app.inbox.many.id
+{count} resi di kotak masuk
+## app.inbox.open.en
+Open
+## app.inbox.open.id
+Buka
+## app.inbox.noCredits.en
+Top up to review these receipts.
+## app.inbox.noCredits.id
+Isi kredit untuk memeriksa resi ini.
+
+## app.inbox.loading.en
+Loading local receipts...
+## app.inbox.loading.id
+Memuat resi di perangkat...
+## app.inbox.legacyAvailable.en
+Unassigned receipts are on this device
+## app.inbox.legacyAvailable.id
+Ada resi yang belum terhubung ke akun di perangkat ini
+## app.inbox.legacyCount.en
+Unassigned local receipts: {count}
+## app.inbox.legacyCount.id
+Resi lokal yang belum terhubung: {count}
+## app.inbox.legacyWarning.en
+Import these only if they belong to this account. Another person using this browser may have created them.
+## app.inbox.legacyWarning.id
+Impor hanya jika resi ini milik akun ini. Orang lain yang menggunakan browser ini mungkin membuatnya.
+## app.inbox.importLegacy.en
+Import these receipts
+## app.inbox.importLegacy.id
+Impor resi ini
+## app.inbox.importing.en
+Importing receipts...
+## app.inbox.importing.id
+Mengimpor resi...
+
+## app.session.checking.en
+Checking the signed-in account...
+## app.session.checking.id
+Memeriksa akun yang sedang masuk...
+## app.session.failed.en
+Could not verify the signed-in account. Local receipts are hidden for safety.
+## app.session.failed.id
+Akun yang sedang masuk tidak dapat diverifikasi. Resi lokal disembunyikan demi keamanan.
+## app.session.reload.en
+Reload
+## app.session.reload.id
+Muat ulang

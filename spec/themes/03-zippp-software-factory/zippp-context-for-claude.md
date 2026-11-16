@@ -21,28 +21,36 @@ factory as-built, backlog, risks, env names, and next work are all inlined below
   this file. If code and this file disagree on a shipped path, trust the code
   and update this file in the same change.
 
-**Snapshot:** 2026-11-03  
-**Previous snapshot:** 2026-10-24 (superseded)  
+**Snapshot:** 2026-11-16  
+**Previous snapshot:** 2026-11-03 (superseded)  
 **Repository:** `github.com/masjames/zippp.link`  
 **Local path:** `/Users/mm/Dev/adit/zippp`  
 **Production:** `https://www.zippp.link` and `https://www.zippp.link/id`  
 **Preview:** `https://preview.zippp.link`
 
-**What changed since 2026-10-24:**
+**What changed through 2026-11-16:**
 
 1. **ROAD-001 Phase 2 done:** this file realigned to DIR-001 + DEC-001…005 +
    ROAD-001 (living-spec rewrite + backlog disposition per DEC-005).
 2. **Product north star:** Zippp Space personal finance OS — monthly fair-use
    subscription (web checkout), Android full client, Notification Listener capture.
-3. **Priority gate:** Production mobile waits on **STORY-102** (Space device proof),
-   not companion **STORY-101**. Next build: finish **FEAT-113**; **FEAT-114**
-   Space membership is built and in verify (Phase 3).
+3. **Priority gate:** Production mobile waits on **STORY-102**, not companion
+   **STORY-101**. FEAT-113 and FEAT-114 Phase 3 code is complete. The next task
+   is Phase 4 FEAT-102 + FEAT-115; native compile and device checks are on the
+   owner's Mac.
 4. Legacy prepaid credits and pairing-only Android **still run in code** until
    ROAD Phases 4–6; do not treat them as destination UX.
 5. Production mobile still dark; Space capture path not proven on device yet.
 6. **2026-11-03:** Phase 3 code (FEAT-113 auth, FEAT-114 Space) plus the Android
    companion were uncommitted. Commit hygiene closed in four commits; worktree
    clean. Device proof is still the open gate.
+7. **2026-11-16 v2 local work:** owner-confirmed baseline `v2` at
+   `9799859786d238c3796910cbacbe01cb62d51d78`. Local pivot added cashflow
+   models, default-template candidates, synthetic balance projection,
+   read-only Home/Inbox, account-scoped AES-GCM draft storage, and browser
+   identity checks. The 114-test, TypeScript, isolated web build, and synthetic
+   browser gates pass. No real Google or production calls; native build/device
+   proof remains for the owner's Mac. Changes remain uncommitted.
 
 ---
 
@@ -108,12 +116,12 @@ set in Production. Preview is enabled for testing.
 
 **Current milestone:**
 
-- **DIR-001 Zippp Space** locked; ROAD-001 Phase 1–3 code done and committed.
-- FEAT-113 auth and FEAT-114 Space are built; tests, typecheck, and build green.
-  No device run yet. Pairing spike verified on Preview.
-- Gate that matters: **STORY-102** (not companion STORY-101).
-- Next build: **STORY-102** device proof (ROAD Phase 7). FEAT-102, FEAT-115,
-  FEAT-116, and FEAT-117 are built and in Factory verify; all need a runtime pass.
+- ROAD-001 Phases 1–3 code is complete; Android device proof remains open.
+- Phase 4 capture loop is FEAT-102 + FEAT-115. Their implementations are in
+  verification; native compile and device behavior are the next owner-Mac gate.
+- Production mobile stays dark until STORY-102 passes.
+- The local v2 web pivot has read-only cashflow Home/Inbox and encrypted,
+  owner-scoped receipt drafts. Actual workbook behavior remains unverified.
 
 ---
 
@@ -234,7 +242,7 @@ Target structure for zippp-owned templates:
 ```text
 [zippp] <Template>
 ├── Summary          first tab: Month | Receipts | Total
-├── 2026-10          YYYY-MM from receipt date (after assumed-date fill)
+├── 2026-10          YYYY-MM from a known receipt date
 ├── ...              12 most recent months visible
 └── older tabs       hidden (not deleted) when age > 12 months
 ```
@@ -269,8 +277,8 @@ Drive proof upload.
 | T4 | Purpose free text, session-remembered |
 
 Common: merchant, date, line items, total, category. Hard flags block Accept /
-Terima until edit or acknowledge. Null date → capture date + "tanggal
-diasumsikan". Corrections POST `/api/corrections` with before/after/flags/run id.
+Terima until edit or acknowledge. An unknown receipt date stays empty unless
+the user enters one. Corrections POST `/api/corrections` with before/after/flags/run id.
 
 ### 4.7 Pricing and credits
 
@@ -313,8 +321,8 @@ Landing
   -> Google OAuth
   -> connect or create a [zippp] Google Sheet
   -> choose template
-  -> Snap / review / accept
-  -> top up when credits are zero
+  -> Home -> Snap / review / accept
+  -> top up when credits are zero and capture is requested
 ```
 
 Guard order:
@@ -322,8 +330,16 @@ Guard order:
 1. loading
 2. no session -> landing
 3. no sheet -> sheet setup
-4. zero credits -> top-up
-5. ready -> `/app/snap`
+4. Home, Inbox and settings remain readable with zero credits
+5. zero credits on capture -> top-up; otherwise `/app/home`
+
+Web Home reads receipt totals from the signed-in user's saved personal-expense
+Sheet mapping through `/api/cashflow/legacy-summary`. It groups repeated
+line-item totals by receipt ID, separates IDR and AUD, uses the browser's
+time zone and a Monday-start week, and flags unreadable or future-dated rows.
+Other templates are unsupported on Home. This is not a complete cash ledger:
+income and account balances are unavailable, not zero. No real workbook
+behavior was verified during local synthetic testing.
 
 ### Web capture and review
 
@@ -336,6 +352,44 @@ camera / upload
   -> 1 credit spent
   -> append to Sheet
 ```
+
+Web capture drafts are kept in IndexedDB. Interrupted extraction resumes as
+queued work; interrupted or accepted sends return to review and are never sent
+automatically. IndexedDB operations report success only after their transaction
+commits.
+
+Database version 3 stores one non-extractable AES-GCM key per authenticated
+Google user ID in the `keys` object store. The image bytes and receipt payload
+(thumbnail, receipt, editable fields, source, status, debug, errors, and
+contribution state) are ciphertext. Item ID, owner ID, creation timestamp,
+encryption version, and IVs remain clear; AES-GCM associated data binds owner,
+item ID, and timestamp. Image bytes are immutable for an item ID; replacing a
+photo requires a new ID, so metadata edits can reuse the image ciphertext.
+
+New writes have no plaintext fallback. If Web Crypto or persistent key storage
+is unavailable, draft initialization and capture fail closed. Owner-bound
+plaintext legacy items are replaced only after the encrypted write transaction
+commits. Unowned legacy items remain hidden and unchanged until explicit user
+import; they are encrypted after import. A missing key for encrypted rows does
+not create a replacement key or delete ciphertext.
+
+This protects persisted bytes from casual database inspection only. Same-origin
+JavaScript can retrieve the non-extractable key and request decryption; this is
+not end-to-end encryption or protection against XSS or device compromise. Key
+loss can make ciphertext unrecoverable. Native Android encryption and device
+behavior remain unverified; native checks are deferred to the owner's Mac.
+
+Web drafts remain partitioned by authenticated Google user ID. Web append,
+correction, contribution, and receipt-summary requests carry the expected user
+ID and reject a session mismatch before user-specific side effects. On browser
+foreground, the current server identity is revalidated; account-specific
+screens stay masked until the check passes, and a changed account reloads the
+app. A failed check leaves drafts hidden until reload.
+
+Home shows a count of locally queued receipts. `/app/inbox` lists their
+statuses and opens a selected item in the existing review flow without sending
+it. When credits are exhausted, the list remains readable but review and
+capture retain the top-up guard.
 
 ### Android capture (legacy pairing build; FEAT-113 replaces entry auth)
 
@@ -770,8 +824,7 @@ Rules:
   the row exists.
 - On `401 DEVICE_REVOKED`, clear the local token and return to pairing.
 - On `401 GOOGLE_RECONSENT`, tell the user to sign in again on the web.
-- If the receipt date is null, the client fills the capture date and marks it
-  `tanggal diasumsikan`.
+- If the receipt date is unknown, leave it empty unless the user enters one.
 
 Review card status (FEAT-102, FEAT-118 S9):
 
@@ -783,7 +836,7 @@ Review card status (FEAT-102, FEAT-118 S9):
 - Hard flags (`missing`, `not_in_ocr`, `ungrounded`, `arithmetic`) outline the
   field and show a banner with an acknowledge checkbox. Accept stays disabled
   until each flagged field is edited or the box is ticked.
-- An assumed date shows `app.review.dateAssumed` under the grid.
+- An unknown receipt date stays empty until the user supplies one.
 - `sendOne` posts `payment`, `purpose` and `customer` as well as staff and outlet.
 - Android review is built to the same contract (see section 11); device run pending.
 
@@ -1126,7 +1179,7 @@ header — keep that APK private.
 | CameraX capture | Done |
 | Review Terima/Ubah/Buang | Partial (merchant/total only) |
 | Hard-flag block + ack | Partial |
-| Template ops + line-item Ubah + assumed date + corrections | FEAT-102 |
+| Template ops + line-item Ubah + corrections | FEAT-102 |
 | QR pairing + steady / auto-snap | FEAT-107 |
 | Photo proof upload | FEAT-103 |
 | Offline queue + EXIF strip | FEAT-108 |
@@ -1152,7 +1205,9 @@ header — keep that APK private.
 /privacy           Privacy
 /refund            Refund
 /contact           Contact
-/app               Guard -> /app/snap
+/app               Guard -> /app/home
+/app/home          Read-only personal-expense receipt totals
+/app/inbox         Local receipt queue and review navigation
 /app/snap          Camera + batch review
 /app/topup         Top-up (Kasera / Paddle / GoPay fallback)
 /app/settings      Balance, language, sheet, devices, Telegram, sign out
@@ -1253,28 +1308,16 @@ SHA-1) to the same Cloud project and no new scopes.
 - pairing confirmed on a real device
 - capture / review / append **not** confirmed end to end
 
-### Repo state (2026-11-05)
+### Repo state (2026-11-16)
 
-| Item | Value |
-|---|---|
-| Working branch | `factory/software-factory` (to be retired, see below) |
-| `main` | Ancestor of the working branch. 0 commits behind, 66 ahead. |
-| `origin/main` | 10 commits behind local `main`. Nothing from FEAT-102 to FEAT-117 is pushed. |
-| Uncommitted | FEAT-118 S1 and S2 Android files, `scripts/gen-android-strings.mjs`, `strings.xml`, FEAT-118 card |
-| Rule | Commit with **explicit pathspecs**. Never `git add -A`. |
-
-Branch plan: fast-forward `main` to the working branch, push `main`, then work on
-short branches named `feat/<id>-<slug>` and `factory/<topic>` that branch from
-`main`. Factory tooling and product code are separate commits, but share `main`.
-
----|---|
-| Branch | `factory/software-factory` |
-| HEAD | `d58f38a` — `factory: record FEAT-102 diagram and groom gate` |
-| Factory commits | M0–M7 + post-M7 UI/grooming (summarized in §16) |
-| Worktree | **Dirty** — ~81 short-status lines |
-| Dirty includes | Theme reorg (`spec/themes/**` largely untracked), deletes of old `spec/*.md` paths, `AGENTS.md`, `README.md`, `.env.example`, product pivot files, wording |
-| Factory code | Present under `tools/factory/` and largely committed on this branch |
-| Rule | Commit with **explicit pathspecs**. Never `git add -A`. Do not mix factory-only commits with unrelated pivot noise unless intentional. |
+- Working branch: `v2` (owner-confirmed).
+- Canonical baseline: `9799859786d238c3796910cbacbe01cb62d51d78`.
+- Local pivot changes are uncommitted. Preserve unrelated changes; do not assume
+  the worktree is clean or stage broadly.
+- This task used isolated local web checks only. No real Google account, Sheet,
+  Drive, billing, Preview, or Production calls were made.
+- Native Android build and device checks are deferred to the owner's Mac.
+- Commit with explicit pathspecs. Never `git add -A`.
 
 ---
 
@@ -1299,7 +1342,12 @@ short branches named `feat/<id>-<slug>` and `factory/<topic>` that branch from
   pairing screen, CameraX capture, partial review screen, append client.
 - Android strings generated from wording (`npm run android:strings`).
 - Data-boundary static tests.
-- Root gates at this snapshot: `npm test` **43 passing**; `npx tsc --noEmit` **pass**.
+- Local v2 web pivot: cashflow models, default-template receipt candidates,
+  synthetic balance projection, read-only Home/Inbox, and per-owner encrypted
+  receipt drafts. Actual workbook layouts and opening balances remain unverified.
+- Local gates on 2026-11-16: `npm test` **114 passing**;
+  `npx tsc --noEmit` and isolated `npm run build` **pass**. Native Android
+  compile/device checks remain for the owner's Mac.
 
 ### Done and verified (Software Factory)
 
@@ -1317,7 +1365,7 @@ short branches named `feat/<id>-<slug>` and `factory/<topic>` that branch from
 ### Partial
 
 - Android review: built with template ops, line-item edits, hard-flag blocking,
-  assumed-date label, and correction telemetry. Device proof pending.
+  and correction telemetry. Unknown dates stay empty. Device proof pending.
 - Camera: capture works; no QR scanner, steady detection, or auto-snap.
 - Web Rev 2 sheet product: audit Tasks 3–7 still open in code
   (`sheet-layout.ts` and product `drive.ts` do **not** exist; only
@@ -1381,7 +1429,7 @@ Fix before trusting mobile retry under flaky networks.
    A Play-distributed app cannot install GitHub APKs. The `play` flavor must
    use Play In-App Updates and must not ship the sideload installer.
 3. **Android review contract is incomplete (FEAT-102).**
-   Ops, telemetry, assumed date, and line-item edit are not done.
+   Device verification of ops, telemetry, and line-item edits remains pending.
 4. **Month tabs / daily totals are not implemented (FEAT-104).**
    Append still writes to the existing single `sheet_tab`.
 5. **Photo proof is not implemented (FEAT-103).**
@@ -1759,12 +1807,13 @@ Re-run `assembleRelease` before shipping.
 
 Follow **ROAD-001**. Do not revive companion credit E2E as the main gate.
 
-1. **FEAT-118** — Android web parity, one slice at a time (S3 to S7). Card has the
-   slice table. Owner answered the open questions (no pill, quota % on Settings, ops on web).
-2. **Phase 3 verification** — prove Android sign-in and two-account Space on a
-   device; reopen only if it fails.
-3. **FEAT-102 / FEAT-115** — built, in Factory verify, need a device run. Run them
-   together with the FEAT-118 screenshots.
+1. **Phase 4: FEAT-102 + FEAT-115** — capture loop implementation is in verify.
+   Run native compilation and device behavior checks on the owner's Mac; do not
+   enable Production mobile.
+2. **FEAT-118 S8** — collect the phone screenshots against the web reference.
+   S3–S7 are built; the owner needs a phone for S8.
+3. **Phase 3 device proof** — verify Android sign-in and two-account Space; reopen
+   only if it fails.
 4. **FEAT-117** — fair-use meter, Paddle checkout, Android usage built and in
    Factory verify. Open: Paddle cancel UI, legacy credit migration.
 5. **STORY-102** — Space device proof (Phase 7). Needs a real phone.

@@ -207,6 +207,25 @@ export async function getHeaderRow(
   return row.map((cell) => String(cell ?? "").trim()).filter((h) => h !== "");
 }
 
+/** Read the selected tab as raw values for the signed-in user's receipt summary. */
+export async function readSheetValues(
+  spreadsheetId: string,
+  sheetTab: string,
+  userId: string
+): Promise<unknown[][]> {
+  const range = `'${sheetTab.replace(/'/g, "''")}'`;
+  const params = new URLSearchParams({
+    majorDimension: "ROWS",
+    valueRenderOption: "UNFORMATTED_VALUE",
+    dateTimeRenderOption: "SERIAL_NUMBER",
+  });
+  const data = await googleFetch<{ values?: unknown[][] }>(
+    `https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(spreadsheetId)}/values/${encodeURIComponent(range)}?${params}`,
+    { userId, cache: "no-store" }
+  );
+  return data.values ?? [];
+}
+
 export async function writeHeaderRow(
   spreadsheetId: string,
   sheetTab: string,

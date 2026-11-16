@@ -1,6 +1,7 @@
 // @implements FEAT-102
 import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
+import { matchesAppendOwner } from "@/lib/auth/append-owner";
 import { resolveRequestUser } from "@/lib/auth/request-user";
 import {
     appendCorrection,
@@ -45,6 +46,9 @@ export async function POST(req: Request) {
         body = (await req.json()) as Record<string, unknown>;
     } catch {
         return NextResponse.json({ ok: false, error: "Invalid JSON." }, { status: 400 });
+    }
+    if (!matchesAppendOwner(user, body.expectedUserId)) {
+        return NextResponse.json({ ok: false, code: "OWNER_MISMATCH" }, { status: 403 });
     }
 
     const record: StoredCorrection = {

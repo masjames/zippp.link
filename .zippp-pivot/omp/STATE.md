@@ -1,27 +1,23 @@
 # ZIPPP Pivot Execution State
 
-- **Date:** 2026-11-15
-- **Phase:** P0.1 — read-only local repository audit
-- **Status:** AWAITING OWNER REVIEW
-- **Model:** `openai-codex/gpt-6-luna` through Codex OAuth; local audit executed. No app code or Git state changed.
-- **Next task:** Owner review of `.zippp-pivot/outputs/TASK-001-AUDIT.md`; approve audited baseline branch/commit before P0.2.
-- **Last verified:** Local checkout at `feat/121-import-statements`, commit `04268ef273ec40680a43f15a95b0be6f0e69f3c1`; worktree has untracked paths.
-- **Blocker:** Owner must confirm the correct baseline branch/commit and protected data boundaries. Mobile persistent drafts, target ledger/summary APIs, and live deployment status remain unverified or absent.
+- **Date:** 2026-11-16
+- **Phase:** Phase 4 Android verification (FEAT-102 + FEAT-115), owner Mac required
+- **Status:** TASK-012 COMPLETE — 114 tests, TypeScript check, isolated web build, and synthetic browser persistence/account checks passed.
+- **Canonical baseline:** `v2` at `9799859786d238c3796910cbacbe01cb62d51d78` (owner confirmed).
+- **P0.2 evidence:** `.zippp-pivot/outputs/TASK-002-BASELINE.md` — 79 tests and TypeScript check passed.
+- **P0.3 decisions:** `.zippp-pivot/outputs/TASK-003-DECISION-RECORD-DRAFT.md` — planning directions accepted; protected gates remain closed.
+- **P1.1 models:** `src/lib/cashflow/model.ts`; evidence in `.zippp-pivot/outputs/TASK-004-P1-1-RESULTS.md`.
+- **P1.2 adapter:** default-template candidates only; not complete canonical transactions. See `.zippp-pivot/outputs/TASK-005-P1-2-RESULTS.md`.
+- **P1.3 projection:** synthetic canonical inputs only; real opening balances/reconciliation unverified. See `.zippp-pivot/outputs/TASK-006-P1-3-RESULTS.md`.
+- **TASK-007/008/009/010:** draft recovery, unknown dates, read-only Home, and Inbox are implemented. Results are recorded in their `TASK-XXX-*-RESULTS.md` outputs.
+- **TASK-011:** owner-partitioned IndexedDB, explicit legacy claim, expected-owner web side effects, and foreground identity masking. Evidence: `.zippp-pivot/outputs/TASK-011-DRAFT-ACCOUNT-ISOLATION-RESULTS.md`.
+- **TASK-012:** per-owner AES-GCM web drafts, transactional migration, fail-closed missing-key behavior. Evidence: `.zippp-pivot/outputs/TASK-012-ENCRYPTED-WEB-DRAFTS-RESULTS.md`.
+- **Active task (Mac required):** Phase 4 FEAT-102 / FEAT-115 native compile and device checks.
+  Cards: `spec/themes/03-zippp-software-factory/entities/features/FEAT-102-android-review-contract.md`
+  and `spec/themes/03-zippp-software-factory/entities/features/FEAT-115-notification-capture.md`.
+- **Local verification limits:** No real Google account, Sheet, Drive, billing, Preview, or Production calls. Native Android compile/device checks are not run on this Linux workstation.
+- **Security limitation:** Web draft payloads are AES-GCM ciphertext in IndexedDB with a non-extractable same-origin key. Same-origin JavaScript can still request decryption; this is not end-to-end encryption or XSS protection. Key loss may make ciphertext unrecoverable.
 
-## Do not do yet
+## Protected owner gates
 
-- Modify application/source/configuration files
-- Change Git branches or git index
-- Deploy, bill, write to Sheets or Drive
-- Begin RN rewrite or retire Kotlin/Next.js
-
-## Owner approvals pending
-
-- Select and approve audited baseline branch/commit after P0.1
-- Approve versioned ledger schema before modifying Sheets
-- Approve OAuth/Drive draft policy and payment changes separately
-
-## On completion of P0.1
-
-- Write `.zippp-pivot/outputs/TASK-001-AUDIT.md` with redacted findings and command evidence.
-- Update phase/status/next task here. Do **not** advance to P0.2 or begin coding until owner reviews audit.
+- Checkpoint B (Sheet schema/migration/writes), C (OAuth/Drive scopes), D (billing), and E (production release) remain closed.

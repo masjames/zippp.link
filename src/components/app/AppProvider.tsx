@@ -13,6 +13,8 @@ import { makeT, type T, type Wording } from "@/lib/t";
 import type { ExtractResponse } from "@/types/receipt";
 import {
     allItems,
+    claimLegacyItems,
+    countLegacyItems,
     deleteItem as dbDeleteItem,
     getMeta,
     putItem,
@@ -21,7 +23,7 @@ import {
     type CaptureSource,
 } from "@/lib/batch-db";
 import { isPdfFile, isReceiptUpload, prepareImage } from "@/lib/image";
-import { captureDate, fromDraft, toDraft } from "./draft";
+import { fromDraft, toDraft } from "./draft";
 import { buildCorrectionRecord } from "@/lib/correction-diff";
 
 export type AuthState = {
@@ -79,6 +81,8 @@ type Value = {
     region: Region;
     auth: AuthState | null;
     authChecked: boolean;
+    sessionChecking: boolean;
+    sessionCheckFailed: boolean;
     authError: string | null;
     workspace: Workspace | null;
     sheetPhase: SheetPhase;
@@ -91,6 +95,12 @@ type Value = {
     refreshBalance: () => Promise<void>;
     /** Increments on each successful append. */
     savedTick: number;
+    /** Browser storage failed; drafts may not survive leaving the page. */
+    storageError: boolean;
+    draftsReady: boolean;
+    legacyDraftCount: number;
+    claimingLegacy: boolean;
+    claimLegacyDrafts: () => Promise<void>;
     batch: BatchItem[];
     openId: string | null;
     autoSnap: boolean;
@@ -142,6 +152,7 @@ const AUTOSNAP_KEY = "zippp_autosnap";
 const MAX_CONCURRENT_EXTRACTIONS = 3;
 /** Pause auto-capture after the server says the frame is not a receipt. */
 const REFUSAL_COOLDOWN_MS = 2_500;
+const EMPTY_BATCH: BatchItem[] = [];
 
 export default function AppProvider({
     wording,
@@ -177,40 +188,65 @@ export default function AppProvider({
     const [autoCooldownUntil, setAutoCooldownUntil] = useState(0);
     /** Bumped on every successful append, so the UI can show "saved". */
     const [savedTick, setSavedTick] = useState(0);
+    const [storageError, setStorageError] = useState(false);
+    const [draftsReady, setDraftsReady] = useState(false);
+    const [loadedOwner, setLoadedOwner] = useState<string | null>(null);
+    const [legacyDraftCount, setLegacyDraftCount] = useState(0);
+    const [claimingLegacy, setClaimingLegacy] = useState(false);
+    const ownerRef = useRef<string | null>(null);
+    const identityCheckOwner = useRef<string | null>(null);
+    const [sessionChecking, setSessionChecking] = useState(false);
+    const [sessionCheckFailed, setSessionCheckFailed] = useState(false);
 
     const inflight = useRef<Set<string>>(new Set());
     /** Sends run one at a time so the rows keep their order. */
     const sendQueue = useRef<Promise<void>>(Promise.resolve());
 
-    // Restore the persisted batch and preferences.
+    // Preferences do not contain receipt data.
     useEffect(() => {
+        try {
+            const pref = localStorage.getItem(AUTOSNAP_KEY);
+            if (pref === "0") setAutoSnapState(false);
+        } catch {
+            /* ignore */
+        }
+    }, []);
+
+    // Wait for a known account before restoring receipt data.
+    useEffect(() => {
+        const owner = auth?.signedIn ? auth.googleUserId : null;
+        ownerRef.current = owner;
+        setStorageError(false);
+        setBatch([]);
+        setLoadedOwner(null);
+        setOpenIdState(null);
+        setDraftsReady(false);
+        setLegacyDraftCount(0);
+        if (!owner) {
+            if (auth?.signedIn) setStorageError(true);
+            return;
+        }
         let alive = true;
-        (async () => {
+        void (async () => {
             try {
-                const [items, meta] = await Promise.all([allItems(), getMeta()]);
-                if (!alive) return;
-                // Interrupted reads/sends become retryable.
-                const restored = items.map((it) =>
-                    it.status === "reading" || it.status === "sending"
-                        ? { ...it, status: "ready" as const }
-                        : it
-                );
-                setBatch(restored);
+                const [items, meta, legacyCount] = await Promise.all([
+                    allItems(owner), getMeta(owner), countLegacyItems(),
+                ]);
+                if (!alive || ownerRef.current !== owner) return;
+                setBatch(items);
                 setOpenIdState(meta.openId);
+                setLegacyDraftCount(legacyCount);
+                setLoadedOwner(owner);
+                setDraftsReady(true);
             } catch {
-                /* ignore */
-            }
-            try {
-                const pref = localStorage.getItem(AUTOSNAP_KEY);
-                if (pref === "0") setAutoSnapState(false);
-            } catch {
-                /* ignore */
+                if (alive && ownerRef.current === owner) setStorageError(true);
             }
         })();
         return () => {
             alive = false;
+            if (ownerRef.current === owner) ownerRef.current = null;
         };
-    }, []);
+    }, [auth?.signedIn, auth?.googleUserId]);
 
     useEffect(() => {
         let alive = true;
@@ -254,19 +290,88 @@ export default function AppProvider({
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
+    // A different account can sign in from another tab while this page sleeps.
+    useEffect(() => {
+        const owner = auth?.signedIn ? auth.googleUserId : null;
+        if (!authChecked || !owner) return;
+        let alive = true;
+        let controller: AbortController | null = null;
+
+        const verifySession = async () => {
+            if (identityCheckOwner.current !== null || document.visibilityState !== "visible") return;
+            identityCheckOwner.current = owner;
+            setSessionCheckFailed(false);
+            setSessionChecking(true);
+            setDraftsReady(false);
+            setLoadedOwner(null);
+            setBatch([]);
+            setOpenIdState(null);
+            setLegacyDraftCount(0);
+            controller = new AbortController();
+            try {
+                const response = await fetch("/api/auth/session", { cache: "no-store", signal: controller.signal });
+                if (!response.ok) throw new Error("Could not verify account");
+                const current = await response.json() as { signedIn: boolean; userId: string | null };
+                if (!alive) return;
+                if (!current.signedIn || current.userId !== owner) {
+                    clearDraftView();
+                    setWorkspace(null);
+                    setBalance(null);
+                    setSessionCheckFailed(true);
+                    window.location.reload();
+                    return;
+                }
+                if (ownerRef.current !== owner) return;
+                const [items, meta, legacyCount] = await Promise.all([
+                    allItems(owner), getMeta(owner), countLegacyItems(),
+                ]);
+                if (!alive || ownerRef.current !== owner) return;
+                setBatch(items);
+                setOpenIdState(meta.openId);
+                setLegacyDraftCount(legacyCount);
+                setLoadedOwner(owner);
+                setStorageError(false);
+                setDraftsReady(true);
+            } catch {
+                if (alive && ownerRef.current === owner) {
+                    setSessionCheckFailed(true);
+                    setStorageError(true);
+                }
+            } finally {
+                if (identityCheckOwner.current === owner) identityCheckOwner.current = null;
+                if (alive) setSessionChecking(false);
+            }
+        };
+
+        const onVisibility = () => {
+            if (document.visibilityState === "visible") void verifySession();
+        };
+        window.addEventListener("focus", verifySession);
+        document.addEventListener("visibilitychange", onVisibility);
+        return () => {
+            alive = false;
+            controller?.abort();
+            if (identityCheckOwner.current === owner) identityCheckOwner.current = null;
+            window.removeEventListener("focus", verifySession);
+            document.removeEventListener("visibilitychange", onVisibility);
+        };
+    }, [authChecked, auth?.signedIn, auth?.googleUserId]);
+
+
     function patchItem(id: string, patch: Partial<BatchItem>) {
         setBatch((items) => {
             const next = items.map((it) =>
-                it.id === id ? { ...it, ...patch } : it
+                it.id === id && it.ownerId === ownerRef.current ? { ...it, ...patch } : it
             );
-            const changed = next.find((it) => it.id === id);
-            if (changed) void putItem(changed);
+            const changed = next.find((it) => it.id === id && it.ownerId === ownerRef.current);
+            if (changed) void putItem(changed).catch(() => setStorageError(true));
             return next;
         });
     }
 
     // Extract queued items, up to MAX_CONCURRENT_EXTRACTIONS at a time.
     useEffect(() => {
+        if (!auth?.signedIn || !auth.googleUserId || loadedOwner !== auth.googleUserId || !draftsReady) return;
         const reading = batch.filter((item) => item.status === "reading").length;
         const slots = MAX_CONCURRENT_EXTRACTIONS - reading;
         if (slots <= 0) return;
@@ -282,7 +387,7 @@ export default function AppProvider({
             void extractItem(item);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [batch]);
+    }, [batch, auth?.signedIn, auth?.googleUserId, loadedOwner, draftsReady]);
 
     async function extractItem(item: BatchItem) {
         try {
@@ -292,12 +397,6 @@ export default function AppProvider({
             const data = (await res.json()) as ExtractResponse;
             if (data.ok) {
                 const draft = toDraft(data.receipt);
-                // A missing date is assumed from the capture time and marked in
-                // the review card, never treated as a failed read.
-                if (!draft.date) {
-                    draft.date = captureDate(item.createdAt);
-                    draft.dateAssumed = true;
-                }
                 patchItem(item.id, {
                     status: "ready",
                     receipt: data.receipt,
@@ -307,9 +406,11 @@ export default function AppProvider({
             } else if (item.source === "auto" && data.refusal === "not_a_receipt") {
                 // Auto captures only stick if the read is a receipt. Drop it
                 // silently and pause auto-capture so the same scene is not retried.
-                setAutoCooldownUntil(Date.now() + REFUSAL_COOLDOWN_MS);
-                setBatch((items) => items.filter((i) => i.id !== item.id));
-                void dbDeleteItem(item.id);
+                if (ownerRef.current === item.ownerId) {
+                    setAutoCooldownUntil(Date.now() + REFUSAL_COOLDOWN_MS);
+                    setBatch((items) => items.filter((i) => i.id !== item.id || i.ownerId !== item.ownerId));
+                }
+                if (item.ownerId) void dbDeleteItem(item.ownerId, item.id).catch(() => setStorageError(true));
             } else {
                 patchItem(item.id, {
                     status: "failed",
@@ -333,10 +434,13 @@ export default function AppProvider({
         thumb: string,
         source: CaptureSource = "manual"
     ) {
+        const owner = ownerRef.current;
+        if (!owner || !draftsReady || loadedOwner !== owner || auth?.googleUserId !== owner) return;
         const id = crypto.randomUUID();
         const createdAt = Date.now();
         const item: BatchItem = {
             id,
+            ownerId: owner,
             createdAt,
             blob,
             thumb,
@@ -344,22 +448,27 @@ export default function AppProvider({
             source,
         };
         // Show the card first; persist in the background.
-        setBatch((items) => [item, ...items]);
-        void putItem(item);
+        setBatch((items) => ownerRef.current === owner ? [item, ...items] : items);
+        void putItem(item).catch(() => setStorageError(true));
     }
 
     function addFile(file: File, source: CaptureSource = "manual") {
+        const owner = ownerRef.current;
+        if (!owner || !draftsReady || loadedOwner !== owner || auth?.googleUserId !== owner) return;
         void (async () => {
             if (!isReceiptUpload(file)) return;
             try {
                 const { blob, thumb } = await prepareImage(file);
+                if (ownerRef.current !== owner) return;
                 if (isPdfFile(file) && (isPdfFile(blob) || !thumb)) {
                     throw new Error("pdf failed");
                 }
                 addBlob(blob, thumb, source);
             } catch {
+                if (ownerRef.current !== owner) return;
                 const item: BatchItem = {
                     id: crypto.randomUUID(),
+                    ownerId: owner,
                     createdAt: Date.now(),
                     blob: file,
                     thumb: "",
@@ -367,8 +476,8 @@ export default function AppProvider({
                     source,
                     error: t("app.capture.pdfFailed"),
                 };
-                setBatch((items) => [item, ...items]);
-                void putItem(item);
+                setBatch((items) => ownerRef.current === owner ? [item, ...items] : items);
+                void putItem(item).catch(() => setStorageError(true));
             }
         })();
     }
@@ -383,8 +492,9 @@ export default function AppProvider({
     }
 
     function setOpen(id: string | null) {
-        setOpenIdState(id);
-        void dbSetOpenId(id);
+        const owner = ownerRef.current;
+        if (!owner || (id !== null && !batch.some((item) => item.id === id && item.ownerId === owner))) return;
+        void dbSetOpenId(owner, id).catch(() => setStorageError(true));
     }
 
     function updateDraft(id: string, draft: BatchItem["draft"]) {
@@ -403,17 +513,17 @@ export default function AppProvider({
         void fetch("/api/corrections", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ ...record, lang }),
+            body: JSON.stringify({ ...record, lang, expectedUserId: item.ownerId }),
         }).catch(() => undefined);
     }
 
     function acceptItem(id: string) {
         const item = batch.find((i) => i.id === id);
-        if (!item) return;
+        if (!item || item.ownerId !== ownerRef.current) return;
         logCorrection(item);
         patchItem(id, { status: "accepted" });
         const remaining = batch.filter(
-            (i) => i.id !== id && i.status !== "accepted"
+            (i) => i.id !== id && i.ownerId === item.ownerId && i.status !== "accepted"
         );
         setOpen(remaining[0]?.id ?? null);
         // Accept writes the row straight away: one check, one sheet row.
@@ -423,10 +533,12 @@ export default function AppProvider({
     }
 
     function removeItem(id: string) {
-        setBatch((items) => items.filter((i) => i.id !== id));
-        void dbDeleteItem(id);
+        const item = batch.find((candidate) => candidate.id === id);
+        if (!item?.ownerId || item.ownerId !== ownerRef.current) return;
+        setBatch((items) => items.filter((i) => i.id !== id || i.ownerId !== item.ownerId));
+        void dbDeleteItem(item.ownerId, id).catch(() => setStorageError(true));
         if (openId === id) {
-            const remaining = batch.filter((i) => i.id !== id);
+            const remaining = batch.filter((i) => i.id !== id && i.ownerId === item.ownerId);
             setOpen(remaining[0]?.id ?? null);
         }
     }
@@ -435,23 +547,25 @@ export default function AppProvider({
         patchItem(id, { status: "queued", error: undefined });
     }
 
-    /** Explicit opt-in: save a photo that could not be read, for the harness. */
     function contributeItem(id: string) {
-        const item = batch.find((i) => i.id === id);
-        if (!item) return;
+        const item = batch.find((candidate) => candidate.id === id);
+        const owner = item?.ownerId;
+        if (!item || !owner || owner !== ownerRef.current) return;
         void (async () => {
             try {
                 const form = new FormData();
                 form.append("image", item.blob, "receipt.jpg");
                 form.append("consent", "true");
+                form.append("expectedUserId", owner);
                 form.append("reason", item.error ?? "");
                 form.append("lang", lang);
+                if (ownerRef.current !== owner) return;
                 const res = await fetch("/api/contribute", {
                     method: "POST",
                     body: form,
                 });
                 const data = await res.json();
-                if (data.ok) patchItem(id, { contributed: true });
+                if (data.ok && ownerRef.current === owner) patchItem(id, { contributed: true });
             } catch {
                 /* leave the prompt available to try again */
             }
@@ -470,6 +584,8 @@ export default function AppProvider({
 
     /** Append one accepted check to the sheet, then drop it on success. */
     async function sendOne(item: BatchItem) {
+        const owner = item.ownerId;
+        if (!owner || ownerRef.current !== owner) return;
         patchItem(item.id, { status: "sending" });
         try {
             const edited = item.draft ? fromDraft(item.draft) : item.receipt;
@@ -487,17 +603,26 @@ export default function AppProvider({
                     payment: (item.draft?.payment ?? "").trim() || null,
                     purpose: (item.draft?.purpose ?? "").trim() || null,
                     customer: (item.draft?.customer ?? "").trim() || null,
+                    expectedUserId: owner,
                     scanId: item.id,
                 }),
             });
             if (res.status === 401) {
-                setAuth({
-                    signedIn: false,
-                    oauthConfigured: true,
-                    googleUserId: null,
-                });
-                setAuthError(t("app.signin.error"));
-                patchItem(item.id, { status: "ready" });
+                if (ownerRef.current === owner) {
+                    patchItem(item.id, { status: "ready" });
+                    markAuthLost();
+                }
+                return;
+            }
+            if (res.status === 403) {
+                const data = await res.json().catch(() => ({}));
+                if (data.code === "OWNER_MISMATCH" && ownerRef.current === owner) {
+                    clearDraftView();
+                    setWorkspace(null);
+                    setBalance(null);
+                    setSessionCheckFailed(true);
+                    window.location.reload();
+                }
                 return;
             }
             if (res.status === 402) {
@@ -506,20 +631,28 @@ export default function AppProvider({
             }
             const data = await res.json();
             if (data.ok) {
-                await dbDeleteItem(item.id);
-                setBatch((items) => items.filter((i) => i.id !== item.id));
-                setSavedTick((n) => n + 1);
+                await dbDeleteItem(owner, item.id).catch((error: unknown) => {
+                    if (ownerRef.current === owner) setStorageError(true);
+                    throw error;
+                });
+                if (ownerRef.current === owner) {
+                    setBatch((items) => items.filter((i) => i.id !== item.id || i.ownerId !== owner));
+                    setSavedTick((n) => n + 1);
+                }
             } else {
                 patchItem(item.id, { status: "ready", error: data.error });
             }
         } catch {
-            patchItem(item.id, { status: "ready", error: t("app.error.network") });
+            if (ownerRef.current === owner) {
+                patchItem(item.id, { status: "ready", error: t("app.error.network") });
+            }
         } finally {
-            void refreshBalance();
+            if (ownerRef.current === owner) void refreshBalance();
         }
     }
 
     function markAuthLost() {
+        clearDraftView();
         setAuthError(t("app.signin.error"));
         setAuth({ signedIn: false, oauthConfigured: true, googleUserId: null });
     }
@@ -723,12 +856,50 @@ export default function AppProvider({
         }
     }
 
+    function clearDraftView() {
+        ownerRef.current = null;
+        setLoadedOwner(null);
+        setBatch([]);
+        setOpenIdState(null);
+        setDraftsReady(false);
+        setLegacyDraftCount(0);
+        setSessionChecking(false);
+        setSessionCheckFailed(false);
+    }
+
+    async function claimLegacyDrafts() {
+        const owner = ownerRef.current;
+        if (!owner || !draftsReady || loadedOwner !== owner || claimingLegacy) return;
+        setClaimingLegacy(true);
+        try {
+            await claimLegacyItems(owner);
+            const [items, count] = await Promise.all([allItems(owner), countLegacyItems()]);
+            if (ownerRef.current !== owner) return;
+            setBatch((current) => {
+                if (ownerRef.current !== owner) return current;
+                const existing = new Set(current.map((item) => item.id));
+                return [...current, ...items.filter((item) => !existing.has(item.id))]
+                    .sort((a, b) => b.createdAt - a.createdAt);
+            });
+            setLegacyDraftCount(count);
+        } catch {
+            if (ownerRef.current === owner) setStorageError(true);
+        } finally {
+            if (ownerRef.current === owner) setClaimingLegacy(false);
+        }
+    }
+
+    const activeOwner = auth?.signedIn ? auth.googleUserId : null;
+    const visibleDraftsReady = Boolean(activeOwner && loadedOwner === activeOwner && draftsReady);
+    const visibleBatch = visibleDraftsReady ? batch : EMPTY_BATCH;
+
     function login() {
         setAuthError(null);
         window.location.href = "/api/auth/login";
     }
 
     async function signOut() {
+        clearDraftView();
         try {
             await fetch("/api/auth/logout", { method: "POST" });
         } catch {
@@ -759,8 +930,15 @@ export default function AppProvider({
         balance,
         refreshBalance,
         savedTick,
-        batch,
-        openId,
+        sessionChecking,
+        sessionCheckFailed,
+        storageError,
+        draftsReady: visibleDraftsReady,
+        legacyDraftCount: visibleDraftsReady ? legacyDraftCount : 0,
+        claimingLegacy,
+        claimLegacyDrafts,
+        batch: visibleBatch,
+        openId: visibleDraftsReady ? openId : null,
         autoSnap,
         setAutoSnap,
         autoCooldownUntil,
