@@ -97,7 +97,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
         }
         // Admins land on the admin panel from the app entry point.
         if (pathname === "/app") {
-            router.replace(auth?.localPreview ? "/app/inbox" : balance?.admin ? "/admin" : "/app/home");
+            router.replace(auth?.localPreview ? "/app/home" : balance?.admin ? "/admin" : "/app/home");
         }
     }, [authChecked, auth, workspace, balance, pathname, router, region]);
 
@@ -126,7 +126,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
                         type="button"
                         onClick={() =>
                             auth?.localPreview
-                                ? router.push("/app/inbox")
+                                ? router.push("/app/home")
                                 : router.push(workspace ? "/app/home" : "/app/settings/sheet")
                         }
                         className="font-head text-2xl font-black tracking-tight text-brand"
@@ -135,7 +135,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
                         zippp
                     </button>
                     <div className="flex items-center gap-3">
-                        {pathname !== "/app/home" && workspace ? (
+                        {pathname !== "/app/home" && (workspace || auth?.localPreview) ? (
                             <button
                                 type="button"
                                 onClick={() => router.push("/app/home")}
@@ -143,6 +143,15 @@ export default function AppShell({ children }: { children: ReactNode }) {
                             >
                                 <HomeIcon />
                                 {t("app.nav.home")}
+                            </button>
+                        ) : null}
+                        {auth?.localPreview && pathname !== "/app/inbox" ? (
+                            <button
+                                type="button"
+                                onClick={() => router.push("/app/inbox")}
+                                className="text-sm font-semibold text-muted hover:text-body"
+                            >
+                                {t("app.inbox.title")}
                             </button>
                         ) : null}
                         {balance?.configured ? (

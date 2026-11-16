@@ -39,12 +39,12 @@ export function middleware(request: NextRequest) {
             path === "/" ||
             path === "/id" ||
             path === "/app" ||
-            path === "/app/home" ||
+            path === "/app/snap" ||
             path.startsWith("/app/settings") ||
             path.startsWith("/app/topup") ||
             path.startsWith("/admin")
         ) {
-            return NextResponse.redirect(new URL("/app/inbox", request.url));
+            return NextResponse.redirect(new URL("/app/home", request.url));
         }
     }
 

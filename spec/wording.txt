@@ -2694,6 +2694,18 @@ Penyimpanan browser tidak tersedia. Draf mungkin tidak tersimpan jika Anda menin
 Local dummy user. This browser stores drafts locally; Google, Sheets, billing, and server actions are disabled.
 ## app.localPreview.banner.id
 Pengguna tiruan lokal. Browser ini menyimpan draf secara lokal; Google, Sheets, penagihan, dan tindakan server dinonaktifkan.
+## app.localPreview.captureDisabled.en
+Capture is disabled in this UI-only preview.
+## app.localPreview.captureDisabled.id
+Pemindaian dinonaktifkan di pratinjau UI ini.
+## app.home.localPreviewEmpty.en
+A connected personal-expense sheet is required for Home totals. This dummy preview has no sheet data.
+## app.home.localPreviewEmpty.id
+Ringkasan Home memerlukan spreadsheet pengeluaran pribadi yang terhubung. Pratinjau dummy ini tidak memiliki data sheet.
+## app.inbox.localPreviewEmpty.en
+No local drafts are saved in this dummy preview yet.
+## app.inbox.localPreviewEmpty.id
+Belum ada draf lokal di pratinjau dummy ini.
 ## app.error.failed.en
 Failed.
 ## app.error.failed.id

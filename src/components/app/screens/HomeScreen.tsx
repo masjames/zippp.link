@@ -29,7 +29,10 @@ export default function HomeScreen() {
     const locale = lang === "id" ? "id-ID" : "en-AU";
 
     useEffect(() => {
-        if (!workspace) return;
+        if (!workspace) {
+            if (auth?.localPreview) setState("ready");
+            return;
+        }
         const controller = new AbortController();
         setState("loading");
         setSummary(null);
@@ -60,12 +63,12 @@ export default function HomeScreen() {
             }
         })();
         return () => controller.abort();
-    }, [workspace?.spreadsheet_id, workspace?.sheet_tab, workspace?.template_id, attempt, auth?.googleUserId]);
+    }, [workspace?.spreadsheet_id, workspace?.sheet_tab, workspace?.template_id, attempt, auth?.googleUserId, auth?.localPreview]);
 
     return (
         <PhoneShell tone="page" pill={workspace?.spreadsheet_title}>
             <h1 className="font-head text-2xl font-black text-ink">{t("app.home.title")}</h1>
-            <p className="text-sm text-muted">{t("app.home.legacyNotice")}</p>
+            {!auth?.localPreview ? <p className="text-sm text-muted">{t("app.home.legacyNotice")}</p> : null}
             {batch.length > 0 || legacyDraftCount > 0 ? (
                 <Link href="/app/inbox" className="flex items-center justify-between gap-3 rounded-xl bg-card p-3 text-sm font-semibold text-ink shadow-sm">
                     <span>
@@ -75,14 +78,22 @@ export default function HomeScreen() {
                     <span className="underline">{t("app.inbox.open")}</span>
                 </Link>
             ) : null}
-            {state === "loading" ? <p role="status" className="text-sm text-muted">{t("app.home.loading")}</p> : null}
-            {state === "unsupported" ? (
+            {auth?.localPreview ? (
+                <div className="rounded-2xl bg-card p-4 text-sm text-body shadow-sm">
+                    <p>{t("app.home.localPreviewEmpty")}</p>
+                    <Link href="/app/inbox" className="mt-3 inline-block font-semibold text-ink underline">
+                        {t("app.inbox.open")}
+                    </Link>
+                </div>
+            ) : null}
+            {!auth?.localPreview && state === "loading" ? <p role="status" className="text-sm text-muted">{t("app.home.loading")}</p> : null}
+            {!auth?.localPreview && state === "unsupported" ? (
                 <div className="rounded-2xl bg-card p-4 text-sm text-body">
                     <p>{t("app.home.unsupported")}</p>
                     <Link href="/app/settings/sheet" className="mt-3 inline-block font-semibold text-ink underline">{t("app.home.sheetSettings")}</Link>
                 </div>
             ) : null}
-            {state === "error" ? (
+            {!auth?.localPreview && state === "error" ? (
                 <div role="alert" className="rounded-2xl bg-card p-4 text-sm text-body">
                     <p>{t("app.home.error")}</p>
                     <button type="button" onClick={() => setAttempt((value) => value + 1)} className="mt-3 font-semibold text-ink underline">{t("app.home.retry")}</button>
@@ -123,9 +134,15 @@ export default function HomeScreen() {
                     </section>
                 </>
             ) : null}
-            <Link href="/app/snap" className="mt-auto rounded-full bg-maroon px-5 py-3 text-center font-semibold text-white">
-                {t("app.home.capture")}
-            </Link>
+            {auth?.localPreview ? (
+                <p role="note" className="mt-6 rounded-xl bg-card p-3 text-center text-sm text-muted">
+                    {t("app.localPreview.captureDisabled")}
+                </p>
+            ) : (
+                <Link href="/app/snap" className="mt-6 rounded-full bg-maroon px-5 py-3 text-center font-semibold text-white">
+                    {t("app.home.capture")}
+                </Link>
+            )}
         </PhoneShell>
     );
 }

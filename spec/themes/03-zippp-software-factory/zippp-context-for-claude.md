@@ -395,11 +395,13 @@ Home shows a count of locally queued receipts. `/app/inbox` lists their
 statuses and opens a selected item in the existing review flow without sending
 it. When credits are exhausted, the list remains readable but review and
 capture retain the top-up guard.
-Local dummy preview is for UI inspection only. It requires development mode and
-an explicit server-only flag; it never creates a Google session or authorizes a
-server operation. The banner identifies the synthetic account, and middleware
-blocks all application API calls except the two auth-bootstrap reads. The
-tailnet preview is credential-free and uses a temporary self-signed certificate.
+Local dummy preview is for UI-only inspection. Only Next development mode with
+`ZIPPP_LOCAL_DUMMY_AUTH=1` creates a synthetic client identity; the
+`ZIPPP_LOCAL_DUMMY_HOST` value permits the tailnet hostname. It never creates a
+server-authenticated session. Home and Inbox remain accessible with truthful
+empty states; capture is disabled. Middleware returns 403 for all application
+API calls except auth-bootstrap reads. Production and Vercel cannot enable this
+mode.
 
 ### Android capture (legacy pairing build; FEAT-113 replaces entry auth)
 
@@ -1326,9 +1328,11 @@ SHA-1) to the same Cloud project and no new scopes.
   changes; the Mac checkout must pull before running. Do not assume it is clean.
 - Local verification used sanitized isolated web workspaces. No real Google
   account, Sheet, Drive, billing, Preview, or Production calls were made.
-- Tailnet dummy preview: `https://susi.tail6078b4.ts.net:39876/app/inbox`.
-  It uses no `.env` credentials; self-signed certificate warning may require
-  manual bypass. Tailscale ping succeeded, but Mac browser access was not observed.
+- Tailnet dummy preview: `https://susi.tail6078b4.ts.net:39876/` redirects to
+  Home; `/app/inbox` is also available. It uses the development-only flag in an
+  isolated workspace without `.env` credentials.
+- Its certificate is self-signed; the Mac browser may require a warning bypass.
+  Tailscale peer ping succeeded, but Mac browser access was not observed.
 - Native Android build and device checks are deferred to the owner's Mac.
 - Commit with explicit pathspecs. Never `git add -A`.
 

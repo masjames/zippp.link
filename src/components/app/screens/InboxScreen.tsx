@@ -17,7 +17,7 @@ const STATUS_KEYS: Record<BatchStatus, string> = {
 };
 
 export default function InboxScreen() {
-    const { t, lang, region, workspace, batch, balance, draftsReady, storageError, legacyDraftCount, claimingLegacy, claimLegacyDrafts } = useApp();
+    const { t, lang, region, auth, workspace, batch, balance, draftsReady, storageError, legacyDraftCount, claimingLegacy, claimLegacyDrafts } = useApp();
     const noCredits = balance?.configured === true && balance.credits <= 0;
 
     function details(item: BatchItem) {
@@ -60,7 +60,7 @@ export default function InboxScreen() {
             ) : null}
             {draftsReady ? (
                 batch.length === 0 && legacyDraftCount === 0 ? (
-                    <p className="text-sm text-muted">{t("app.inbox.empty")}</p>
+                    <p className="text-sm text-muted">{auth?.localPreview ? t("app.inbox.localPreviewEmpty") : t("app.inbox.empty")}</p>
                 ) : batch.length > 0 ? (
                     <ul className="grid gap-2">
                         {batch.map((item) => {
@@ -80,9 +80,15 @@ export default function InboxScreen() {
                     </ul>
                 ) : null
             ) : !storageError ? <p role="status" className="text-sm text-muted">{t("app.inbox.loading")}</p> : null}
-            <Link href="/app/snap" className="mt-auto rounded-full bg-maroon px-5 py-3 text-center font-semibold text-white">
-                {t("app.home.capture")}
-            </Link>
+            {auth?.localPreview ? (
+                <p role="note" className="mt-6 rounded-xl bg-card p-3 text-center text-sm text-muted">
+                    {t("app.localPreview.captureDisabled")}
+                </p>
+            ) : (
+                <Link href="/app/snap" className="mt-6 rounded-full bg-maroon px-5 py-3 text-center font-semibold text-white">
+                    {t("app.home.capture")}
+                </Link>
+            )}
         </PhoneShell>
     );
 }
