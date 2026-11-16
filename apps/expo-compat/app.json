@@ -1,0 +1,14 @@
+{
+  "expo": {
+    "name": "ZIPPP Expo Compatibility",
+    "slug": "zippp-expo-compat",
+    "scheme": "zippp-expo-compat",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "plugins": ["expo-router"],
+    "web": {
+      "bundler": "metro",
+      "output": "static"
+    }
+  }
+}
