@@ -2,7 +2,7 @@
 
 - **Date:** 2026-11-16
 - **Phase:** M3 Expo capture and encrypted Inbox. TASK-019 web slice is verified; native Mac/device proof remains pending.
-- **Status:** TASK-019 web capture, AES-GCM drafts, Inbox reload, and image preview verified. Expo TypeScript and prebuild config, 17 encrypted-storage tests, root typecheck, and build pass. Native compilation remains pending.
+- **Status:** TASK-019 web capture, AES-GCM drafts, Inbox reload, and image preview verified. Expo TypeScript, prebuild config, and dependency checks pass; 17 encrypted-storage tests, root typecheck, and build pass. Native compilation remains pending.
 - **Canonical baseline:** `v2` at `9799859786d238c3796910cbacbe01cb62d51d78` (owner confirmed).
 - **v2 sync:** TASK-015 through TASK-019 code and results are pushed at `39fa5e9e56`. Native Mac/device proof remains pending.
 - **P0.2 evidence:** `.zippp-pivot/outputs/TASK-002-BASELINE.md` — 79 tests and TypeScript check passed.

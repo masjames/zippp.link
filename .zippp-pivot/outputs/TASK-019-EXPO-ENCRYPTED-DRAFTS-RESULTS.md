@@ -18,6 +18,7 @@
 | Expo data tests | 4 passed |
 | Expo TypeScript check | Passed |
 | Expo prebuild config | Passed; SQLCipher plugin option and camera/photo permission copy resolve. This does not compile native code. |
+| Expo dependency compatibility | `npx expo install --check`: dependencies up to date. |
 | Expo static web export and `/rn` copy | Passed |
 | Root `npx tsc --noEmit` | Passed |
 | Root `npm run build` | Passed |
