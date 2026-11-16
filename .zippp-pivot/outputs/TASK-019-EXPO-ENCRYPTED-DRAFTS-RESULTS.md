@@ -17,6 +17,7 @@
 | Existing encrypted storage tests | 17 passed across `src/lib/batch-db.test.ts` and `src/lib/draft-crypto.test.ts`; covers ciphertext round-trip, owner separation, tampering, transaction behavior, and missing-key failure |
 | Expo data tests | 4 passed |
 | Expo TypeScript check | Passed |
+| Expo prebuild config | Passed; SQLCipher plugin option and camera/photo permission copy resolve. This does not compile native code. |
 | Expo static web export and `/rn` copy | Passed |
 | Root `npx tsc --noEmit` | Passed |
 | Root `npm run build` | Passed |
