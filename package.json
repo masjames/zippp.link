@@ -10,7 +10,8 @@
     "eval": "node --experimental-transform-types --loader ./scripts/ts-loader.mjs scripts/eval.ts",
     "grant": "node --env-file=.env.local scripts/grant.mjs",
     "demo:live": "node demo/record-live.mjs",
-    "android:strings": "node scripts/gen-android-strings.mjs"
+    "android:strings": "node scripts/gen-android-strings.mjs",
+    "expo:web:copy": "npm run export:web --prefix apps/expo-compat && node scripts/copy-expo-web.mjs"
   },
   "dependencies": {
     "@google/genai": "^2.23.0",

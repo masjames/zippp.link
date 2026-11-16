@@ -21,6 +21,15 @@ const nextConfig: NextConfig = {
   // Indonesian visitors land on `/id`. The `missing` cookie check keeps it to
   // one redirect: once the region cookie is set (including a visitor who picked
   // Worldwide), `/` is served as-is. Runs at Vercel's edge before middleware.
+  async rewrites() {
+    return {
+      beforeFiles: [
+        { source: "/rn", destination: "/rn/index.html" },
+        { source: "/rn/inbox", destination: "/rn/inbox.html" },
+        { source: "/rn/capture", destination: "/rn/capture.html" },
+      ],
+    };
+  },
   async redirects() {
     return [
       {

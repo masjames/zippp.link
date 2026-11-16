@@ -299,6 +299,7 @@ Sign-in did not finish. Try again.
 ## app.signin.error.id
 Masuk tidak selesai. Coba lagi.
 
+
 ## app.capture.frame.en
 Fit the whole receipt inside the corners
 ## app.capture.frame.id
@@ -343,6 +344,62 @@ Resi terdeteksi. Tahan stabil.
 Blurry. Hold steady.
 ## app.capture.holdSteady.id
 Buram. Tahan stabil.
+
+## app.expoCapture.cameraPermission.en
+ZIPPP uses the camera to capture receipt photos for local review.
+## app.expoCapture.cameraPermission.id
+ZIPPP menggunakan kamera untuk memotret resi agar dapat ditinjau secara lokal.
+## app.expoCapture.photosPermission.en
+ZIPPP uses a selected photo to add a receipt to your local inbox.
+## app.expoCapture.photosPermission.id
+ZIPPP menggunakan foto pilihan untuk menambahkan resi ke kotak masuk lokal.
+
+## app.expoCapture.cameraUnavailable.en
+Camera is unavailable or permission was denied. Choose a photo below.
+## app.expoCapture.cameraUnavailable.id
+Kamera tidak tersedia atau izin ditolak. Pilih foto di bawah.
+## app.expoCapture.fileTooLarge.en
+This photo is too large to save securely.
+## app.expoCapture.fileTooLarge.id
+Foto ini terlalu besar untuk disimpan dengan aman.
+## app.expoCapture.unsupportedType.en
+Choose a JPEG, PNG, or WebP photo.
+## app.expoCapture.unsupportedType.id
+Pilih foto JPEG, PNG, atau WebP.
+## app.expoCapture.captureFailed.en
+Could not capture this receipt. Try again or choose a photo.
+## app.expoCapture.captureFailed.id
+Resi tidak dapat diambil. Coba lagi atau pilih foto.
+
+## app.expoCapture.saving.en
+Saving securely on this device…
+## app.expoCapture.saving.id
+Menyimpan dengan aman di perangkat ini…
+
+## app.expoCapture.storageUnavailable.en
+Encrypted receipt storage could not be opened. Captures are disabled until it is available.
+## app.expoCapture.storageUnavailable.id
+Penyimpanan resi terenkripsi tidak dapat dibuka. Pemotretan dinonaktifkan sampai tersedia.
+
+## app.expoCapture.storageLoading.en
+Preparing encrypted local storage…
+## app.expoCapture.storageLoading.id
+Menyiapkan penyimpanan lokal terenkripsi…
+## app.expoCapture.empty.en
+No local captures yet.
+## app.expoCapture.empty.id
+Belum ada pemotretan lokal.
+
+## app.expoCapture.back.en
+Back to Inbox
+## app.expoCapture.back.id
+Kembali ke kotak masuk
+
+## app.expoCapture.tempCleanupFailed.en
+The temporary camera file could not be removed. Check your Inbox to confirm the saved draft.
+## app.expoCapture.tempCleanupFailed.id
+Berkas kamera sementara tidak dapat dihapus. Periksa kotak masuk untuk memastikan draf tersimpan.
+
 ## app.review.accept.en
 Accept
 ## app.review.accept.id
@@ -2694,6 +2751,37 @@ Penyimpanan browser tidak tersedia. Draf mungkin tidak tersimpan jika Anda menin
 Local dummy user. This browser stores drafts locally; Google, Sheets, billing, and server actions are disabled.
 ## app.localPreview.banner.id
 Pengguna tiruan lokal. Browser ini menyimpan draf secara lokal; Google, Sheets, penagihan, dan tindakan server dinonaktifkan.
+
+## app.expoPreview.banner.en
+Local preview. No signed-in account. Google, Sheets, billing, and server actions are disabled.
+## app.expoPreview.banner.id
+Pratinjau lokal. Tidak ada akun yang masuk. Google, Sheets, penagihan, dan tindakan server dinonaktifkan.
+## app.expoPreview.legacyInbox.en
+Your signed-in inbox is still available in the existing ZIPPP app.
+## app.expoPreview.legacyInbox.id
+Kotak masuk akun Anda masih tersedia di aplikasi ZIPPP yang sekarang.
+
+## app.expoCapture.choosePhoto.en
+Choose a photo
+## app.expoCapture.choosePhoto.id
+Pilih foto
+## app.expoCapture.saved.en
+Captured and saved locally. This receipt is not in your Sheet.
+## app.expoCapture.saved.id
+Resi diambil dan disimpan lokal. Resi ini belum ada di sheet Anda.
+## app.expoCapture.saveFailed.en
+This photo could not be saved securely. It was not added to your Inbox.
+## app.expoCapture.saveFailed.id
+Foto ini tidak dapat disimpan dengan aman. Foto belum ditambahkan ke kotak masuk.
+## app.expoCapture.capturedAt.en
+Captured
+## app.expoCapture.capturedAt.id
+Diambil
+
+## app.expoPreview.connectionError.en
+Could not check your sign-in status. Reload the page and try again.
+## app.expoPreview.connectionError.id
+Status masuk tidak dapat diperiksa. Muat ulang halaman dan coba lagi.
 ## app.localPreview.captureDisabled.en
 Capture is disabled in this UI-only preview.
 ## app.localPreview.captureDisabled.id
@@ -5026,6 +5114,10 @@ Total resi dari sheet pengeluaran pribadi yang terhubung. Pemasukan dan saldo ak
 Loading receipt totals...
 ## app.home.loading.id
 Memuat total resi...
+## app.home.noWorkspace.en
+No personal-expense sheet is connected. Connect one to see receipt totals.
+## app.home.noWorkspace.id
+Belum ada spreadsheet pengeluaran pribadi yang terhubung. Hubungkan untuk melihat total resi.
 ## app.home.unsupported.en
 Receipt totals are available for personal-expense sheets. Your current sheet is still connected.
 ## app.home.unsupported.id

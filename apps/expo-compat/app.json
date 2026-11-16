@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "ZIPPP Expo Compatibility",
+    "name": "ZIPPP",
     "slug": "zippp-expo-compat",
     "scheme": "zippp-expo-compat",
     "version": "0.1.0",
@@ -9,6 +9,9 @@
     "web": {
       "bundler": "metro",
       "output": "static"
+    },
+    "experiments": {
+      "baseUrl": "/rn"
     }
   }
 }

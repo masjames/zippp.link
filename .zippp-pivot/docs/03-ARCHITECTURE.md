@@ -1,6 +1,6 @@
 # 03 — Target Architecture and Migration Boundaries
 
-**Decision proposal:** single React Native/Expo application for native and web, existing Next.js server on Vercel as backend for authenticated Google, OCR, and projections. This is the desired architecture, **not yet an audited migration plan for the actual local checkout**.
+**Owner-approved target:** single React Native/Expo application for Android, iOS, and web. Keep the existing Next.js server as backend. Build the new client in parallel; this does not authorize production rollout or retiring current clients.
 
 ## One-system drawing
 

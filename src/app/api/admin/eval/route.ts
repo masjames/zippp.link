@@ -95,7 +95,9 @@ export async function POST(req: Request) {
     let exercise: Exercise;
     let expected: EvalCase;
     try {
-        const form = await req.formData();
+        const form = await req.formData() as unknown as {
+            get(name: string): FormDataEntryValue | null;
+        };
         const image = form.get("image");
         if (!(image instanceof File) || image.size === 0) {
             return NextResponse.json({ ok: false, error: "No image." }, { status: 400 });

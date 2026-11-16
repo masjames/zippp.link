@@ -12,13 +12,14 @@
 - Dedicated savings accounts are distinct from everyday money and hidden by default behind **Show savings**. An own-account transfer is **not spending**.
 - User's confirmed ledger is in their Google Sheet; receipts in their Google Drive where enabled; Upstash is disposable projection cache; offline local queue is encrypted.
 - Focus on one model in OMP: `openai-codex/gpt-6-luna` via the user's Codex OAuth, subject to actual availability.
+- Owner direction (2026-11-16): build the Expo/React Native client for Android, iOS, and web in parallel with the existing Next.js/Kotlin clients. Keep legacy clients and backend until feature parity. This authorizes local development, not production release, client retirement, Sheet writes/migrations, OAuth scope changes, or billing changes.
 
 ## Unresolved decisions — no guessing with permanent effects
 
 | ID | Open decision | Proposed low-risk starting point | Approval trigger |
 |---|---|---|---|
 | D-01 | New multi-account Sheet schema vs legacy single-row receipt sheet | Version schema; implement read-only legacy adapter first | Any workbook migration or new mandatory columns |
-| D-02 | React Native/Expo/Tamagui migration vs keeping current Kotlin app longer | Compatibility spike in isolated directory; no deletion of Kotlin app | Framework rollout or retiring old client |
+| D-02 | UI toolkit and client cutover | Build Expo/React Native in parallel; preserve Next.js/Kotlin and the backend until parity. Defer Tamagui and cutover decisions. | Production rollout or retiring current clients; Checkpoint E |
 | D-03 | Backing up **unapproved** receipt photos into Drive | Local encrypted inbox first; investigate explicit consent and grant scopes | Uploading draft photos before approval |
 | D-04 | Billing remains Standard/Pro monthly, prepaid, or simpler later? | Preserve all current paid-user entitlements; defer business-model replacement | Prices, paywalls, usage-unit accounting, refunds |
 | D-05 | How to show income/spending in local cycles across time zones | Store event instant + local calendar date + declared time zone; test boundaries | Changing existing historical dates |
@@ -31,7 +32,7 @@
 ## Conflicts between old artifacts and the new direction
 
 1. Old root `AGENTS.md` says **prepaid credits**, while newer `13-plans-and-usage-units.md` says **monthly Standard/Pro units**. Neither should be silently erased. Billing is a protected subsystem.
-2. Old Android design is Kotlin Compose, while proposed destination is **React Native across Android, iOS, web**. Migration must reuse verified server capabilities rather than rewrite the backend at the same time.
+2. Old Android design is Kotlin Compose; the owner has directed an Expo/React Native client for Android, iOS, and web to be built in parallel. Keep existing clients and backend until parity; no production cutover is authorized.
 3. Old Home covers today + last spend + Sheet/Space/quota cards. New Home instead prioritizes **today, this week, everyday balance, latest spending**.
 4. Old scan flow tends toward immediate review/send. New flow supports **capture-many, defer review, and approve only when ready**.
 5. Old product emphasizes Spaces and assets/goals. New product defers shared Spaces and investments; existing user data must not be deleted.

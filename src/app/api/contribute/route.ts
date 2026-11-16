@@ -23,7 +23,9 @@ export async function POST(req: Request) {
     let lang: string | null;
     let expectedUserId: string;
     try {
-        const form = await req.formData();
+        const form = await req.formData() as unknown as {
+            get(name: string): FormDataEntryValue | null;
+        };
         const file = form.get("image");
         if (!(file instanceof File) || file.size === 0) {
             return NextResponse.json({ ok: false, error: "No image." }, { status: 400 });

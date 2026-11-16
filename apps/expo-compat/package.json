@@ -4,10 +4,15 @@
   "private": true,
   "main": "expo-router/entry",
   "scripts": {
+    "prestart": "node scripts/generate-copy.mjs",
+    "preweb": "node scripts/generate-copy.mjs",
+    "preexport:web": "node scripts/generate-copy.mjs",
+    "pretypecheck": "node scripts/generate-copy.mjs",
     "start": "expo start",
     "web": "expo start --web",
     "export:web": "expo export --platform web",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "node --experimental-transform-types --loader ../../scripts/ts-loader.mjs --test tests/home-data.test.mjs"
   },
   "dependencies": {
     "@expo/metro-runtime": "~58.0.17",

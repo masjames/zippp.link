@@ -47,7 +47,9 @@ export async function POST(req: Request) {
 
     let image: File;
     try {
-        const form = await req.formData();
+        const form = await req.formData() as unknown as {
+            get(name: string): FormDataEntryValue | null;
+        };
         const file = form.get("image");
         if (!(file instanceof File) || file.size === 0) {
             const body: ExtractResponse = { ok: false, error: "No image." };
