@@ -4,7 +4,7 @@
 - **Phase:** M3 Expo capture and encrypted Inbox. TASK-019 web slice is verified; native Mac/device proof remains pending.
 - **Status:** TASK-019 web capture, AES-GCM drafts, Inbox reload, and image preview verified. Expo TypeScript, prebuild config, dependency check, and Android/iOS JS bundle exports pass; 17 encrypted-storage tests, root typecheck, and build pass. Native compilation remains pending.
 - **Canonical baseline:** `v2` at `9799859786d238c3796910cbacbe01cb62d51d78` (owner confirmed).
-- **v2 sync:** TASK-015 through TASK-019 code and results are pushed at `39fa5e9e56`. Native Mac/device proof remains pending.
+- **v2 sync:** TASK-015 through TASK-019 implementation and results are pushed to `v2`; latest verification update is `dbc5b7a152`. Native Mac/device proof remains pending.
 - **P0.2 evidence:** `.zippp-pivot/outputs/TASK-002-BASELINE.md` — 79 tests and TypeScript check passed.
 - **P0.3 decisions:** `.zippp-pivot/outputs/TASK-003-DECISION-RECORD-DRAFT.md` — planning directions accepted; protected gates remain closed.
 - **P1.1 models:** `src/lib/cashflow/model.ts`; evidence in `.zippp-pivot/outputs/TASK-004-P1-1-RESULTS.md`.
