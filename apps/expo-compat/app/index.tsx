@@ -77,29 +77,21 @@ export default function HomeScreen() {
       {state.kind === "noWorkspace" ? (
         <View style={styles.card}>
           <Text style={styles.body}>{copy("app.home.noWorkspace", language)}</Text>
-          <Pressable
-            accessibilityRole="link"
-            style={styles.openLink}
-            onPress={() => {
-              if (Platform.OS === "web") window.location.assign("/app/settings/sheet");
-            }}
-          >
-            <Text style={styles.openText}>{copy("app.home.sheetSettings", language)}</Text>
-          </Pressable>
+          <Link href="/sheet" asChild>
+            <Pressable accessibilityRole="link" style={styles.openLink}>
+              <Text style={styles.openText}>{copy("app.home.sheetSettings", language)}</Text>
+            </Pressable>
+          </Link>
         </View>
       ) : null}
       {state.kind === "unsupported" ? (
         <View style={styles.card}>
           <Text style={styles.body}>{copy("app.home.unsupported", language)}</Text>
-          <Pressable
-            accessibilityRole="link"
-            style={styles.openLink}
-            onPress={() => {
-              if (Platform.OS === "web") window.location.assign("/app/settings/sheet");
-            }}
-          >
-            <Text style={styles.openText}>{copy("app.home.sheetSettings", language)}</Text>
-          </Pressable>
+          <Link href="/sheet" asChild>
+            <Pressable accessibilityRole="link" style={styles.openLink}>
+              <Text style={styles.openText}>{copy("app.home.sheetSettings", language)}</Text>
+            </Pressable>
+          </Link>
         </View>
       ) : null}
       {state.kind === "error" ? (

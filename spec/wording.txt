@@ -641,9 +641,9 @@ Looking for your sheet…
 ## app.sheets.checking.id
 Mencari sheet Anda…
 ## app.sheets.title.en
-Choose a [zippp] sheet
+Choose a sheet
 ## app.sheets.title.id
-Pilih sheet [zippp]
+Pilih sheet
 ## app.sheets.body.en
 Pick the sheet that should get these rows.
 ## app.sheets.body.id
@@ -669,6 +669,11 @@ Kembali
 Home
 ## app.nav.home.id
 Beranda
+
+## app.nav.sheet.en
+Sheet
+## app.nav.sheet.id
+Sheet
 ## app.check.missing.en
 This scan is no longer in the queue.
 ## app.check.missing.id
@@ -1998,6 +2003,11 @@ Putuskan
 Open chat to finish linking
 ## app.wa.link.open.id
 Buka chat untuk menyelesaikan
+
+## app.wa.link.error.en
+WhatsApp linking failed. Try again.
+## app.wa.link.error.id
+Gagal menghubungkan WhatsApp. Coba lagi.
 ## app.wa.needLink.en
 Link your zippp account first: {url}
 ## app.wa.needLink.id

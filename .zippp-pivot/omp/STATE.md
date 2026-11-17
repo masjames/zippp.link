@@ -1,10 +1,10 @@
 # ZIPPP Pivot Execution State
 
 - **Date:** 2026-11-17
-- **Phase:** M4 Expo web app completion. Real Google sign-in and the Expo receipt flow are wired locally; broader screen parity and OAuth callback registration remain open. Native app builds are deferred.
-- **Status:** TASK-021 receipt flow and TASK-022 fail-closed Google identity are implemented. 9 Expo tests, 120 root tests, Expo typecheck/export, root typecheck/build, and Android/iOS JS bundle exports pass. Authenticated E2E remains blocked by the Google callback mismatch.
+- **Phase:** M4 Expo web app completion. Home, Inbox, receipt flow, Sheet setup, and Settings are implemented; Space and billing screens remain. Native builds are deferred.
+- **Status:** TASK-021/022/023 code is implemented. Current Expo tests: 9 passed; Expo typecheck/export and root typecheck/build pass. Latest full root test run: 120 passed during TASK-022. Signed-out browser checks passed for `/rn/sheet` and `/rn/settings`; authenticated E2E remains blocked by the Google callback mismatch.
 - **Canonical baseline:** `v2` at `9799859786d238c3796910cbacbe01cb62d51d78` (owner confirmed).
-- **v2 sync:** TASK-015 through TASK-022 code, task plans, and results are synced to `v2` with this update.
+- **v2 sync:** TASK-015 through TASK-023 code, task plans, and results are synced to `v2` with this update.
 - **P0.2 evidence:** `.zippp-pivot/outputs/TASK-002-BASELINE.md` — 79 tests and TypeScript check passed.
 - **P0.3 decisions:** `.zippp-pivot/outputs/TASK-003-DECISION-RECORD-DRAFT.md` — planning directions accepted; protected gates remain closed.
 - **P1.1 models:** `src/lib/cashflow/model.ts`; evidence in `.zippp-pivot/outputs/TASK-004-P1-1-RESULTS.md`.
@@ -15,7 +15,7 @@
 - **TASK-012:** per-owner AES-GCM web drafts, transactional migration, fail-closed missing-key behavior. Evidence: `.zippp-pivot/outputs/TASK-012-ENCRYPTED-WEB-DRAFTS-RESULTS.md`.
 - **TASK-013:** development-only dummy user; server auth remains false and protected API actions are blocked. Evidence: `.zippp-pivot/outputs/TASK-013-LOCAL-DUMMY-PREVIEW-RESULTS.md`.
 - **TASK-014:** dummy preview opens Home, navigates Home/Inbox, and shows truthful empty states with capture disabled. Evidence: `.zippp-pivot/outputs/TASK-014-USABLE-DUMMY-PREVIEW-RESULTS.md`.
-- **Active task:** `.zippp-pivot/omp/TASK-020-EXPO-WEB-APP-PARITY.md` — next slice: port authenticated Sheet setup and Settings to Expo Web. TASK-021/022 results are in their task files.
+- **Active task:** `.zippp-pivot/omp/TASK-020-EXPO-WEB-APP-PARITY.md` — next slice: port Space settings and TopUp/QRIS/order screens. TASK-021 through TASK-023 results are in their task files.
 - **Target:** Local Next.js backend plus Expo Web frontend at `/rn`, reachable over Tailscale. Current preview uses real auth only; no local dummy sign-in. Native build/device checks are deferred until web parity.
 - **Other limits:** No real Google account was signed in, and no Sheet, Drive, billing, Preview, or Production mutation was called. Google OAuth currently returns `redirect_uri_mismatch` for the Tailnet callback; owner registration is required for Mac login.
 - **Local preview:** `https://susi.tail6078b4.ts.net:39876/rn`; Next dev server is running with dummy auth off and Tailscale HMR origin enabled. Tailscale last reported the Mac relayed/offline; direct Mac page access is unverified.

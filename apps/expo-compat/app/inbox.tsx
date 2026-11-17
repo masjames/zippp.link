@@ -256,15 +256,11 @@ export default function InboxScreen() {
       {state.kind === "signedIn" && !workspace ? (
         <View style={styles.card}>
           <Text style={styles.body}>{copy("app.home.noWorkspace", language)}</Text>
-          <Pressable
-            accessibilityRole="link"
-            style={styles.openButton}
-            onPress={() => {
-              if (Platform.OS === "web") window.location.assign("/app/settings/sheet");
-            }}
-          >
-            <Text style={styles.openText}>{copy("app.home.sheetSettings", language)}</Text>
-          </Pressable>
+          <Link href="/sheet" asChild>
+            <Pressable accessibilityRole="link" style={styles.openButton}>
+              <Text style={styles.openText}>{copy("app.home.sheetSettings", language)}</Text>
+            </Pressable>
+          </Link>
         </View>
       ) : null}
       {state.kind === "signedIn" && drafts.length === 0 ? (

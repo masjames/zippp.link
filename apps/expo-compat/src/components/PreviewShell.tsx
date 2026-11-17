@@ -36,6 +36,16 @@ export function PreviewShell({
             <Text style={styles.navText}>{copy("app.inbox.title", language)}</Text>
           </Pressable>
         </Link>
+        <Link href="/sheet" asChild>
+          <Pressable accessibilityRole="link" style={styles.navLink}>
+            <Text style={styles.navText}>{copy("app.nav.sheet", language)}</Text>
+          </Pressable>
+        </Link>
+        <Link href="/settings" asChild>
+          <Pressable accessibilityRole="link" style={styles.navLink}>
+            <Text style={styles.navText}>{copy("app.settings.title", language)}</Text>
+          </Pressable>
+        </Link>
       </View>
       <View style={styles.body}>{children}</View>
     </ScrollView>
@@ -48,8 +58,8 @@ const styles = StyleSheet.create({
   wordmark: { color: "#f04c24", fontSize: 34, fontWeight: "800" },
   banner: { borderRadius: 14, backgroundColor: "#f04c24", padding: 16 },
   bannerText: { color: "#170b08", fontSize: 16, fontWeight: "600" },
-  navigation: { flexDirection: "row", gap: 10 },
-  navLink: { flex: 1, alignItems: "center", borderRadius: 999, backgroundColor: "#ffffff", padding: 12 },
+  navigation: { flexDirection: "row", flexWrap: "wrap", gap: 10 },
+  navLink: { flex: 1, minWidth: 100, alignItems: "center", borderRadius: 999, backgroundColor: "#ffffff", padding: 12 },
   navText: { color: "#241a18", fontSize: 15, fontWeight: "600" },
   body: { gap: 16, paddingHorizontal: 12 },
 });

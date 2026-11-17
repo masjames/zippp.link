@@ -27,6 +27,8 @@ const nextConfig: NextConfig = {
         { source: "/rn", destination: "/rn/index.html" },
         { source: "/rn/inbox", destination: "/rn/inbox.html" },
         { source: "/rn/capture", destination: "/rn/capture.html" },
+        { source: "/rn/sheet", destination: "/rn/sheet.html" },
+        { source: "/rn/settings", destination: "/rn/settings.html" },
       ],
     };
   },
