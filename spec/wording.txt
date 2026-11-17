@@ -5333,9 +5333,9 @@ DEMO ONLY
 ## demo.badge.id
 KHUSUS DEMO
 ## demo.notice.en
-Isolated demo data only. Nothing is saved or sent; receipt capture is simulated.
+No sign-in or server session. All accounts, data, and actions are simulated in memory; nothing is saved or sent.
 ## demo.notice.id
-Hanya data demo terpisah. Tidak ada yang disimpan atau dikirim; pengambilan struk hanya simulasi.
+Tidak ada proses masuk atau sesi server. Semua akun, data, dan tindakan hanya simulasi di memori; tidak ada yang disimpan atau dikirim.
 ## demo.promise.en
 See your money clearly, without the work of budgeting.
 ## demo.promise.id

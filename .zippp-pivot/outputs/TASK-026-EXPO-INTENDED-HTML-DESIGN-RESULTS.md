@@ -7,7 +7,7 @@
 - Ported the supplied `ZIPPP-Pivot-Kit/reference/ZIPPP-Prototype-v0.8.html` visual system into the React Native `/rn/demo` route: grayscale palette, 18-screen selector, handset preview, three-tab navigation, Home glance metrics/actions, and Cash flow cycle/payment sections.
 - Kept the implementation in Expo/React Native components. No WebView or prototype HTML/JavaScript was embedded.
 - Kept demo state in `src/demo-api.ts` in memory. No real API calls, browser persistence, authentication bypass, or changes to authenticated `/rn` routes.
-- Added bilingual copy keys to `spec/wording.txt` for new labels.
+- Updated the bilingual demo notice to state that no sign-in or server session exists and all accounts/data/actions are simulated in memory. Real Google authentication on `/rn` is unchanged.
 
 ## Verification
 
@@ -19,6 +19,7 @@
 - Headless browser opened `/rn/demo` at 1440×1000 without authentication. All 18 screen routes opened and the expected screen headings/actions were present. No browser errors on the final build.
 - Exercised mock expense entry, simulated receipt capture/review/approval, bill creation and payment. Home and Cash flow totals updated in memory as expected.
 - Audited requests after navigation and interactions: no `/api/*` requests.
+- Rechecked the updated English and Indonesian no-login notices in the browser; navigation still made no `/api/*` requests.
 
 ## Limits
 
