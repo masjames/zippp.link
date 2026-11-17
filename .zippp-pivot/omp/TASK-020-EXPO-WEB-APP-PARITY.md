@@ -29,7 +29,7 @@ Do not expose `/app/wa-mock`: its fixture can be appended to a real Sheet. Keep 
 
 - TASK-021 now wires Expo capture to server extraction, encrypted review persistence, Check, and explicit append. Authenticated Mac E2E remains blocked by OAuth redirect configuration.
 - Home, Capture, Inbox, Sheet setup, Settings, Space/invites, TopUp/QRIS/order, device management, and supported integrations are ported in TASK-023/TASK-024. Authenticated mutations remain unverified until OAuth works; no WA mock or admin route is exposed.
-- The local OAuth callback is set to `https://susi.tail6078b4.ts.net:39876/api/auth/callback`; Google currently returns `redirect_uri_mismatch`. Add this exact URI to the configured Google OAuth web client before a Mac browser can complete sign-in. Do not bypass Google auth.
+- The local OAuth callback is `https://susi.tail6078b4.ts.net:39876/api/auth/callback`; Google returns `redirect_uri_mismatch`. Add this exact URI to the standard OAuth web client in Google Cloud Console. The `gcloud iam oauth-clients` API is only for Workforce Identity Federation: https://docs.cloud.google.com/iam/docs/workforce-manage-oauth-app. Do not bypass Google auth.
 - Direct Mac check remains blocked: Tailscale reports `mms-macbook-pro-2` offline, last seen about one hour ago; the browser relay extension is not connected. Funnel serves a different local port (8788), not the Expo preview on 39876.
 - Native screen behavior, SQLCipher, SecureStore, camera, and Android/iOS binaries remain deferred until web parity is complete.
 
