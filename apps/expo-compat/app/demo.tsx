@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Pressable, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { Platform, Pressable, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { copy, type AppLanguage } from "../src/copy";
 import {
   addDemoAccount, addDemoBill, addDemoTransaction, approveDemoReceipt, captureDemoReceipt,
@@ -12,14 +12,15 @@ import {
 type Screen = "welcome" | "setup" | "home" | "expense" | "receipt" | "inbox" | "receiptReview" | "income" | "activity" | "transaction" | "spending" | "accounts" | "plans" | "bill" | "goal" | "coaching" | "settings" | "wellbeing";
 const screens: Screen[] = ["welcome", "setup", "home", "expense", "receipt", "inbox", "receiptReview", "income", "activity", "transaction", "spending", "accounts", "plans", "bill", "goal", "coaching", "settings", "wellbeing"];
 const titleKeys: Record<Screen, string> = { welcome: "demo.welcome", setup: "demo.setup", home: "demo.home", expense: "demo.expense", receipt: "demo.receipt", inbox: "demo.inbox", receiptReview: "demo.review", income: "demo.income", activity: "demo.activity", transaction: "demo.transaction", spending: "demo.spending", accounts: "demo.accounts", plans: "demo.cashflow", bill: "demo.payment", goal: "demo.goal", coaching: "demo.coaching", settings: "demo.settings", wellbeing: "demo.wellbeing" };
+const backTargets: Partial<Record<Screen, Screen>> = { setup: "welcome", expense: "receipt", inbox: "receipt", receiptReview: "inbox", income: "home", activity: "home", transaction: "activity", spending: "home", accounts: "home", plans: "home", bill: "plans", goal: "plans", coaching: "settings", settings: "home", wellbeing: "settings" };
 const dataCopy: Record<string, string> = { "Everyday account": "demo.everyday", "Cash wallet": "demo.wallet", "Rainy day": "demo.rainy", Groceries: "demo.groceries", Coffee: "demo.coffee", Salary: "demo.salary", Food: "demo.food", Income: "demo.incomeCategory", Bills: "demo.billsCategory", "Corner Market": "demo.cornerMarket", "Market receipt": "demo.marketReceipt", Internet: "demo.internet", "Water bill": "demo.waterBill", "Weekend trip": "demo.weekendTrip", Shopping: "demo.shopping", Lunch: "demo.lunch", "Freelance work": "demo.freelance", Today: "demo.today", Yesterday: "demo.yesterday", "Nov 24": "demo.nov24", "Dec 02": "demo.decemberSecond", Bank: "demo.bank", Cash: "demo.cash", Savings: "demo.savings", transfer: "demo.transfer", Transfer: "demo.transfer" };
 const translateData = (value: string, language: AppLanguage) => dataCopy[value] ? copy(dataCopy[value], language) : value;
-const money = (value: number, language: AppLanguage) => `Rp ${Math.round(value).toLocaleString(language === "id" ? "id-ID" : "en-US")}`;
+const money = (value: number, language: AppLanguage) => `Rp${Math.round(value).toLocaleString(language === "id" ? "id-ID" : "en-US")}`;
 const numericValue = (value: string) => Number(value.replace(/[^0-9.-]/g, ""));
 
 export default function DemoRoute() {
   const [language, setLanguage] = useState<AppLanguage>("en");
-  const [screen, setScreen] = useState<Screen>("welcome");
+  const [screen, setScreen] = useState<Screen>("home");
   const [state, setState] = useState<DemoState>(() => createDemoState());
   const [expenseTitle, setExpenseTitle] = useState("");
   const [expenseAmount, setExpenseAmount] = useState("");
@@ -68,7 +69,12 @@ export default function DemoRoute() {
   const amountTotal = expenses.reduce((sum, item) => sum + item.amount, 0);
   const todayTotal = expenses.filter((item) => item.date === "Today").reduce((sum, item) => sum + item.amount, 0);
   const weekTotal = expenses.filter((item) => item.date === "Today" || item.date === "Yesterday").reduce((sum, item) => sum + item.amount, 0);
-  const reset = () => { setState(resetDemoState()); setSelectedReceiptId(null); setSelectedTransactionId(null); setScreen("welcome"); };
+  const everydayBalance = state.accounts.filter((account) => account.kind !== "savings").reduce((sum, account) => sum + account.balance, 0);
+  const incomeTotal = state.transactions.filter((item) => item.kind === "income").reduce((sum, item) => sum + item.amount, 0);
+  const pendingReceiptCount = state.receipts.filter((receipt) => receipt.status === "pending").length;
+  const recentExpenses = state.transactions.filter((item) => item.kind === "expense").slice(0, 4);
+  const wideLayout = Platform.OS === "web";
+  const reset = () => { setState(resetDemoState()); setSelectedReceiptId(null); setSelectedTransactionId(null); setScreen("home"); };
   const selectReceipt = (id: string) => {
     const receipt = state.receipts.find((item) => item.id === id);
     if (!receipt) return;
@@ -91,7 +97,48 @@ export default function DemoRoute() {
   switch (screen) {
     case "welcome": content = <><Text style={styles.hero}>{t("demo.promise")}</Text><Text style={styles.body}>{t("demo.welcomeBody")}</Text>{button(t("demo.start"), () => go("setup"))}{button(t("demo.openHome"), () => go("home"), true)}</>; break;
     case "setup": content = <><Text style={styles.body}>{t("demo.setupBody")}</Text>{field(t("demo.accountName"), accountName, setAccountName)}{field(t("demo.openingBalance"), accountBalance, setAccountBalance, "numeric")}{<Text style={styles.fieldLabel}>{t("demo.accountType")}</Text>}<View style={styles.choices}>{(["bank", "cash", "savings"] as const).map((kind) => choice(t(`demo.${kind}`), accountKind === kind, () => setAccountKind(kind)))}</View>{button(t("demo.addAccount"), () => { if (!accountName.trim() || numericValue(accountBalance) < 0) return; setState((s) => addDemoAccount(s, { name: accountName, kind: accountKind, balance: numericValue(accountBalance) })); setAccountName(""); setAccountBalance(""); go("home"); })}{button(t("demo.finishSetup"), () => go("home"), true)}</>; break;
-    case "home": content = <><Text style={styles.eyebrow}>{t("demo.todaySpend")}</Text><Text style={styles.amount}>{money(todayTotal, language)}</Text><View style={styles.split}>{row(t("demo.weekSpend"), money(weekTotal, language))}{row(t("demo.balance"), money(state.accounts.filter((account) => account.kind !== "savings").reduce((sum, account) => sum + account.balance, 0), language))}</View>{button(t("demo.addExpense"), () => go("expense"))}{button(t("demo.recordIncome"), () => go("income"), true)}{button(t("demo.latestActivity"), () => go("activity"), true)}{button(t("demo.spending"), () => go("spending"), true)}{button(t("demo.accounts"), () => go("accounts"), true)}</>; break;
+    case "home": content = <>
+      <View style={styles.homeGlance}>
+        <Pressable accessibilityRole="button" onPress={() => { setSpendingPeriod("today"); go("spending"); }} style={styles.homeToday}>
+          <Text style={styles.homeMetricLabel}>{t("demo.todaySpend")}</Text>
+          <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75} style={styles.homeTodayAmount}>{money(todayTotal, language)}</Text>
+        </Pressable>
+        <View style={styles.homeGlanceSide}>
+          <Pressable accessibilityRole="button" onPress={() => { setSpendingPeriod("week"); go("spending"); }} style={styles.homeMini}>
+            <Text style={styles.homeMetricLabel}>{t("demo.weekSpend")}</Text>
+            <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75} style={styles.homeMiniNumber}>{money(weekTotal, language)}</Text>
+          </Pressable>
+          <Pressable accessibilityRole="button" onPress={() => go("accounts")} style={[styles.homeMini, styles.homeMiniDivider]}>
+            <Text style={styles.homeMetricLabel}>{t("demo.balance")}</Text>
+            <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75} style={styles.homeMiniNumber}>{money(everydayBalance, language)}</Text>
+          </Pressable>
+        </View>
+      </View>
+      <View style={styles.homeActions}>
+        <Pressable accessibilityRole="button" onPress={() => go("income")} style={styles.homeRecord}>
+          <Text style={styles.homeRecordText}>{t("demo.recordIncome")}</Text>
+        </Pressable>
+        <Pressable accessibilityRole="button" onPress={() => go("expense")} style={styles.homeRecord}>
+          <Text style={styles.homeRecordText}>{t("demo.addExpense")}</Text>
+        </Pressable>
+      </View>
+      {pendingReceiptCount > 0 ? (
+        <Pressable accessibilityRole="button" onPress={() => go("inbox")} style={styles.inboxNotice}>
+          <View>
+            <Text style={styles.rowTitle}>{t("demo.inbox")}</Text>
+            <Text style={styles.muted}>{pendingReceiptCount} · {t("demo.pending")}</Text>
+          </View>
+          <Text style={styles.chevron}>›</Text>
+        </Pressable>
+      ) : null}
+      <View style={styles.sectionHeader}>
+        <Text style={styles.sectionTitle}>{t("demo.latestSpending")}</Text>
+        <Pressable accessibilityRole="button" onPress={() => go("activity")}><Text style={styles.sectionAction}>{t("demo.viewAll")}</Text></Pressable>
+      </View>
+      {recentExpenses.length > 0
+        ? recentExpenses.map((tx) => row(translateData(tx.title, language), `${translateData(tx.date, language)} · ${money(tx.amount, language)}`, () => selectTransaction(tx.id)))
+        : <Text style={styles.body}>{t("demo.noTransaction")}</Text>}
+    </>; break;
     case "expense": content = <>{field(t("demo.description"), expenseTitle, setExpenseTitle)}{field(t("demo.amount"), expenseAmount, setExpenseAmount, "numeric")}<Text style={styles.fieldLabel}>{t("demo.account")}</Text><View style={styles.choices}>{accountChoices}</View>{button(t("demo.saveExpense"), () => { if (!expenseTitle.trim() || !Number.isFinite(numericValue(expenseAmount)) || numericValue(expenseAmount) <= 0) return; setState((s) => addDemoTransaction(s, { title: expenseTitle, category: "Food", amount: numericValue(expenseAmount), kind: "expense", accountId })); setExpenseTitle(""); setExpenseAmount(""); go("home"); })}</>; break;
     case "receipt": content = <><Text style={styles.body}>{t("demo.captureBody")}</Text><View style={styles.receiptMock}><Text style={styles.receiptText}>{t("demo.paperReceipt")}</Text><Text style={styles.receiptTotal}>{money(72500, language)}</Text></View>{field(t("demo.merchant"), receiptCaptureTitle, setReceiptCaptureTitle)}{field(t("demo.amount"), receiptCaptureAmount, setReceiptCaptureAmount, "numeric")}{button(t("demo.simulateCapture"), () => { const id = `receipt-${state.receipts.length + 1}`; const title = receiptCaptureTitle || t("demo.marketReceipt"); const amount = numericValue(receiptCaptureAmount) || 72500; setState((s) => captureDemoReceipt(s, { title, amount, date: t("demo.today"), accountId })); setSelectedReceiptId(id); setReceiptTitle(title); setReceiptAmount(String(amount)); setReceiptDate(t("demo.today")); setReceiptAccountId(accountId); setReceiptCaptureTitle(""); setReceiptCaptureAmount(""); go("receiptReview"); })}{button(t("demo.manualExpense"), () => go("expense"), true)}</>; break;
     case "inbox": content = <>{state.receipts.filter((receipt) => receipt.status === "pending").map((receipt) => row(translateData(receipt.title, language), `${money(receipt.amount, language)} · ${t("demo.pending")}`, () => selectReceipt(receipt.id)))}{state.receipts.filter((receipt) => receipt.status === "pending").length === 0 ? <Text style={styles.body}>{t("demo.allReviewed")}</Text> : null}{button(t("demo.captureAnother"), () => go("receipt"), true)}</>; break;
@@ -107,7 +154,39 @@ export default function DemoRoute() {
       const accountsToShow = showSavings ? state.accounts : state.accounts.filter((account) => account.kind !== "savings");
       content = <>{accountsToShow.map((account) => row(translateData(account.name, language), money(account.balance, language)))}{button(showSavings ? t("demo.hideSavings") : t("demo.showSavings"), () => setShowSavings((value) => !value), true)}<Text style={styles.sectionTitle}>{t("demo.addAccount")}</Text>{field(t("demo.accountName"), accountName, setAccountName)}{field(t("demo.openingBalance"), accountBalance, setAccountBalance, "numeric")}<View style={styles.choices}>{(["bank", "cash", "savings"] as const).map((kind) => choice(t(`demo.${kind}`), accountKind === kind, () => setAccountKind(kind)))}</View>{button(t("demo.addAccount"), () => { setState((s) => addDemoAccount(s, { name: accountName, kind: accountKind, balance: numericValue(accountBalance) })); setAccountName(""); setAccountBalance(""); })}<Text style={styles.sectionTitle}>{t("demo.transfer")}</Text><Text style={styles.fieldLabel}>{t("demo.transferFrom")}</Text><View style={styles.choices}>{state.accounts.map((account) => choice(translateData(account.name, language), transferFrom === account.id, () => setTransferFrom(account.id)))}</View><Text style={styles.fieldLabel}>{t("demo.transferTo")}</Text><View style={styles.choices}>{state.accounts.map((account) => choice(translateData(account.name, language), transferTo === account.id, () => setTransferTo(account.id)))}</View>{field(t("demo.amount"), transferAmount, setTransferAmount, "numeric")}{button(t("demo.transfer"), () => { setState((s) => transferDemoMoney(s, transferFrom, transferTo, numericValue(transferAmount))); setTransferAmount(""); })}</>; break;
     }
-    case "plans": content = <>{field(t("demo.cycleStart"), cycleInput, setCycleInput, "numeric")}{button(t("demo.saveCycle"), () => setState((s) => setDemoCycleDay(s, numericValue(cycleInput))))}{row(t("demo.moneyIn"), money(state.transactions.filter((tx) => tx.kind === "income").reduce((sum, tx) => sum + tx.amount, 0), language))}{row(t("demo.moneyOut"), money(amountTotal, language))}{state.bills.map((bill) => <View key={bill.id} style={styles.listRow}><Text style={styles.rowTitle}>{translateData(bill.title, language)} · {money(bill.amount, language)}{bill.paid ? ` · ${t("demo.paid")}` : ""}</Text>{!bill.paid ? button(t("demo.markPaid"), () => setState((s) => payDemoBill(s, bill.id, accountId)), true) : null}</View>)}{button(t("demo.addPayment"), () => go("bill"))}{button(t("demo.goal"), () => go("goal"), true)}</>; break;
+    case "plans": content = <>
+      <View style={styles.cycleCard}>
+        <Text style={styles.eyebrow}>{t("demo.cashflow")}</Text>
+        <Text style={styles.cycleValue}>{t("demo.cycleStart")} {state.settings.cycleDay}</Text>
+        {field(t("demo.cycleStart"), cycleInput, setCycleInput, "numeric")}
+        {button(t("demo.saveCycle"), () => setState((s) => setDemoCycleDay(s, numericValue(cycleInput))), true)}
+      </View>
+      <View style={styles.cashMetrics}>
+        <View style={styles.cashMetric}><Text style={styles.cashMetricLabel}>{t("demo.moneyIn")}</Text><Text style={styles.cashMetricValue}>{money(incomeTotal, language)}</Text></View>
+        <View style={styles.cashMetric}><Text style={styles.cashMetricLabel}>{t("demo.moneyOut")}</Text><Text style={styles.cashMetricValue}>{money(amountTotal, language)}</Text></View>
+      </View>
+      <View style={styles.sectionHeader}>
+        <Text style={styles.sectionTitle}>{t("demo.upcoming")}</Text>
+        <Pressable accessibilityRole="button" onPress={() => go("bill")} style={styles.sectionButton}><Text style={styles.sectionButtonText}>{t("demo.addPayment")}</Text></Pressable>
+      </View>
+      {state.bills.filter((bill) => !bill.paid).map((bill) => (
+        <View key={bill.id} style={styles.paymentRow}>
+          <View style={styles.paymentInfo}>
+            <Text style={styles.rowTitle}>{translateData(bill.title, language)}</Text>
+            <Text style={styles.muted}>{translateData(bill.date, language)}{bill.recurring ? ` · ${t("demo.recurring")}` : ""}</Text>
+          </View>
+          <Text style={styles.paymentAmount}>{money(bill.amount, language)}</Text>
+          <Pressable accessibilityRole="button" onPress={() => setState((s) => payDemoBill(s, bill.id, accountId))} style={styles.markPaid}>
+            <Text style={styles.markPaidText}>{t("demo.markPaid")}</Text>
+          </Pressable>
+        </View>
+      ))}
+      <View style={styles.savingsNudge}>
+        <Text style={styles.sectionTitle}>{t("demo.putSomethingAside")}</Text>
+        <Text style={styles.body}>{t("demo.transferExplainer")}</Text>
+        {button(t("demo.goal"), () => go("goal"), true)}
+      </View>
+    </>; break;
     case "bill": content = <>{field(t("demo.paymentName"), billTitle, setBillTitle)}{field(t("demo.amount"), billAmount, setBillAmount, "numeric")}{field(t("demo.paymentDate"), billDate, setBillDate)}{choice(t("demo.recurring"), billRecurring, () => setBillRecurring((value) => !value))}{choice(t("demo.reminder"), billReminder, () => setBillReminder((value) => !value))}{button(t("demo.savePayment"), () => { setState((s) => addDemoBill(s, { title: billTitle, amount: numericValue(billAmount), date: billDate, recurring: billRecurring, reminder: billReminder })); setBillTitle(""); setBillAmount(""); go("plans"); })}</>; break;
     case "goal": content = <>{row(t("demo.goal"), translateData(state.goal.name, language))}{field(t("demo.goalName"), goalName, setGoalName)}{field(t("demo.target"), goalTarget, setGoalTarget, "numeric")}{row(t("demo.saved"), money(state.goal.saved, language))}{row(t("demo.target"), money(state.goal.target, language))}{row(t("demo.transferNote"), t("demo.transferExplainer"))}{button(t("demo.saveGoal"), () => { setState((s) => updateDemoGoal(s, { name: goalName || s.goal.name, target: numericValue(goalTarget) || s.goal.target })); setGoalName(""); setGoalTarget(""); })}{field(t("demo.contribution"), goalContribution, setGoalContribution, "numeric")}{button(t("demo.moveMoney"), () => { setState((s) => contributeToDemoGoal(s, numericValue(goalContribution))); setGoalContribution(""); })}{button(t("demo.viewAccounts"), () => go("accounts"), true)}</>; break;
     case "coaching": content = <>{row(t("demo.optionalTip"), t("demo.coachingPrompt"))}{button(t("demo.helpful"), () => { setState((s) => saveDemoCoachingChoice(s, "helpful")); setCoachingResponse("helpful"); })}{button(t("demo.skip"), () => { setState((s) => saveDemoCoachingChoice(s, "skip")); setCoachingResponse("skip"); }, true)}{coachingResponse ? row(t("demo.choiceSaved"), t("demo.recordedInMemory")) : null}</>; break;
@@ -115,8 +194,22 @@ export default function DemoRoute() {
     case "wellbeing": content = <>{row(t("demo.checkinPrompt"), t("demo.checkinQuestion"))}{button(t("demo.answerSteady"), () => setState((s) => saveDemoCheckIn(s, "steady")))}{button(t("demo.answerConcern"), () => setState((s) => saveDemoCheckIn(s, "concern")), true)}{state.checkIns.length > 0 ? row(t("demo.savedReflection"), t("demo.recordedInMemory")) : null}{button(t("demo.done"), () => go("home"), true)}</>; break;
   }
   const nav: Screen[] = ["home", "receipt", "plans"];
+  const activeTab: Screen = ["receipt", "expense", "inbox", "receiptReview"].includes(screen) ? "receipt" : ["plans", "bill", "goal", "coaching"].includes(screen) ? "plans" : "home";
+  const showBottomNav = !["welcome", "setup", "receiptReview"].includes(screen);
+  const screenNav = (item: Screen, index: number) => (
+    <Pressable
+      key={item}
+      accessibilityRole="button"
+      accessibilityState={{ selected: screen === item }}
+      onPress={() => go(item)}
+      style={[styles.route, !wideLayout && styles.routeCompact, screen === item && styles.routeSelected]}
+    >
+      <Text style={styles.routeNumber}>{String(index + 1).padStart(2, "0")}</Text>
+      <Text style={[styles.routeText, screen === item && styles.routeSelectedText]}>{t(titleKeys[item])}</Text>
+    </Pressable>
+  );
   return (
-    <SafeAreaView style={styles.page}>
+    <SafeAreaView style={[styles.page, wideLayout && styles.pageWide]}>
       <View style={styles.header}>
         <Text style={styles.brand}>{t("demo.brand")}</Text>
         <Text style={styles.demoTag}>{t("demo.badge")}</Text>
@@ -124,79 +217,155 @@ export default function DemoRoute() {
       <View accessibilityLiveRegion="polite" style={styles.notice}>
         <Text style={styles.noticeText}>{t("demo.notice")}</Text>
       </View>
-      <ScrollView horizontal style={styles.screenNavScroll} showsHorizontalScrollIndicator={false} contentContainerStyle={styles.screenNav}>
-        {screens.map((item) => (
-          <Pressable
-            key={item}
-            accessibilityRole="button"
-            accessibilityState={{ selected: screen === item }}
-            onPress={() => go(item)}
-            style={[styles.navChip, screen === item && styles.navSelected]}
+      <View style={[styles.workbench, wideLayout && styles.workbenchWide]}>
+        <View style={[styles.sidebar, !wideLayout && styles.sidebarMobile]}>
+          <Text style={styles.sidebarTitle}>{t("demo.screenCount")}</Text>
+          <ScrollView
+            horizontal={!wideLayout}
+            style={[styles.routeList, !wideLayout && styles.routeListMobile]}
+            contentContainerStyle={!wideLayout ? styles.routeListContentMobile : undefined}
+            showsHorizontalScrollIndicator={false}
+            showsVerticalScrollIndicator={false}
           >
-            <Text style={[styles.navText, screen === item && styles.navSelectedText]}>{t(titleKeys[item])}</Text>
-          </Pressable>
-        ))}
-      </ScrollView>
-      <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
-        <Text style={styles.eyebrow}>{t("demo.screenCount")}</Text>
-        <Text accessibilityRole="header" style={styles.title}>{t(titleKeys[screen])}</Text>
-        <View style={styles.card}>{content}</View>
-      </ScrollView>
-      <View style={styles.bottomNav}>
-        {nav.map((item) => (
-          <Pressable key={item} accessibilityRole="button" onPress={() => go(item)} style={styles.bottomItem}>
-            <Text style={[styles.bottomText, screen === item && styles.bottomActive]}>{t(titleKeys[item])}</Text>
-          </Pressable>
-        ))}
+            {screens.map((item, index) => screenNav(item, index))}
+          </ScrollView>
+        </View>
+        <View style={[styles.previewColumn, wideLayout && styles.previewColumnWide]}>
+          <View style={[styles.phone, !wideLayout && styles.phoneMobile]}>
+            <View style={styles.appShell}>
+              {screen === "welcome" ? null : (
+                <View style={styles.appHeader}>
+                  {screen === "home" ? (
+                    <Text style={styles.appBrand}>{t("demo.brand")}</Text>
+                  ) : (
+                    <View style={styles.backRow}>
+                      <Pressable accessibilityRole="button" accessibilityLabel={t(titleKeys[backTargets[screen] ?? "home"])} onPress={() => go(backTargets[screen] ?? "home")} style={styles.backButton}>
+                        <Text style={styles.backText}>‹</Text>
+                      </Pressable>
+                      <Text accessibilityRole="header" style={styles.appTitle}>{t(titleKeys[screen])}</Text>
+                    </View>
+                  )}
+                  {screen !== "settings" ? (
+                    <Pressable accessibilityRole="button" accessibilityLabel={t("demo.settings")} onPress={() => go("settings")} style={styles.headerAction}>
+                      <Text style={styles.headerActionText}>···</Text>
+                    </Pressable>
+                  ) : null}
+                </View>
+              )}
+              <ScrollView style={styles.scroll} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+                {content}
+              </ScrollView>
+              {showBottomNav ? (
+                <View style={styles.bottomNav}>
+                  {nav.map((item) => (
+                    <Pressable key={item} accessibilityRole="button" onPress={() => go(item)} style={styles.bottomItem}>
+                      <Text style={[styles.bottomIcon, item === "receipt" && styles.captureIcon]}>{item === "home" ? "⌂" : item === "receipt" ? "⊕" : "▦"}</Text>
+                      <Text style={[styles.bottomText, activeTab === item && styles.bottomActive]}>{item === "receipt" ? t("demo.captureTab") : t(titleKeys[item])}</Text>
+                    </Pressable>
+                  ))}
+                </View>
+              ) : null}
+            </View>
+          </View>
+        </View>
       </View>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  page: { flex: 1, backgroundColor: "#f3f3f3", maxWidth: 620, width: "100%", alignSelf: "center" },
-  header: { paddingHorizontal: 20, paddingTop: 14, paddingBottom: 10, flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
-  brand: { fontSize: 25, fontWeight: "800", color: "#171717", letterSpacing: -1 },
-  demoTag: { fontSize: 11, fontWeight: "700", color: "#444", borderWidth: 1, borderColor: "#aaa", borderRadius: 99, paddingHorizontal: 9, paddingVertical: 5 },
-  notice: { backgroundColor: "#e5e5e5", marginHorizontal: 16, padding: 10, borderRadius: 9 },
-  noticeText: { color: "#333", fontSize: 12, lineHeight: 17, textAlign: "center" },
-  screenNavScroll: { flexGrow: 0, flexShrink: 0, height: 48 },
-  screenNav: { flexDirection: "row", alignItems: "center", paddingHorizontal: 16, gap: 7 },
-  navChip: { flexShrink: 0, backgroundColor: "#fff", borderWidth: 1, borderColor: "#ddd", paddingHorizontal: 11, paddingVertical: 8, borderRadius: 99 },
-  navSelected: { backgroundColor: "#222", borderColor: "#222" },
-  navText: { color: "#333", fontSize: 12 },
-  navSelectedText: { color: "#fff", fontWeight: "700" },
-  scroll: { flex: 1 },
-  content: { padding: 20, paddingTop: 8, gap: 13 },
-  eyebrow: { textTransform: "uppercase", letterSpacing: 1.5, fontSize: 10, color: "#777", fontWeight: "700" },
-  title: { fontSize: 29, fontWeight: "700", color: "#171717", letterSpacing: -0.8, marginBottom: 5 },
-  card: { backgroundColor: "#fff", borderRadius: 16, padding: 17, gap: 12, borderWidth: 1, borderColor: "#e8e8e8" },
-  hero: { fontSize: 27, fontWeight: "700", lineHeight: 34, color: "#171717" },
-  body: { fontSize: 15, color: "#555", lineHeight: 22 },
-  amount: { fontSize: 34, color: "#161616", fontWeight: "700" },
-  split: { flexDirection: "row", gap: 10 },
-  row: { flex: 1, gap: 5, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: "#eee" },
-  rowTitle: { color: "#222", fontSize: 15, fontWeight: "600" },
-  muted: { color: "#777", fontSize: 13 },
-  button: { backgroundColor: "#222", borderRadius: 11, padding: 14, alignItems: "center" },
-  secondary: { backgroundColor: "#f4f4f4", borderWidth: 1, borderColor: "#ddd" },
-  buttonText: { color: "#fff", fontWeight: "700", fontSize: 14 },
-  secondaryText: { color: "#222" },
-  receiptMock: { minHeight: 130, backgroundColor: "#f4f4f4", borderStyle: "dashed", borderWidth: 1, borderColor: "#aaa", borderRadius: 8, alignItems: "center", justifyContent: "center", gap: 8 },
-  receiptText: { color: "#555", fontSize: 13 },
-  receiptTotal: { color: "#111", fontSize: 22, fontWeight: "700" },
-  bottomNav: { borderTopWidth: 1, borderTopColor: "#ddd", paddingVertical: 10, paddingHorizontal: 8, flexDirection: "row", justifyContent: "space-around", backgroundColor: "#fff" },
-  bottomItem: { padding: 6 },
-  bottomText: { color: "#777", fontSize: 10 },
-  bottomActive: { color: "#111", fontWeight: "700" },
-  field: { gap: 5 },
-  fieldLabel: { color: "#555", fontSize: 12, fontWeight: "600" },
-  input: { borderColor: "#ccc", borderWidth: 1, borderRadius: 9, color: "#222", padding: 11, backgroundColor: "#fff", fontSize: 15 },
+  page: { flex: 1, backgroundColor: "#fff", width: "100%" },
+  pageWide: { maxWidth: 1130, alignSelf: "center", paddingHorizontal: 22, paddingVertical: 20 },
+  header: { minHeight: 48, paddingHorizontal: 16, flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
+  brand: { fontSize: 22, lineHeight: 28, fontWeight: "800", color: "#171717", letterSpacing: -1 },
+  demoTag: { fontSize: 10, fontWeight: "700", color: "#515151", borderWidth: 1, borderColor: "#dedede", borderRadius: 7, paddingHorizontal: 8, paddingVertical: 5 },
+  notice: { backgroundColor: "#fafafa", borderWidth: 1, borderColor: "#e5e5e5", borderRadius: 9, marginHorizontal: 14, marginBottom: 8, paddingHorizontal: 12, paddingVertical: 9 },
+  noticeText: { color: "#555", fontSize: 11, lineHeight: 16, textAlign: "center" },
+  workbench: { flex: 1, minHeight: 0 },
+  workbenchWide: { flexDirection: "row", gap: 28 },
+  sidebar: { width: 235, borderWidth: 1, borderColor: "#e5e5e5", borderRadius: 12, padding: 14 },
+  sidebarMobile: { width: "100%", borderWidth: 0, borderRadius: 0, paddingHorizontal: 0, paddingVertical: 4 },
+  sidebarTitle: { color: "#171717", fontSize: 14, lineHeight: 20, fontWeight: "600", marginBottom: 9 },
+  routeList: { flex: 1 },
+  routeListMobile: { flexGrow: 0, flexShrink: 0, height: 46 },
+  routeListContentMobile: { flexDirection: "row", alignItems: "center", paddingHorizontal: 14, gap: 7 },
+  route: { width: "100%", minHeight: 34, borderRadius: 7, paddingHorizontal: 9, paddingVertical: 7, flexDirection: "row", alignItems: "flex-start", gap: 10 },
+  routeCompact: { width: "auto", maxWidth: 160, minHeight: 34, flexShrink: 0, borderWidth: 1, borderColor: "#ddd", backgroundColor: "#fff", borderRadius: 7 },
+  routeSelected: { backgroundColor: "#f1f1f1" },
+  routeNumber: { color: "#929292", fontSize: 11, lineHeight: 16, fontVariant: ["tabular-nums"] },
+  routeText: { flex: 1, color: "#333", fontSize: 11, lineHeight: 16 },
+  routeSelectedText: { color: "#171717", fontWeight: "600" },
+  previewColumn: { flex: 1, minWidth: 0, minHeight: 0 },
+  previewColumnWide: { alignItems: "center", justifyContent: "center" },
+  phone: { width: 400, height: "100%", maxWidth: "100%", maxHeight: 715, borderWidth: 1, borderColor: "#dcdcdc", borderRadius: 17, backgroundColor: "#fff", overflow: "hidden" },
+  phoneMobile: { width: "100%", maxWidth: "100%", borderWidth: 0, borderRadius: 0 },
+  appShell: { flex: 1, minHeight: 0, backgroundColor: "#fff" },
+  appHeader: { minHeight: 58, paddingHorizontal: 16, paddingTop: 10, paddingBottom: 8, flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 10 },
+  appBrand: { color: "#171717", fontSize: 22, lineHeight: 29, fontWeight: "800", letterSpacing: -1 },
+  backRow: { flexDirection: "row", alignItems: "center", gap: 10, minWidth: 0 },
+  backButton: { width: 30, height: 34, alignItems: "center", justifyContent: "center" },
+  backText: { color: "#171717", fontSize: 26, lineHeight: 28 },
+  appTitle: { color: "#171717", fontSize: 15, lineHeight: 21, fontWeight: "600" },
+  headerAction: { minWidth: 34, minHeight: 32, alignItems: "center", justifyContent: "center", borderWidth: 1, borderColor: "#dedede", borderRadius: 7 },
+  headerActionText: { color: "#515151", fontSize: 16, lineHeight: 20 },
+  scroll: { flex: 1, minHeight: 0 },
+  content: { flexGrow: 1, paddingHorizontal: 16, paddingTop: 5, paddingBottom: 22, gap: 12 },
+  eyebrow: { color: "#6f6f6f", fontSize: 11, lineHeight: 16, letterSpacing: 0.8, textTransform: "uppercase", fontWeight: "600" },
+  hero: { color: "#171717", fontSize: 27, lineHeight: 34, fontWeight: "700" },
+  body: { color: "#555", fontSize: 13, lineHeight: 20 },
+  homeGlance: { flexDirection: "row", alignItems: "stretch", gap: 9, marginTop: 8, marginBottom: 12 },
+  homeToday: { flex: 1.09, minWidth: 0, minHeight: 166, borderRadius: 16, backgroundColor: "#f3f3f3", padding: 14, justifyContent: "space-between" },
+  homeMetricLabel: { color: "#171717", fontSize: 13, lineHeight: 17, fontWeight: "600" },
+  homeTodayAmount: { color: "#171717", fontSize: 27, lineHeight: 30, fontWeight: "700", letterSpacing: -1.2 },
+  homeGlanceSide: { flex: 1, minWidth: 0, borderWidth: 1, borderColor: "#ececec", borderRadius: 16, overflow: "hidden", backgroundColor: "#fff" },
+  homeMini: { flex: 1, minHeight: 82, justifyContent: "space-between", padding: 12 },
+  homeMiniDivider: { borderTopWidth: 1, borderTopColor: "#e9e9e9" },
+  homeMiniNumber: { color: "#171717", fontSize: 19, lineHeight: 24, fontWeight: "700", letterSpacing: -0.6 },
+  homeActions: { flexDirection: "row", gap: 9, marginBottom: 18 },
+  homeRecord: { flex: 1, minWidth: 0, minHeight: 45, justifyContent: "center", alignItems: "center", borderWidth: 1, borderColor: "#dedede", borderRadius: 11, backgroundColor: "#fff", paddingHorizontal: 8 },
+  homeRecordText: { color: "#171717", fontSize: 12, lineHeight: 16, fontWeight: "600", textAlign: "center" },
+  inboxNotice: { width: "100%", minHeight: 58, marginBottom: 14, paddingHorizontal: 12, paddingVertical: 10, borderWidth: 1, borderColor: "#e5e5e5", borderRadius: 9, backgroundColor: "#fafafa", flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+  chevron: { color: "#6f6f6f", fontSize: 21, lineHeight: 25 },
+  sectionHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", gap: 10, marginTop: 6 },
+  sectionTitle: { color: "#171717", fontSize: 14, lineHeight: 20, fontWeight: "700" },
+  sectionAction: { color: "#666", fontSize: 12, lineHeight: 18 },
+  sectionButton: { minHeight: 32, borderWidth: 1, borderColor: "#ddd", borderRadius: 8, backgroundColor: "#fff", justifyContent: "center", paddingHorizontal: 9 },
+  sectionButtonText: { color: "#171717", fontSize: 11, lineHeight: 16, fontWeight: "600" },
+  row: { width: "100%", minHeight: 50, borderBottomWidth: 1, borderBottomColor: "#e5e5e5", paddingVertical: 11, flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 10 },
+  rowTitle: { flex: 1, color: "#222", fontSize: 13, lineHeight: 18, fontWeight: "600" },
+  muted: { maxWidth: "58%", color: "#6f6f6f", fontSize: 11, lineHeight: 16, textAlign: "right" },
+  button: { minHeight: 43, borderWidth: 1, borderColor: "#1d1d1d", borderRadius: 7, backgroundColor: "#1d1d1d", paddingHorizontal: 12, paddingVertical: 10, alignItems: "center", justifyContent: "center" },
+  secondary: { borderColor: "#dedede", backgroundColor: "#fff" },
+  buttonText: { color: "#fff", fontWeight: "600", fontSize: 13, lineHeight: 18, textAlign: "center" },
+  secondaryText: { color: "#171717" },
+  receiptMock: { minHeight: 250, borderRadius: 12, backgroundColor: "#202020", alignItems: "center", justifyContent: "center", gap: 10, padding: 16 },
+  receiptText: { color: "#fff", fontSize: 13, lineHeight: 19 },
+  receiptTotal: { color: "#fff", fontSize: 22, lineHeight: 28, fontWeight: "700" },
+  bottomNav: { height: 61, borderTopWidth: 1, borderTopColor: "#e5e5e5", paddingHorizontal: 10, paddingTop: 5, paddingBottom: 7, flexDirection: "row", justifyContent: "space-around", backgroundColor: "#fff" },
+  bottomItem: { flex: 1, alignItems: "center", justifyContent: "center", gap: 2 },
+  bottomIcon: { width: 34, height: 29, textAlign: "center", textAlignVertical: "center", color: "#6f6f6f", fontSize: 20, lineHeight: 25 },
+  captureIcon: { borderRadius: 10, overflow: "hidden", backgroundColor: "#242424", color: "#fff" },
+  bottomText: { color: "#6f6f6f", fontSize: 10, lineHeight: 13, textAlign: "center" },
+  bottomActive: { color: "#171717", fontWeight: "600" },
+  field: { width: "100%", gap: 5, marginBottom: 1 },
+  fieldLabel: { color: "#555", fontSize: 12, lineHeight: 17, fontWeight: "600" },
+  input: { minHeight: 42, borderColor: "#d9d9d9", borderWidth: 1, borderRadius: 7, color: "#222", paddingHorizontal: 11, paddingVertical: 9, backgroundColor: "#fff", fontSize: 15 },
   choices: { flexDirection: "row", flexWrap: "wrap", gap: 7 },
-  choice: { borderWidth: 1, borderColor: "#ddd", backgroundColor: "#fafafa", borderRadius: 9, paddingHorizontal: 10, paddingVertical: 9 },
-  choiceSelected: { borderColor: "#222", backgroundColor: "#222" },
-  choiceText: { color: "#333", fontSize: 12 },
-  choiceTextSelected: { color: "#fff", fontSize: 12 },
-  sectionTitle: { color: "#222", fontWeight: "700", fontSize: 15, paddingTop: 8 },
-  listRow: { gap: 6, paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: "#eee" },
+  choice: { borderWidth: 1, borderColor: "#ddd", backgroundColor: "#fff", borderRadius: 7, paddingHorizontal: 10, paddingVertical: 8 },
+  choiceSelected: { borderColor: "#aaa", backgroundColor: "#f1f1f1" },
+  choiceText: { color: "#333", fontSize: 12, lineHeight: 16 },
+  choiceTextSelected: { color: "#171717", fontSize: 12, lineHeight: 16, fontWeight: "600" },
+  cycleCard: { borderWidth: 1, borderColor: "#e5e5e5", borderRadius: 12, padding: 13, gap: 10 },
+  cycleValue: { color: "#171717", fontSize: 18, lineHeight: 24, fontWeight: "700", letterSpacing: -0.5 },
+  cashMetrics: { flexDirection: "row", gap: 10 },
+  cashMetric: { flex: 1, minWidth: 0, borderRadius: 12, backgroundColor: "#f5f5f5", padding: 13, gap: 6 },
+  cashMetricLabel: { color: "#555", fontSize: 11, lineHeight: 16 },
+  cashMetricValue: { color: "#171717", fontSize: 19, lineHeight: 25, fontWeight: "700", letterSpacing: -0.5 },
+  paymentRow: { width: "100%", minHeight: 55, borderBottomWidth: 1, borderBottomColor: "#e5e5e5", paddingVertical: 10, flexDirection: "row", alignItems: "center", gap: 8 },
+  paymentInfo: { flex: 1, minWidth: 0, gap: 3 },
+  paymentAmount: { color: "#171717", fontSize: 12, lineHeight: 17, fontWeight: "600" },
+  markPaid: { minHeight: 30, borderWidth: 1, borderColor: "#ddd", borderRadius: 7, justifyContent: "center", paddingHorizontal: 7 },
+  markPaidText: { color: "#333", fontSize: 10, lineHeight: 14 },
+  savingsNudge: { marginTop: 10, borderWidth: 1, borderColor: "#e5e5e5", borderRadius: 12, padding: 13, gap: 9 },
 });
+

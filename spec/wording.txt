@@ -5829,3 +5829,24 @@ Pilihan tersimpan
 Bills
 ## demo.billsCategory.id
 Tagihan
+
+## demo.latestSpending.en
+Latest spending
+## demo.latestSpending.id
+Pengeluaran terbaru
+## demo.viewAll.en
+View all
+## demo.viewAll.id
+Lihat semua
+## demo.upcoming.en
+Coming up
+## demo.upcoming.id
+Akan datang
+## demo.putSomethingAside.en
+Put something aside
+## demo.putSomethingAside.id
+Sisihkan sebagian
+## demo.captureTab.en
+Capture / record
+## demo.captureTab.id
+Ambil / catat
