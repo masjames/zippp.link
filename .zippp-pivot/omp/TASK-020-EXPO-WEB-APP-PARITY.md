@@ -31,7 +31,7 @@ Do not expose `/app/wa-mock`: its fixture can be appended to a real Sheet. Keep 
 - Home, Capture, Inbox, Sheet setup, Settings, Space/invites, TopUp/QRIS/order, device management, and supported integrations are ported in TASK-023/TASK-024. Authenticated mutations remain unverified until OAuth works; no WA mock or admin route is exposed.
 - TASK-026 ports the available v0.8 screen system into the React Native `/rn/demo` preview. Its illustrative records, browser storage, and JavaScript behavior were not copied; a future owner-provided revision can refine the visual port.
 - The local OAuth callback is `https://susi.tail6078b4.ts.net:39876/api/auth/callback`; Google returns `redirect_uri_mismatch`. Add this exact URI to the standard OAuth web client in Google Cloud Console. The `gcloud iam oauth-clients` API is only for Workforce Identity Federation: https://docs.cloud.google.com/iam/docs/workforce-manage-oauth-app. Do not bypass Google auth.
-- Mac peer `mms-macbook-pro-2` is now active/direct on Tailnet (ping succeeded), but the browser relay is not connected. The UI demo is available at `/rn/demo`; real OAuth still requires adding the exact callback to Cloud Console.
+- Fresh Linux verification confirms signed-out `/rn` displays Google sign-in and `/api/auth/session` returns HTTP 200 with no user. `mms-macbook-pro-2` is active/direct on Tailnet, but the browser relay is not connected and SSH host-key verification is missing; no bypass was used. Authenticated Mac E2E is still unobserved.
 - Native screen behavior, SQLCipher, SecureStore, camera, and Android/iOS binaries remain deferred until web parity is complete.
 
 ## Acceptance
