@@ -68,10 +68,9 @@ export async function resolveGoogleUser(
   client: OAuth2Client,
   accessToken: string
 ): Promise<GoogleUser> {
-  try {
-    const info = await client.getTokenInfo(accessToken);
-    return { id: info.sub || "google-user", email: info.email ?? null };
-  } catch {
-    return { id: "google-user", email: null };
+  const info = await client.getTokenInfo(accessToken).catch(() => null);
+  if (!info?.sub?.trim()) {
+    throw new Error("Google user identity verification failed.");
   }
+  return { id: info.sub, email: info.email ?? null };
 }

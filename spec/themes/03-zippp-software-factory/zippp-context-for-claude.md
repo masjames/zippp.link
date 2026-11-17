@@ -330,6 +330,10 @@ Landing
   -> top up when credits are zero and capture is requested
 ```
 
+Google account identity is the verified OAuth token subject (`sub`). If token
+identity cannot be resolved, sign-in and Sheet connection fail closed; never
+substitute a generic placeholder user ID.
+
 Guard order:
 
 1. loading

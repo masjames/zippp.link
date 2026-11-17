@@ -107,7 +107,13 @@ export async function POST(req: Request) {
       );
     }
 
-    const googleUserId = (await peekGoogleUserId()) || "google-user";
+    const googleUserId = await peekGoogleUserId();
+    if (!googleUserId) {
+      return NextResponse.json(
+        { ok: false, error: "Not signed in with Google." },
+        { status: 401 }
+      );
+    }
 
     // Explicit pick from candidate list (still no paste URL).
     if (typeof body.spreadsheetId === "string" && body.spreadsheetId.trim()) {
