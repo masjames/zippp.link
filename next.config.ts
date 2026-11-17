@@ -4,10 +4,10 @@ import { REGION_COOKIE } from "./src/lib/region";
 
 const nextConfig: NextConfig = {
   allowedDevOrigins:
-    process.env.NODE_ENV === "development" &&
-    process.env.ZIPPP_LOCAL_DUMMY_AUTH === "1" &&
-    process.env.ZIPPP_LOCAL_DUMMY_HOST
-      ? [process.env.ZIPPP_LOCAL_DUMMY_HOST]
+    process.env.NODE_ENV === "development"
+      ? [process.env.ZIPPP_LOCAL_PREVIEW_HOST, process.env.ZIPPP_LOCAL_DUMMY_HOST].filter(
+          (host): host is string => Boolean(host),
+        )
       : [],
   agentRules: false,
   turbopack: {

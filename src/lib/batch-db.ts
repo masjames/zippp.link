@@ -31,6 +31,8 @@ export type BatchItem = {
     status: BatchStatus;
     /** How it was captured; auto captures that are not receipts are dropped. */
     source?: CaptureSource;
+    /** Server scan id, retained for idempotent web append retries. */
+    scanId?: string;
     receipt?: Receipt;
     draft?: Draft;
     debug?: ExtractDebug | null;

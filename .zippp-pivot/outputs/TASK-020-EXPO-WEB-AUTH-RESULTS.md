@@ -23,6 +23,6 @@
 
 ## Remaining UI scope
 
-The existing Expo routes are Home, Capture, and Inbox. Capture and Inbox currently save and preview encrypted local images only. The existing Next.js app also has Snap/review/append, Sheet settings, Space settings, account settings, TopUp/QRIS/order status, device management, and integration panels. These remain to be ported to Expo Web using existing server-side ownership and billing checks. Do not port `/app/wa-mock`; its fixture can be written to a real Sheet.
+- TASK-021 now wires capture, extraction, encrypted review, and explicit append. The remaining Expo parity work is the Sheet/Settings, Space, TopUp/QRIS/order, device, and integration screens; `/app/wa-mock` remains excluded because it can append a fabricated fixture.
 
 No native Android/iOS build, SQLCipher, SecureStore, or camera behavior is claimed. Those checks remain deferred on the owner's Mac.

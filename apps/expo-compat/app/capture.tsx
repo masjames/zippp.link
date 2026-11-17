@@ -11,7 +11,8 @@ import { SignInCard } from "../src/components/AccountActions";
 import { PreviewShell } from "../src/components/PreviewShell";
 import { loadSession, type SessionState } from "../src/home-data";
 import { removeCameraTemp } from "../src/camera-temp";
-import { listDrafts, saveDraft, type NewDraft } from "../src/draft-store";
+import { listDrafts, saveDraft } from "../src/draft-store";
+import { extractDraft } from "../src/receipt-flow";
 
 type OwnerState = SessionState | { kind: "loading" };
 
@@ -91,13 +92,24 @@ export default function CaptureScreen() {
     }
 
     try {
-      await saveDraft({
+      const saved = await saveDraft({
         id: Crypto.randomUUID(),
         ownerId,
         createdAt: Date.now(),
         mimeType,
         imageBytes,
       });
+      if (Platform.OS === "web") {
+        const result = await extractDraft(ownerId, saved.id);
+        if (result.kind === "signedOut") {
+          setOwner({ kind: "signedOut" });
+          return;
+        }
+        if (result.kind !== "ready") {
+          setMessage(copy("app.expoCapture.extractFailed", language));
+          return;
+        }
+      }
       setMessage(copy("app.expoCapture.saved", language));
     } catch {
       setMessage(copy("app.expoCapture.saveFailed", language));

@@ -27,8 +27,8 @@ Do not expose `/app/wa-mock`: its fixture can be appended to a real Sheet. Keep 
 
 ## Known blockers and gaps
 
-- Expo currently has only `/rn`, `/rn/capture`, and `/rn/inbox`; Capture/Inbox save and preview local images but do not run extraction, review, or append.
-- Existing Next.js app routes include Home, Inbox, Snap, Sheet settings, Space settings, Settings, TopUp, QRIS, and order status. These need Expo web counterparts using existing APIs.
+- TASK-021 now wires Expo capture to server extraction, encrypted review persistence, Check, and explicit append. Authenticated Mac E2E remains blocked by OAuth redirect configuration.
+- Home, Capture, and Inbox are in Expo Web. Sheet setup, Settings, Space, TopUp/QRIS/order, device, and integration screens remain to port using existing APIs.
 - The local OAuth callback is set to `https://susi.tail6078b4.ts.net:39876/api/auth/callback`; Google currently returns `redirect_uri_mismatch`. Add this exact URI to the configured Google OAuth web client before a Mac browser can complete sign-in. Do not bypass Google auth.
 - HTTPS uses a temporary self-signed certificate; Mac browser access may require accepting its warning. Tailscale currently shows the Mac intermittently offline.
 - Native screen behavior, SQLCipher, SecureStore, camera, and Android/iOS binaries remain deferred until web parity is complete.

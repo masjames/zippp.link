@@ -18,22 +18,6 @@ export function SignInCard({ language }: { language: AppLanguage }) {
   );
 }
 
-export function LegacyInboxCard({ language }: { language: AppLanguage }) {
-  return (
-    <View style={styles.card}>
-      <Text style={styles.body}>{copy("app.expoPreview.legacyInbox", language)}</Text>
-      <Pressable
-        accessibilityRole="link"
-        style={styles.primary}
-        onPress={() => {
-          if (Platform.OS === "web") window.location.assign("/app/inbox");
-        }}
-      >
-        <Text style={styles.primaryText}>{copy("app.inbox.open", language)}</Text>
-      </Pressable>
-    </View>
-  );
-}
 
 const styles = StyleSheet.create({
   card: { gap: 16, borderRadius: 16, backgroundColor: "#ffffff", padding: 20 },

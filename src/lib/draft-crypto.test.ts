@@ -10,6 +10,7 @@ import {
 
 const item: BatchItem = {
     id: "synthetic-receipt-id",
+    scanId: "server-issued-scan-id",
     ownerId: "synthetic-account-a",
     createdAt: 1_765_000_000_000,
     blob: new Blob(["synthetic image bytes"], { type: "image/jpeg" }),
@@ -80,6 +81,7 @@ test("encrypted drafts keep payload fields opaque and roundtrip through AES-GCM"
     assert.equal(restored.blob.type, item.blob.type);
     assert.equal(restored.thumb, item.thumb);
     assert.equal(restored.status, item.status);
+    assert.equal(restored.scanId, item.scanId);
     assert.deepEqual(restored.receipt, item.receipt);
     assert.deepEqual(restored.draft, item.draft);
     assert.equal(restored.error, item.error);

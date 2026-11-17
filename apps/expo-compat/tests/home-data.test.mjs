@@ -15,14 +15,14 @@ const summary = {
   latest: [],
 };
 
-test("local preview stops after the server-owned session check", async () => {
+test("a server local-preview identity is treated as signed out", async () => {
   const requests = [];
   const state = await loadHomeData(async (url) => {
     requests.push(url);
     return response(200, { signedIn: true, userId: "local-preview-user", localPreview: true });
   }, "Asia/Jakarta");
 
-  assert.deepEqual(state, { kind: "localPreview", userId: "local-preview-user" });
+  assert.deepEqual(state, { kind: "signedOut" });
   assert.deepEqual(requests, ["/api/auth/session"]);
 });
 

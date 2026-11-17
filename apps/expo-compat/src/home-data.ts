@@ -46,7 +46,8 @@ export async function loadSession(fetcher: Fetcher, signal?: AbortSignal): Promi
     if (!response.ok) return { kind: "error" };
     const session = await response.json() as SessionPayload;
     if (session.localPreview) {
-      return session.userId ? { kind: "localPreview", userId: session.userId } : { kind: "error" };
+      // Never let a development-only synthetic identity enter the Expo web app.
+      return { kind: "signedOut" };
     }
     if (!session.signedIn) return { kind: "signedOut" };
     if (!session.userId) return { kind: "error" };
