@@ -1,6 +1,6 @@
 # ZIPPP Pivot Execution State
 
-- **Date:** 2026-11-16
+- **Date:** 2026-11-17
 - **Phase:** M3 Expo capture and encrypted Inbox. TASK-019 web slice is verified; native Mac/device proof remains pending.
 - **Status:** TASK-019 web capture, AES-GCM drafts, Inbox reload, and image preview verified. Expo Doctor (20/20), TypeScript, prebuild config, dependency check, and Android/iOS JS bundle exports pass; 17 encrypted-storage tests, root typecheck, and build pass. Native compilation remains pending.
 - **Canonical baseline:** `v2` at `9799859786d238c3796910cbacbe01cb62d51d78` (owner confirmed).
@@ -17,7 +17,7 @@
 - **TASK-014:** dummy preview opens Home, navigates Home/Inbox, and shows truthful empty states with capture disabled. Evidence: `.zippp-pivot/outputs/TASK-014-USABLE-DUMMY-PREVIEW-RESULTS.md`.
 - **Active task:** `.zippp-pivot/omp/TASK-019-EXPO-ENCRYPTED-DRAFTS.md` — web slice verified; native compilation, SQLCipher/key-store, and camera behavior still need Mac verification.
 - **Target:** Owner authorized parallel Expo/React Native development for Android, iOS, and web; keep Next.js/Kotlin until parity. Production release and client retirement remain unauthorized.
-- **Other limits:** No real Google account, Sheet, Drive, billing, Preview, or Production calls. Native SQLCipher, key-store, camera, and iOS/Android verification remain on the owner's Mac, which is currently offline on Tailscale.
+- **Other limits:** No real Google account, Sheet, Drive, billing, Preview, or Production calls. The Mac is now online on Tailscale, but `tailscale ssh` to it is refused on port 22 and the browser relay is disconnected, so native checks still lack a remote shell.
 - **Dummy preview:** `https://susi.tail6078b4.ts.net:39876/` redirects to Home; `/app/inbox` is available. Expo web preview: `/rn`, `/rn/capture`, and `/rn/inbox`. Development-only user `local-preview-user`; all non-auth API actions are disabled.
 - **Transport:** Temporary self-signed certificate. The Tailnet browser verified the preview; direct Mac browser trust/access is unverified and may require a certificate-warning bypass.
 - **Security limitation:** Dummy identity is never server-authenticated. Web drafts are AES-GCM ciphertext under a non-extractable same-origin key; same-origin JavaScript can still request decryption. This is not end-to-end encryption or XSS protection. Key loss may make ciphertext unrecoverable.

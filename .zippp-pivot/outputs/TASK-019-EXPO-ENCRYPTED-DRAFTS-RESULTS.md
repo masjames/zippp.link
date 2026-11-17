@@ -27,6 +27,7 @@
 | Tailnet browser, 390×844 | Synthetic 96×96 PNG selected; visible saved confirmation; Inbox item survived page reload; image preview decoded at 96×96; no browser errors |
 | Network during dummy capture/Inbox | Only `GET /api/auth/session`; no OCR, upload, Sheets, Drive, or mutation request |
 | Test data cleanup | Removed the synthetic dummy-owner draft from the isolated browser profile |
-| Native SQLCipher, SecureStore, camera, Android/iOS build/device checks | Not run; requires the owner's Mac and device |
+| Native SQLCipher, SecureStore, camera, Android/iOS build/device checks | Not run. Mac is online on Tailscale, but SSH connection to port 22 is refused and the browser relay is disconnected; no remote shell is available. |
+| Mac access attempt | `tailscale status` shows the Mac active; `tailscale ssh` returned `connect: connection refused`; browser relay reported no extension connection. |
 
 No real Google account, Sheet, Drive, billing, Preview, or Production service was accessed. The development preview uses a temporary self-signed certificate. Direct Mac browser trust/access has not been verified.
