@@ -5256,3 +5256,576 @@ Akun yang sedang masuk tidak dapat diverifikasi. Resi lokal disembunyikan demi k
 Reload
 ## app.session.reload.id
 Muat ulang
+## demo.welcome.en
+Welcome
+## demo.welcome.id
+Selamat datang
+## demo.setup.en
+Initial setup
+## demo.setup.id
+Persiapan awal
+## demo.home.en
+Home
+## demo.home.id
+Beranda
+## demo.expense.en
+Add expense
+## demo.expense.id
+Tambah pengeluaran
+## demo.receipt.en
+Capture receipt
+## demo.receipt.id
+Ambil struk
+## demo.inbox.en
+Receipt inbox
+## demo.inbox.id
+Kotak masuk struk
+## demo.review.en
+Review receipt
+## demo.review.id
+Tinjau struk
+## demo.income.en
+Record income
+## demo.income.id
+Catat pemasukan
+## demo.activity.en
+Activity
+## demo.activity.id
+Aktivitas
+## demo.transaction.en
+Transaction details
+## demo.transaction.id
+Detail transaksi
+## demo.spending.en
+Spending details
+## demo.spending.id
+Detail pengeluaran
+## demo.accounts.en
+Accounts & balances
+## demo.accounts.id
+Akun & saldo
+## demo.cashflow.en
+Cash flow
+## demo.cashflow.id
+Arus kas
+## demo.payment.en
+Payment details
+## demo.payment.id
+Detail pembayaran
+## demo.goal.en
+Savings goal
+## demo.goal.id
+Target tabungan
+## demo.coaching.en
+Coaching
+## demo.coaching.id
+Panduan
+## demo.settings.en
+Settings
+## demo.settings.id
+Pengaturan
+## demo.wellbeing.en
+Well-being check-in
+## demo.wellbeing.id
+Cek kondisi keuangan
+## demo.badge.en
+DEMO ONLY
+## demo.badge.id
+KHUSUS DEMO
+## demo.notice.en
+Isolated demo data only. Nothing is saved or sent; receipt capture is simulated.
+## demo.notice.id
+Hanya data demo terpisah. Tidak ada yang disimpan atau dikirim; pengambilan struk hanya simulasi.
+## demo.promise.en
+See your money clearly, without the work of budgeting.
+## demo.promise.id
+Lihat kondisi uangmu dengan jelas, tanpa repot membuat anggaran.
+## demo.welcomeBody.en
+Explore a complete money experience with sample data.
+## demo.welcomeBody.id
+Jelajahi pengalaman keuangan lengkap dengan data contoh.
+## demo.start.en
+Set up demo
+## demo.start.id
+Mulai demo
+## demo.openHome.en
+Skip to home
+## demo.openHome.id
+Lewati ke beranda
+## demo.setupBody.en
+Your sample accounts are ready. No real account is connected.
+## demo.setupBody.id
+Akun contoh sudah tersedia. Tidak ada akun sungguhan yang terhubung.
+## demo.everyday.en
+Everyday account
+## demo.everyday.id
+Akun harian
+## demo.finishSetup.en
+Continue to home
+## demo.finishSetup.id
+Lanjut ke beranda
+## demo.todaySpend.en
+Spent today
+## demo.todaySpend.id
+Pengeluaran hari ini
+
+## demo.spendingTotal.en
+Total spending
+## demo.spendingTotal.id
+Total pengeluaran
+## demo.weekSpend.en
+This week
+## demo.weekSpend.id
+Minggu ini
+## demo.balance.en
+Everyday balance
+## demo.balance.id
+Saldo harian
+## demo.addExpense.en
+Add an expense
+## demo.addExpense.id
+Tambah pengeluaran
+## demo.recordIncome.en
+Record income
+## demo.recordIncome.id
+Catat pemasukan
+## demo.latestActivity.en
+View activity
+## demo.latestActivity.id
+Lihat aktivitas
+## demo.amount.en
+Amount
+## demo.amount.id
+Jumlah
+## demo.description.en
+Description
+## demo.description.id
+Deskripsi
+## demo.lunch.en
+Lunch
+## demo.lunch.id
+Makan siang
+## demo.account.en
+Account
+## demo.account.id
+Akun
+## demo.saveExpense.en
+Save expense
+## demo.saveExpense.id
+Simpan pengeluaran
+## demo.captureBody.en
+Capture a sample receipt to add it to your review inbox.
+## demo.captureBody.id
+Ambil struk contoh untuk menambahkannya ke kotak masuk tinjauan.
+## demo.paperReceipt.en
+Sample receipt · simulated reading
+## demo.paperReceipt.id
+Struk contoh · pembacaan simulasi
+## demo.simulateCapture.en
+Simulate receipt capture
+## demo.simulateCapture.id
+Simulasikan pengambilan struk
+## demo.manualExpense.en
+Enter an expense instead
+## demo.manualExpense.id
+Masukkan pengeluaran
+## demo.pending.en
+Needs review
+## demo.pending.id
+Perlu ditinjau
+## demo.reviewReceipt.en
+Review receipt
+## demo.reviewReceipt.id
+Tinjau struk
+## demo.captureAnother.en
+Capture another
+## demo.captureAnother.id
+Ambil struk lain
+## demo.merchant.en
+Merchant
+## demo.merchant.id
+Merchant
+## demo.date.en
+Date
+## demo.date.id
+Tanggal
+## demo.category.en
+Category
+## demo.category.id
+Kategori
+## demo.shopping.en
+Shopping
+## demo.shopping.id
+Belanja
+## demo.approveReceipt.en
+Approve as expense
+## demo.approveReceipt.id
+Setujui sebagai pengeluaran
+## demo.saveNext.en
+Save & next
+## demo.saveNext.id
+Simpan & lanjut
+## demo.noReceipt.en
+No pending receipt
+## demo.noReceipt.id
+Tidak ada struk tertunda
+## demo.allReviewed.en
+Your sample inbox is clear.
+## demo.allReviewed.id
+Kotak masuk contoh sudah kosong.
+## demo.backInbox.en
+Back to inbox
+## demo.backInbox.id
+Kembali ke kotak masuk
+## demo.freelance.en
+Freelance work
+## demo.freelance.id
+Pekerjaan lepas
+## demo.saveIncome.en
+Save income
+## demo.saveIncome.id
+Simpan pemasukan
+## demo.transactionDetails.en
+Open transaction details
+## demo.transactionDetails.id
+Buka detail transaksi
+## demo.undoTransaction.en
+Undo transaction
+## demo.undoTransaction.id
+Batalkan transaksi
+## demo.topCategory.en
+Top category
+## demo.topCategory.id
+Kategori teratas
+## demo.food.en
+Food
+## demo.food.id
+Makanan
+## demo.viewTransactions.en
+View transactions
+## demo.viewTransactions.id
+Lihat transaksi
+## demo.wallet.en
+Cash wallet
+## demo.wallet.id
+Dompet tunai
+## demo.rainy.en
+Rainy day
+## demo.rainy.id
+Dana darurat
+## demo.showSavings.en
+Show savings
+## demo.showSavings.id
+Tampilkan tabungan
+## demo.cycleStart.en
+Cycle starts on day
+## demo.cycleStart.id
+Siklus dimulai pada tanggal
+## demo.changeCycle.en
+Change cycle start
+## demo.changeCycle.id
+Ubah awal siklus
+## demo.moneyIn.en
+Money in
+## demo.moneyIn.id
+Uang masuk
+## demo.moneyOut.en
+Money out
+## demo.moneyOut.id
+Uang keluar
+## demo.addPayment.en
+Add a bill or invoice
+## demo.addPayment.id
+Tambah tagihan atau faktur
+## demo.paymentName.en
+Payment
+## demo.paymentName.id
+Pembayaran
+## demo.waterBill.en
+Water bill
+## demo.waterBill.id
+Tagihan air
+## demo.paymentDate.en
+Due date
+## demo.paymentDate.id
+Jatuh tempo
+## demo.decemberSecond.en
+December 2
+## demo.decemberSecond.id
+2 Desember
+## demo.reminder.en
+Reminder
+## demo.reminder.id
+Pengingat
+## demo.on.en
+On
+## demo.on.id
+Aktif
+## demo.savePayment.en
+Save payment reminder
+## demo.savePayment.id
+Simpan pengingat pembayaran
+## demo.saved.en
+Saved
+## demo.saved.id
+Terkumpul
+## demo.target.en
+Target
+## demo.target.id
+Target
+## demo.transferNote.en
+Separate savings account
+## demo.transferNote.id
+Akun tabungan terpisah
+## demo.transferExplainer.en
+Moving money is an internal transfer, not an expense.
+## demo.transferExplainer.id
+Memindahkan uang adalah transfer internal, bukan pengeluaran.
+## demo.moveMoney.en
+Move sample money to savings
+## demo.moveMoney.id
+Pindahkan uang contoh ke tabungan
+## demo.viewAccounts.en
+View accounts
+## demo.viewAccounts.id
+Lihat akun
+## demo.optionalTip.en
+Optional suggestion
+## demo.optionalTip.id
+Saran opsional
+## demo.coachingPrompt.en
+You have room to make a little progress toward your savings goal.
+## demo.coachingPrompt.id
+Kamu bisa mulai menyisihkan sedikit untuk target tabunganmu.
+## demo.helpful.en
+Helpful
+## demo.helpful.id
+Bermanfaat
+## demo.skip.en
+Skip for now
+## demo.skip.id
+Lewati dulu
+## demo.notifications.en
+Notifications
+## demo.notifications.id
+Notifikasi
+## demo.off.en
+Off
+## demo.off.id
+Nonaktif
+## demo.toggleNotifications.en
+Toggle notifications
+## demo.toggleNotifications.id
+Ubah pengaturan notifikasi
+## demo.toggleCoaching.en
+Toggle coaching
+## demo.toggleCoaching.id
+Ubah pengaturan panduan
+## demo.language.en
+Language
+## demo.language.id
+Bahasa
+## demo.english.en
+English
+## demo.english.id
+Bahasa Inggris
+## demo.indonesian.en
+Indonesian
+## demo.indonesian.id
+Bahasa Indonesia
+## demo.switchLanguage.en
+Switch language
+## demo.switchLanguage.id
+Ganti bahasa
+## demo.reset.en
+Reset demo data
+## demo.reset.id
+Atur ulang data demo
+## demo.checkinPrompt.en
+Optional reflection
+## demo.checkinPrompt.id
+Refleksi opsional
+## demo.checkinQuestion.en
+How are you feeling about your money this week?
+## demo.checkinQuestion.id
+Bagaimana perasaanmu tentang kondisi keuangan minggu ini?
+## demo.answerSteady.en
+Steady enough
+## demo.answerSteady.id
+Cukup terkendali
+## demo.answerConcern.en
+A little concerned
+## demo.answerConcern.id
+Sedikit khawatir
+## demo.savedReflection.en
+Reflection saved
+## demo.savedReflection.id
+Refleksi tersimpan
+## demo.recordedInMemory.en
+This response stays in memory for this demo only. No score is calculated.
+## demo.recordedInMemory.id
+Jawaban ini hanya tersimpan di memori selama demo. Tidak ada skor yang dihitung.
+## demo.done.en
+Done
+## demo.done.id
+Selesai
+## demo.screenCount.en
+18 screens · choose any screen to explore
+## demo.screenCount.id
+18 layar · pilih layar untuk dijelajahi
+## demo.groceries.en
+Groceries
+## demo.groceries.id
+Belanja bahan makanan
+## demo.coffee.en
+Coffee
+## demo.coffee.id
+Kopi
+## demo.salary.en
+Salary
+## demo.salary.id
+Gaji
+## demo.incomeCategory.en
+Income
+## demo.incomeCategory.id
+Pemasukan
+## demo.cornerMarket.en
+Corner Market
+## demo.cornerMarket.id
+Pasar Sudut
+## demo.marketReceipt.en
+Market receipt
+## demo.marketReceipt.id
+Struk pasar
+## demo.internet.en
+Internet
+## demo.internet.id
+Internet
+## demo.weekendTrip.en
+Weekend trip
+## demo.weekendTrip.id
+Liburan akhir pekan
+## demo.brand.en
+zippp.
+## demo.brand.id
+zippp.
+## demo.today.en
+Today
+## demo.today.id
+Hari ini
+## demo.yesterday.en
+Yesterday
+## demo.yesterday.id
+Kemarin
+## demo.nov24.en
+November 24
+## demo.nov24.id
+24 November
+## demo.accountName.en
+Account name
+## demo.accountName.id
+Nama akun
+## demo.openingBalance.en
+Opening balance
+## demo.openingBalance.id
+Saldo awal
+## demo.accountType.en
+Account type
+## demo.accountType.id
+Jenis akun
+## demo.bank.en
+Bank
+## demo.bank.id
+Bank
+## demo.cash.en
+Cash
+## demo.cash.id
+Tunai
+## demo.savings.en
+Savings
+## demo.savings.id
+Tabungan
+## demo.addAccount.en
+Add account
+## demo.addAccount.id
+Tambah akun
+## demo.search.en
+Search activity
+## demo.search.id
+Cari aktivitas
+## demo.filter.all.en
+All
+## demo.filter.all.id
+Semua
+## demo.filter.expense.en
+Expenses
+## demo.filter.expense.id
+Pengeluaran
+## demo.filter.income.en
+Income
+## demo.filter.income.id
+Pemasukan
+## demo.noMatches.en
+No matching transactions.
+## demo.noMatches.id
+Tidak ada transaksi yang cocok.
+## demo.noTransaction.en
+No transaction selected
+## demo.noTransaction.id
+Belum ada transaksi yang dipilih
+## demo.saveChanges.en
+Save changes
+## demo.saveChanges.id
+Simpan perubahan
+## demo.hideSavings.en
+Hide savings
+## demo.hideSavings.id
+Sembunyikan tabungan
+## demo.transfer.en
+Transfer between accounts
+## demo.transfer.id
+Transfer antar akun
+## demo.transferFrom.en
+From account
+## demo.transferFrom.id
+Dari akun
+## demo.transferTo.en
+To account
+## demo.transferTo.id
+Ke akun
+## demo.saveCycle.en
+Save cycle start
+## demo.saveCycle.id
+Simpan awal siklus
+## demo.paid.en
+Paid
+## demo.paid.id
+Dibayar
+## demo.markPaid.en
+Mark paid
+## demo.markPaid.id
+Tandai dibayar
+## demo.recurring.en
+Repeat monthly
+## demo.recurring.id
+Ulangi setiap bulan
+## demo.goalName.en
+Goal name
+## demo.goalName.id
+Nama target
+## demo.contribution.en
+Amount to move
+## demo.contribution.id
+Jumlah yang dipindahkan
+## demo.saveGoal.en
+Save goal
+## demo.saveGoal.id
+Simpan target
+## demo.choiceSaved.en
+Choice saved
+## demo.choiceSaved.id
+Pilihan tersimpan
+## demo.billsCategory.en
+Bills
+## demo.billsCategory.id
+Tagihan

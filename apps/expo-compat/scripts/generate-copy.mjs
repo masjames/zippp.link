@@ -13,7 +13,7 @@ for (const block of readFileSync(source, "utf8").split(/^## /m).slice(1)) {
   const newline = block.indexOf("\n");
   if (newline === -1) continue;
   const key = block.slice(0, newline).trim();
-  if (!key.startsWith("app.")) continue;
+  if (!key.startsWith("app.") && !key.startsWith("demo.")) continue;
   wording[key] = block.slice(newline + 1).trim();
 }
 

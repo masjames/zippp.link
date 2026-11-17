@@ -25,6 +25,7 @@ const nextConfig: NextConfig = {
     return {
       beforeFiles: [
         { source: "/rn", destination: "/rn/index.html" },
+        { source: "/rn/demo", destination: "/rn/demo.html" },
         { source: "/rn/inbox", destination: "/rn/inbox.html" },
         { source: "/rn/capture", destination: "/rn/capture.html" },
         { source: "/rn/sheet", destination: "/rn/sheet.html" },
