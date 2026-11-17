@@ -16,6 +16,7 @@
 | Session API | `GET /api/auth/session`: HTTP 200, `{ signedIn: false, userId: null }`; no dummy identity |
 | Login initiation | HTTP 307 to Google OAuth; no account credentials submitted |
 | Google redirect URI | Google returned `redirect_uri_mismatch` for the Tailnet callback; that exact URI must be authorized in the Google OAuth web client before login can complete from the Mac |
+| Cloud Console access | `https://console.cloud.google.com/apis/credentials` requires Google sign-in in the managed browser; no credentials were submitted and no OAuth client was changed |
 | Local app server | Next.js dev server is ready on `https://susi.tail6078b4.ts.net:39876`; Expo web is mounted at `/rn` |
 | Mac Tailnet access | `mms-macbook-pro-2` is active/direct, but the browser relay is not connected. A read-only SSH probe was refused because its host key is unknown under strict checking; no bypass was used. Mac browser and authenticated flow remain unobserved |
 | TLS | Current certificate is self-signed. `tailscale cert` was denied to this Linux user; no privilege escalation was attempted |
