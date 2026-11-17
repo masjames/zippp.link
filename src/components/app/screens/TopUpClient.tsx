@@ -5,16 +5,16 @@ import { useRouter } from "next/navigation";
 import PhoneShell from "../PhoneShell";
 import { useApp } from "../AppProvider";
 import { fill } from "@/lib/t";
-import type { PaddleConfig } from "@/lib/billing/paddle";
-import { IDR_TOPUP_PRESETS as PRESETS } from "@/lib/billing/config";
+import type { PaddleClientConfig } from "@/lib/billing/paddle";
 
 type Props = {
     region: "id" | "intl";
-    paddle: PaddleConfig & { configured: boolean };
+    paddle: PaddleClientConfig & { configured: boolean };
     /** Manual GoPay is configured (Indonesia). */
     gopay: boolean;
     /** Kasera QRIS is configured (Indonesia). */
     qris: boolean;
+    presets: number[];
     minIdr: number;
     maxIdr: number;
     /** The open invite belongs to another email. */
@@ -27,6 +27,7 @@ export default function TopUpClient({
     paddle,
     gopay,
     qris,
+    presets,
     minIdr,
     maxIdr,
     inviteMismatch,
@@ -34,9 +35,9 @@ export default function TopUpClient({
 }: Props) {
     const { t, auth } = useApp();
     const router = useRouter();
-    const presets = minIdr < PRESETS[0] ? [minIdr, ...PRESETS] : PRESETS;
+    const availablePresets = minIdr < presets[0] ? [minIdr, ...presets] : presets;
     const [amount, setAmount] = useState(
-        minIdr < PRESETS[0] ? minIdr : PRESETS[1]
+        minIdr < presets[0] ? minIdr : presets[1]
     );
     const [error, setError] = useState<string | null>(null);
     const [busy, setBusy] = useState(false);
@@ -135,7 +136,7 @@ export default function TopUpClient({
                             : t("app.topup.gopay.methods")}
                     </p>
                     <div className="grid grid-cols-2 gap-2">
-                        {presets.map((p) => (
+                        {availablePresets.map((p) => (
                             <button
                                 key={p}
                                 type="button"

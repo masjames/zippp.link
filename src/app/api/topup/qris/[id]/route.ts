@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { currentUser } from "@/lib/auth";
 import { refreshKaseraOrder } from "@/lib/billing/kasera";
+import { IDR_PER_CREDIT } from "@/lib/billing/config";
 
 export const runtime = "nodejs";
 
@@ -23,6 +24,7 @@ export async function GET(
         order: {
             id: order.orderId,
             amount: order.amount,
+            credits: Math.floor(order.amount / IDR_PER_CREDIT),
             status: order.status,
             expiresAt: order.expiresAt,
             checkoutUrl: order.checkoutUrl,

@@ -4,11 +4,12 @@ import TopUpClient from "@/components/app/screens/TopUpClient";
 import {
     gopayConfigured,
     IDR_PER_CREDIT,
+    IDR_TOPUP_PRESETS,
     MAX_TOPUP_IDR,
     MIN_TOPUP_IDR,
 } from "@/lib/billing/config";
 import { kaseraConfigured } from "@/lib/billing/kasera";
-import { paddleConfig, paddleConfigured } from "@/lib/billing/paddle";
+import { paddleClientConfig, paddleConfig, paddleConfigured } from "@/lib/billing/paddle";
 import { billingConfigured } from "@/lib/billing/redis";
 import {
     claimInvite,
@@ -21,7 +22,11 @@ import { getLocale } from "@/lib/server-locale";
 
 export default async function TopUpPage() {
     const { region } = await getLocale();
-    const paddle = { ...paddleConfig(), configured: paddleConfigured() };
+    const paddleConfigValue = paddleConfig();
+    const paddle = {
+        ...paddleClientConfig(paddleConfigValue),
+        configured: paddleConfigured() && billingConfigured(),
+    };
 
     let invite: Invite | null = null;
     let inviteMismatch: string | null = null;
@@ -63,8 +68,9 @@ export default async function TopUpPage() {
             <TopUpClient
                 region={region}
                 paddle={paddle}
-                gopay={gopayConfigured()}
-                qris={kaseraConfigured()}
+                gopay={gopayConfigured() && billingConfigured()}
+                qris={kaseraConfigured() && billingConfigured()}
+                presets={IDR_TOPUP_PRESETS}
                 minIdr={minIdr}
                 maxIdr={MAX_TOPUP_IDR}
                 inviteMismatch={inviteMismatch}

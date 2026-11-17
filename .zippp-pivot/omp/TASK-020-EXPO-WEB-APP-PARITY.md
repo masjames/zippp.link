@@ -1,6 +1,6 @@
 # TASK-020 — Authenticated Expo web app parity
 
-**Status:** In progress. Home, Inbox, receipt flow, Sheet setup, and account Settings are in Expo Web. Remaining Space/payment screens and Google callback registration block complete authenticated Mac parity. Native Android/iOS work is deferred at the owner's request.
+**Status:** In progress. Home, Inbox, receipt flow, Sheet setup, Settings, Space/invites, and TopUp/QRIS/order are in Expo Web. All screens remain real-auth gated; authenticated Mac parity is blocked on Google callback registration and Mac verification. Native Android/iOS work is deferred at the owner's request.
 
 ## Goal
 
@@ -28,9 +28,9 @@ Do not expose `/app/wa-mock`: its fixture can be appended to a real Sheet. Keep 
 ## Known blockers and gaps
 
 - TASK-021 now wires Expo capture to server extraction, encrypted review persistence, Check, and explicit append. Authenticated Mac E2E remains blocked by OAuth redirect configuration.
-- Home, Capture, Inbox, Sheet setup, and account Settings are in Expo Web (TASK-023). Space settings and TopUp/QRIS/order remain. Device management and integrations are included in Settings; authenticated actions remain unverified until Google OAuth works.
+- Home, Capture, Inbox, Sheet setup, Settings, Space/invites, TopUp/QRIS/order, device management, and supported integrations are ported in TASK-023/TASK-024. Authenticated mutations remain unverified until OAuth works; no WA mock or admin route is exposed.
 - The local OAuth callback is set to `https://susi.tail6078b4.ts.net:39876/api/auth/callback`; Google currently returns `redirect_uri_mismatch`. Add this exact URI to the configured Google OAuth web client before a Mac browser can complete sign-in. Do not bypass Google auth.
-- HTTPS uses a temporary self-signed certificate; Mac browser access may require accepting its warning. Tailscale currently shows the Mac intermittently offline.
+- Direct Mac check remains blocked: Tailscale reports `mms-macbook-pro-2` offline, last seen about one hour ago; the browser relay extension is not connected. Funnel serves a different local port (8788), not the Expo preview on 39876.
 - Native screen behavior, SQLCipher, SecureStore, camera, and Android/iOS binaries remain deferred until web parity is complete.
 
 ## Acceptance

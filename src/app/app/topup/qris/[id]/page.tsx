@@ -4,12 +4,12 @@ import { useCallback, useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import PhoneShell from "@/components/app/PhoneShell";
 import { useApp } from "@/components/app/AppProvider";
-import { IDR_PER_CREDIT } from "@/lib/billing/config";
 import { fill } from "@/lib/t";
 
 type Order = {
     id: string;
     amount: number;
+    credits: number;
     status: "pending" | "succeeded" | "failed" | "expired" | "canceled";
     expiresAt: number;
     checkoutUrl: string;
@@ -44,7 +44,7 @@ export default function QrisOrderPage() {
         if (order?.status === "succeeded") void refreshBalance();
     }, [order?.status, refreshBalance]);
 
-    const credits = order ? Math.floor(order.amount / IDR_PER_CREDIT) : 0;
+    const credits = order?.credits ?? 0;
     const settled = order?.status === "succeeded";
     const dead =
         order?.status === "expired" ||

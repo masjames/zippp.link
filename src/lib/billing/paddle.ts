@@ -21,6 +21,21 @@ export function paddleConfig(): PaddleConfig {
         usd: Number(process.env.PADDLE_PACK_USD || 9),
     };
 }
+export type PaddleClientConfig = Pick<
+    PaddleConfig,
+    "clientToken" | "priceId" | "env" | "credits" | "usd"
+>;
+
+/** Whitelist the values needed by browser checkout; API credentials stay server-side. */
+export function paddleClientConfig(config: PaddleConfig): PaddleClientConfig {
+    return {
+        clientToken: config.clientToken,
+        priceId: config.priceId,
+        env: config.env,
+        credits: config.credits,
+        usd: config.usd,
+    };
+}
 
 export function paddleConfigured(): boolean {
     const c = paddleConfig();

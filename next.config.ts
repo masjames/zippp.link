@@ -29,6 +29,11 @@ const nextConfig: NextConfig = {
         { source: "/rn/capture", destination: "/rn/capture.html" },
         { source: "/rn/sheet", destination: "/rn/sheet.html" },
         { source: "/rn/settings", destination: "/rn/settings.html" },
+        { source: "/rn/join", destination: "/rn/join.html" },
+        { source: "/rn/space", destination: "/rn/space.html" },
+        { source: "/rn/topup", destination: "/rn/topup.html" },
+        { source: "/rn/topup/qris/:id", destination: "/rn/topup/qris/[id].html" },
+        { source: "/rn/topup/order/:id", destination: "/rn/topup/order/[id].html" },
       ],
     };
   },
@@ -43,6 +48,8 @@ const nextConfig: NextConfig = {
         destination: "/id",
         permanent: false,
       },
+      { source: "/join", destination: "/rn/join", permanent: false },
+      { source: "/app/topup/qris/:id", destination: "/rn/topup/qris/:id", permanent: false },
     ];
   },
 };

@@ -304,6 +304,13 @@ web-only. Android shows plan status / usage only — never sells.
 - `billingConfigured()` requires Upstash REST. Without it, credits are not
   enforced (Production must use Upstash).
 
+- Expo Web top-up reads authenticated `/api/topup/config` for region, method
+  availability, invite-aware limits, presets, and public Paddle checkout fields
+  only (`clientToken`, `priceId`, `env`, credits, USD). Never send Paddle
+  `apiKey` or `planPriceId` to a browser. Order creation and payment checkout
+  remain explicit user actions; server endpoints retain billing and ownership
+  checks. QRIS status responses include server-calculated credit totals.
+
 ### 4.8 Rev 2 web UI targets (partially shipped)
 
 - Header credit pill on `/app` (`⚡ N`); Accept label `Accept · 1 credit`.
